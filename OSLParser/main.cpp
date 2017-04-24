@@ -50,7 +50,7 @@ bool tokenize(const std::vector<uint8_t>& buffer, std::vector<Token>& tokens)
 
             bool dot = false;
 
-            while (c >= '0' && c <= '9')
+            while ((c >= '0' && c <= '9') || c == '.')
             {
                 if (c == '.')
                 {
