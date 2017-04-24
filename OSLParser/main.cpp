@@ -27,34 +27,9 @@ struct Token
     std::string value;
 };
 
-int main(int argc, const char * argv[])
+bool tokenize(const std::vector<uint8_t>& buffer, std::vector<Token>& tokens)
 {
-    if (argc < 2)
-    {
-        std::cerr << "Too few arguments" << std::endl;
-        return EXIT_FAILURE;
-    }
-
-    std::vector<uint8_t> buffer;
-
-    FILE* file = fopen(argv[1], "rb");
-
-    if (!file)
-    {
-        std::cerr << "Failed to open file" << std::endl;
-        return EXIT_FAILURE;
-    }
-
-    fseek(file, 0, SEEK_END);
-    long size = ftell(file);
-    fseek(file, 0, SEEK_SET);
-    buffer.resize(size);
-    fread(&buffer[0], size, 1, file);
-    fclose(file);
-
-    std::vector<Token> tokens;
-
-    for (std::vector<uint8_t>::iterator i = buffer.begin(); i != buffer.end(); ++i)
+    for (std::vector<uint8_t>::const_iterator i = buffer.begin(); i != buffer.end(); ++i)
     {
         char c = static_cast<char>(*i);
 
@@ -82,7 +57,7 @@ int main(int argc, const char * argv[])
                     if (dot)
                     {
                         std::cerr << "Invalid number" << std::endl;
-                        return EXIT_FAILURE;
+                        return false;
                     }
                     else
                     {
@@ -183,6 +158,46 @@ int main(int argc, const char * argv[])
             return EXIT_FAILURE;
         }
 
+        tokens.push_back(token);
+    }
+
+    return true;
+}
+
+int main(int argc, const char * argv[])
+{
+    if (argc < 2)
+    {
+        std::cerr << "Too few arguments" << std::endl;
+        return EXIT_FAILURE;
+    }
+
+    std::vector<uint8_t> buffer;
+
+    FILE* file = fopen(argv[1], "rb");
+
+    if (!file)
+    {
+        std::cerr << "Failed to open file" << std::endl;
+        return EXIT_FAILURE;
+    }
+
+    fseek(file, 0, SEEK_END);
+    long size = ftell(file);
+    fseek(file, 0, SEEK_SET);
+    buffer.resize(size);
+    fread(&buffer[0], size, 1, file);
+    fclose(file);
+
+    std::vector<Token> tokens;
+
+    if (!tokenize(buffer, tokens))
+    {
+        return EXIT_FAILURE;
+    }
+
+    for (const Token& token : tokens)
+    {
         std::cout << "Token, type: ";
 
         switch (token.type)
@@ -197,8 +212,6 @@ int main(int argc, const char * argv[])
         }
 
         std::cout << ", value: " << token.value << std::endl;
-
-        tokens.push_back(token);
     }
 
     return EXIT_SUCCESS;
