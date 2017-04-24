@@ -166,7 +166,20 @@ int main(int argc, const char * argv[])
                  c == '!' || c == '.')
         {
             token.type = Token::Type::OPERATOR;
-            token.value.push_back(c);
+
+            while (c == '+' || c == '-' ||
+                   c == '*' || c == '/' ||
+                   c == '%' || c == '=' ||
+                   c == '&' || c == '|' ||
+                   c == '<' || c == '>' ||
+                   c == '!' || c == '.')
+            {
+                token.value.push_back(c);
+
+                ++i;
+                if (i == buffer.size()) break; // reached end of file
+                c = buffer[i];
+            }
         }
         else if (c == ' ' || c == '\t' || c == '\n') // whitespace
         {
