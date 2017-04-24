@@ -164,6 +164,22 @@ bool tokenize(const std::vector<uint8_t>& buffer, std::vector<Token>& tokens)
     return true;
 }
 
+struct ASTNode
+{
+    enum class Type
+    {
+        NONE
+    };
+
+    Type type = Type::NONE;
+    std::vector<ASTNode> children;
+};
+
+bool parse(const std::vector<Token>& tokens, std::vector<ASTNode>& nodes)
+{
+    return true;
+}
+
 int main(int argc, const char * argv[])
 {
     if (argc < 2)
@@ -193,6 +209,7 @@ int main(int argc, const char * argv[])
 
     if (!tokenize(buffer, tokens))
     {
+        std::cerr << "Failed to tokenize" << std::endl;
         return EXIT_FAILURE;
     }
 
@@ -212,6 +229,14 @@ int main(int argc, const char * argv[])
         }
 
         std::cout << ", value: " << token.value << std::endl;
+    }
+
+    std::vector<ASTNode> nodes;
+
+    if (!parse(tokens, nodes))
+    {
+        std::cerr << "Dailed to parse" << std::endl;
+        return EXIT_FAILURE;
     }
 
     return EXIT_SUCCESS;
