@@ -54,9 +54,9 @@ int main(int argc, const char * argv[])
 
     std::vector<Token> tokens;
 
-    for (uint32_t i = 0; i < buffer.size(); ++i)
+    for (std::vector<uint8_t>::iterator i = buffer.begin(); i != buffer.end(); ++i)
     {
-        char c = buffer[i];
+        char c = static_cast<char>(*i);
 
         Token token;
 
@@ -77,7 +77,7 @@ int main(int argc, const char * argv[])
 
             while (c >= '0' && c <= '9')
             {
-                if (buffer[i] == '.')
+                if (c == '.')
                 {
                     if (dot)
                     {
@@ -93,8 +93,8 @@ int main(int argc, const char * argv[])
                 token.value.push_back(c);
 
                 ++i;
-                if (i == buffer.size()) break; // reached end of file
-                c = buffer[i];
+                if (i == buffer.end()) break; // reached end of file
+                c = static_cast<char>(*i);
             }
         }
         else if (c == '"') // string literal
@@ -102,27 +102,19 @@ int main(int argc, const char * argv[])
             token.type = Token::Type::STRING;
 
             ++i;
-            if (i == buffer.size()) break; // reached end of file
-            c = buffer[i];
+            if (i == buffer.end()) break; // reached end of file
+            c = static_cast<char>(*i);
 
-            bool end = false;
-
-            while (i < buffer.size())
+            while (c != '"')
             {
-                if (c == '"')
-                {
-                    end = true;
-                    break; // end of string
-                }
-
                 token.value.push_back(c);
 
                 ++i;
-                if (i == buffer.size()) break; // reached end of file
-                c = buffer[i];
+                if (i == buffer.end()) break; // reached end of file
+                c = static_cast<char>(*i);
             }
 
-            if (!end)
+            if (c != '"')
             {
                 std::cerr << "Unterminated string" << std::endl;
                 return EXIT_FAILURE;
@@ -140,8 +132,8 @@ int main(int argc, const char * argv[])
                 token.value.push_back(c);
 
                 ++i;
-                if (i == buffer.size()) break; // reached end of file
-                c = buffer[i];
+                if (i == buffer.end()) break; // reached end of file
+                c = static_cast<char>(*i);
             }
 
             if (token.value == "if" ||
@@ -177,8 +169,8 @@ int main(int argc, const char * argv[])
                 token.value.push_back(c);
 
                 ++i;
-                if (i == buffer.size()) break; // reached end of file
-                c = buffer[i];
+                if (i == buffer.end()) break; // reached end of file
+                c = static_cast<char>(*i);
             }
         }
         else if (c == ' ' || c == '\t' || c == '\n') // whitespace
@@ -190,6 +182,21 @@ int main(int argc, const char * argv[])
             std::cerr << "Unknown character" << std::endl;
             return EXIT_FAILURE;
         }
+
+        std::cout << "Token, type: ";
+
+        switch (token.type)
+        {
+            case Token::Type::NONE: std::cout << "NONE"; break;
+            case Token::Type::PUNCTUATION: std::cout << "PUNCTUATION"; break;
+            case Token::Type::NUMBER: std::cout << "NUMBER"; break;
+            case Token::Type::STRING: std::cout << "STRING"; break;
+            case Token::Type::KEYWORD: std::cout << "KEYWORD"; break;
+            case Token::Type::IDENTIFIER: std::cout << "IDENTIFIER"; break;
+            case Token::Type::OPERATOR: std::cout << "OPERATOR"; break;
+        }
+
+        std::cout << ", value: " << token.value << std::endl;
 
         tokens.push_back(token);
     }
