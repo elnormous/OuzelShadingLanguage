@@ -10,6 +10,10 @@
 #include <string>
 #include <vector>
 
+std::vector<std::string> keywords = {
+    "if", "else", "true", "false", "for", "while"
+};
+
 struct Token
 {
     enum class Type
@@ -111,12 +115,7 @@ bool tokenize(const std::vector<uint8_t>& buffer, std::vector<Token>& tokens)
                 c = static_cast<char>(*i);
             }
 
-            if (token.value == "if" ||
-                token.value == "else" ||
-                token.value == "true" ||
-                token.value == "false" ||
-                token.value == "for" ||
-                token.value == "while")
+            if (std::find(keywords.begin(), keywords.end(), token.value) != keywords.end())
             {
                 token.type = Token::Type::KEYWORD;
             }
