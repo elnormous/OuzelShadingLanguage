@@ -89,10 +89,10 @@ bool tokenize(const std::vector<uint8_t>& buffer, std::vector<Token>& tokens)
             continue;
         }
         else if (c == ',' || c == ';' ||
-            c == '(' || c == ')' ||
-            c == '{' || c == '}' ||
-            c == '[' || c == ']' ||
-            c == ':') // punctuation
+                 c == '(' || c == ')' ||
+                 c == '{' || c == '}' ||
+                 c == '[' || c == ']' ||
+                 c == ':') // punctuation
         {
             token.type = Token::Type::PUNCTUATION;
             token.value.push_back(c);
