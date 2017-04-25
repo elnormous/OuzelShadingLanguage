@@ -70,10 +70,15 @@ inline std::string nodeTypeToString(ASTNode::Type type)
 
 struct ASTContext
 {
+    bool parse(const std::vector<Token>& tokens);
+
+    void dump();
+
+private:
+    bool parseTopLevel(std::vector<Token>::const_iterator& iterator);
+
+    void dumpNode(const ASTNode& node, std::string indent = std::string());
+
+    std::vector<Token>::const_iterator end;
     std::vector<ASTNode> nodes;
 };
-
-bool parseNode(const std::vector<Token>& tokens, ASTNode& node);
-bool parse(const std::vector<Token>& tokens, ASTContext& context);
-void dumpNode(const ASTNode& node, std::string indent = std::string());
-void dumpContext(ASTContext& context);

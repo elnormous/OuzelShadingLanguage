@@ -19,35 +19,40 @@ bool parseNode(const std::vector<Token>& tokens, ASTNode& node)
     return true;
 }
 
-bool parse(const std::vector<Token>& tokens, ASTContext& context)
+bool ASTContext::parse(const std::vector<Token>& tokens)
 {
-    bool topLevel = true;
+    end = tokens.end();
 
-    for (std::vector<Token>::const_iterator i = tokens.begin(); i != tokens.end(); ++i)
+    for (std::vector<Token>::const_iterator iterator = tokens.begin(); iterator != tokens.end(); ++iterator)
     {
-
-
-        // TODO: parse statement
-        // file must have only declaration (type, variable, function) statements at the top level
+        parseTopLevel(iterator);
     }
 
     return true;
 }
 
-void dumpNode(const ASTNode& node, std::string indent)
+bool ASTContext::parseTopLevel(std::vector<Token>::const_iterator& iterator)
+{
+    // TODO: parse statement
+    // file must have only declaration (type, variable, function) statements at the top level
+
+    return true;
+}
+
+void ASTContext::dump()
+{
+    for (const auto node : nodes)
+    {
+        ASTContext::dumpNode(node);
+    }
+}
+
+void ASTContext::dumpNode(const ASTNode& node, std::string indent)
 {
     std::cout << indent << nodeTypeToString(node.type) << std::endl;
 
     for (const auto child : node.children)
     {
-        dumpNode(child, indent + "  ");
-    }
-}
-
-void dumpContext(ASTContext& context)
-{
-    for (const auto node : context.nodes)
-    {
-        dumpNode(node);
+        ASTContext::dumpNode(child, indent + "  ");
     }
 }

@@ -50,13 +50,13 @@ int main(int argc, const char * argv[])
 
     ASTContext context;
 
-    if (!parse(tokens, context))
+    if (!context.parse(tokens))
     {
         std::cerr << "Failed to parse" << std::endl;
         return EXIT_FAILURE;
     }
 
-    dumpContext(context);
+    context.dump();
 
     return EXIT_SUCCESS;
 }
