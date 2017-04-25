@@ -568,6 +568,7 @@ struct ASTNode
         RETURN_STATEMENT,
         CALL_EXPRESSION,
         LITERAL_EXPRESSION,
+        DECLARATION_REFERENCE_EXPRESSION,
         IF_STATEMENT,
         FOR_STATEMENT,
         WHILE_STATEMENT,
@@ -615,6 +616,7 @@ void dumpNode(const ASTNode& node, std::string indent = std::string())
             case ASTNode::Type::RETURN_STATEMENT: std::cout << "RETURN_STATEMENT"; break;
             case ASTNode::Type::CALL_EXPRESSION: std::cout << "CALL_EXPRESSION"; break;
             case ASTNode::Type::LITERAL_EXPRESSION: std::cout << "LITERAL_EXPRESSION"; break;
+            case ASTNode::Type::DECLARATION_REFERENCE_EXPRESSION: std::cout << "DECLARATION_REFERENCE_EXPRESSION"; break;
             case ASTNode::Type::IF_STATEMENT: std::cout << "IF_STATEMENT"; break;
             case ASTNode::Type::FOR_STATEMENT: std::cout << "FOR_STATEMENT"; break;
             case ASTNode::Type::WHILE_STATEMENT: std::cout << "WHILE_STATEMENT"; break;
