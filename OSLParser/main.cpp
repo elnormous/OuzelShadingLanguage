@@ -89,6 +89,77 @@ struct Token
     std::string value;
 };
 
+std::string tokenTypeToString(Token::Type type)
+{
+    switch (type)
+    {
+        case Token::Type::NONE: return "NONE";
+        case Token::Type::INT_LITERAL: return "INT_LITERAL";
+        case Token::Type::FLOAT_LITERAL: return "FLOAT_LITERAL";
+        case Token::Type::STRING_LITERAL: return "STRING_LITERAL";
+        case Token::Type::KEYWORD_IF: return "KEYWORD_IF";
+        case Token::Type::KEYWORD_ELSE: return "KEYWORD_ELSE";
+        case Token::Type::KEYWORD_RETURN: return "KEYWORD_RETURN";
+        case Token::Type::KEYWORD_FOR: return "KEYWORD_FOR";
+        case Token::Type::KEYWORD_WHILE: return "KEYWORD_WHILE";
+        case Token::Type::KEYWORD_DO: return "KEYWORD_DO";
+        case Token::Type::KEYWORD_BREAK: return "KEYWORD_BREAK";
+        case Token::Type::KEYWORD_CONTINUE: return "KEYWORD_CONTINUE";
+        case Token::Type::KEYWORD_TRUE: return "KEYWORD_TRUE";
+        case Token::Type::KEYWORD_FALSE: return "KEYWORD_FALSE";
+        case Token::Type::KEYWORD_INLINE: return "KEYWORD_INLINE";
+        case Token::Type::KEYWORD_STRUCT: return "KEYWORD_STRUCT";
+        case Token::Type::KEYWORD_TYPEDEF: return "KEYWORD_TYPEDEF";
+        case Token::Type::LEFT_PARENTHESIS: return "LEFT_PARENTHESIS";
+        case Token::Type::RIGHT_PARENTHESIS: return "RIGHT_PARENTHESIS";
+        case Token::Type::LEFT_BRACE: return "LEFT_BRACE";
+        case Token::Type::RIGHT_BRACE: return "RIGHT_BRACE";
+        case Token::Type::LEFT_BRACKET: return "LEFT_BRACKET";
+        case Token::Type::RIGHT_BRACKET: return "RIGHT_BRACKET";
+        case Token::Type::COMMA: return "COMMA";
+        case Token::Type::SEMICOLON: return "SEMICOLON";
+        case Token::Type::COLON: return "COLON";
+        case Token::Type::IDENTIFIER: return "IDENTIFIER";
+        case Token::Type::OPERATOR_PLUS: return "OPERATOR_PLUS";
+        case Token::Type::OPERATOR_MINUS: return "OPERATOR_MINUS";
+        case Token::Type::OPERATOR_MULTIPLY: return "OPERATOR_MULTIPLY";
+        case Token::Type::OPERATOR_DIVIDE: return "OPERATOR_DIVIDE";
+        case Token::Type::OPERATOR_MODULO: return "OPERATOR_MODULO";
+        case Token::Type::OPERATOR_INCREMENT: return "OPERATOR_INCREMENT";
+        case Token::Type::OPERATOR_DECREMENT: return "OPERATOR_DECREMENT";
+        case Token::Type::OPERATOR_ASSIGNMENT: return "OPERATOR_ASSIGNMENT";
+        case Token::Type::OPERATOR_PLUS_ASSIGNMENT: return "OPERATOR_PLUS_ASSIGNMENT";
+        case Token::Type::OPERATOR_MINUS_ASSIGNMENT: return "OPERATOR_MINUS_ASSIGNMENT";
+        case Token::Type::OPERATOR_MULTIPLY_ASSIGNMENT: return "OPERATOR_MULTIPLY_ASSIGNMENT";
+        case Token::Type::OPERATOR_DIVIDE_ASSIGNMENT: return "OPERATOR_DIVIDE_ASSIGNMENT";
+        case Token::Type::OPERATOR_MODULO_ASSIGNMENT: return "OPERATOR_MODULO_ASSIGNMENT";
+        case Token::Type::OPERATOR_BITWISE_AND_ASSIGNMENT: return "OPERATOR_BITWISE_AND_ASSIGNMENT";
+        case Token::Type::OPERATOR_BITWISE_OR_ASSIGNMENT: return "OPERATOR_BITWISE_OR_ASSIGNMENT";
+        case Token::Type::OPERATOR_BITWISE_NOT_ASSIGNMENT: return "OPERATOR_BITWISE_NOT_ASSIGNMENT";
+        case Token::Type::OPERATOR_BITWISE_XOR_ASSIGNMENT: return "OPERATOR_BITWISE_XOR_ASSIGNMENT";
+        case Token::Type::OPERATOR_SHIFT_RIGHT_ASSIGNMENT: return "OPERATOR_SHIFT_RIGHT_ASSIGNMENT";
+        case Token::Type::OPERATOR_SHIFT_LEFT_ASSIGNMENT: return "OPERATOR_SHIFT_LEFT_ASSIGNMENT";
+        case Token::Type::OPERATOR_BITWISE_AND: return "OPERATOR_BITWISE_AND";
+        case Token::Type::OPERATOR_BITWISE_OR: return "OPERATOR_BITWISE_OR";
+        case Token::Type::OPERATOR_BITWISE_NOT: return "OPERATOR_BITWISE_NOT";
+        case Token::Type::OPERATOR_BITWISE_XOR: return "OPERATOR_BITWISE_XOR";
+        case Token::Type::OPERATOR_SHIFT_RIGHT: return "OPERATOR_SHIFT_RIGHT";
+        case Token::Type::OPERATOR_SHIFT_LEFT: return "OPERATOR_SHIFT_LEFT";
+        case Token::Type::OPERATOR_EQUAL: return "OPERATOR_EQUAL";
+        case Token::Type::OPERATOR_NOT_EQUAL: return "OPERATOR_NOT_EQUAL";
+        case Token::Type::OPERATOR_LESS_THAN: return "OPERATOR_LESS_THAN";
+        case Token::Type::OPERATOR_GREATER_THAN: return "OPERATOR_GREATER_THAN";
+        case Token::Type::OPERATOR_LESS_THAN_EQUAL: return "OPERATOR_LESS_THAN_EQUAL";
+        case Token::Type::OPERATOR_GREATER_THAN_EQUAL: return "OPERATOR_GREATER_THAN_EQUAL";
+        case Token::Type::OPERATOR_AND: return "OPERATOR_AND";
+        case Token::Type::OPERATOR_OR: return "OPERATOR_OR";
+        case Token::Type::OPERATOR_NOT: return "OPERATOR_NOT";
+        case Token::Type::OPERATOR_CONDITIONAL: return "OPERATOR_CONDITIONAL";
+        case Token::Type::OPERATOR_DOT: return "OPERATOR_DOT";
+        default: return "unknown";
+    }
+}
+
 bool tokenize(const std::vector<uint8_t>& buffer, std::vector<Token>& tokens)
 {
     for (std::vector<uint8_t>::const_iterator i = buffer.begin(); i != buffer.end(); ++i)
@@ -583,6 +654,33 @@ struct ASTNode
     std::vector<ASTNode> children;
 };
 
+std::string nodeTypeToString(ASTNode::Type type)
+{
+    switch (type)
+    {
+        case ASTNode::Type::NONE: return "NONE";
+        case ASTNode::Type::TYPE_DECLARATION: return "TYPE_DECLARATION";
+        case ASTNode::Type::FIELD_DECLARATION: return "FIELD_DECLARATION";
+        case ASTNode::Type::FUNCTION_DECLARATION: return "FUNCTION_DECLARATION";
+        case ASTNode::Type::VARIABLE_DECLARATION: return "VARIABLE_DECLARATION";
+        case ASTNode::Type::PARAMETER_DECLARATION: return "PARAMETER_DECLARATION";
+        case ASTNode::Type::COMPOUND_STATEMENT: return "COMPOUND_STATEMENT";
+        case ASTNode::Type::RETURN_STATEMENT: return "RETURN_STATEMENT";
+        case ASTNode::Type::CALL_EXPRESSION: return "CALL_EXPRESSION";
+        case ASTNode::Type::LITERAL_EXPRESSION: return "LITERAL_EXPRESSION";
+        case ASTNode::Type::DECLARATION_REFERENCE_EXPRESSION: return "DECLARATION_REFERENCE_EXPRESSION";
+        case ASTNode::Type::IF_STATEMENT: return "IF_STATEMENT";
+        case ASTNode::Type::FOR_STATEMENT: return "FOR_STATEMENT";
+        case ASTNode::Type::WHILE_STATEMENT: return "WHILE_STATEMENT";
+        case ASTNode::Type::DO_STATEMENT: return "DO_STATEMENT";
+        case ASTNode::Type::ASSIGN_OPERATOR: return "ASSIGN_OPERATOR";
+        case ASTNode::Type::UNARY_OPERATOR: return "UNARY_OPERATOR";
+        case ASTNode::Type::BINARY_OPERATOR: return "BINARY_OPERATOR";
+        case ASTNode::Type::TERNARY_OPERATOR: return "TERNARY_OPERATOR";
+        default: return "unknwon";
+    }
+}
+
 struct ASTContext
 {
     std::vector<ASTNode> nodes;
@@ -601,34 +699,10 @@ bool parse(const std::vector<Token>& tokens, ASTContext& context)
 
 void dumpNode(const ASTNode& node, std::string indent = std::string())
 {
+    std::cout << indent << nodeTypeToString(node.type) << std::endl;
+
     for (const auto child : node.children)
     {
-        std::cout << indent;
-        switch (child.type)
-        {
-            case ASTNode::Type::NONE: std::cout << "NONE"; break;
-            case ASTNode::Type::TYPE_DECLARATION: std::cout << "TYPE_DECLARATION"; break;
-            case ASTNode::Type::FIELD_DECLARATION: std::cout << "FIELD_DECLARATION"; break;
-            case ASTNode::Type::FUNCTION_DECLARATION: std::cout << "FUNCTION_DECLARATION"; break;
-            case ASTNode::Type::VARIABLE_DECLARATION: std::cout << "VARIABLE_DECLARATION"; break;
-            case ASTNode::Type::PARAMETER_DECLARATION: std::cout << "PARAMETER_DECLARATION"; break;
-            case ASTNode::Type::COMPOUND_STATEMENT: std::cout << "COMPOUND_STATEMENT"; break;
-            case ASTNode::Type::RETURN_STATEMENT: std::cout << "RETURN_STATEMENT"; break;
-            case ASTNode::Type::CALL_EXPRESSION: std::cout << "CALL_EXPRESSION"; break;
-            case ASTNode::Type::LITERAL_EXPRESSION: std::cout << "LITERAL_EXPRESSION"; break;
-            case ASTNode::Type::DECLARATION_REFERENCE_EXPRESSION: std::cout << "DECLARATION_REFERENCE_EXPRESSION"; break;
-            case ASTNode::Type::IF_STATEMENT: std::cout << "IF_STATEMENT"; break;
-            case ASTNode::Type::FOR_STATEMENT: std::cout << "FOR_STATEMENT"; break;
-            case ASTNode::Type::WHILE_STATEMENT: std::cout << "WHILE_STATEMENT"; break;
-            case ASTNode::Type::DO_STATEMENT: std::cout << "DO_STATEMENT"; break;
-            case ASTNode::Type::ASSIGN_OPERATOR: std::cout << "ASSIGN_OPERATOR"; break;
-            case ASTNode::Type::UNARY_OPERATOR: std::cout << "UNARY_OPERATOR"; break;
-            case ASTNode::Type::BINARY_OPERATOR: std::cout << "BINARY_OPERATOR"; break;
-            case ASTNode::Type::TERNARY_OPERATOR: std::cout << "TERNARY_OPERATOR"; break;
-        }
-
-        std::cout << std::endl;
-
         dumpNode(child, indent + "  ");
     }
 }
@@ -676,76 +750,7 @@ int main(int argc, const char * argv[])
 
     for (const Token& token : tokens)
     {
-        std::cout << "Token, type: ";
-
-        switch (token.type)
-        {
-            case Token::Type::NONE: std::cout << "NONE"; break;
-            case Token::Type::INT_LITERAL: std::cout << "INT_LITERAL"; break;
-            case Token::Type::FLOAT_LITERAL: std::cout << "FLOAT_LITERAL"; break;
-            case Token::Type::STRING_LITERAL: std::cout << "STRING_LITERAL"; break;
-            case Token::Type::KEYWORD_IF: std::cout << "KEYWORD_IF"; break;
-            case Token::Type::KEYWORD_ELSE: std::cout << "KEYWORD_ELSE"; break;
-            case Token::Type::KEYWORD_RETURN: std::cout << "KEYWORD_RETURN"; break;
-            case Token::Type::KEYWORD_FOR: std::cout << "KEYWORD_FOR"; break;
-            case Token::Type::KEYWORD_WHILE: std::cout << "KEYWORD_WHILE"; break;
-            case Token::Type::KEYWORD_DO: std::cout << "KEYWORD_DO"; break;
-            case Token::Type::KEYWORD_BREAK: std::cout << "KEYWORD_BREAK"; break;
-            case Token::Type::KEYWORD_CONTINUE: std::cout << "KEYWORD_CONTINUE"; break;
-            case Token::Type::KEYWORD_TRUE: std::cout << "KEYWORD_TRUE"; break;
-            case Token::Type::KEYWORD_FALSE: std::cout << "KEYWORD_FALSE"; break;
-            case Token::Type::KEYWORD_INLINE: std::cout << "KEYWORD_INLINE"; break;
-            case Token::Type::KEYWORD_STRUCT: std::cout << "KEYWORD_STRUCT"; break;
-            case Token::Type::KEYWORD_TYPEDEF: std::cout << "KEYWORD_TYPEDEF"; break;
-            case Token::Type::LEFT_PARENTHESIS: std::cout << "LEFT_PARENTHESIS"; break;
-            case Token::Type::RIGHT_PARENTHESIS: std::cout << "RIGHT_PARENTHESIS"; break;
-            case Token::Type::LEFT_BRACE: std::cout << "LEFT_BRACE"; break;
-            case Token::Type::RIGHT_BRACE: std::cout << "RIGHT_BRACE"; break;
-            case Token::Type::LEFT_BRACKET: std::cout << "LEFT_BRACKET"; break;
-            case Token::Type::RIGHT_BRACKET: std::cout << "RIGHT_BRACKET"; break;
-            case Token::Type::COMMA: std::cout << "COMMA"; break;
-            case Token::Type::SEMICOLON: std::cout << "SEMICOLON"; break;
-            case Token::Type::COLON: std::cout << "COLON"; break;
-            case Token::Type::IDENTIFIER: std::cout << "IDENTIFIER"; break;
-            case Token::Type::OPERATOR_PLUS: std::cout << "OPERATOR_PLUS"; break;
-            case Token::Type::OPERATOR_MINUS: std::cout << "OPERATOR_MINUS"; break;
-            case Token::Type::OPERATOR_MULTIPLY: std::cout << "OPERATOR_MULTIPLY"; break;
-            case Token::Type::OPERATOR_DIVIDE: std::cout << "OPERATOR_DIVIDE"; break;
-            case Token::Type::OPERATOR_MODULO: std::cout << "OPERATOR_MODULO"; break;
-            case Token::Type::OPERATOR_INCREMENT: std::cout << "OPERATOR_INCREMENT"; break;
-            case Token::Type::OPERATOR_DECREMENT: std::cout << "OPERATOR_DECREMENT"; break;
-            case Token::Type::OPERATOR_ASSIGNMENT: std::cout << "OPERATOR_ASSIGNMENT"; break;
-            case Token::Type::OPERATOR_PLUS_ASSIGNMENT: std::cout << "OPERATOR_PLUS_ASSIGNMENT"; break;
-            case Token::Type::OPERATOR_MINUS_ASSIGNMENT: std::cout << "OPERATOR_MINUS_ASSIGNMENT"; break;
-            case Token::Type::OPERATOR_MULTIPLY_ASSIGNMENT: std::cout << "OPERATOR_MULTIPLY_ASSIGNMENT"; break;
-            case Token::Type::OPERATOR_DIVIDE_ASSIGNMENT: std::cout << "OPERATOR_DIVIDE_ASSIGNMENT"; break;
-            case Token::Type::OPERATOR_MODULO_ASSIGNMENT: std::cout << "OPERATOR_MODULO_ASSIGNMENT"; break;
-            case Token::Type::OPERATOR_BITWISE_AND_ASSIGNMENT: std::cout << "OPERATOR_BITWISE_AND_ASSIGNMENT"; break;
-            case Token::Type::OPERATOR_BITWISE_OR_ASSIGNMENT: std::cout << "OPERATOR_BITWISE_OR_ASSIGNMENT"; break;
-            case Token::Type::OPERATOR_BITWISE_NOT_ASSIGNMENT: std::cout << "OPERATOR_BITWISE_NOT_ASSIGNMENT"; break;
-            case Token::Type::OPERATOR_BITWISE_XOR_ASSIGNMENT: std::cout << "OPERATOR_BITWISE_XOR_ASSIGNMENT"; break;
-            case Token::Type::OPERATOR_SHIFT_RIGHT_ASSIGNMENT: std::cout << "OPERATOR_SHIFT_RIGHT_ASSIGNMENT"; break;
-            case Token::Type::OPERATOR_SHIFT_LEFT_ASSIGNMENT: std::cout << "OPERATOR_SHIFT_LEFT_ASSIGNMENT"; break;
-            case Token::Type::OPERATOR_BITWISE_AND: std::cout << "OPERATOR_BITWISE_AND"; break;
-            case Token::Type::OPERATOR_BITWISE_OR: std::cout << "OPERATOR_BITWISE_OR"; break;
-            case Token::Type::OPERATOR_BITWISE_NOT: std::cout << "OPERATOR_BITWISE_NOT"; break;
-            case Token::Type::OPERATOR_BITWISE_XOR: std::cout << "OPERATOR_BITWISE_XOR"; break;
-            case Token::Type::OPERATOR_SHIFT_RIGHT: std::cout << "OPERATOR_SHIFT_RIGHT"; break;
-            case Token::Type::OPERATOR_SHIFT_LEFT: std::cout << "OPERATOR_SHIFT_LEFT"; break;
-            case Token::Type::OPERATOR_EQUAL: std::cout << "OPERATOR_EQUAL"; break;
-            case Token::Type::OPERATOR_NOT_EQUAL: std::cout << "OPERATOR_NOT_EQUAL"; break;
-            case Token::Type::OPERATOR_LESS_THAN: std::cout << "OPERATOR_LESS_THAN"; break;
-            case Token::Type::OPERATOR_GREATER_THAN: std::cout << "OPERATOR_GREATER_THAN"; break;
-            case Token::Type::OPERATOR_LESS_THAN_EQUAL: std::cout << "OPERATOR_LESS_THAN_EQUAL"; break;
-            case Token::Type::OPERATOR_GREATER_THAN_EQUAL: std::cout << "OPERATOR_GREATER_THAN_EQUAL"; break;
-            case Token::Type::OPERATOR_AND: std::cout << "OPERATOR_AND"; break;
-            case Token::Type::OPERATOR_OR: std::cout << "OPERATOR_OR"; break;
-            case Token::Type::OPERATOR_NOT: std::cout << "OPERATOR_NOT"; break;
-            case Token::Type::OPERATOR_CONDITIONAL: std::cout << "OPERATOR_CONDITIONAL"; break;
-            case Token::Type::OPERATOR_DOT: std::cout << "OPERATOR_DOT"; break;
-        }
-
-        std::cout << ", value: " << token.value << std::endl;
+        std::cout << "Token, type: " << tokenTypeToString(token.type) << ", value: " << token.value << std::endl;
     }
 
     ASTContext context;
