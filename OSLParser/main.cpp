@@ -532,7 +532,7 @@ bool tokenize(const std::vector<uint8_t>& buffer, std::vector<Token>& tokens)
                 token.value.push_back(c);
             }
         }
-        else if (c == ' ' || c == '\t' || c == '\n') // whitespace
+        else if (c == ' ' || c == '\t' || c == '\n' || c == '\r') // whitespace
         {
             continue;
         }
