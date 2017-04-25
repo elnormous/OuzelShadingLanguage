@@ -12,7 +12,7 @@
 #include <algorithm>
 
 std::vector<std::string> builtinTypes = {
-    "bool", "int", "uint", "float", "double",
+    "void", "bool", "int", "uint", "float", "double",
     "vec2", "vec3", "vec4", "mat3", "mat4"
 };
 
@@ -29,8 +29,11 @@ struct Token
         KEYWORD_RETURN, // return
         KEYWORD_FOR, // for
         KEYWORD_WHILE, // while
+        KEYWORD_BREAK, // break
+        KEYWORD_CONTINUE, // continue
         KEYWORD_TRUE, // true
         KEYWORD_FALSE, // false
+        KEYWORD_INLINE, // inline
         LEFT_PARENTHESIS, // )
         RIGHT_PARENTHESIS, // (
         LEFT_BRACE, // {
@@ -175,8 +178,11 @@ bool tokenize(const std::vector<uint8_t>& buffer, std::vector<Token>& tokens)
             else if (token.value == "return") token.type = Token::Type::KEYWORD_RETURN;
             else if (token.value == "for") token.type = Token::Type::KEYWORD_FOR;
             else if (token.value == "while") token.type = Token::Type::KEYWORD_WHILE;
+            else if (token.value == "break") token.type = Token::Type::KEYWORD_BREAK;
+            else if (token.value == "continue") token.type = Token::Type::KEYWORD_CONTINUE;
             else if (token.value == "true") token.type = Token::Type::KEYWORD_TRUE;
             else if (token.value == "false") token.type = Token::Type::KEYWORD_FALSE;
+            else if (token.value == "inline") token.type = Token::Type::KEYWORD_INLINE;
             else token.type = Token::Type::IDENTIFIER;
         }
         else if (c == '+' || c == '-' ||
@@ -611,8 +617,11 @@ int main(int argc, const char * argv[])
             case Token::Type::KEYWORD_RETURN: std::cout << "KEYWORD_RETURN"; break;
             case Token::Type::KEYWORD_FOR: std::cout << "KEYWORD_FOR"; break;
             case Token::Type::KEYWORD_WHILE: std::cout << "KEYWORD_WHILE"; break;
+            case Token::Type::KEYWORD_BREAK: std::cout << "KEYWORD_BREAK"; break;
+            case Token::Type::KEYWORD_CONTINUE: std::cout << "KEYWORD_CONTINUE"; break;
             case Token::Type::KEYWORD_TRUE: std::cout << "KEYWORD_TRUE"; break;
             case Token::Type::KEYWORD_FALSE: std::cout << "KEYWORD_FALSE"; break;
+            case Token::Type::KEYWORD_INLINE: std::cout << "KEYWORD_INLINE"; break;
             case Token::Type::LEFT_PARENTHESIS: std::cout << "LEFT_PARENTHESIS"; break;
             case Token::Type::RIGHT_PARENTHESIS: std::cout << "RIGHT_PARENTHESIS"; break;
             case Token::Type::LEFT_BRACE: std::cout << "LEFT_BRACE"; break;
