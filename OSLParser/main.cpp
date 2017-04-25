@@ -35,6 +35,7 @@ struct Token
         KEYWORD_TRUE, // true
         KEYWORD_FALSE, // false
         KEYWORD_INLINE, // inline
+        KEYWORD_STRUCT, // struct
         LEFT_PARENTHESIS, // )
         RIGHT_PARENTHESIS, // (
         LEFT_BRACE, // {
@@ -185,6 +186,7 @@ bool tokenize(const std::vector<uint8_t>& buffer, std::vector<Token>& tokens)
             else if (token.value == "true") token.type = Token::Type::KEYWORD_TRUE;
             else if (token.value == "false") token.type = Token::Type::KEYWORD_FALSE;
             else if (token.value == "inline") token.type = Token::Type::KEYWORD_INLINE;
+            else if (token.value == "struct") token.type = Token::Type::KEYWORD_STRUCT;
             else token.type = Token::Type::IDENTIFIER;
         }
         else if (c == '+' || c == '-' ||
@@ -625,6 +627,7 @@ int main(int argc, const char * argv[])
             case Token::Type::KEYWORD_TRUE: std::cout << "KEYWORD_TRUE"; break;
             case Token::Type::KEYWORD_FALSE: std::cout << "KEYWORD_FALSE"; break;
             case Token::Type::KEYWORD_INLINE: std::cout << "KEYWORD_INLINE"; break;
+            case Token::Type::KEYWORD_STRUCT: std::cout << "KEYWORD_STRUCT"; break;
             case Token::Type::LEFT_PARENTHESIS: std::cout << "LEFT_PARENTHESIS"; break;
             case Token::Type::RIGHT_PARENTHESIS: std::cout << "RIGHT_PARENTHESIS"; break;
             case Token::Type::LEFT_BRACE: std::cout << "LEFT_BRACE"; break;
