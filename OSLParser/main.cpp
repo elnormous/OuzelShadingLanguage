@@ -572,6 +572,12 @@ struct ASTContext
 
 bool parse(const std::vector<Token>& tokens, ASTContext& context)
 {
+    for (std::vector<Token>::const_iterator i = tokens.begin(); i != tokens.end(); ++i)
+    {
+        // TODO: parse statement
+        // file must have only declaration (type, variable, function) statements at the top level
+    }
+
     return true;
 }
 
