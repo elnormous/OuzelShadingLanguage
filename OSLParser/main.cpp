@@ -29,6 +29,7 @@ struct Token
         KEYWORD_RETURN, // return
         KEYWORD_FOR, // for
         KEYWORD_WHILE, // while
+        KEYWORD_DO, // do
         KEYWORD_BREAK, // break
         KEYWORD_CONTINUE, // continue
         KEYWORD_TRUE, // true
@@ -178,6 +179,7 @@ bool tokenize(const std::vector<uint8_t>& buffer, std::vector<Token>& tokens)
             else if (token.value == "return") token.type = Token::Type::KEYWORD_RETURN;
             else if (token.value == "for") token.type = Token::Type::KEYWORD_FOR;
             else if (token.value == "while") token.type = Token::Type::KEYWORD_WHILE;
+            else if (token.value == "do") token.type = Token::Type::KEYWORD_DO;
             else if (token.value == "break") token.type = Token::Type::KEYWORD_BREAK;
             else if (token.value == "continue") token.type = Token::Type::KEYWORD_CONTINUE;
             else if (token.value == "true") token.type = Token::Type::KEYWORD_TRUE;
@@ -617,6 +619,7 @@ int main(int argc, const char * argv[])
             case Token::Type::KEYWORD_RETURN: std::cout << "KEYWORD_RETURN"; break;
             case Token::Type::KEYWORD_FOR: std::cout << "KEYWORD_FOR"; break;
             case Token::Type::KEYWORD_WHILE: std::cout << "KEYWORD_WHILE"; break;
+            case Token::Type::KEYWORD_DO: std::cout << "KEYWORD_DO"; break;
             case Token::Type::KEYWORD_BREAK: std::cout << "KEYWORD_BREAK"; break;
             case Token::Type::KEYWORD_CONTINUE: std::cout << "KEYWORD_CONTINUE"; break;
             case Token::Type::KEYWORD_TRUE: std::cout << "KEYWORD_TRUE"; break;
