@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		30DD17411EAE944F004CAD77 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 30DD17401EAE944F004CAD77 /* main.cpp */; };
+		30DD17491EAF967B004CAD77 /* Tokenizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 30DD17471EAF967B004CAD77 /* Tokenizer.cpp */; };
+		30DD174C1EAF96CE004CAD77 /* Parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 30DD174A1EAF96CE004CAD77 /* Parser.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -25,6 +27,10 @@
 /* Begin PBXFileReference section */
 		30DD173D1EAE944F004CAD77 /* OSLParser */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = OSLParser; sourceTree = BUILT_PRODUCTS_DIR; };
 		30DD17401EAE944F004CAD77 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		30DD17471EAF967B004CAD77 /* Tokenizer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Tokenizer.cpp; sourceTree = "<group>"; };
+		30DD17481EAF967B004CAD77 /* Tokenizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Tokenizer.h; sourceTree = "<group>"; };
+		30DD174A1EAF96CE004CAD77 /* Parser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Parser.cpp; sourceTree = "<group>"; };
+		30DD174B1EAF96CE004CAD77 /* Parser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Parser.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,6 +64,10 @@
 			isa = PBXGroup;
 			children = (
 				30DD17401EAE944F004CAD77 /* main.cpp */,
+				30DD17471EAF967B004CAD77 /* Tokenizer.cpp */,
+				30DD17481EAF967B004CAD77 /* Tokenizer.h */,
+				30DD174A1EAF96CE004CAD77 /* Parser.cpp */,
+				30DD174B1EAF96CE004CAD77 /* Parser.h */,
 			);
 			path = OSLParser;
 			sourceTree = "<group>";
@@ -120,6 +130,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				30DD17411EAE944F004CAD77 /* main.cpp in Sources */,
+				30DD174C1EAF96CE004CAD77 /* Parser.cpp in Sources */,
+				30DD17491EAF967B004CAD77 /* Tokenizer.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -248,6 +260,7 @@
 				30DD17461EAE944F004CAD77 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
