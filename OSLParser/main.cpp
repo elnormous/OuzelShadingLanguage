@@ -9,9 +9,15 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <algorithm>
 
 std::vector<std::string> keywords = {
     "if", "else", "true", "false", "for", "while"
+};
+
+std::vector<std::string> builtinTypes = {
+    "bool", "int", "uint", "float", "double",
+    "vec2", "vec3", "vec4", "mat3", "mat4"
 };
 
 struct Token
@@ -39,7 +45,50 @@ bool tokenize(const std::vector<uint8_t>& buffer, std::vector<Token>& tokens)
 
         Token token;
 
-        if (c == ',' || c == ';' ||
+        if (c == '/' && (i + 1) != buffer.end() && // comment
+            (static_cast<char>(*(i + 1)) == '/' || static_cast<char>(*(i + 1)) == '*'))
+        {
+            ++i;
+            c = static_cast<char>(*i);
+
+            if (c == '/') // single-line comment
+            {
+                if (++i == buffer.end()) break; // reached end of file
+                c = static_cast<char>(*i);
+
+                while (c != '\n')
+                {
+                    if (++i == buffer.end()) break; // reached end of file
+                    c = static_cast<char>(*i);
+                }
+            }
+            else if (c == '*') // multi-line comment
+            {
+                if (++i == buffer.end()) break; // reached end of file
+                c = static_cast<char>(*i);
+
+                while (c != '*' && (i + 1) != buffer.end() &&
+                       static_cast<char>(*(i + 1)) != '/')
+                {
+                    if (++i == buffer.end()) break; // reached end of file
+                    c = static_cast<char>(*i);
+                }
+
+                if (c != '*' || (i + 1) == buffer.end() ||
+                    static_cast<char>(*(i + 1)) != '/')
+                {
+                    std::cerr << "Unterminated block comment" << std::endl;
+                    return false;
+                }
+                else
+                {
+                    ++i;
+                }
+            }
+            
+            continue;
+        }
+        else if (c == ',' || c == ';' ||
             c == '(' || c == ')' ||
             c == '{' || c == '}' ||
             c == '[' || c == ']' ||
@@ -71,8 +120,7 @@ bool tokenize(const std::vector<uint8_t>& buffer, std::vector<Token>& tokens)
 
                 token.value.push_back(c);
 
-                ++i;
-                if (i == buffer.end()) break; // reached end of file
+                if (++i == buffer.end()) break; // reached end of file
                 c = static_cast<char>(*i);
             }
         }
@@ -80,23 +128,21 @@ bool tokenize(const std::vector<uint8_t>& buffer, std::vector<Token>& tokens)
         {
             token.type = Token::Type::STRING;
 
-            ++i;
-            if (i == buffer.end()) break; // reached end of file
+            if (++i == buffer.end()) break; // reached end of file
             c = static_cast<char>(*i);
 
             while (c != '"')
             {
                 token.value.push_back(c);
 
-                ++i;
-                if (i == buffer.end()) break; // reached end of file
+                if (++i == buffer.end()) break; // reached end of file
                 c = static_cast<char>(*i);
             }
 
             if (c != '"')
             {
                 std::cerr << "Unterminated string" << std::endl;
-                return EXIT_FAILURE;
+                return false;
             }
         }
         else if ((c >= 'a' && c <= 'z') ||
@@ -110,8 +156,7 @@ bool tokenize(const std::vector<uint8_t>& buffer, std::vector<Token>& tokens)
             {
                 token.value.push_back(c);
 
-                ++i;
-                if (i == buffer.end()) break; // reached end of file
+                if (++i == buffer.end()) break; // reached end of file
                 c = static_cast<char>(*i);
             }
 
@@ -142,8 +187,7 @@ bool tokenize(const std::vector<uint8_t>& buffer, std::vector<Token>& tokens)
             {
                 token.value.push_back(c);
 
-                ++i;
-                if (i == buffer.end()) break; // reached end of file
+                if (++i == buffer.end()) break; // reached end of file
                 c = static_cast<char>(*i);
             }
         }
@@ -154,7 +198,7 @@ bool tokenize(const std::vector<uint8_t>& buffer, std::vector<Token>& tokens)
         else
         {
             std::cerr << "Unknown character" << std::endl;
-            return EXIT_FAILURE;
+            return false;
         }
 
         tokens.push_back(token);
@@ -167,14 +211,25 @@ struct ASTNode
 {
     enum class Type
     {
-        NONE
+        NONE,
+        FUNCTION_DECLARATION,
+        VARIABLE_DECLARATION,
+        PARAMETER_DECLARATION,
+        COMPOUND_STATEMENT,
+        FUNCTION_CALL,
+        OPERATOR,
     };
 
     Type type = Type::NONE;
     std::vector<ASTNode> children;
 };
 
-bool parse(const std::vector<Token>& tokens, std::vector<ASTNode>& nodes)
+struct ASTContext
+{
+    std::vector<ASTNode> nodes;
+};
+
+bool parse(const std::vector<Token>& tokens, ASTContext& context)
 {
     return true;
 }
@@ -230,9 +285,9 @@ int main(int argc, const char * argv[])
         std::cout << ", value: " << token.value << std::endl;
     }
 
-    std::vector<ASTNode> nodes;
+    ASTContext context;
 
-    if (!parse(tokens, nodes))
+    if (!parse(tokens, context))
     {
         std::cerr << "Dailed to parse" << std::endl;
         return EXIT_FAILURE;
