@@ -22,8 +22,9 @@ struct Token
     {
         NONE,
         PUNCTUATION,
-        NUMBER,
-        STRING,
+        INT_LITERAL,
+        FLOAT_LITERAL,
+        STRING_LITERAL,
         KEYWORD_IF,
         KEYWORD_ELSE,
         KEYWORD_RETURN,
@@ -101,7 +102,7 @@ bool tokenize(const std::vector<uint8_t>& buffer, std::vector<Token>& tokens)
         }
         else if (c >= '0' && c <= '9') // number
         {
-            token.type = Token::Type::NUMBER;
+            token.type = Token::Type::INT_LITERAL;
 
             bool dot = false;
 
@@ -117,6 +118,7 @@ bool tokenize(const std::vector<uint8_t>& buffer, std::vector<Token>& tokens)
                     else
                     {
                         dot = true;
+                        token.type = Token::Type::FLOAT_LITERAL;
                     }
                 }
 
@@ -128,7 +130,7 @@ bool tokenize(const std::vector<uint8_t>& buffer, std::vector<Token>& tokens)
         }
         else if (c == '"') // string literal
         {
-            token.type = Token::Type::STRING;
+            token.type = Token::Type::STRING_LITERAL;
 
             if (++i == buffer.end()) break; // reached end of file
             c = static_cast<char>(*i);
@@ -277,8 +279,9 @@ int main(int argc, const char * argv[])
         {
             case Token::Type::NONE: std::cout << "NONE"; break;
             case Token::Type::PUNCTUATION: std::cout << "PUNCTUATION"; break;
-            case Token::Type::NUMBER: std::cout << "NUMBER"; break;
-            case Token::Type::STRING: std::cout << "STRING"; break;
+            case Token::Type::INT_LITERAL: std::cout << "INT_LITERAL"; break;
+            case Token::Type::FLOAT_LITERAL: std::cout << "FLOAT_LITERAL"; break;
+            case Token::Type::STRING_LITERAL: std::cout << "STRING_LITERAL"; break;
             case Token::Type::KEYWORD_IF: std::cout << "KEYWORD_IF"; break;
             case Token::Type::KEYWORD_ELSE: std::cout << "KEYWORD_ELSE"; break;
             case Token::Type::KEYWORD_RETURN: std::cout << "KEYWORD_RETURN"; break;
