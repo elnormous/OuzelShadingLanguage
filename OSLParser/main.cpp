@@ -11,10 +11,6 @@
 #include <vector>
 #include <algorithm>
 
-std::vector<std::string> keywords = {
-    "if", "else", "true", "false", "for", "while"
-};
-
 std::vector<std::string> builtinTypes = {
     "bool", "int", "uint", "float", "double",
     "vec2", "vec3", "vec4", "mat3", "mat4"
@@ -28,7 +24,13 @@ struct Token
         PUNCTUATION,
         NUMBER,
         STRING,
-        KEYWORD,
+        KEYWORD_IF,
+        KEYWORD_ELSE,
+        KEYWORD_RETURN,
+        KEYWORD_FOR,
+        KEYWORD_WHILE,
+        KEYWORD_TRUE,
+        KEYWORD_FALSE,
         IDENTIFIER,
         OPERATOR
     };
@@ -160,14 +162,14 @@ bool tokenize(const std::vector<uint8_t>& buffer, std::vector<Token>& tokens)
                 c = static_cast<char>(*i);
             }
 
-            if (std::find(keywords.begin(), keywords.end(), token.value) != keywords.end())
-            {
-                token.type = Token::Type::KEYWORD;
-            }
-            else
-            {
-                token.type = Token::Type::IDENTIFIER;
-            }
+            if (token.value == "if") token.type = Token::Type::KEYWORD_IF;
+            else if (token.value == "else") token.type = Token::Type::KEYWORD_ELSE;
+            else if (token.value == "return") token.type = Token::Type::KEYWORD_RETURN;
+            else if (token.value == "for") token.type = Token::Type::KEYWORD_FOR;
+            else if (token.value == "while") token.type = Token::Type::KEYWORD_WHILE;
+            else if (token.value == "true") token.type = Token::Type::KEYWORD_TRUE;
+            else if (token.value == "false") token.type = Token::Type::KEYWORD_FALSE;
+            else token.type = Token::Type::IDENTIFIER;
         }
         else if (c == '+' || c == '-' ||
                  c == '*' || c == '/' ||
@@ -277,7 +279,13 @@ int main(int argc, const char * argv[])
             case Token::Type::PUNCTUATION: std::cout << "PUNCTUATION"; break;
             case Token::Type::NUMBER: std::cout << "NUMBER"; break;
             case Token::Type::STRING: std::cout << "STRING"; break;
-            case Token::Type::KEYWORD: std::cout << "KEYWORD"; break;
+            case Token::Type::KEYWORD_IF: std::cout << "KEYWORD_IF"; break;
+            case Token::Type::KEYWORD_ELSE: std::cout << "KEYWORD_ELSE"; break;
+            case Token::Type::KEYWORD_RETURN: std::cout << "KEYWORD_RETURN"; break;
+            case Token::Type::KEYWORD_FOR: std::cout << "KEYWORD_FOR"; break;
+            case Token::Type::KEYWORD_WHILE: std::cout << "KEYWORD_WHILE"; break;
+            case Token::Type::KEYWORD_TRUE: std::cout << "KEYWORD_TRUE"; break;
+            case Token::Type::KEYWORD_FALSE: std::cout << "KEYWORD_FALSE"; break;
             case Token::Type::IDENTIFIER: std::cout << "IDENTIFIER"; break;
             case Token::Type::OPERATOR: std::cout << "OPERATOR"; break;
         }
