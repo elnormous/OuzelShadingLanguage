@@ -21,17 +21,25 @@ struct Token
     enum class Type
     {
         NONE,
-        PUNCTUATION,
-        INT_LITERAL,
-        FLOAT_LITERAL,
-        STRING_LITERAL,
-        KEYWORD_IF,
-        KEYWORD_ELSE,
-        KEYWORD_RETURN,
-        KEYWORD_FOR,
-        KEYWORD_WHILE,
-        KEYWORD_TRUE,
-        KEYWORD_FALSE,
+        INT_LITERAL, // int
+        FLOAT_LITERAL, // float
+        STRING_LITERAL, // string
+        KEYWORD_IF, // if
+        KEYWORD_ELSE, // else
+        KEYWORD_RETURN, // return
+        KEYWORD_FOR, // for
+        KEYWORD_WHILE, // while
+        KEYWORD_TRUE, // true
+        KEYWORD_FALSE, // false
+        LEFT_PARENTHESIS, // )
+        RIGHT_PARENTHESIS, // (
+        LEFT_BRACE, // {
+        RIGHT_BRACE, // }
+        LEFT_BRACKET, // [
+        RIGHT_BRACKET, // ]
+        COMMA, // ,
+        SEMICOLON, // ;
+        COLON, // :
         IDENTIFIER,
         OPERATOR
     };
@@ -91,13 +99,20 @@ bool tokenize(const std::vector<uint8_t>& buffer, std::vector<Token>& tokens)
             
             continue;
         }
-        else if (c == ',' || c == ';' ||
-                 c == '(' || c == ')' ||
+        else if (c == '(' || c == ')' ||
                  c == '{' || c == '}' ||
                  c == '[' || c == ']' ||
-                 c == ':') // punctuation
+                 c == ',' || c == ';' || c == ':') // punctuation
         {
-            token.type = Token::Type::PUNCTUATION;
+            if (c == '(') token.type = Token::Type::LEFT_PARENTHESIS;
+            if (c == ')') token.type = Token::Type::RIGHT_PARENTHESIS;
+            if (c == '{') token.type = Token::Type::LEFT_BRACE;
+            if (c == '}') token.type = Token::Type::RIGHT_BRACE;
+            if (c == '[') token.type = Token::Type::LEFT_BRACKET;
+            if (c == ']') token.type = Token::Type::RIGHT_BRACKET;
+            if (c == ',') token.type = Token::Type::COMMA;
+            if (c == ';') token.type = Token::Type::SEMICOLON;
+            if (c == ':') token.type = Token::Type::COLON;
             token.value.push_back(c);
         }
         else if (c >= '0' && c <= '9') // number
@@ -278,7 +293,6 @@ int main(int argc, const char * argv[])
         switch (token.type)
         {
             case Token::Type::NONE: std::cout << "NONE"; break;
-            case Token::Type::PUNCTUATION: std::cout << "PUNCTUATION"; break;
             case Token::Type::INT_LITERAL: std::cout << "INT_LITERAL"; break;
             case Token::Type::FLOAT_LITERAL: std::cout << "FLOAT_LITERAL"; break;
             case Token::Type::STRING_LITERAL: std::cout << "STRING_LITERAL"; break;
@@ -289,6 +303,15 @@ int main(int argc, const char * argv[])
             case Token::Type::KEYWORD_WHILE: std::cout << "KEYWORD_WHILE"; break;
             case Token::Type::KEYWORD_TRUE: std::cout << "KEYWORD_TRUE"; break;
             case Token::Type::KEYWORD_FALSE: std::cout << "KEYWORD_FALSE"; break;
+            case Token::Type::LEFT_PARENTHESIS: std::cout << "LEFT_PARENTHESIS"; break;
+            case Token::Type::RIGHT_PARENTHESIS: std::cout << "RIGHT_PARENTHESIS"; break;
+            case Token::Type::LEFT_BRACE: std::cout << "LEFT_BRACE"; break;
+            case Token::Type::RIGHT_BRACE: std::cout << "RIGHT_BRACE"; break;
+            case Token::Type::LEFT_BRACKET: std::cout << "LEFT_BRACKET"; break;
+            case Token::Type::RIGHT_BRACKET: std::cout << "RIGHT_BRACKET"; break;
+            case Token::Type::COMMA: std::cout << "COMMA"; break;
+            case Token::Type::SEMICOLON: std::cout << "SEMICOLON"; break;
+            case Token::Type::COLON: std::cout << "COLON"; break;
             case Token::Type::IDENTIFIER: std::cout << "IDENTIFIER"; break;
             case Token::Type::OPERATOR: std::cout << "OPERATOR"; break;
         }
