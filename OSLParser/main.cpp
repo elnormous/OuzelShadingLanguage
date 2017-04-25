@@ -572,6 +572,7 @@ struct ASTNode
         WHILE_STATEMENT,
         DO_STATEMENT,
         ASSIGN_OPERATOR,
+        UNARY_OPERATOR,
         BINARY_OPERATOR,
         TERNARY_OPERATOR,
     };
@@ -617,6 +618,7 @@ void dumpNode(const ASTNode& node, std::string indent = std::string())
             case ASTNode::Type::WHILE_STATEMENT: std::cout << "WHILE_STATEMENT"; break;
             case ASTNode::Type::DO_STATEMENT: std::cout << "DO_STATEMENT"; break;
             case ASTNode::Type::ASSIGN_OPERATOR: std::cout << "ASSIGN_OPERATOR"; break;
+            case ASTNode::Type::UNARY_OPERATOR: std::cout << "UNARY_OPERATOR"; break;
             case ASTNode::Type::BINARY_OPERATOR: std::cout << "BINARY_OPERATOR"; break;
             case ASTNode::Type::TERNARY_OPERATOR: std::cout << "TERNARY_OPERATOR"; break;
         }
