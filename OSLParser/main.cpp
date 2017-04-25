@@ -52,7 +52,7 @@ int main(int argc, const char * argv[])
 
     if (!parse(tokens, context))
     {
-        std::cerr << "Dailed to parse" << std::endl;
+        std::cerr << "Failed to parse" << std::endl;
         return EXIT_FAILURE;
     }
 
