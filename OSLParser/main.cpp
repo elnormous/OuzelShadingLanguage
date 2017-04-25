@@ -41,7 +41,41 @@ struct Token
         SEMICOLON, // ;
         COLON, // :
         IDENTIFIER,
-        OPERATOR
+        OPERATOR_PLUS, // +
+        OPERATOR_MINUS, // -
+        OPERATOR_MULTIPLY, // *
+        OPERATOR_DIVIDE, // /
+        OPERATOR_MODULO, // %
+        OPERATOR_INCREMENT, // ++
+        OPERATOR_DECREMENT, // --
+        OPERATOR_ASSIGNMENT, // =
+        OPERATOR_PLUS_ASSIGNMENT, // +=
+        OPERATOR_MINUS_ASSIGNMENT, // -=
+        OPERATOR_MULTIPLY_ASSIGNMENT, // *=
+        OPERATOR_DIVIDE_ASSIGNMENT, // /=
+        OPERATOR_MODULO_ASSIGNMENT, // %=
+        OPERATOR_BITWISE_AND_ASSIGNMENT, // &=
+        OPERATOR_BITWISE_OR_ASSIGNMENT, // |=
+        OPERATOR_BITWISE_NOT_ASSIGNMENT, // ~=
+        OPERATOR_BITWISE_XOR_ASSIGNMENT, // ^=
+        OPERATOR_SHIFT_RIGHT_ASSIGNMENT, // >>=
+        OPERATOR_SHIFT_LEFT_ASSIGNMENT, // <<=
+        OPERATOR_BITWISE_AND, // &
+        OPERATOR_BITWISE_OR, // |
+        OPERATOR_BITWISE_NOT, // ~
+        OPERATOR_BITWISE_XOR, // ^
+        OPERATOR_SHIFT_RIGHT, // >>
+        OPERATOR_SHIFT_LEFT, // <<
+        OPERATOR_EQUAL, // ==
+        OPERATOR_NOT_EQUAL, // !=
+        OPERATOR_LESS_THAN, // <
+        OPERATOR_GREATER_THAN, // >
+        OPERATOR_LESS_THAN_EQUAL, // <=
+        OPERATOR_GREATER_THAN_EQUAL, // >=
+        OPERATOR_AND, // &&
+        OPERATOR_OR, // ||
+        OPERATOR_NOT, // !
+        OPERATOR_DOT, // .
     };
 
     Type type = Type::NONE;
@@ -56,53 +90,10 @@ bool tokenize(const std::vector<uint8_t>& buffer, std::vector<Token>& tokens)
 
         Token token;
 
-        if (c == '/' && (i + 1) != buffer.end() && // comment
-            (static_cast<char>(*(i + 1)) == '/' || static_cast<char>(*(i + 1)) == '*'))
-        {
-            ++i;
-            c = static_cast<char>(*i);
-
-            if (c == '/') // single-line comment
-            {
-                if (++i == buffer.end()) break; // reached end of file
-                c = static_cast<char>(*i);
-
-                while (c != '\n')
-                {
-                    if (++i == buffer.end()) break; // reached end of file
-                    c = static_cast<char>(*i);
-                }
-            }
-            else if (c == '*') // multi-line comment
-            {
-                if (++i == buffer.end()) break; // reached end of file
-                c = static_cast<char>(*i);
-
-                while (c != '*' && (i + 1) != buffer.end() &&
-                       static_cast<char>(*(i + 1)) != '/')
-                {
-                    if (++i == buffer.end()) break; // reached end of file
-                    c = static_cast<char>(*i);
-                }
-
-                if (c != '*' || (i + 1) == buffer.end() ||
-                    static_cast<char>(*(i + 1)) != '/')
-                {
-                    std::cerr << "Unterminated block comment" << std::endl;
-                    return false;
-                }
-                else
-                {
-                    ++i;
-                }
-            }
-            
-            continue;
-        }
-        else if (c == '(' || c == ')' ||
-                 c == '{' || c == '}' ||
-                 c == '[' || c == ']' ||
-                 c == ',' || c == ';' || c == ':') // punctuation
+        if (c == '(' || c == ')' ||
+            c == '{' || c == '}' ||
+            c == '[' || c == ']' ||
+            c == ',' || c == ';' || c == ':') // punctuation
         {
             if (c == '(') token.type = Token::Type::LEFT_PARENTHESIS;
             if (c == ')') token.type = Token::Type::RIGHT_PARENTHESIS;
@@ -193,21 +184,340 @@ bool tokenize(const std::vector<uint8_t>& buffer, std::vector<Token>& tokens)
                  c == '%' || c == '=' ||
                  c == '&' || c == '|' ||
                  c == '<' || c == '>' ||
-                 c == '!' || c == '.')
+                 c == '!' || c == '.' ||
+                 c == '~' || c == '^')
         {
-            token.type = Token::Type::OPERATOR;
-
-            while (c == '+' || c == '-' ||
-                   c == '*' || c == '/' ||
-                   c == '%' || c == '=' ||
-                   c == '&' || c == '|' ||
-                   c == '<' || c == '>' ||
-                   c == '!' || c == '.')
+            if (c == '/' && (i + 1) != buffer.end() && // comment
+                (static_cast<char>(*(i + 1)) == '/' || static_cast<char>(*(i + 1)) == '*'))
             {
+                ++i;
+                c = static_cast<char>(*i);
+
+                if (c == '/') // single-line comment
+                {
+                    if (++i == buffer.end()) break; // reached end of file
+                    c = static_cast<char>(*i);
+
+                    while (c != '\n')
+                    {
+                        if (++i == buffer.end()) break; // reached end of file
+                        c = static_cast<char>(*i);
+                    }
+                }
+                else if (c == '*') // multi-line comment
+                {
+                    if (++i == buffer.end()) break; // reached end of file
+                    c = static_cast<char>(*i);
+
+                    while (c != '*' && (i + 1) != buffer.end() &&
+                           static_cast<char>(*(i + 1)) != '/')
+                    {
+                        if (++i == buffer.end()) break; // reached end of file
+                        c = static_cast<char>(*i);
+                    }
+
+                    if (c != '*' || (i + 1) == buffer.end() ||
+                        static_cast<char>(*(i + 1)) != '/')
+                    {
+                        std::cerr << "Unterminated block comment" << std::endl;
+                        return false;
+                    }
+                    else
+                    {
+                        ++i;
+                    }
+                }
+                
+                continue;
+            }
+            else if (c == '+')
+            {
+                token.type = Token::Type::OPERATOR_PLUS;
                 token.value.push_back(c);
 
-                if (++i == buffer.end()) break; // reached end of file
-                c = static_cast<char>(*i);
+                if ((i + 1) != buffer.end())
+                {
+                    if (static_cast<char>(*(i + 1)) == '=')
+                    {
+                        token.type = Token::Type::OPERATOR_PLUS_ASSIGNMENT;
+                        ++i;
+                        c = static_cast<char>(*i);
+                        token.value.push_back(c);
+                    }
+                    else if (static_cast<char>(*(i + 1)) == '+')
+                    {
+                        token.type = Token::Type::OPERATOR_INCREMENT;
+                        ++i;
+                        c = static_cast<char>(*i);
+                        token.value.push_back(c);
+                    }
+                }
+            }
+            else if (c == '-')
+            {
+                token.type = Token::Type::OPERATOR_MINUS;
+                token.value.push_back(c);
+
+                if ((i + 1) != buffer.end())
+                {
+                    if (static_cast<char>(*(i + 1)) == '=')
+                    {
+                        token.type = Token::Type::OPERATOR_MINUS_ASSIGNMENT;
+                        ++i;
+                        c = static_cast<char>(*i);
+                        token.value.push_back(c);
+                    }
+                    else if (static_cast<char>(*(i + 1)) == '-')
+                    {
+                        token.type = Token::Type::OPERATOR_DECREMENT;
+                        ++i;
+                        c = static_cast<char>(*i);
+                        token.value.push_back(c);
+                    }
+                }
+            }
+            else if (c == '*')
+            {
+                token.type = Token::Type::OPERATOR_MULTIPLY;
+                token.value.push_back(c);
+
+                if ((i + 1) != buffer.end())
+                {
+                    if (static_cast<char>(*(i + 1)) == '=')
+                    {
+                        token.type = Token::Type::OPERATOR_MULTIPLY_ASSIGNMENT;
+                        ++i;
+                        c = static_cast<char>(*i);
+                        token.value.push_back(c);
+                    }
+                }
+            }
+            else if (c == '/')
+            {
+                token.type = Token::Type::OPERATOR_DIVIDE;
+                token.value.push_back(c);
+
+                if ((i + 1) != buffer.end())
+                {
+                    if (static_cast<char>(*(i + 1)) == '=')
+                    {
+                        token.type = Token::Type::OPERATOR_MULTIPLY_ASSIGNMENT;
+                        ++i;
+                        c = static_cast<char>(*i);
+                        token.value.push_back(c);
+                    }
+                    else if (static_cast<char>(*(i + 1)) == '/' || // single line comment
+                             static_cast<char>(*(i + 1)) == '*') // multiline comment
+                    {
+                        ++i;
+                        c = static_cast<char>(*i);
+
+                        if (c == '/') // single-line comment
+                        {
+                            if (++i == buffer.end()) break; // reached end of file
+                            c = static_cast<char>(*i);
+
+                            while (c != '\n')
+                            {
+                                if (++i == buffer.end()) break; // reached end of file
+                                c = static_cast<char>(*i);
+                            }
+                        }
+                        else if (c == '*') // multi-line comment
+                        {
+                            if (++i == buffer.end()) break; // reached end of file
+                            c = static_cast<char>(*i);
+
+                            while (c != '*' && (i + 1) != buffer.end() &&
+                                   static_cast<char>(*(i + 1)) != '/')
+                            {
+                                if (++i == buffer.end()) break; // reached end of file
+                                c = static_cast<char>(*i);
+                            }
+
+                            if (c != '*' || (i + 1) == buffer.end() ||
+                                static_cast<char>(*(i + 1)) != '/')
+                            {
+                                std::cerr << "Unterminated block comment" << std::endl;
+                                return false;
+                            }
+                            else
+                            {
+                                ++i;
+                            }
+                        }
+                        
+                        continue;
+
+                    }
+                }
+            }
+            else if (c == '%')
+            {
+                token.type = Token::Type::OPERATOR_MODULO;
+                token.value.push_back(c);
+
+                if ((i + 1) != buffer.end())
+                {
+                    if (static_cast<char>(*(i + 1)) == '=')
+                    {
+                        token.type = Token::Type::OPERATOR_MODULO_ASSIGNMENT;
+                        ++i;
+                        c = static_cast<char>(*i);
+                        token.value.push_back(c);
+                    }
+                }
+            }
+            else if (c == '=')
+            {
+                token.type = Token::Type::OPERATOR_ASSIGNMENT;
+                token.value.push_back(c);
+
+                if ((i + 1) != buffer.end())
+                {
+                    if (static_cast<char>(*(i + 1)) == '=')
+                    {
+                        token.type = Token::Type::OPERATOR_EQUAL;
+                        ++i;
+                        c = static_cast<char>(*i);
+                        token.value.push_back(c);
+                    }
+                }
+            }
+            else if (c == '&')
+            {
+                token.type = Token::Type::OPERATOR_BITWISE_AND;
+                token.value.push_back(c);
+
+                if ((i + 1) != buffer.end())
+                {
+                    if (static_cast<char>(*(i + 1)) == '=')
+                    {
+                        token.type = Token::Type::OPERATOR_BITWISE_AND_ASSIGNMENT;
+                        ++i;
+                        c = static_cast<char>(*i);
+                        token.value.push_back(c);
+                    }
+                    else if (static_cast<char>(*(i + 1)) == '&')
+                    {
+                        token.type = Token::Type::OPERATOR_AND;
+                        ++i;
+                        c = static_cast<char>(*i);
+                        token.value.push_back(c);
+                    }
+                }
+            }
+            else if (c == '|')
+            {
+                token.type = Token::Type::OPERATOR_BITWISE_OR;
+                token.value.push_back(c);
+
+                if ((i + 1) != buffer.end())
+                {
+                    if (static_cast<char>(*(i + 1)) == '=')
+                    {
+                        token.type = Token::Type::OPERATOR_BITWISE_OR_ASSIGNMENT;
+                        ++i;
+                        c = static_cast<char>(*i);
+                        token.value.push_back(c);
+                    }
+                    else if (static_cast<char>(*(i + 1)) == '|')
+                    {
+                        token.type = Token::Type::OPERATOR_OR;
+                        ++i;
+                        c = static_cast<char>(*i);
+                        token.value.push_back(c);
+                    }
+                }
+            }
+            else if (c == '<')
+            {
+                token.type = Token::Type::OPERATOR_LESS_THAN;
+                token.value.push_back(c);
+
+                if ((i + 1) != buffer.end())
+                {
+                    if (static_cast<char>(*(i + 1)) == '=')
+                    {
+                        token.type = Token::Type::OPERATOR_LESS_THAN_EQUAL;
+                        ++i;
+                        c = static_cast<char>(*i);
+                        token.value.push_back(c);
+                    }
+                    else if (static_cast<char>(*(i + 1)) == '<')
+                    {
+                        token.type = Token::Type::OPERATOR_SHIFT_LEFT;
+                        ++i;
+                        c = static_cast<char>(*i);
+                        token.value.push_back(c);
+
+                        if ((i + 1) != buffer.end())
+                        {
+                            if (static_cast<char>(*(i + 1)) == '=')
+                            {
+                                token.type = Token::Type::OPERATOR_SHIFT_LEFT_ASSIGNMENT;
+                                ++i;
+                                c = static_cast<char>(*i);
+                                token.value.push_back(c);
+                            }
+                        }
+                    }
+                }
+            }
+            else if (c == '>')
+            {
+                token.type = Token::Type::OPERATOR_GREATER_THAN;
+                token.value.push_back(c);
+
+                if ((i + 1) != buffer.end())
+                {
+                    if (static_cast<char>(*(i + 1)) == '=')
+                    {
+                        token.type = Token::Type::OPERATOR_GREATER_THAN_EQUAL;
+                        ++i;
+                        c = static_cast<char>(*i);
+                        token.value.push_back(c);
+                    }
+                    else if (static_cast<char>(*(i + 1)) == '>')
+                    {
+                        token.type = Token::Type::OPERATOR_SHIFT_RIGHT;
+                        ++i;
+                        c = static_cast<char>(*i);
+                        token.value.push_back(c);
+
+                        if ((i + 1) != buffer.end())
+                        {
+                            if (static_cast<char>(*(i + 1)) == '=')
+                            {
+                                token.type = Token::Type::OPERATOR_SHIFT_RIGHT_ASSIGNMENT;
+                                ++i;
+                                c = static_cast<char>(*i);
+                                token.value.push_back(c);
+                            }
+                        }
+                    }
+                }
+            }
+            else if (c == '!')
+            {
+                token.type = Token::Type::OPERATOR_NOT;
+                token.value.push_back(c);
+
+                if ((i + 1) != buffer.end())
+                {
+                    if (static_cast<char>(*(i + 1)) == '=')
+                    {
+                        token.type = Token::Type::OPERATOR_NOT_EQUAL;
+                        ++i;
+                        c = static_cast<char>(*i);
+                        token.value.push_back(c);
+                    }
+                }
+            }
+            else if (c == '.')
+            {
+                token.type = Token::Type::OPERATOR_DOT;
+                token.value.push_back(c);
             }
         }
         else if (c == ' ' || c == '\t' || c == '\n') // whitespace
@@ -313,7 +623,41 @@ int main(int argc, const char * argv[])
             case Token::Type::SEMICOLON: std::cout << "SEMICOLON"; break;
             case Token::Type::COLON: std::cout << "COLON"; break;
             case Token::Type::IDENTIFIER: std::cout << "IDENTIFIER"; break;
-            case Token::Type::OPERATOR: std::cout << "OPERATOR"; break;
+            case Token::Type::OPERATOR_PLUS: std::cout << "OPERATOR_PLUS"; break;
+            case Token::Type::OPERATOR_MINUS: std::cout << "OPERATOR_MINUS"; break;
+            case Token::Type::OPERATOR_MULTIPLY: std::cout << "OPERATOR_MULTIPLY"; break;
+            case Token::Type::OPERATOR_DIVIDE: std::cout << "OPERATOR_DIVIDE"; break;
+            case Token::Type::OPERATOR_MODULO: std::cout << "OPERATOR_MODULO"; break;
+            case Token::Type::OPERATOR_INCREMENT: std::cout << "OPERATOR_INCREMENT"; break;
+            case Token::Type::OPERATOR_DECREMENT: std::cout << "OPERATOR_DECREMENT"; break;
+            case Token::Type::OPERATOR_ASSIGNMENT: std::cout << "OPERATOR_ASSIGNMENT"; break;
+            case Token::Type::OPERATOR_PLUS_ASSIGNMENT: std::cout << "OPERATOR_PLUS_ASSIGNMENT"; break;
+            case Token::Type::OPERATOR_MINUS_ASSIGNMENT: std::cout << "OPERATOR_MINUS_ASSIGNMENT"; break;
+            case Token::Type::OPERATOR_MULTIPLY_ASSIGNMENT: std::cout << "OPERATOR_MULTIPLY_ASSIGNMENT"; break;
+            case Token::Type::OPERATOR_DIVIDE_ASSIGNMENT: std::cout << "OPERATOR_DIVIDE_ASSIGNMENT"; break;
+            case Token::Type::OPERATOR_MODULO_ASSIGNMENT: std::cout << "OPERATOR_MODULO_ASSIGNMENT"; break;
+            case Token::Type::OPERATOR_BITWISE_AND_ASSIGNMENT: std::cout << "OPERATOR_BITWISE_AND_ASSIGNMENT"; break;
+            case Token::Type::OPERATOR_BITWISE_OR_ASSIGNMENT: std::cout << "OPERATOR_BITWISE_OR_ASSIGNMENT"; break;
+            case Token::Type::OPERATOR_BITWISE_NOT_ASSIGNMENT: std::cout << "OPERATOR_BITWISE_NOT_ASSIGNMENT"; break;
+            case Token::Type::OPERATOR_BITWISE_XOR_ASSIGNMENT: std::cout << "OPERATOR_BITWISE_XOR_ASSIGNMENT"; break;
+            case Token::Type::OPERATOR_SHIFT_RIGHT_ASSIGNMENT: std::cout << "OPERATOR_SHIFT_RIGHT_ASSIGNMENT"; break;
+            case Token::Type::OPERATOR_SHIFT_LEFT_ASSIGNMENT: std::cout << "OPERATOR_SHIFT_LEFT_ASSIGNMENT"; break;
+            case Token::Type::OPERATOR_BITWISE_AND: std::cout << "OPERATOR_BITWISE_AND"; break;
+            case Token::Type::OPERATOR_BITWISE_OR: std::cout << "OPERATOR_BITWISE_OR"; break;
+            case Token::Type::OPERATOR_BITWISE_NOT: std::cout << "OPERATOR_BITWISE_NOT"; break;
+            case Token::Type::OPERATOR_BITWISE_XOR: std::cout << "OPERATOR_BITWISE_XOR"; break;
+            case Token::Type::OPERATOR_SHIFT_RIGHT: std::cout << "OPERATOR_SHIFT_RIGHT"; break;
+            case Token::Type::OPERATOR_SHIFT_LEFT: std::cout << "OPERATOR_SHIFT_LEFT"; break;
+            case Token::Type::OPERATOR_EQUAL: std::cout << "OPERATOR_EQUAL"; break;
+            case Token::Type::OPERATOR_NOT_EQUAL: std::cout << "OPERATOR_NOT_EQUAL"; break;
+            case Token::Type::OPERATOR_LESS_THAN: std::cout << "OPERATOR_LESS_THAN"; break;
+            case Token::Type::OPERATOR_GREATER_THAN: std::cout << "OPERATOR_GREATER_THAN"; break;
+            case Token::Type::OPERATOR_LESS_THAN_EQUAL: std::cout << "OPERATOR_LESS_THAN_EQUAL"; break;
+            case Token::Type::OPERATOR_GREATER_THAN_EQUAL: std::cout << "OPERATOR_GREATER_THAN_EQUAL"; break;
+            case Token::Type::OPERATOR_AND: std::cout << "OPERATOR_AND"; break;
+            case Token::Type::OPERATOR_OR: std::cout << "OPERATOR_OR"; break;
+            case Token::Type::OPERATOR_NOT: std::cout << "OPERATOR_NOT"; break;
+            case Token::Type::OPERATOR_DOT: std::cout << "OPERATOR_DOT"; break;
         }
 
         std::cout << ", value: " << token.value << std::endl;
