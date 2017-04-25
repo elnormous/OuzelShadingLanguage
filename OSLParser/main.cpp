@@ -81,6 +81,7 @@ struct Token
         OPERATOR_AND, // &&
         OPERATOR_OR, // ||
         OPERATOR_NOT, // !
+        OPERATOR_CONDITIONAL, // ?
         OPERATOR_DOT, // .
     };
 
@@ -526,6 +527,11 @@ bool tokenize(const std::vector<uint8_t>& buffer, std::vector<Token>& tokens)
                     }
                 }
             }
+            else if (c == '?')
+            {
+                token.type = Token::Type::OPERATOR_CONDITIONAL;
+                token.value.push_back(c);
+            }
             else if (c == '.')
             {
                 token.type = Token::Type::OPERATOR_DOT;
@@ -553,12 +559,21 @@ struct ASTNode
     enum class Type
     {
         NONE,
+        TYPE_DECLARATION,
+        FIELD_DECLARATION,
         FUNCTION_DECLARATION,
         VARIABLE_DECLARATION,
         PARAMETER_DECLARATION,
         COMPOUND_STATEMENT,
-        FUNCTION_CALL,
-        OPERATOR,
+        RETURN_STATEMENT,
+        CALL_EXPRESSION,
+        IF_STATEMENT,
+        FOR_STATEMENT,
+        WHILE_STATEMENT,
+        DO_STATEMENT,
+        ASSIGN_OPERATOR,
+        BINARY_OPERATOR,
+        TERNARY_OPERATOR,
     };
 
     Type type = Type::NONE;
@@ -579,6 +594,45 @@ bool parse(const std::vector<Token>& tokens, ASTContext& context)
     }
 
     return true;
+}
+
+void dumpNode(const ASTNode& node, std::string indent = std::string())
+{
+    for (const auto child : node.children)
+    {
+        std::cout << indent;
+        switch (child.type)
+        {
+            case ASTNode::Type::NONE: std::cout << "NONE"; break;
+            case ASTNode::Type::TYPE_DECLARATION: std::cout << "TYPE_DECLARATION"; break;
+            case ASTNode::Type::FIELD_DECLARATION: std::cout << "FIELD_DECLARATION"; break;
+            case ASTNode::Type::FUNCTION_DECLARATION: std::cout << "FUNCTION_DECLARATION"; break;
+            case ASTNode::Type::VARIABLE_DECLARATION: std::cout << "VARIABLE_DECLARATION"; break;
+            case ASTNode::Type::PARAMETER_DECLARATION: std::cout << "PARAMETER_DECLARATION"; break;
+            case ASTNode::Type::COMPOUND_STATEMENT: std::cout << "COMPOUND_STATEMENT"; break;
+            case ASTNode::Type::RETURN_STATEMENT: std::cout << "RETURN_STATEMENT"; break;
+            case ASTNode::Type::CALL_EXPRESSION: std::cout << "CALL_EXPRESSION"; break;
+            case ASTNode::Type::IF_STATEMENT: std::cout << "IF_STATEMENT"; break;
+            case ASTNode::Type::FOR_STATEMENT: std::cout << "FOR_STATEMENT"; break;
+            case ASTNode::Type::WHILE_STATEMENT: std::cout << "WHILE_STATEMENT"; break;
+            case ASTNode::Type::DO_STATEMENT: std::cout << "DO_STATEMENT"; break;
+            case ASTNode::Type::ASSIGN_OPERATOR: std::cout << "ASSIGN_OPERATOR"; break;
+            case ASTNode::Type::BINARY_OPERATOR: std::cout << "BINARY_OPERATOR"; break;
+            case ASTNode::Type::TERNARY_OPERATOR: std::cout << "TERNARY_OPERATOR"; break;
+        }
+
+        std::cout << std::endl;
+
+        dumpNode(child, indent + "  ");
+    }
+}
+
+void dumpContext(ASTContext& context)
+{
+    for (const auto node : context.nodes)
+    {
+        dumpNode(node);
+    }
 }
 
 int main(int argc, const char * argv[])
@@ -681,6 +735,7 @@ int main(int argc, const char * argv[])
             case Token::Type::OPERATOR_AND: std::cout << "OPERATOR_AND"; break;
             case Token::Type::OPERATOR_OR: std::cout << "OPERATOR_OR"; break;
             case Token::Type::OPERATOR_NOT: std::cout << "OPERATOR_NOT"; break;
+            case Token::Type::OPERATOR_CONDITIONAL: std::cout << "OPERATOR_CONDITIONAL"; break;
             case Token::Type::OPERATOR_DOT: std::cout << "OPERATOR_DOT"; break;
         }
 
@@ -694,6 +749,8 @@ int main(int argc, const char * argv[])
         std::cerr << "Dailed to parse" << std::endl;
         return EXIT_FAILURE;
     }
+
+    dumpContext(context);
 
     return EXIT_SUCCESS;
 }
