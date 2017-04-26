@@ -36,6 +36,12 @@ bool ASTContext::parseTopLevel(std::vector<Token>::const_iterator& iterator)
     // TODO: parse statement
     // file must have only declaration (type, variable, function) statements at the top level
 
+    const Token& token = *iterator;
+
+    if (token.type == Token::Type::IDENTIFIER)
+    {
+    }
+
     return true;
 }
 

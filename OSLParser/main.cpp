@@ -18,7 +18,7 @@ int main(int argc, const char * argv[])
         return EXIT_FAILURE;
     }
 
-    std::vector<uint8_t> buffer;
+    std::vector<char> code;
 
     FILE* file = fopen(argv[1], "rb");
 
@@ -31,13 +31,13 @@ int main(int argc, const char * argv[])
     fseek(file, 0, SEEK_END);
     long size = ftell(file);
     fseek(file, 0, SEEK_SET);
-    buffer.resize(size);
-    fread(&buffer[0], size, 1, file);
+    code.resize(size);
+    fread(&code[0], size, 1, file);
     fclose(file);
 
     std::vector<Token> tokens;
 
-    if (!tokenize(buffer, tokens))
+    if (!tokenize(code, tokens))
     {
         std::cerr << "Failed to tokenize" << std::endl;
         return EXIT_FAILURE;

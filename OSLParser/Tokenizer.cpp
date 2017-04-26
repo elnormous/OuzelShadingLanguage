@@ -9,11 +9,11 @@
 #include <iostream>
 #include "Tokenizer.h"
 
-bool tokenize(const std::vector<uint8_t>& buffer, std::vector<Token>& tokens)
+bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
 {
-    for (std::vector<uint8_t>::const_iterator i = buffer.begin(); i != buffer.end(); ++i)
+    for (std::vector<char>::const_iterator i = code.begin(); i != code.end(); ++i)
     {
-        char c = static_cast<char>(*i);
+        char c = *i;
 
         Token token;
 
@@ -57,23 +57,23 @@ bool tokenize(const std::vector<uint8_t>& buffer, std::vector<Token>& tokens)
 
                 token.value.push_back(c);
 
-                if (++i == buffer.end()) break; // reached end of file
-                c = static_cast<char>(*i);
+                if (++i == code.end()) break; // reached end of file
+                c = *i;
             }
         }
         else if (c == '"') // string literal
         {
             token.type = Token::Type::STRING_LITERAL;
 
-            if (++i == buffer.end()) break; // reached end of file
-            c = static_cast<char>(*i);
+            if (++i == code.end()) break; // reached end of file
+            c = *i;
 
             while (c != '"')
             {
                 token.value.push_back(c);
 
-                if (++i == buffer.end()) break; // reached end of file
-                c = static_cast<char>(*i);
+                if (++i == code.end()) break; // reached end of file
+                c = *i;
             }
 
             if (c != '"')
@@ -93,8 +93,8 @@ bool tokenize(const std::vector<uint8_t>& buffer, std::vector<Token>& tokens)
             {
                 token.value.push_back(c);
 
-                if (++i == buffer.end()) break; // reached end of file
-                c = static_cast<char>(*i);
+                if (++i == code.end()) break; // reached end of file
+                c = *i;
             }
 
             if (token.value == "if") token.type = Token::Type::KEYWORD_IF;
@@ -120,37 +120,37 @@ bool tokenize(const std::vector<uint8_t>& buffer, std::vector<Token>& tokens)
                  c == '!' || c == '.' ||
                  c == '~' || c == '^')
         {
-            if (c == '/' && (i + 1) != buffer.end() && // comment
-                (static_cast<char>(*(i + 1)) == '/' || static_cast<char>(*(i + 1)) == '*'))
+            if (c == '/' && (i + 1) != code.end() && // comment
+                (*(i + 1) == '/' || *(i + 1) == '*'))
             {
                 ++i;
-                c = static_cast<char>(*i);
+                c = *i;
 
                 if (c == '/') // single-line comment
                 {
-                    if (++i == buffer.end()) break; // reached end of file
-                    c = static_cast<char>(*i);
+                    if (++i == code.end()) break; // reached end of file
+                    c = *i;
 
                     while (c != '\n')
                     {
-                        if (++i == buffer.end()) break; // reached end of file
-                        c = static_cast<char>(*i);
+                        if (++i == code.end()) break; // reached end of file
+                        c = *i;
                     }
                 }
                 else if (c == '*') // multi-line comment
                 {
-                    if (++i == buffer.end()) break; // reached end of file
-                    c = static_cast<char>(*i);
+                    if (++i == code.end()) break; // reached end of file
+                    c = *i;
 
-                    while (c != '*' && (i + 1) != buffer.end() &&
-                           static_cast<char>(*(i + 1)) != '/')
+                    while (c != '*' && (i + 1) != code.end() &&
+                           *(i + 1) != '/')
                     {
-                        if (++i == buffer.end()) break; // reached end of file
-                        c = static_cast<char>(*i);
+                        if (++i == code.end()) break; // reached end of file
+                        c = *i;
                     }
 
-                    if (c != '*' || (i + 1) == buffer.end() ||
-                        static_cast<char>(*(i + 1)) != '/')
+                    if (c != '*' || (i + 1) == code.end() ||
+                        *(i + 1) != '/')
                     {
                         std::cerr << "Unterminated block comment" << std::endl;
                         return false;
@@ -168,20 +168,20 @@ bool tokenize(const std::vector<uint8_t>& buffer, std::vector<Token>& tokens)
                 token.type = Token::Type::OPERATOR_PLUS;
                 token.value.push_back(c);
 
-                if ((i + 1) != buffer.end())
+                if ((i + 1) != code.end())
                 {
-                    if (static_cast<char>(*(i + 1)) == '=')
+                    if (*(i + 1) == '=')
                     {
                         token.type = Token::Type::OPERATOR_PLUS_ASSIGNMENT;
                         ++i;
-                        c = static_cast<char>(*i);
+                        c = *i;
                         token.value.push_back(c);
                     }
-                    else if (static_cast<char>(*(i + 1)) == '+')
+                    else if (*(i + 1) == '+')
                     {
                         token.type = Token::Type::OPERATOR_INCREMENT;
                         ++i;
-                        c = static_cast<char>(*i);
+                        c = *i;
                         token.value.push_back(c);
                     }
                 }
@@ -191,20 +191,20 @@ bool tokenize(const std::vector<uint8_t>& buffer, std::vector<Token>& tokens)
                 token.type = Token::Type::OPERATOR_MINUS;
                 token.value.push_back(c);
 
-                if ((i + 1) != buffer.end())
+                if ((i + 1) != code.end())
                 {
-                    if (static_cast<char>(*(i + 1)) == '=')
+                    if (*(i + 1) == '=')
                     {
                         token.type = Token::Type::OPERATOR_MINUS_ASSIGNMENT;
                         ++i;
-                        c = static_cast<char>(*i);
+                        c = *i;
                         token.value.push_back(c);
                     }
-                    else if (static_cast<char>(*(i + 1)) == '-')
+                    else if (*(i + 1) == '-')
                     {
                         token.type = Token::Type::OPERATOR_DECREMENT;
                         ++i;
-                        c = static_cast<char>(*i);
+                        c = *i;
                         token.value.push_back(c);
                     }
                 }
@@ -214,13 +214,13 @@ bool tokenize(const std::vector<uint8_t>& buffer, std::vector<Token>& tokens)
                 token.type = Token::Type::OPERATOR_MULTIPLY;
                 token.value.push_back(c);
 
-                if ((i + 1) != buffer.end())
+                if ((i + 1) != code.end())
                 {
-                    if (static_cast<char>(*(i + 1)) == '=')
+                    if (*(i + 1) == '=')
                     {
                         token.type = Token::Type::OPERATOR_MULTIPLY_ASSIGNMENT;
                         ++i;
-                        c = static_cast<char>(*i);
+                        c = *i;
                         token.value.push_back(c);
                     }
                 }
@@ -230,46 +230,46 @@ bool tokenize(const std::vector<uint8_t>& buffer, std::vector<Token>& tokens)
                 token.type = Token::Type::OPERATOR_DIVIDE;
                 token.value.push_back(c);
 
-                if ((i + 1) != buffer.end())
+                if ((i + 1) != code.end())
                 {
-                    if (static_cast<char>(*(i + 1)) == '=')
+                    if (*(i + 1) == '=')
                     {
                         token.type = Token::Type::OPERATOR_MULTIPLY_ASSIGNMENT;
                         ++i;
-                        c = static_cast<char>(*i);
+                        c = *i;
                         token.value.push_back(c);
                     }
-                    else if (static_cast<char>(*(i + 1)) == '/' || // single line comment
-                             static_cast<char>(*(i + 1)) == '*') // multiline comment
+                    else if (*(i + 1) == '/' || // single line comment
+                             *(i + 1) == '*') // multiline comment
                     {
                         ++i;
-                        c = static_cast<char>(*i);
+                        c = *i;
 
                         if (c == '/') // single-line comment
                         {
-                            if (++i == buffer.end()) break; // reached end of file
-                            c = static_cast<char>(*i);
+                            if (++i == code.end()) break; // reached end of file
+                            c = *i;
 
                             while (c != '\n')
                             {
-                                if (++i == buffer.end()) break; // reached end of file
-                                c = static_cast<char>(*i);
+                                if (++i == code.end()) break; // reached end of file
+                                c = *i;
                             }
                         }
                         else if (c == '*') // multi-line comment
                         {
-                            if (++i == buffer.end()) break; // reached end of file
-                            c = static_cast<char>(*i);
+                            if (++i == code.end()) break; // reached end of file
+                            c = *i;
 
-                            while (c != '*' && (i + 1) != buffer.end() &&
-                                   static_cast<char>(*(i + 1)) != '/')
+                            while (c != '*' && (i + 1) != code.end() &&
+                                   *(i + 1) != '/')
                             {
-                                if (++i == buffer.end()) break; // reached end of file
-                                c = static_cast<char>(*i);
+                                if (++i == code.end()) break; // reached end of file
+                                c = *i;
                             }
 
-                            if (c != '*' || (i + 1) == buffer.end() ||
-                                static_cast<char>(*(i + 1)) != '/')
+                            if (c != '*' || (i + 1) == code.end() ||
+                                *(i + 1) != '/')
                             {
                                 std::cerr << "Unterminated block comment" << std::endl;
                                 return false;
@@ -290,13 +290,13 @@ bool tokenize(const std::vector<uint8_t>& buffer, std::vector<Token>& tokens)
                 token.type = Token::Type::OPERATOR_MODULO;
                 token.value.push_back(c);
 
-                if ((i + 1) != buffer.end())
+                if ((i + 1) != code.end())
                 {
-                    if (static_cast<char>(*(i + 1)) == '=')
+                    if (*(i + 1) == '=')
                     {
                         token.type = Token::Type::OPERATOR_MODULO_ASSIGNMENT;
                         ++i;
-                        c = static_cast<char>(*i);
+                        c = *i;
                         token.value.push_back(c);
                     }
                 }
@@ -306,13 +306,13 @@ bool tokenize(const std::vector<uint8_t>& buffer, std::vector<Token>& tokens)
                 token.type = Token::Type::OPERATOR_ASSIGNMENT;
                 token.value.push_back(c);
 
-                if ((i + 1) != buffer.end())
+                if ((i + 1) != code.end())
                 {
-                    if (static_cast<char>(*(i + 1)) == '=')
+                    if (*(i + 1) == '=')
                     {
                         token.type = Token::Type::OPERATOR_EQUAL;
                         ++i;
-                        c = static_cast<char>(*i);
+                        c = *i;
                         token.value.push_back(c);
                     }
                 }
@@ -322,20 +322,20 @@ bool tokenize(const std::vector<uint8_t>& buffer, std::vector<Token>& tokens)
                 token.type = Token::Type::OPERATOR_BITWISE_AND;
                 token.value.push_back(c);
 
-                if ((i + 1) != buffer.end())
+                if ((i + 1) != code.end())
                 {
-                    if (static_cast<char>(*(i + 1)) == '=')
+                    if (*(i + 1) == '=')
                     {
                         token.type = Token::Type::OPERATOR_BITWISE_AND_ASSIGNMENT;
                         ++i;
-                        c = static_cast<char>(*i);
+                        c = *i;
                         token.value.push_back(c);
                     }
-                    else if (static_cast<char>(*(i + 1)) == '&')
+                    else if (*(i + 1) == '&')
                     {
                         token.type = Token::Type::OPERATOR_AND;
                         ++i;
-                        c = static_cast<char>(*i);
+                        c = *i;
                         token.value.push_back(c);
                     }
                 }
@@ -345,20 +345,20 @@ bool tokenize(const std::vector<uint8_t>& buffer, std::vector<Token>& tokens)
                 token.type = Token::Type::OPERATOR_BITWISE_OR;
                 token.value.push_back(c);
 
-                if ((i + 1) != buffer.end())
+                if ((i + 1) != code.end())
                 {
-                    if (static_cast<char>(*(i + 1)) == '=')
+                    if (*(i + 1) == '=')
                     {
                         token.type = Token::Type::OPERATOR_BITWISE_OR_ASSIGNMENT;
                         ++i;
-                        c = static_cast<char>(*i);
+                        c = *i;
                         token.value.push_back(c);
                     }
-                    else if (static_cast<char>(*(i + 1)) == '|')
+                    else if (*(i + 1) == '|')
                     {
                         token.type = Token::Type::OPERATOR_OR;
                         ++i;
-                        c = static_cast<char>(*i);
+                        c = *i;
                         token.value.push_back(c);
                     }
                 }
@@ -368,29 +368,29 @@ bool tokenize(const std::vector<uint8_t>& buffer, std::vector<Token>& tokens)
                 token.type = Token::Type::OPERATOR_LESS_THAN;
                 token.value.push_back(c);
 
-                if ((i + 1) != buffer.end())
+                if ((i + 1) != code.end())
                 {
-                    if (static_cast<char>(*(i + 1)) == '=')
+                    if (*(i + 1) == '=')
                     {
                         token.type = Token::Type::OPERATOR_LESS_THAN_EQUAL;
                         ++i;
-                        c = static_cast<char>(*i);
+                        c = *i;
                         token.value.push_back(c);
                     }
-                    else if (static_cast<char>(*(i + 1)) == '<')
+                    else if (*(i + 1) == '<')
                     {
                         token.type = Token::Type::OPERATOR_SHIFT_LEFT;
                         ++i;
-                        c = static_cast<char>(*i);
+                        c = *i;
                         token.value.push_back(c);
 
-                        if ((i + 1) != buffer.end())
+                        if ((i + 1) != code.end())
                         {
-                            if (static_cast<char>(*(i + 1)) == '=')
+                            if (*(i + 1) == '=')
                             {
                                 token.type = Token::Type::OPERATOR_SHIFT_LEFT_ASSIGNMENT;
                                 ++i;
-                                c = static_cast<char>(*i);
+                                c = *i;
                                 token.value.push_back(c);
                             }
                         }
@@ -402,29 +402,29 @@ bool tokenize(const std::vector<uint8_t>& buffer, std::vector<Token>& tokens)
                 token.type = Token::Type::OPERATOR_GREATER_THAN;
                 token.value.push_back(c);
 
-                if ((i + 1) != buffer.end())
+                if ((i + 1) != code.end())
                 {
-                    if (static_cast<char>(*(i + 1)) == '=')
+                    if (*(i + 1) == '=')
                     {
                         token.type = Token::Type::OPERATOR_GREATER_THAN_EQUAL;
                         ++i;
-                        c = static_cast<char>(*i);
+                        c = *i;
                         token.value.push_back(c);
                     }
-                    else if (static_cast<char>(*(i + 1)) == '>')
+                    else if (*(i + 1) == '>')
                     {
                         token.type = Token::Type::OPERATOR_SHIFT_RIGHT;
                         ++i;
-                        c = static_cast<char>(*i);
+                        c = *i;
                         token.value.push_back(c);
 
-                        if ((i + 1) != buffer.end())
+                        if ((i + 1) != code.end())
                         {
-                            if (static_cast<char>(*(i + 1)) == '=')
+                            if (*(i + 1) == '=')
                             {
                                 token.type = Token::Type::OPERATOR_SHIFT_RIGHT_ASSIGNMENT;
                                 ++i;
-                                c = static_cast<char>(*i);
+                                c = *i;
                                 token.value.push_back(c);
                             }
                         }
@@ -436,13 +436,13 @@ bool tokenize(const std::vector<uint8_t>& buffer, std::vector<Token>& tokens)
                 token.type = Token::Type::OPERATOR_NOT;
                 token.value.push_back(c);
 
-                if ((i + 1) != buffer.end())
+                if ((i + 1) != code.end())
                 {
-                    if (static_cast<char>(*(i + 1)) == '=')
+                    if (*(i + 1) == '=')
                     {
                         token.type = Token::Type::OPERATOR_NOT_EQUAL;
                         ++i;
-                        c = static_cast<char>(*i);
+                        c = *i;
                         token.value.push_back(c);
                     }
                 }

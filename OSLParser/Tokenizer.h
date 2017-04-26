@@ -155,4 +155,4 @@ inline std::string tokenTypeToString(Token::Type type)
     }
 }
 
-bool tokenize(const std::vector<uint8_t>& buffer, std::vector<Token>& tokens);
+bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens);
