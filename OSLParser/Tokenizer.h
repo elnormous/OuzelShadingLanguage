@@ -33,6 +33,7 @@ struct Token
         KEYWORD_INLINE, // inline
         KEYWORD_STRUCT, // struct
         KEYWORD_TYPEDEF, // typedef
+        KEYWORD_CONST, // const
         LEFT_PARENTHESIS, // )
         RIGHT_PARENTHESIS, // (
         LEFT_BRACE, // {
@@ -107,6 +108,7 @@ inline std::string tokenTypeToString(Token::Type type)
         case Token::Type::KEYWORD_INLINE: return "KEYWORD_INLINE";
         case Token::Type::KEYWORD_STRUCT: return "KEYWORD_STRUCT";
         case Token::Type::KEYWORD_TYPEDEF: return "KEYWORD_TYPEDEF";
+        case Token::Type::KEYWORD_CONST: return "KEYWORD_CONST";
         case Token::Type::LEFT_PARENTHESIS: return "LEFT_PARENTHESIS";
         case Token::Type::RIGHT_PARENTHESIS: return "RIGHT_PARENTHESIS";
         case Token::Type::LEFT_BRACE: return "LEFT_BRACE";

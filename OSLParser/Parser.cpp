@@ -14,6 +14,31 @@ std::vector<std::string> builtinTypes = {
     "vec2", "vec3", "vec4", "mat3", "mat4"
 };
 
+bool parseIf()
+{
+    return true;
+}
+
+bool parseFor()
+{
+    return true;
+}
+
+bool parseWhile()
+{
+    return true;
+}
+
+bool parseDo()
+{
+    return true;
+}
+
+bool parseStatement()
+{
+    return true;
+}
+
 bool parseNode(const std::vector<Token>& tokens, ASTNode& node)
 {
     return true;

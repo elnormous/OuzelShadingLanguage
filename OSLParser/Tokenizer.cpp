@@ -145,6 +145,7 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
             else if (token.value == "inline") token.type = Token::Type::KEYWORD_INLINE;
             else if (token.value == "struct") token.type = Token::Type::KEYWORD_STRUCT;
             else if (token.value == "typedef") token.type = Token::Type::KEYWORD_TYPEDEF;
+            else if (token.value == "const") token.type = Token::Type::KEYWORD_CONST;
             else token.type = Token::Type::IDENTIFIER;
         }
         else if (c == '+' || c == '-' ||
