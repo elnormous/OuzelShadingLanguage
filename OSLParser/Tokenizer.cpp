@@ -65,20 +65,55 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
         {
             token.type = Token::Type::STRING_LITERAL;
 
-            if (++i == code.end()) break; // reached end of file
+            if (++i == code.end()) // reached end of file
+            {
+                std::cerr << "Unterminated string" << std::endl;
+                return false;
+            }
+
             c = *i;
 
+            // TODO: handle escaping
             while (c != '"')
             {
                 token.value.push_back(c);
 
-                if (++i == code.end()) break; // reached end of file
+                if (++i == code.end()) // reached end of file
+                {
+                    std::cerr << "Unterminated string" << std::endl;
+                    return false;
+                }
+                c = *i;
+            }
+        }
+        else if (c == '\'')
+        {
+            token.type = Token::Type::CHAR_LITERAL;
+
+            if (++i == code.end()) // reached end of file
+            {
+                std::cerr << "Unterminated char" << std::endl;
+                return false;
+            }
+
+            c = *i;
+
+            // TODO: handle escaping
+            while (c != '\'')
+            {
+                token.value.push_back(c);
+
+                if (++i == code.end()) // reached end of file
+                {
+                    std::cerr << "Unterminated char" << std::endl;
+                    return false;
+                }
                 c = *i;
             }
 
-            if (c != '"')
+            if (token.value.length() != 1)
             {
-                std::cerr << "Unterminated string" << std::endl;
+                std::cerr << "Invalid char literal" << std::endl;
                 return false;
             }
         }
