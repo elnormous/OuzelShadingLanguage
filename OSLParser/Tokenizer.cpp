@@ -375,6 +375,38 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
                     }
                 }
             }
+            else if (c == '~')
+            {
+                token.type = Token::Type::OPERATOR_BITWISE_NOT;
+                token.value.push_back(c);
+
+                if ((i + 1) != code.end())
+                {
+                    if (*(i + 1) == '=')
+                    {
+                        token.type = Token::Type::OPERATOR_BITWISE_NOT_ASSIGNMENT;
+                        ++i;
+                        c = *i;
+                        token.value.push_back(c);
+                    }
+                }
+            }
+            else if (c == '^')
+            {
+                token.type = Token::Type::OPERATOR_BITWISE_XOR;
+                token.value.push_back(c);
+
+                if ((i + 1) != code.end())
+                {
+                    if (*(i + 1) == '=')
+                    {
+                        token.type = Token::Type::OPERATOR_BITWISE_XOR_ASSIGNMENT;
+                        ++i;
+                        c = *i;
+                        token.value.push_back(c);
+                    }
+                }
+            }
             else if (c == '|')
             {
                 token.type = Token::Type::OPERATOR_BITWISE_OR;
