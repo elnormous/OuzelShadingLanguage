@@ -11,7 +11,7 @@
 
 bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
 {
-    for (std::vector<char>::const_iterator i = code.begin(); i != code.end(); ++i)
+    for (std::vector<char>::const_iterator i = code.begin(); i != code.end();)
     {
         Token token;
 
@@ -31,19 +31,19 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
             if (*i == ';') token.type = Token::Type::SEMICOLON;
             if (*i == ':') token.type = Token::Type::COLON;
             token.value.push_back(*i);
+
+            ++i;
         }
-        else if (*i >= '0' && *i <= '9') // number
+        else if ((*i >= '0' && *i <= '9') ||  // number
+                 (*i == '.' && (i + 1) != code.end() && *(i + 1) >= '0' && *(i + 1) <= '9')) // starts with a dot
         {
             token.type = Token::Type::INT_LITERAL;
 
             bool dot = false;
 
-            token.value.push_back(*i);
-
-            while ((i + 1) != code.end() &&
-                   ((*(i + 1) >= '0' && *(i + 1) <= '9') || *(i + 1) == '.'))
+            while (i != code.end() &&
+                   ((*i >= '0' && *i <= '9') || *i == '.'))
             {
-                ++i;
                 if (*i == '.')
                 {
                     if (dot)
@@ -59,6 +59,7 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
                 }
 
                 token.value.push_back(*i);
+                ++i;
             }
         }
         else if (*i == '"') // string literal
@@ -115,16 +116,14 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
                  (*i >= 'A' && *i <= 'Z') ||
                  *i == '_')
         {
-            token.value.push_back(*i);
-
-            while ((i + 1) != code.end() &&
-                   ((*(i + 1) >= 'a' && *(i + 1) <= 'z') ||
-                    (*(i + 1) >= 'A' && *(i + 1) <= 'Z') ||
-                    *(i + 1) == '_' ||
-                    (*(i + 1) >= '0' && *(i + 1) <= '9')))
+            while (i != code.end() &&
+                   ((*i >= 'a' && *i <= 'z') ||
+                    (*i >= 'A' && *i <= 'Z') ||
+                    *i == '_' ||
+                    (*i >= '0' && *i <= '9')))
             {
-                ++i;
                 token.value.push_back(*i);
+                ++i;
             }
 
             if (token.value == "if") token.type = Token::Type::KEYWORD_IF;
@@ -151,62 +150,25 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
                  *i == '!' || *i == '.' ||
                  *i == '~' || *i == '^')
         {
-            if (*i == '/' && (i + 1) != code.end() && // comment
-                (*(i + 1) == '/' || *(i + 1) == '*'))
-            {
-                ++i;
-
-                if (*i == '/') // single-line comment
-                {
-                    if (++i == code.end()) break; // reached end of file
-
-                    while (*i != '\n')
-                    {
-                        if (++i == code.end()) break; // reached end of file
-                    }
-                }
-                else if (*i == '*') // multi-line comment
-                {
-                    if (++i == code.end()) break; // reached end of file
-
-                    while (*i != '*' && (i + 1) != code.end() &&
-                           *(i + 1) != '/')
-                    {
-                        if (++i == code.end()) break; // reached end of file
-                    }
-
-                    if (*i != '*' || (i + 1) == code.end() ||
-                        *(i + 1) != '/')
-                    {
-                        std::cerr << "Unterminated block comment" << std::endl;
-                        return false;
-                    }
-                    else
-                    {
-                        ++i;
-                    }
-                }
-
-                continue;
-            }
-            else if (*i == '+')
+            if (*i == '+')
             {
                 token.type = Token::Type::OPERATOR_PLUS;
                 token.value.push_back(*i);
+                ++i;
 
-                if ((i + 1) != code.end())
+                if (i != code.end())
                 {
-                    if (*(i + 1) == '=')
+                    if (*i == '=')
                     {
                         token.type = Token::Type::OPERATOR_PLUS_ASSIGNMENT;
-                        ++i;
                         token.value.push_back(*i);
+                        ++i;
                     }
-                    else if (*(i + 1) == '+')
+                    else if (*i == '+')
                     {
                         token.type = Token::Type::OPERATOR_INCREMENT;
-                        ++i;
                         token.value.push_back(*i);
+                        ++i;
                     }
                 }
             }
@@ -214,20 +176,21 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
             {
                 token.type = Token::Type::OPERATOR_MINUS;
                 token.value.push_back(*i);
+                ++i;
 
-                if ((i + 1) != code.end())
+                if (i != code.end())
                 {
-                    if (*(i + 1) == '=')
+                    if (*i == '=')
                     {
                         token.type = Token::Type::OPERATOR_MINUS_ASSIGNMENT;
-                        ++i;
                         token.value.push_back(*i);
+                        ++i;
                     }
-                    else if (*(i + 1) == '-')
+                    else if (*i == '-')
                     {
                         token.type = Token::Type::OPERATOR_DECREMENT;
-                        ++i;
                         token.value.push_back(*i);
+                        ++i;
                     }
                 }
             }
@@ -235,14 +198,15 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
             {
                 token.type = Token::Type::OPERATOR_MULTIPLY;
                 token.value.push_back(*i);
+                ++i;
 
-                if ((i + 1) != code.end())
+                if (i != code.end())
                 {
-                    if (*(i + 1) == '=')
+                    if (*i == '=')
                     {
                         token.type = Token::Type::OPERATOR_MULTIPLY_ASSIGNMENT;
-                        ++i;
                         token.value.push_back(*i);
+                        ++i;
                     }
                 }
             }
@@ -250,53 +214,51 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
             {
                 token.type = Token::Type::OPERATOR_DIVIDE;
                 token.value.push_back(*i);
+                ++i;
 
-                if ((i + 1) != code.end())
+                if (i != code.end())
                 {
-                    if (*(i + 1) == '=')
+                    if (*i == '=')
                     {
                         token.type = Token::Type::OPERATOR_MULTIPLY_ASSIGNMENT;
-                        ++i;
                         token.value.push_back(*i);
-                    }
-                    else if (*(i + 1) == '/' || // single line comment
-                             *(i + 1) == '*') // multiline comment
-                    {
                         ++i;
-
+                    }
+                    else if (*i == '/' || // single line comment
+                             *i == '*') // multiline comment
+                    {
                         if (*i == '/') // single-line comment
                         {
-                            if (++i == code.end()) break; // reached end of file
+                            ++i;
 
-                            while (*i != '\n')
+                            while (i != code.end() && *i != '\n')
                             {
                                 if (++i == code.end()) break; // reached end of file
                             }
                         }
                         else if (*i == '*') // multi-line comment
                         {
-                            if (++i == code.end()) break; // reached end of file
+                            ++i;
 
-                            while (*i != '*' && (i + 1) != code.end() &&
-                                   *(i + 1) != '/')
+                            while (i != code.end() && *i != '*' &&
+                                   (i + 1) != code.end() && *(i + 1) != '/')
                             {
-                                if (++i == code.end()) break; // reached end of file
+                                ++i;
                             }
 
-                            if (*i != '*' || (i + 1) == code.end() ||
-                                *(i + 1) != '/')
+                            if (*i == '*' && ++i != code.end() &&
+                                *i == '/')
                             {
-                                std::cerr << "Unterminated block comment" << std::endl;
-                                return false;
+                                ++i;
                             }
                             else
                             {
-                                ++i;
+                                std::cerr << "Unterminated block comment" << *i << *(i + 1) << std::endl;
+                                return false;
                             }
                         }
 
                         continue;
-
                     }
                 }
             }
@@ -304,14 +266,15 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
             {
                 token.type = Token::Type::OPERATOR_MODULO;
                 token.value.push_back(*i);
+                ++i;
 
-                if ((i + 1) != code.end())
+                if (i != code.end())
                 {
-                    if (*(i + 1) == '=')
+                    if (*i == '=')
                     {
                         token.type = Token::Type::OPERATOR_MODULO_ASSIGNMENT;
-                        ++i;
                         token.value.push_back(*i);
+                        ++i;
                     }
                 }
             }
@@ -319,14 +282,15 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
             {
                 token.type = Token::Type::OPERATOR_ASSIGNMENT;
                 token.value.push_back(*i);
+                ++i;
 
-                if ((i + 1) != code.end())
+                if (i != code.end())
                 {
-                    if (*(i + 1) == '=')
+                    if (*i == '=')
                     {
                         token.type = Token::Type::OPERATOR_EQUAL;
-                        ++i;
                         token.value.push_back(*i);
+                        ++i;
                     }
                 }
             }
@@ -334,20 +298,21 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
             {
                 token.type = Token::Type::OPERATOR_BITWISE_AND;
                 token.value.push_back(*i);
+                ++i;
 
-                if ((i + 1) != code.end())
+                if (i != code.end())
                 {
-                    if (*(i + 1) == '=')
+                    if (*i == '=')
                     {
                         token.type = Token::Type::OPERATOR_BITWISE_AND_ASSIGNMENT;
-                        ++i;
                         token.value.push_back(*i);
+                        ++i;
                     }
-                    else if (*(i + 1) == '&')
+                    else if (*i == '&')
                     {
                         token.type = Token::Type::OPERATOR_AND;
-                        ++i;
                         token.value.push_back(*i);
+                        ++i;
                     }
                 }
             }
@@ -355,14 +320,15 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
             {
                 token.type = Token::Type::OPERATOR_BITWISE_NOT;
                 token.value.push_back(*i);
+                ++i;
 
-                if ((i + 1) != code.end())
+                if (i != code.end())
                 {
-                    if (*(i + 1) == '=')
+                    if (*i == '=')
                     {
                         token.type = Token::Type::OPERATOR_BITWISE_NOT_ASSIGNMENT;
-                        ++i;
                         token.value.push_back(*i);
+                        ++i;
                     }
                 }
             }
@@ -370,14 +336,15 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
             {
                 token.type = Token::Type::OPERATOR_BITWISE_XOR;
                 token.value.push_back(*i);
+                ++i;
 
-                if ((i + 1) != code.end())
+                if (i != code.end())
                 {
-                    if (*(i + 1) == '=')
+                    if (*i == '=')
                     {
                         token.type = Token::Type::OPERATOR_BITWISE_XOR_ASSIGNMENT;
-                        ++i;
                         token.value.push_back(*i);
+                        ++i;
                     }
                 }
             }
@@ -385,20 +352,21 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
             {
                 token.type = Token::Type::OPERATOR_BITWISE_OR;
                 token.value.push_back(*i);
+                ++i;
 
-                if ((i + 1) != code.end())
+                if (i != code.end())
                 {
-                    if (*(i + 1) == '=')
+                    if (*i == '=')
                     {
                         token.type = Token::Type::OPERATOR_BITWISE_OR_ASSIGNMENT;
-                        ++i;
                         token.value.push_back(*i);
+                        ++i;
                     }
-                    else if (*(i + 1) == '|')
+                    else if (*i == '|')
                     {
                         token.type = Token::Type::OPERATOR_OR;
-                        ++i;
                         token.value.push_back(*i);
+                        ++i;
                     }
                 }
             }
@@ -406,28 +374,29 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
             {
                 token.type = Token::Type::OPERATOR_LESS_THAN;
                 token.value.push_back(*i);
+                ++i;
 
-                if ((i + 1) != code.end())
+                if (i != code.end())
                 {
-                    if (*(i + 1) == '=')
+                    if (*i == '=')
                     {
                         token.type = Token::Type::OPERATOR_LESS_THAN_EQUAL;
-                        ++i;
                         token.value.push_back(*i);
+                        ++i;
                     }
-                    else if (*(i + 1) == '<')
+                    else if (*i == '<')
                     {
                         token.type = Token::Type::OPERATOR_SHIFT_LEFT;
-                        ++i;
                         token.value.push_back(*i);
+                        ++i;
 
-                        if ((i + 1) != code.end())
+                        if (i != code.end())
                         {
-                            if (*(i + 1) == '=')
+                            if (*i == '=')
                             {
                                 token.type = Token::Type::OPERATOR_SHIFT_LEFT_ASSIGNMENT;
-                                ++i;
                                 token.value.push_back(*i);
+                                ++i;
                             }
                         }
                     }
@@ -437,28 +406,29 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
             {
                 token.type = Token::Type::OPERATOR_GREATER_THAN;
                 token.value.push_back(*i);
+                ++i;
 
-                if ((i + 1) != code.end())
+                if (i != code.end())
                 {
-                    if (*(i + 1) == '=')
+                    if (*i == '=')
                     {
                         token.type = Token::Type::OPERATOR_GREATER_THAN_EQUAL;
-                        ++i;
                         token.value.push_back(*i);
+                        ++i;
                     }
-                    else if (*(i + 1) == '>')
+                    else if (*i == '>')
                     {
                         token.type = Token::Type::OPERATOR_SHIFT_RIGHT;
-                        ++i;
                         token.value.push_back(*i);
+                        ++i;
 
-                        if ((i + 1) != code.end())
+                        if (i != code.end())
                         {
-                            if (*(i + 1) == '=')
+                            if (*i == '=')
                             {
                                 token.type = Token::Type::OPERATOR_SHIFT_RIGHT_ASSIGNMENT;
-                                ++i;
                                 token.value.push_back(*i);
+                                ++i;
                             }
                         }
                     }
@@ -468,14 +438,15 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
             {
                 token.type = Token::Type::OPERATOR_NOT;
                 token.value.push_back(*i);
+                ++i;
 
-                if ((i + 1) != code.end())
+                if (i != code.end())
                 {
-                    if (*(i + 1) == '=')
+                    if (*i == '=')
                     {
                         token.type = Token::Type::OPERATOR_NOT_EQUAL;
-                        ++i;
                         token.value.push_back(*i);
+                        ++i;
                     }
                 }
             }
@@ -483,15 +454,18 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
             {
                 token.type = Token::Type::OPERATOR_CONDITIONAL;
                 token.value.push_back(*i);
+                ++i;
             }
             else if (*i == '.')
             {
                 token.type = Token::Type::OPERATOR_DOT;
                 token.value.push_back(*i);
+                ++i;
             }
         }
         else if (*i == ' ' || *i == '\t' || *i == '\n' || *i == '\r') // whitespace
         {
+            ++i;
             continue;
         }
         else
