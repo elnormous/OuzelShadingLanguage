@@ -57,7 +57,7 @@ struct ASTNode
     Semantic semantic = Semantic::NONE;
     std::string typeName;
     std::string name;
-    std::vector<ASTNode> children;
+    std::vector<std::unique_ptr<ASTNode>> children;
 };
 
 inline std::string nodeTypeToString(ASTNode::Type type)
@@ -114,21 +114,22 @@ struct ASTContext
     void dump();
 
 private:
-    bool parseTopLevel(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator, ASTNode& node);
+    std::unique_ptr<ASTNode> parseTopLevel(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator);
 
-    bool parseStructDecl(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator, ASTNode& node);
-    bool parseTypedefDecl(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator, ASTNode& node);
+    std::unique_ptr<ASTNode> parseStructDecl(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator);
+    std::unique_ptr<ASTNode> parseFieldDecl(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator);
+    std::unique_ptr<ASTNode> parseTypedefDecl(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator);
 
-    bool parseVarDecl(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator, ASTNode& node);
-    bool parseFunctionDecl(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator, ASTNode& node);
+    std::unique_ptr<ASTNode> parseVarDecl(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator);
+    std::unique_ptr<ASTNode> parseFunctionDecl(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator);
 
-    bool parseIf(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator, ASTNode& node);
-    bool parseFor(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator, ASTNode& node);
-    bool parseWhile(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator, ASTNode& node);
-    bool parseDo(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator, ASTNode& node);
-    bool parseStatement(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator, ASTNode& node);
+    std::unique_ptr<ASTNode> parseIf(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator);
+    std::unique_ptr<ASTNode> parseFor(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator);
+    std::unique_ptr<ASTNode> parseWhile(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator);
+    std::unique_ptr<ASTNode> parseDo(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator);
+    std::unique_ptr<ASTNode> parseStatement(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator);
 
-    void dumpNode(const ASTNode& node, std::string indent = std::string());
+    void dumpNode(const std::unique_ptr<ASTNode>& node, std::string indent = std::string());
 
-    std::vector<ASTNode> nodes;
+    std::vector<std::unique_ptr<ASTNode>> nodes;
 };
