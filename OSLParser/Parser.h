@@ -75,10 +75,19 @@ struct ASTContext
     void dump();
 
 private:
-    bool parseTopLevel(std::vector<Token>::const_iterator& iterator);
+    bool parseTopLevel(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator, ASTNode& node);
+
+    bool parseTypeDecl(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator, ASTNode& node);
+    bool parseVarDecl(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator, ASTNode& node);
+    bool parseFunctionDecl(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator, ASTNode& node);
+
+    bool parseIf(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator, ASTNode& node);
+    bool parseFor(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator, ASTNode& node);
+    bool parseWhile(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator, ASTNode& node);
+    bool parseDo(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator, ASTNode& node);
+    bool parseStatement(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator, ASTNode& node);
 
     void dumpNode(const ASTNode& node, std::string indent = std::string());
 
-    std::vector<Token>::const_iterator end;
     std::vector<ASTNode> nodes;
 };
