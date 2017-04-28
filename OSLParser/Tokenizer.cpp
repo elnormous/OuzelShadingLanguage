@@ -66,22 +66,43 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
         {
             token.type = Token::Type::STRING_LITERAL;
 
-            if (++i == code.end()) // reached end of file
+            while (++i != code.end() &&
+                   *i != '"')
+            {
+                if (*i == '\\')
+                {
+                    if (++i == code.end())
+                    {
+                        std::cerr << "Unterminated char" << std::endl;
+                        return false;
+                    }
+                    else if (*i == 'a') token.value.push_back('\a');
+                    else if (*i == 'b') token.value.push_back('\b');
+                    else if (*i == 't') token.value.push_back('\t');
+                    else if (*i == 'n') token.value.push_back('\n');
+                    else if (*i == 'v') token.value.push_back('\v');
+                    else if (*i == 'f') token.value.push_back('\f');
+                    else if (*i == 'r') token.value.push_back('\r');
+                    else if (*i == 'e') token.value.push_back('\e');
+                    else if (*i == '"') token.value.push_back('"');
+                    else if (*i == '\?') token.value.push_back('\?');
+                    else if (*i == '\\') token.value.push_back('\\');
+                    // TODO: handle numeric character references
+                }
+                else
+                {
+                    token.value.push_back(*i);
+                }
+            }
+
+            if (*i == '"')
+            {
+                ++i;
+            }
+            else
             {
                 std::cerr << "Unterminated string" << std::endl;
                 return false;
-            }
-
-            // TODO: handle escaping
-            while (*i != '"')
-            {
-                token.value.push_back(*i);
-
-                if (++i == code.end()) // reached end of file
-                {
-                    std::cerr << "Unterminated string" << std::endl;
-                    return false;
-                }
             }
         }
         else if (*i == '\'')
@@ -94,10 +115,32 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
                 return false;
             }
 
-            // TODO: handle escaping
             while (*i != '\'')
             {
-                token.value.push_back(*i);
+                if (*i == '\\')
+                {
+                    if (++i == code.end())
+                    {
+                        std::cerr << "Unterminated char" << std::endl;
+                        return false;
+                    }
+                    else if (*i == 'a') token.value.push_back('\a');
+                    else if (*i == 'b') token.value.push_back('\b');
+                    else if (*i == 't') token.value.push_back('\t');
+                    else if (*i == 'n') token.value.push_back('\n');
+                    else if (*i == 'v') token.value.push_back('\v');
+                    else if (*i == 'f') token.value.push_back('\f');
+                    else if (*i == 'r') token.value.push_back('\r');
+                    else if (*i == 'e') token.value.push_back('\e');
+                    else if (*i == '\'') token.value.push_back('\'');
+                    else if (*i == '\?') token.value.push_back('\?');
+                    else if (*i == '\\') token.value.push_back('\\');
+                    // TODO: handle numeric character references
+                }
+                else
+                {
+                    token.value.push_back(*i);
+                }
 
                 if (++i == code.end()) // reached end of file
                 {
@@ -106,7 +149,11 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
                 }
             }
 
-            if (token.value.length() != 1)
+            if (token.value.length() == 1)
+            {
+                ++i;
+            }
+            else
             {
                 std::cerr << "Invalid char literal" << std::endl;
                 return false;
