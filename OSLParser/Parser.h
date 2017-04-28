@@ -38,7 +38,23 @@ struct ASTNode
         TERNARY_OPERATOR,
     };
 
+    enum class Semantic
+    {
+        NONE,
+        BINORMAL,
+        BLEND_INDICES,
+        BLEND_WEIGHT,
+        COLOR,
+        NORMAL,
+        POSITION,
+        POSITION_TRANSFORMED,
+        POINT_SIZE,
+        TANGENT,
+        TEXTURE_COORDINATES
+    };
+
     Type type = Type::NONE;
+    Semantic semantic = Semantic::NONE;
     std::string typeName;
     std::string name;
     std::vector<ASTNode> children;
@@ -68,6 +84,25 @@ inline std::string nodeTypeToString(ASTNode::Type type)
         case ASTNode::Type::UNARY_OPERATOR: return "UNARY_OPERATOR";
         case ASTNode::Type::BINARY_OPERATOR: return "BINARY_OPERATOR";
         case ASTNode::Type::TERNARY_OPERATOR: return "TERNARY_OPERATOR";
+        default: return "unknwon";
+    }
+}
+
+inline std::string semanticToString(ASTNode::Semantic semantic)
+{
+    switch (semantic)
+    {
+        case ASTNode::Semantic::NONE: return "NONE";
+        case ASTNode::Semantic::BINORMAL: return "BINORMAL";
+        case ASTNode::Semantic::BLEND_INDICES: return "BLEND_INDICES";
+        case ASTNode::Semantic::BLEND_WEIGHT: return "BLEND_WEIGHT";
+        case ASTNode::Semantic::COLOR: return "COLOR";
+        case ASTNode::Semantic::NORMAL: return "NORMAL";
+        case ASTNode::Semantic::POSITION: return "POSITION";
+        case ASTNode::Semantic::POSITION_TRANSFORMED: return "POSITION_TRANSFORMED";
+        case ASTNode::Semantic::POINT_SIZE: return "POINT_SIZE";
+        case ASTNode::Semantic::TANGENT: return "TANGENT";
+        case ASTNode::Semantic::TEXTURE_COORDINATES: return "TEXTURE_COORDINATES";
         default: return "unknwon";
     }
 }

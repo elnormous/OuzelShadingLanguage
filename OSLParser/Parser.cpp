@@ -76,6 +76,55 @@ bool ASTContext::parseStructDecl(const std::vector<Token>& tokens, std::vector<T
                     {
                         ASTNode field;
                         field.type = ASTNode::Type::FIELD_DECLARATION;
+
+                        if (currentIterator->value == "__semantic")
+                        {
+                            if (++currentIterator != tokens.end() && currentIterator->type == Token::Type::LEFT_PARENTHESIS)
+                            {
+                                if (++currentIterator != tokens.end() && currentIterator->type == Token::Type::IDENTIFIER)
+                                {
+                                    ASTNode::Semantic semantic = ASTNode::Semantic::NONE;
+
+                                    if (currentIterator->value == "binormal") semantic = ASTNode::Semantic::BINORMAL;
+                                    else if (currentIterator->value == "blend_indices") semantic = ASTNode::Semantic::BLEND_INDICES;
+                                    else if (currentIterator->value == "blend_weight") semantic = ASTNode::Semantic::BLEND_WEIGHT;
+                                    else if (currentIterator->value == "color") semantic = ASTNode::Semantic::COLOR;
+                                    else if (currentIterator->value == "normal") semantic = ASTNode::Semantic::NORMAL;
+                                    else if (currentIterator->value == "position") semantic = ASTNode::Semantic::POSITION;
+                                    else if (currentIterator->value == "position_transformed") semantic = ASTNode::Semantic::POSITION_TRANSFORMED;
+                                    else if (currentIterator->value == "point_size") semantic = ASTNode::Semantic::POINT_SIZE;
+                                    else if (currentIterator->value == "tangent") semantic = ASTNode::Semantic::TANGENT;
+                                    else if (currentIterator->value == "texture_coordinates") semantic = ASTNode::Semantic::TEXTURE_COORDINATES;
+                                    else
+                                    {
+                                        std::cout << "Invalid semantic" << std::endl;
+                                        return false;
+                                    }
+
+                                    if (++currentIterator != tokens.end() && currentIterator->type == Token::Type::RIGHT_PARENTHESIS)
+                                    {
+                                        field.semantic = semantic;
+                                        ++currentIterator;
+                                    }
+                                    else
+                                    {
+                                        std::cout << "Expected a right parenthesis" << std::endl;
+                                        return false;
+                                    }
+                                }
+                                else
+                                {
+                                    std::cout << "Expected a semantic name" << std::endl;
+                                    return false;
+                                }
+                            }
+                            else
+                            {
+                                std::cout << "Expected a left parenthesis" << std::endl;
+                                return false;
+                            }
+                        }
+
                         field.typeName = currentIterator->value;
 
                         if (++currentIterator != tokens.end() && currentIterator->type == Token::Type::IDENTIFIER)
@@ -203,6 +252,7 @@ void ASTContext::dumpNode(const ASTNode& node, std::string indent)
 
     if (!node.name.empty()) std::cout << ", name: " << node.name;
     if (!node.typeName.empty()) std::cout << ", type: " << node.typeName;
+    if (node.semantic != ASTNode::Semantic::NONE) std::cout << ", semantic: " << semanticToString(node.semantic);
 
     std::cout << std::endl;
 
