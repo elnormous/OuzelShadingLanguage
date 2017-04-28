@@ -57,30 +57,27 @@ std::unique_ptr<ASTNode> ASTContext::parseTopLevel(const std::vector<Token>& tok
 
 std::unique_ptr<ASTNode> ASTContext::parseStructDecl(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator)
 {
-    std::vector<Token>::const_iterator currentIterator = iterator;
-
     std::unique_ptr<ASTNode> node(new ASTNode());
 
-    if (currentIterator->type == Token::Type::KEYWORD_STRUCT)
+    if (iterator->type == Token::Type::KEYWORD_STRUCT)
     {
-        if (++currentIterator != tokens.end() && currentIterator->type == Token::Type::IDENTIFIER)
+        if (++iterator != tokens.end() && iterator->type == Token::Type::IDENTIFIER)
         {
-            node->name = currentIterator->value;
+            node->name = iterator->value;
 
-            if (++currentIterator != tokens.end() && currentIterator->type == Token::Type::LEFT_BRACE)
+            if (++iterator != tokens.end() && iterator->type == Token::Type::LEFT_BRACE)
             {
-                ++currentIterator;
+                ++iterator;
 
-                for (; currentIterator != tokens.end(); ++currentIterator)
+                for (; iterator != tokens.end(); ++iterator)
                 {
-                    if (currentIterator->type == Token::Type::RIGHT_BRACE)
+                    if (iterator->type == Token::Type::RIGHT_BRACE)
                     {
-                        if (++currentIterator != tokens.end() && currentIterator->type == Token::Type::SEMICOLON)
+                        if (++iterator != tokens.end() && iterator->type == Token::Type::SEMICOLON)
                         {
                             if (!node->children.empty())
                             {
                                 node->type = ASTNode::Type::STRUCT_DECLARATION;
-                                iterator = currentIterator;
                                 return node;
                             }
                             else
@@ -95,9 +92,9 @@ std::unique_ptr<ASTNode> ASTContext::parseStructDecl(const std::vector<Token>& t
                             return nullptr;
                         }
                     }
-                    else if (currentIterator->type == Token::Type::IDENTIFIER)
+                    else if (iterator->type == Token::Type::IDENTIFIER)
                     {
-                        if (std::unique_ptr<ASTNode> field = parseFieldDecl(tokens, currentIterator))
+                        if (std::unique_ptr<ASTNode> field = parseFieldDecl(tokens, iterator))
                         {
                             node->children.push_back(std::move(field));
                         }
@@ -122,42 +119,40 @@ std::unique_ptr<ASTNode> ASTContext::parseStructDecl(const std::vector<Token>& t
 
 std::unique_ptr<ASTNode> ASTContext::parseFieldDecl(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator)
 {
-    std::vector<Token>::const_iterator currentIterator = iterator;
-
-    if (currentIterator->type == Token::Type::IDENTIFIER)
+    if (iterator->type == Token::Type::IDENTIFIER)
     {
         std::unique_ptr<ASTNode> field(new ASTNode());
         field->type = ASTNode::Type::FIELD_DECLARATION;
 
-        if (currentIterator->value == "__semantic")
+        if (iterator->value == "__semantic")
         {
-            if (++currentIterator != tokens.end() && currentIterator->type == Token::Type::LEFT_PARENTHESIS)
+            if (++iterator != tokens.end() && iterator->type == Token::Type::LEFT_PARENTHESIS)
             {
-                if (++currentIterator != tokens.end() && currentIterator->type == Token::Type::IDENTIFIER)
+                if (++iterator != tokens.end() && iterator->type == Token::Type::IDENTIFIER)
                 {
                     ASTNode::Semantic semantic = ASTNode::Semantic::NONE;
 
                     // TODO: find slot number
-                    if (currentIterator->value == "binormal") semantic = ASTNode::Semantic::BINORMAL;
-                    else if (currentIterator->value == "blend_indices") semantic = ASTNode::Semantic::BLEND_INDICES;
-                    else if (currentIterator->value == "blend_weight") semantic = ASTNode::Semantic::BLEND_WEIGHT;
-                    else if (currentIterator->value == "color") semantic = ASTNode::Semantic::COLOR;
-                    else if (currentIterator->value == "normal") semantic = ASTNode::Semantic::NORMAL;
-                    else if (currentIterator->value == "position") semantic = ASTNode::Semantic::POSITION;
-                    else if (currentIterator->value == "position_transformed") semantic = ASTNode::Semantic::POSITION_TRANSFORMED;
-                    else if (currentIterator->value == "point_size") semantic = ASTNode::Semantic::POINT_SIZE;
-                    else if (currentIterator->value == "tangent") semantic = ASTNode::Semantic::TANGENT;
-                    else if (currentIterator->value == "texture_coordinates") semantic = ASTNode::Semantic::TEXTURE_COORDINATES;
+                    if (iterator->value == "binormal") semantic = ASTNode::Semantic::BINORMAL;
+                    else if (iterator->value == "blend_indices") semantic = ASTNode::Semantic::BLEND_INDICES;
+                    else if (iterator->value == "blend_weight") semantic = ASTNode::Semantic::BLEND_WEIGHT;
+                    else if (iterator->value == "color") semantic = ASTNode::Semantic::COLOR;
+                    else if (iterator->value == "normal") semantic = ASTNode::Semantic::NORMAL;
+                    else if (iterator->value == "position") semantic = ASTNode::Semantic::POSITION;
+                    else if (iterator->value == "position_transformed") semantic = ASTNode::Semantic::POSITION_TRANSFORMED;
+                    else if (iterator->value == "point_size") semantic = ASTNode::Semantic::POINT_SIZE;
+                    else if (iterator->value == "tangent") semantic = ASTNode::Semantic::TANGENT;
+                    else if (iterator->value == "texture_coordinates") semantic = ASTNode::Semantic::TEXTURE_COORDINATES;
                     else
                     {
                         std::cout << "Invalid semantic" << std::endl;
                         return nullptr;
                     }
 
-                    if (++currentIterator != tokens.end() && currentIterator->type == Token::Type::RIGHT_PARENTHESIS)
+                    if (++iterator != tokens.end() && iterator->type == Token::Type::RIGHT_PARENTHESIS)
                     {
                         field->semantic = semantic;
-                        ++currentIterator;
+                        ++iterator;
                     }
                     else
                     {
@@ -178,15 +173,14 @@ std::unique_ptr<ASTNode> ASTContext::parseFieldDecl(const std::vector<Token>& to
             }
         }
 
-        field->typeName = currentIterator->value;
+        field->typeName = iterator->value;
 
-        if (++currentIterator != tokens.end() && currentIterator->type == Token::Type::IDENTIFIER)
+        if (++iterator != tokens.end() && iterator->type == Token::Type::IDENTIFIER)
         {
-            field->name = currentIterator->value;
+            field->name = iterator->value;
 
-            if (++currentIterator != tokens.end() && currentIterator->type == Token::Type::SEMICOLON)
+            if (++iterator != tokens.end() && iterator->type == Token::Type::SEMICOLON)
             {
-                iterator = currentIterator;
                 return field;
             }
             else
