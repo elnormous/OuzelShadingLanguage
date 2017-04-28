@@ -35,32 +35,103 @@ bool ASTContext::parse(const std::vector<Token>& tokens)
 
 bool ASTContext::parseTopLevel(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator, ASTNode& node)
 {
-    // only type, variable and function declarations allowed at top level
-    if (parseTypeDecl(tokens, iterator, node))
+    const Token& token = *iterator;
+
+    if (token.type == Token::Type::KEYWORD_STRUCT)
+    {
+        return parseStructDecl(tokens, iterator, node);
+    }
+    else if (token.type == Token::Type::KEYWORD_TYPEDEF)
+    {
+        return parseTypedefDecl(tokens, iterator, node);
+    }
+    else if (token.type == Token::Type::IDENTIFIER || token.type == Token::Type::KEYWORD_CONST)
     {
         return true;
     }
-
-    if (parseVarDecl(tokens, iterator, node))
+    else
     {
-        return true;
+        std::cout << "Expected a declaration" << std::endl;
+        return false;
     }
+}
 
-    if (parseFunctionDecl(tokens, iterator, node))
+bool ASTContext::parseStructDecl(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator, ASTNode& node)
+{
+    std::vector<Token>::const_iterator currentIterator = iterator;
+
+    if (currentIterator->type == Token::Type::KEYWORD_STRUCT)
     {
-        return true;
+        if (++currentIterator != tokens.end() && currentIterator->type == Token::Type::IDENTIFIER)
+        {
+            node.name = currentIterator->value;
+
+            if (++currentIterator != tokens.end() && currentIterator->type == Token::Type::LEFT_BRACE)
+            {
+                ++currentIterator;
+
+                for (; currentIterator != tokens.end(); ++currentIterator)
+                {
+                    if (currentIterator->type == Token::Type::IDENTIFIER)
+                    {
+                        ASTNode field;
+                        field.type = ASTNode::Type::FIELD_DECLARATION;
+                        field.typeName = currentIterator->value;
+
+                        if (++currentIterator != tokens.end() && currentIterator->type == Token::Type::IDENTIFIER)
+                        {
+                            field.name = currentIterator->value;
+
+                            if (++currentIterator != tokens.end() && currentIterator->type == Token::Type::SEMICOLON)
+                            {
+                                node.children.push_back(field);
+                            }
+                            else
+                            {
+                                std::cout << "Expected a semicolon" << std::endl;
+                                return false;
+                            }
+                        }
+                        else
+                        {
+                            std::cout << "Expected a field name" << std::endl;
+                            return false;
+                        }
+                    }
+                    else if (currentIterator->type == Token::Type::RIGHT_BRACE)
+                    {
+                        if (++currentIterator != tokens.end() && currentIterator->type == Token::Type::SEMICOLON)
+                        {
+                            node.type = ASTNode::Type::STRUCT_DECLARATION;
+                            return true;
+                        }
+                        else
+                        {
+                            std::cout << "Expected a semicolon" << std::endl;
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        std::cout << "Expected a type name" << std::endl;
+                        return false;
+                    }
+                }
+            }
+            else
+            {
+                std::cout << "Expected a left brace" << std::endl;
+                return false;
+            }
+        }
     }
 
     return false;
 }
 
-bool ASTContext::parseTypeDecl(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator, ASTNode& node)
+bool ASTContext::parseTypedefDecl(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator, ASTNode& node)
 {
-    const Token& token = *iterator;
-
-    if (token.type == Token::Type::IDENTIFIER)
-    {
-    }
+    node.type = ASTNode::Type::TYPE_DEFINITION_DECLARATION;
 
     return false;
 }
@@ -71,6 +142,11 @@ bool ASTContext::parseVarDecl(const std::vector<Token>& tokens, std::vector<Toke
 
     if (token.type == Token::Type::IDENTIFIER)
     {
+        node.type = ASTNode::Type::VARIABLE_DECLARATION;
+    }
+    else if (token.type == Token::Type::KEYWORD_CONST)
+    {
+        node.type = ASTNode::Type::VARIABLE_DECLARATION;
     }
 
     return false;
@@ -82,6 +158,7 @@ bool ASTContext::parseFunctionDecl(const std::vector<Token>& tokens, std::vector
 
     if (token.type == Token::Type::IDENTIFIER)
     {
+        node.type = ASTNode::Type::FUNCTION_DECLARATION;
     }
 
     return false;
@@ -122,7 +199,12 @@ void ASTContext::dump()
 
 void ASTContext::dumpNode(const ASTNode& node, std::string indent)
 {
-    std::cout << indent << nodeTypeToString(node.type) << std::endl;
+    std::cout << indent << nodeTypeToString(node.type);
+
+    if (!node.name.empty()) std::cout << ", name: " << node.name;
+    if (!node.typeName.empty()) std::cout << ", type: " << node.typeName;
+
+    std::cout << std::endl;
 
     for (const auto child : node.children)
     {

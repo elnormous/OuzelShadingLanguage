@@ -53,6 +53,10 @@ int main(int argc, const char * argv[])
     if (!context.parse(tokens))
     {
         std::cerr << "Failed to parse" << std::endl;
+
+        std::cout << "Parsed so far:" << std::endl;
+        context.dump();
+
         return EXIT_FAILURE;
     }
 

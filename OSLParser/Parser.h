@@ -17,8 +17,9 @@ struct ASTNode
     enum class Type
     {
         NONE,
-        TYPE_DECLARATION,
+        STRUCT_DECLARATION,
         FIELD_DECLARATION,
+        TYPE_DEFINITION_DECLARATION,
         FUNCTION_DECLARATION,
         VARIABLE_DECLARATION,
         PARAMETER_DECLARATION,
@@ -38,6 +39,8 @@ struct ASTNode
     };
 
     Type type = Type::NONE;
+    std::string typeName;
+    std::string name;
     std::vector<ASTNode> children;
 };
 
@@ -46,8 +49,9 @@ inline std::string nodeTypeToString(ASTNode::Type type)
     switch (type)
     {
         case ASTNode::Type::NONE: return "NONE";
-        case ASTNode::Type::TYPE_DECLARATION: return "TYPE_DECLARATION";
+        case ASTNode::Type::STRUCT_DECLARATION: return "STRUCT_DECLARATION";
         case ASTNode::Type::FIELD_DECLARATION: return "FIELD_DECLARATION";
+        case ASTNode::Type::TYPE_DEFINITION_DECLARATION: return "TYPE_DEFINITION_DECLARATION";
         case ASTNode::Type::FUNCTION_DECLARATION: return "FUNCTION_DECLARATION";
         case ASTNode::Type::VARIABLE_DECLARATION: return "VARIABLE_DECLARATION";
         case ASTNode::Type::PARAMETER_DECLARATION: return "PARAMETER_DECLARATION";
@@ -77,7 +81,9 @@ struct ASTContext
 private:
     bool parseTopLevel(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator, ASTNode& node);
 
-    bool parseTypeDecl(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator, ASTNode& node);
+    bool parseStructDecl(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator, ASTNode& node);
+    bool parseTypedefDecl(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator, ASTNode& node);
+
     bool parseVarDecl(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator, ASTNode& node);
     bool parseFunctionDecl(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator, ASTNode& node);
 
