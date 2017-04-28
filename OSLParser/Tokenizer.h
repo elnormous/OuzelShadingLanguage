@@ -18,8 +18,8 @@ struct Token
         NONE,
         INT_LITERAL, // int
         FLOAT_LITERAL, // float
-        CHAR_LITERAL, // char
-        STRING_LITERAL, // string
+        //CHAR_LITERAL, // char
+        //STRING_LITERAL, // string
         KEYWORD_IF, // if
         KEYWORD_ELSE, // else
         KEYWORD_RETURN, // return
@@ -93,8 +93,8 @@ inline std::string tokenTypeToString(Token::Type type)
         case Token::Type::NONE: return "NONE";
         case Token::Type::INT_LITERAL: return "INT_LITERAL";
         case Token::Type::FLOAT_LITERAL: return "FLOAT_LITERAL";
-        case Token::Type::CHAR_LITERAL: return "CHAR_LITERAL";
-        case Token::Type::STRING_LITERAL: return "STRING_LITERAL";
+        //case Token::Type::CHAR_LITERAL: return "CHAR_LITERAL";
+        //case Token::Type::STRING_LITERAL: return "STRING_LITERAL";
         case Token::Type::KEYWORD_IF: return "KEYWORD_IF";
         case Token::Type::KEYWORD_ELSE: return "KEYWORD_ELSE";
         case Token::Type::KEYWORD_RETURN: return "KEYWORD_RETURN";

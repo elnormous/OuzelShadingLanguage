@@ -64,7 +64,7 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
         }
         else if (*i == '"') // string literal
         {
-            token.type = Token::Type::STRING_LITERAL;
+            /*token.type = Token::Type::STRING_LITERAL;
 
             while (++i != code.end() &&
                    *i != '"')
@@ -103,11 +103,14 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
             {
                 std::cerr << "Unterminated string" << std::endl;
                 return false;
-            }
+            }*/
+
+            std::cerr << "String literals are not supported" << std::endl;
+            return false;
         }
         else if (*i == '\'')
         {
-            token.type = Token::Type::CHAR_LITERAL;
+            /*token.type = Token::Type::CHAR_LITERAL;
 
             if (++i == code.end()) // reached end of file
             {
@@ -157,7 +160,10 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
             {
                 std::cerr << "Invalid char literal" << std::endl;
                 return false;
-            }
+            }*/
+
+            std::cerr << "Char literals are not supported" << std::endl;
+            return false;
         }
         else if ((*i >= 'a' && *i <= 'z') ||
                  (*i >= 'A' && *i <= 'Z') ||
