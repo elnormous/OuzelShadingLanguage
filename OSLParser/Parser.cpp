@@ -57,12 +57,11 @@ std::unique_ptr<ASTNode> ASTContext::parseTopLevel(const std::vector<Token>& tok
 
 std::unique_ptr<ASTNode> ASTContext::parseStructDecl(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator)
 {
-    std::unique_ptr<ASTNode> node(new ASTNode());
-
     if (iterator->type == Token::Type::KEYWORD_STRUCT)
     {
         if (++iterator != tokens.end() && iterator->type == Token::Type::IDENTIFIER)
         {
+            std::unique_ptr<ASTNode> node(new ASTNode());
             node->name = iterator->value;
 
             if (++iterator != tokens.end() && iterator->type == Token::Type::LEFT_BRACE)
@@ -201,7 +200,40 @@ std::unique_ptr<ASTNode> ASTContext::parseFieldDecl(const std::vector<Token>& to
 
 std::unique_ptr<ASTNode> ASTContext::parseTypedefDecl(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator)
 {
-    //node.type = ASTNode::Type::TYPE_DEFINITION_DECLARATION;
+    if (iterator->type == Token::Type::KEYWORD_TYPEDEF)
+    {
+        if (++iterator != tokens.end() && iterator->type == Token::Type::IDENTIFIER)
+        {
+            std::unique_ptr<ASTNode> node(new ASTNode());
+            node->type = ASTNode::Type::TYPE_DEFINITION_DECLARATION;
+            node->typeName = iterator->value;
+
+            if (++iterator != tokens.end() && iterator->type == Token::Type::IDENTIFIER)
+            {
+                node->name = iterator->value;
+
+                if (++iterator != tokens.end() && iterator->type == Token::Type::SEMICOLON)
+                {
+                    return node;
+                }
+                else
+                {
+                    std::cout << "Expected a semicolon" << std::endl;
+                    return nullptr;
+                }
+            }
+            else
+            {
+                std::cout << "Expected a type name" << std::endl;
+                return nullptr;
+            }
+        }
+        else
+        {
+            std::cout << "Expected a type name" << std::endl;
+            return nullptr;
+        }
+    }
 
     return nullptr;
 }
