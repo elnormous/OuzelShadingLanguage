@@ -24,7 +24,7 @@ bool ASTContext::parse(const std::vector<Token>& tokens)
         }
         else
         {
-            std::cout << "Failed to parse top level" << std::endl;
+            std::cerr << "Failed to parse top level" << std::endl;
             return false;
         }
     }
@@ -50,7 +50,7 @@ std::unique_ptr<ASTNode> ASTContext::parseTopLevel(const std::vector<Token>& tok
     }
     else
     {
-        std::cout << "Expected a declaration" << std::endl;
+        std::cerr << "Expected a declaration" << std::endl;
         return nullptr;
     }
 }
@@ -81,13 +81,13 @@ std::unique_ptr<ASTNode> ASTContext::parseStructDecl(const std::vector<Token>& t
                             }
                             else
                             {
-                                std::cout << "Structure must have at least one member" << std::endl;
+                                std::cerr << "Structure must have at least one member" << std::endl;
                                 return nullptr;
                             }
                         }
                         else
                         {
-                            std::cout << "Expected a semicolon" << std::endl;
+                            std::cerr << "Expected a semicolon" << std::endl;
                             return nullptr;
                         }
                     }
@@ -100,14 +100,14 @@ std::unique_ptr<ASTNode> ASTContext::parseStructDecl(const std::vector<Token>& t
                     }
                     else
                     {
-                        std::cout << "Expected a type name" << std::endl;
+                        std::cerr << "Expected a type name" << std::endl;
                         return nullptr;
                     }
                 }
             }
             else
             {
-                std::cout << "Expected a left brace" << std::endl;
+                std::cerr << "Expected a left brace" << std::endl;
                 return nullptr;
             }
         }
@@ -123,75 +123,79 @@ std::unique_ptr<ASTNode> ASTContext::parseFieldDecl(const std::vector<Token>& to
         std::unique_ptr<ASTNode> field(new ASTNode());
         field->type = ASTNode::Type::FIELD_DECLARATION;
 
-        if (iterator->value == "__semantic")
+        field->typeName = iterator->value;
+
+        while (++iterator != tokens.end())
         {
-            if (++iterator != tokens.end() && iterator->type == Token::Type::LEFT_PARENTHESIS)
+            if (iterator->type == Token::Type::IDENTIFIER)
             {
-                if (++iterator != tokens.end() && iterator->type == Token::Type::IDENTIFIER)
+                field->name = iterator->value;
+
+                if (++iterator != tokens.end() && iterator->type == Token::Type::SEMICOLON)
                 {
-                    ASTNode::Semantic semantic = ASTNode::Semantic::NONE;
+                    return field;
+                }
+                else
+                {
+                    std::cerr << "Expected a semicolon" << std::endl;
+                    return nullptr;
+                }
+            }
+            else if (iterator->type == Token::Type::LEFT_BRACKET)
+            {
+                if (++iterator != tokens.end() && iterator->type == Token::Type::LEFT_BRACKET)
+                {
+                    if (++iterator != tokens.end() && iterator->type == Token::Type::IDENTIFIER)
+                    {
+                        ASTNode::Semantic semantic = ASTNode::Semantic::NONE;
 
-                    // TODO: find slot number
-                    if (iterator->value == "binormal") semantic = ASTNode::Semantic::BINORMAL;
-                    else if (iterator->value == "blend_indices") semantic = ASTNode::Semantic::BLEND_INDICES;
-                    else if (iterator->value == "blend_weight") semantic = ASTNode::Semantic::BLEND_WEIGHT;
-                    else if (iterator->value == "color") semantic = ASTNode::Semantic::COLOR;
-                    else if (iterator->value == "normal") semantic = ASTNode::Semantic::NORMAL;
-                    else if (iterator->value == "position") semantic = ASTNode::Semantic::POSITION;
-                    else if (iterator->value == "position_transformed") semantic = ASTNode::Semantic::POSITION_TRANSFORMED;
-                    else if (iterator->value == "point_size") semantic = ASTNode::Semantic::POINT_SIZE;
-                    else if (iterator->value == "tangent") semantic = ASTNode::Semantic::TANGENT;
-                    else if (iterator->value == "texture_coordinates") semantic = ASTNode::Semantic::TEXTURE_COORDINATES;
-                    else
-                    {
-                        std::cout << "Invalid semantic" << std::endl;
-                        return nullptr;
-                    }
+                        // TODO: find slot number
+                        if (iterator->value == "binormal") semantic = ASTNode::Semantic::BINORMAL;
+                        else if (iterator->value == "blend_indices") semantic = ASTNode::Semantic::BLEND_INDICES;
+                        else if (iterator->value == "blend_weight") semantic = ASTNode::Semantic::BLEND_WEIGHT;
+                        else if (iterator->value == "color") semantic = ASTNode::Semantic::COLOR;
+                        else if (iterator->value == "normal") semantic = ASTNode::Semantic::NORMAL;
+                        else if (iterator->value == "position") semantic = ASTNode::Semantic::POSITION;
+                        else if (iterator->value == "position_transformed") semantic = ASTNode::Semantic::POSITION_TRANSFORMED;
+                        else if (iterator->value == "point_size") semantic = ASTNode::Semantic::POINT_SIZE;
+                        else if (iterator->value == "tangent") semantic = ASTNode::Semantic::TANGENT;
+                        else if (iterator->value == "texture_coordinates") semantic = ASTNode::Semantic::TEXTURE_COORDINATES;
+                        else
+                        {
+                            std::cerr << "Invalid semantic" << std::endl;
+                            return nullptr;
+                        }
 
-                    if (++iterator != tokens.end() && iterator->type == Token::Type::RIGHT_PARENTHESIS)
-                    {
-                        field->semantic = semantic;
-                        ++iterator;
-                    }
-                    else
-                    {
-                        std::cout << "Expected a right parenthesis" << std::endl;
-                        return nullptr;
+                        if (++iterator != tokens.end() && iterator->type == Token::Type::RIGHT_BRACKET)
+                        {
+                            if (++iterator != tokens.end() && iterator->type == Token::Type::RIGHT_BRACKET)
+                            {
+                                field->semantic = semantic;
+                            }
+                            else
+                            {
+                                std::cerr << "Expected a right bracket" << std::endl;
+                                return nullptr;
+                            }
+                        }
+                        else
+                        {
+                            std::cerr << "Expected a right bracket" << std::endl;
+                            return nullptr;
+                        }
                     }
                 }
                 else
                 {
-                    std::cout << "Expected a semantic name" << std::endl;
+                    std::cerr << "Expected a left bracket" << std::endl;
                     return nullptr;
                 }
             }
             else
             {
-                std::cout << "Expected a left parenthesis" << std::endl;
+                std::cerr << "Expected a field name" << std::endl;
                 return nullptr;
             }
-        }
-
-        field->typeName = iterator->value;
-
-        if (++iterator != tokens.end() && iterator->type == Token::Type::IDENTIFIER)
-        {
-            field->name = iterator->value;
-
-            if (++iterator != tokens.end() && iterator->type == Token::Type::SEMICOLON)
-            {
-                return field;
-            }
-            else
-            {
-                std::cout << "Expected a semicolon" << std::endl;
-                return nullptr;
-            }
-        }
-        else
-        {
-            std::cout << "Expected a field name" << std::endl;
-            return nullptr;
         }
     }
 
@@ -218,19 +222,19 @@ std::unique_ptr<ASTNode> ASTContext::parseTypedefDecl(const std::vector<Token>& 
                 }
                 else
                 {
-                    std::cout << "Expected a semicolon" << std::endl;
+                    std::cerr << "Expected a semicolon" << std::endl;
                     return nullptr;
                 }
             }
             else
             {
-                std::cout << "Expected a type name" << std::endl;
+                std::cerr << "Expected a type name" << std::endl;
                 return nullptr;
             }
         }
         else
         {
-            std::cout << "Expected a type name" << std::endl;
+            std::cerr << "Expected a type name" << std::endl;
             return nullptr;
         }
     }
