@@ -57,6 +57,7 @@ struct ASTNode
     Semantic semantic = Semantic::NONE;
     std::string typeName;
     bool constType = false;
+    bool definition = false;
     std::string name;
     std::vector<std::unique_ptr<ASTNode>> children;
 };

@@ -104,52 +104,65 @@ std::unique_ptr<ASTNode> ASTContext::parseStructDecl(const std::vector<Token>& t
         if (++iterator != tokens.end() && iterator->type == Token::Type::IDENTIFIER)
         {
             std::unique_ptr<ASTNode> node(new ASTNode());
+            node->type = ASTNode::Type::STRUCT_DECLARATION;
             node->name = iterator->value;
 
-            if (++iterator != tokens.end() && iterator->type == Token::Type::LEFT_BRACE)
+            if (++iterator != tokens.end())
             {
-                ++iterator;
-
-                for (; iterator != tokens.end(); ++iterator)
+                if (iterator->type == Token::Type::LEFT_BRACE)
                 {
-                    if (iterator->type == Token::Type::RIGHT_BRACE)
+                    node->definition = true;
+                    ++iterator;
+
+                    for (; iterator != tokens.end(); ++iterator)
                     {
-                        if (++iterator != tokens.end() && iterator->type == Token::Type::SEMICOLON)
+                        if (iterator->type == Token::Type::RIGHT_BRACE)
                         {
-                            if (!node->children.empty())
+                            if (++iterator != tokens.end() && iterator->type == Token::Type::SEMICOLON)
                             {
-                                node->type = ASTNode::Type::STRUCT_DECLARATION;
-                                return node;
+                                if (!node->children.empty())
+                                {
+                                    return node;
+                                }
+                                else
+                                {
+                                    std::cerr << "Structure must have at least one member" << std::endl;
+                                    return nullptr;
+                                }
                             }
                             else
                             {
-                                std::cerr << "Structure must have at least one member" << std::endl;
+                                std::cerr << "Expected a semicolon" << std::endl;
                                 return nullptr;
+                            }
+                        }
+                        else if (iterator->type == Token::Type::IDENTIFIER)
+                        {
+                            if (std::unique_ptr<ASTNode> field = parseFieldDecl(tokens, iterator))
+                            {
+                                node->children.push_back(std::move(field));
                             }
                         }
                         else
                         {
-                            std::cerr << "Expected a semicolon" << std::endl;
+                            std::cerr << "Expected a type name" << std::endl;
                             return nullptr;
                         }
                     }
-                    else if (iterator->type == Token::Type::IDENTIFIER)
-                    {
-                        if (std::unique_ptr<ASTNode> field = parseFieldDecl(tokens, iterator))
-                        {
-                            node->children.push_back(std::move(field));
-                        }
-                    }
-                    else
-                    {
-                        std::cerr << "Expected a type name" << std::endl;
-                        return nullptr;
-                    }
+                }
+                else if (iterator->type == Token::Type::SEMICOLON)
+                {
+                    return node;
+                }
+                else
+                {
+                    std::cerr << "Expected left brace or semicolon" << std::endl;
+                    return nullptr;
                 }
             }
             else
             {
-                std::cerr << "Expected a left brace" << std::endl;
+                std::cerr << "Unexpected end of declaration" << std::endl;
                 return nullptr;
             }
         }
@@ -350,8 +363,15 @@ void ASTContext::dumpNode(const std::unique_ptr<ASTNode>& node, std::string inde
     std::cout << indent << nodeTypeToString(node->type);
 
     if (!node->name.empty()) std::cout << ", name: " << node->name;
-    if (!node->typeName.empty()) std::cout << ", type: " << node->typeName;
+    if (!node->typeName.empty())
+    {
+        std::cout << ", type: ";
+        if (node->constType) std::cout << "const ";
+        std::cout << node->typeName;
+
+    }
     if (node->semantic != ASTNode::Semantic::NONE) std::cout << ", semantic: " << semanticToString(node->semantic);
+    if (node->definition) std::cout << ", has definition";
 
     std::cout << std::endl;
 
