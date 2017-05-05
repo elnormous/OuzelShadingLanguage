@@ -34,24 +34,66 @@ bool ASTContext::parse(const std::vector<Token>& tokens)
 
 std::unique_ptr<ASTNode> ASTContext::parseTopLevel(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator)
 {
-    const Token& token = *iterator;
-
-    if (token.type == Token::Type::KEYWORD_STRUCT)
+    if (iterator->type == Token::Type::KEYWORD_STRUCT)
     {
         return parseStructDecl(tokens, iterator);
     }
-    else if (token.type == Token::Type::KEYWORD_TYPEDEF)
+    else if (iterator->type == Token::Type::KEYWORD_TYPEDEF)
     {
         return parseTypedefDecl(tokens, iterator);
     }
-    else if (token.type == Token::Type::IDENTIFIER || token.type == Token::Type::KEYWORD_CONST)
-    {
-        return nullptr;
-    }
     else
     {
-        std::cerr << "Expected a declaration" << std::endl;
-        return nullptr;
+        std::unique_ptr<ASTNode> node(new ASTNode());
+
+        if (iterator->type == Token::Type::KEYWORD_CONST)
+        {
+            node->constType = true;
+            ++iterator;
+        }
+
+        if (iterator != tokens.end() &&
+            iterator->type == Token::Type::IDENTIFIER)
+        {
+            node->typeName = iterator->value;
+
+            if (++iterator != tokens.end() &&
+                iterator->type == Token::Type::IDENTIFIER)
+            {
+                node->name = iterator->value;
+
+                if (++iterator != tokens.end())
+                {
+                    if (iterator->type == Token::Type::SEMICOLON)
+                    {
+                        node->type = ASTNode::Type::VARIABLE_DECLARATION;
+                    }
+                    else if (iterator->type == Token::Type::LEFT_PARENTHESIS)
+                    {
+                        node->type = ASTNode::Type::FUNCTION_DECLARATION;
+
+                        // TODO parse arguments
+                    }
+                }
+                else
+                {
+                    std::cerr << "Unexpected end of declaration" << std::endl;
+                    return nullptr;
+                }
+            }
+            else
+            {
+                std::cerr << "Expected a name" << std::endl;
+                return nullptr;
+            }
+        }
+        else
+        {
+            std::cerr << "Expected a type" << std::endl;
+            return nullptr;
+        }
+
+        return node;
     }
 }
 
