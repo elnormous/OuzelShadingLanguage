@@ -30,7 +30,7 @@ struct Token
         KEYWORD_CONTINUE, // continue
         KEYWORD_TRUE, // true
         KEYWORD_FALSE, // false
-        KEYWORD_INLINE, // inline
+        //KEYWORD_INLINE, // inline
         KEYWORD_STRUCT, // struct
         KEYWORD_TYPEDEF, // typedef
         KEYWORD_CONST, // const
@@ -105,7 +105,7 @@ inline std::string tokenTypeToString(Token::Type type)
         case Token::Type::KEYWORD_CONTINUE: return "KEYWORD_CONTINUE";
         case Token::Type::KEYWORD_TRUE: return "KEYWORD_TRUE";
         case Token::Type::KEYWORD_FALSE: return "KEYWORD_FALSE";
-        case Token::Type::KEYWORD_INLINE: return "KEYWORD_INLINE";
+        //case Token::Type::KEYWORD_INLINE: return "KEYWORD_INLINE";
         case Token::Type::KEYWORD_STRUCT: return "KEYWORD_STRUCT";
         case Token::Type::KEYWORD_TYPEDEF: return "KEYWORD_TYPEDEF";
         case Token::Type::KEYWORD_CONST: return "KEYWORD_CONST";

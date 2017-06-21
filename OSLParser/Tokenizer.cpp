@@ -189,7 +189,7 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
             else if (token.value == "continue") token.type = Token::Type::KEYWORD_CONTINUE;
             else if (token.value == "true") token.type = Token::Type::KEYWORD_TRUE;
             else if (token.value == "false") token.type = Token::Type::KEYWORD_FALSE;
-            else if (token.value == "inline") token.type = Token::Type::KEYWORD_INLINE;
+            //else if (token.value == "inline") token.type = Token::Type::KEYWORD_INLINE;
             else if (token.value == "struct") token.type = Token::Type::KEYWORD_STRUCT;
             else if (token.value == "typedef") token.type = Token::Type::KEYWORD_TYPEDEF;
             else if (token.value == "const") token.type = Token::Type::KEYWORD_CONST;
