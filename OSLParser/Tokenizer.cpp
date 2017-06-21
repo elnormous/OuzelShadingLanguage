@@ -173,7 +173,18 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
                 ++i;
             }
 
-            if (token.value == "if") token.type = Token::Type::KEYWORD_IF;
+            if (token.value == "and_eq") token.type = Token::Type::OPERATOR_BITWISE_AND_ASSIGNMENT;
+            else if (token.value == "or_eq") token.type = Token::Type::OPERATOR_BITWISE_OR_ASSIGNMENT;
+            else if (token.value == "xor_eq") token.type = Token::Type::OPERATOR_BITWISE_XOR_ASSIGNMENT;
+            else if (token.value == "compl") token.type = Token::Type::OPERATOR_BITWISE_NOT;
+            else if (token.value == "bitand") token.type = Token::Type::OPERATOR_BITWISE_AND;
+            else if (token.value == "bitor") token.type = Token::Type::OPERATOR_BITWISE_OR;
+            else if (token.value == "xor") token.type = Token::Type::OPERATOR_BITWISE_XOR;
+            else if (token.value == "not_eq") token.type = Token::Type::OPERATOR_NOT_EQUAL;
+            else if (token.value == "and") token.type = Token::Type::OPERATOR_AND;
+            else if (token.value == "or") token.type = Token::Type::OPERATOR_OR;
+            else if (token.value == "not") token.type = Token::Type::OPERATOR_NOT;
+            else if (token.value == "if") token.type = Token::Type::KEYWORD_IF;
             else if (token.value == "else") token.type = Token::Type::KEYWORD_ELSE;
             else if (token.value == "return") token.type = Token::Type::KEYWORD_RETURN;
             else if (token.value == "for") token.type = Token::Type::KEYWORD_FOR;
@@ -207,6 +218,9 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
             else if (token.value == "sizeof") token.type = Token::Type::KEYWORD_SIZEOF;
             else if (token.value == "namespace") token.type = Token::Type::KEYWORD_NAMESPACE;
             else if (token.value == "using") token.type = Token::Type::KEYWORD_USING;
+            else if (token.value == "try") token.type = Token::Type::KEYWORD_TRY;
+            else if (token.value == "catch") token.type = Token::Type::KEYWORD_CATCH;
+            else if (token.value == "throw") token.type = Token::Type::KEYWORD_THROW;
             else token.type = Token::Type::IDENTIFIER;
         }
         else if (*i == '+' || *i == '-' ||
