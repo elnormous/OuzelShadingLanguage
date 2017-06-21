@@ -162,9 +162,6 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
                 std::cerr << "Invalid char literal" << std::endl;
                 return false;
             }*/
-
-            std::cerr << "Char literals are not supported" << std::endl;
-            return false;
         }
         else if ((*i >= 'a' && *i <= 'z') ||
                  (*i >= 'A' && *i <= 'Z') ||

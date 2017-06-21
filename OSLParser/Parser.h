@@ -34,7 +34,6 @@ struct ASTNode
         STATEMENT_BREAK,
         STATEMENT_CONTINUE,
         STATEMENT_RETURN,
-        OPERATOR_ASSIGN,
         OPERATOR_UNARY,
         OPERATOR_BINARY,
         OPERATOR_TERNARY,
@@ -83,7 +82,6 @@ inline std::string nodeTypeToString(ASTNode::Type type)
         case ASTNode::Type::STATEMENT_FOR: return "STATEMENT_FOR";
         case ASTNode::Type::STATEMENT_WHILE: return "STATEMENT_WHILE";
         case ASTNode::Type::STATEMENT_DO: return "STATEMENT_DO";
-        case ASTNode::Type::OPERATOR_ASSIGN: return "OPERATOR_ASSIGN";
         case ASTNode::Type::OPERATOR_UNARY: return "OPERATOR_UNARY";
         case ASTNode::Type::OPERATOR_BINARY: return "OPERATOR_BINARY";
         case ASTNode::Type::OPERATOR_TERNARY: return "OPERATOR_TERNARY";
