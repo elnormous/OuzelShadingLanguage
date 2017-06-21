@@ -273,6 +273,12 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
                         token.value.push_back(*i);
                         ++i;
                     }
+                    else if (*i == '>')
+                    {
+                        token.type = Token::Type::OPERATOR_ARROW;
+                        token.value.push_back(*i);
+                        ++i;
+                    }
                 }
             }
             else if (*i == '*')

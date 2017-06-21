@@ -103,6 +103,7 @@ struct Token
         OPERATOR_NOT, // !
         OPERATOR_CONDITIONAL, // ?
         OPERATOR_DOT, // .
+        OPERATOR_ARROW, // ->
     };
 
     Type type = Type::NONE;
@@ -201,6 +202,7 @@ inline std::string tokenTypeToString(Token::Type type)
         case Token::Type::OPERATOR_NOT: return "OPERATOR_NOT";
         case Token::Type::OPERATOR_CONDITIONAL: return "OPERATOR_CONDITIONAL";
         case Token::Type::OPERATOR_DOT: return "OPERATOR_DOT";
+        case Token::Type::OPERATOR_ARROW: return "OPERATOR_ARROW";
         default: return "unknown";
     }
 }
