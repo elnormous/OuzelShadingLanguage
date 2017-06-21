@@ -438,7 +438,15 @@ std::unique_ptr<ASTNode> ASTContext::parseCompoundStatement(const std::vector<To
                 }
                 else
                 {
-                    
+                    if (std::unique_ptr<ASTNode> statement = parseStatement(tokens, iterator))
+                    {
+                        result->children.push_back(std::move(statement));
+                    }
+                    else
+                    {
+                        std::cerr << "Expected an expression" << std::endl;
+                        return nullptr;
+                    }
                 }
             }
             else
@@ -467,6 +475,9 @@ std::unique_ptr<ASTNode> ASTContext::parseStatement(const std::vector<Token>& to
     }
     else if (iterator->type == Token::Type::IDENTIFIER)
     {
+        std::unique_ptr<ASTNode> result(new ASTNode());
+
+        return result;
     }
     else if (iterator->type == Token::Type::KEYWORD_IF)
     {

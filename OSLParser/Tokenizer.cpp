@@ -64,6 +64,8 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
         }
         else if (*i == '"') // string literal
         {
+            std::cerr << "String literals are not supported" << std::endl;
+            return false;
             /*token.type = Token::Type::LITERAL_STRING;
 
             while (++i != code.end() &&
@@ -104,12 +106,11 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
                 std::cerr << "Unterminated string" << std::endl;
                 return false;
             }*/
-
-            std::cerr << "String literals are not supported" << std::endl;
-            return false;
         }
         else if (*i == '\'')
         {
+            std::cerr << "Character leterals are not supported" << std::endl;
+            return false;
             /*token.type = Token::Type::LITERAL_CHAR;
 
             if (++i == code.end()) // reached end of file
@@ -189,7 +190,12 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
             else if (token.value == "continue") token.type = Token::Type::KEYWORD_CONTINUE;
             else if (token.value == "true") token.type = Token::Type::KEYWORD_TRUE;
             else if (token.value == "false") token.type = Token::Type::KEYWORD_FALSE;
-            //else if (token.value == "inline") token.type = Token::Type::KEYWORD_INLINE;
+            else if (token.value == "inline")
+            {
+                std::cerr << "inline is not supported" << std::endl;
+                return false;
+                //token.type = Token::Type::KEYWORD_INLINE;
+            }
             else if (token.value == "struct") token.type = Token::Type::KEYWORD_STRUCT;
             else if (token.value == "typedef") token.type = Token::Type::KEYWORD_TYPEDEF;
             else if (token.value == "const") token.type = Token::Type::KEYWORD_CONST;
