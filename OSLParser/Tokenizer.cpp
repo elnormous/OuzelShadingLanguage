@@ -64,9 +64,7 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
         }
         else if (*i == '"') // string literal
         {
-            std::cerr << "String literals are not supported" << std::endl;
-            return false;
-            /*token.type = Token::Type::LITERAL_STRING;
+            token.type = Token::Type::LITERAL_STRING;
 
             while (++i != code.end() &&
                    *i != '"')
@@ -105,13 +103,11 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
             {
                 std::cerr << "Unterminated string" << std::endl;
                 return false;
-            }*/
+            }
         }
         else if (*i == '\'')
         {
-            std::cerr << "Character leterals are not supported" << std::endl;
-            return false;
-            /*token.type = Token::Type::LITERAL_CHAR;
+            token.type = Token::Type::LITERAL_CHAR;
 
             if (++i == code.end()) // reached end of file
             {
@@ -161,7 +157,7 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
             {
                 std::cerr << "Invalid char literal" << std::endl;
                 return false;
-            }*/
+            }
         }
         else if ((*i >= 'a' && *i <= 'z') ||
                  (*i >= 'A' && *i <= 'Z') ||
@@ -187,15 +183,30 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
             else if (token.value == "continue") token.type = Token::Type::KEYWORD_CONTINUE;
             else if (token.value == "true") token.type = Token::Type::KEYWORD_TRUE;
             else if (token.value == "false") token.type = Token::Type::KEYWORD_FALSE;
-            else if (token.value == "inline")
-            {
-                std::cerr << "inline is not supported" << std::endl;
-                return false;
-                //token.type = Token::Type::KEYWORD_INLINE;
-            }
-            else if (token.value == "struct") token.type = Token::Type::KEYWORD_STRUCT;
-            else if (token.value == "typedef") token.type = Token::Type::KEYWORD_TYPEDEF;
+            else if (token.value == "inline") token.type = Token::Type::KEYWORD_INLINE;
+            else if (token.value == "goto") token.type = Token::Type::KEYWORD_GOTO;
+            else if (token.value == "switch") token.type = Token::Type::KEYWORD_SWITCH;
+            else if (token.value == "case") token.type = Token::Type::KEYWORD_CASE;
+            else if (token.value == "default") token.type = Token::Type::KEYWORD_DEFAULT;
+            else if (token.value == "static") token.type = Token::Type::KEYWORD_STATIC;
             else if (token.value == "const") token.type = Token::Type::KEYWORD_CONST;
+            else if (token.value == "extern") token.type = Token::Type::KEYWORD_EXTERN;
+            else if (token.value == "auto") token.type = Token::Type::KEYWORD_AUTO;
+            else if (token.value == "typedef") token.type = Token::Type::KEYWORD_TYPEDEF;
+            else if (token.value == "union") token.type = Token::Type::KEYWORD_UNION;
+            else if (token.value == "enum") token.type = Token::Type::KEYWORD_ENUM;
+            else if (token.value == "template") token.type = Token::Type::KEYWORD_TEMPLATE;
+            else if (token.value == "struct") token.type = Token::Type::KEYWORD_STRUCT;
+            else if (token.value == "class") token.type = Token::Type::KEYWORD_CLASS;
+            else if (token.value == "public") token.type = Token::Type::KEYWORD_PUBLIC;
+            else if (token.value == "protected") token.type = Token::Type::KEYWORD_PROTECTED;
+            else if (token.value == "private") token.type = Token::Type::KEYWORD_PRIVATE;
+            else if (token.value == "new") token.type = Token::Type::KEYWORD_NEW;
+            else if (token.value == "delete") token.type = Token::Type::KEYWORD_DELETE;
+            else if (token.value == "this") token.type = Token::Type::KEYWORD_THIS;
+            else if (token.value == "sizeof") token.type = Token::Type::KEYWORD_SIZEOF;
+            else if (token.value == "namespace") token.type = Token::Type::KEYWORD_NAMESPACE;
+            else if (token.value == "using") token.type = Token::Type::KEYWORD_USING;
             else token.type = Token::Type::IDENTIFIER;
         }
         else if (*i == '+' || *i == '-' ||
