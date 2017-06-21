@@ -46,10 +46,35 @@ std::unique_ptr<ASTNode> ASTContext::parseTopLevel(const std::vector<Token>& tok
     {
         std::unique_ptr<ASTNode> result(new ASTNode());
 
-        if (iterator->type == Token::Type::KEYWORD_CONST)
+        for (;;)
         {
-            result->constType = true;
-            ++iterator;
+            if (iterator != tokens.end())
+            {
+                if (iterator->type == Token::Type::KEYWORD_INLINE)
+                {
+                    result->isInline = true;
+                    ++iterator;
+                }
+                else if (iterator->type == Token::Type::KEYWORD_CONST)
+                {
+                    result->isConst = true;
+                    ++iterator;
+                }
+                else if (iterator->type == Token::Type::KEYWORD_EXTERN)
+                {
+                    result->isExtern = true;
+                    ++iterator;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            else
+            {
+                std::cerr << "Unexpected end of declaration" << std::endl;
+                return nullptr;
+            }
         }
 
         if (iterator != tokens.end() &&
@@ -583,7 +608,9 @@ void ASTContext::dumpNode(const std::unique_ptr<ASTNode>& node, std::string inde
     if (!node->typeName.empty())
     {
         std::cout << ", type: ";
-        if (node->constType) std::cout << "const ";
+        if (node->isInline) std::cout << "inline ";
+        if (node->isConst) std::cout << "const ";
+        if (node->isExtern) std::cout << "extern ";
         std::cout << node->typeName;
 
     }

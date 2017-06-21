@@ -57,7 +57,9 @@ struct ASTNode
     Type type = Type::NONE;
     Attribute attribute = Attribute::NONE;
     std::string typeName;
-    bool constType = false;
+    bool isConst = false;
+    bool isInline = false;
+    bool isExtern = false;
     std::string name;
     std::vector<std::unique_ptr<ASTNode>> children;
 };
