@@ -465,7 +465,7 @@ void ASTContext::dump()
 
 void ASTContext::dumpNode(const std::unique_ptr<ASTNode>& node, std::string indent)
 {
-    std::cout << indent << nodeTypeToString(node->type);
+    std::cout << indent << node.get() << " " << nodeTypeToString(node->type);
 
     if (!node->name.empty()) std::cout << ", name: " << node->name;
     if (!node->typeName.empty())
