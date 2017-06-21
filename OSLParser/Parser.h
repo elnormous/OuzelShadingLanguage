@@ -123,6 +123,8 @@ private:
     std::unique_ptr<ASTNode> parseTypedefDecl(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator);
 
     std::unique_ptr<ASTNode> parseVarDecl(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator);
+    std::unique_ptr<ASTNode> parseParamDecl(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator);
+    std::unique_ptr<ASTNode> parseDecl(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator);
     std::unique_ptr<ASTNode> parseFunctionDecl(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator);
 
     std::unique_ptr<ASTNode> parseIf(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator);

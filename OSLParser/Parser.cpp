@@ -44,35 +44,104 @@ std::unique_ptr<ASTNode> ASTContext::parseTopLevel(const std::vector<Token>& tok
     }
     else
     {
-        std::unique_ptr<ASTNode> node(new ASTNode());
+        std::unique_ptr<ASTNode> result(new ASTNode());
 
         if (iterator->type == Token::Type::KEYWORD_CONST)
         {
-            node->constType = true;
+            result->constType = true;
             ++iterator;
         }
 
         if (iterator != tokens.end() &&
             iterator->type == Token::Type::IDENTIFIER)
         {
-            node->typeName = iterator->value;
+            result->typeName = iterator->value;
 
             if (++iterator != tokens.end() &&
                 iterator->type == Token::Type::IDENTIFIER)
             {
-                node->name = iterator->value;
+                result->name = iterator->value;
 
                 if (++iterator != tokens.end())
                 {
                     if (iterator->type == Token::Type::SEMICOLON)
                     {
-                        node->type = ASTNode::Type::VARIABLE_DECLARATION;
+                        result->type = ASTNode::Type::VARIABLE_DECLARATION;
                     }
                     else if (iterator->type == Token::Type::LEFT_PARENTHESIS)
                     {
-                        node->type = ASTNode::Type::FUNCTION_DECLARATION;
+                        result->type = ASTNode::Type::FUNCTION_DECLARATION;
 
-                        // TODO parse arguments
+                        if (++iterator != tokens.end())
+                        {
+                            if (iterator->type == Token::Type::IDENTIFIER)
+                            {
+                                for (;;)
+                                {
+                                    if (std::unique_ptr<ASTNode> param = parseParamDecl(tokens, iterator))
+                                    {
+                                        result->children.push_back(std::move(param));
+                                    }
+                                    else
+                                    {
+                                        std::cerr << "Failed to parse parameter declaration" << std::endl;
+                                        return nullptr;
+                                    }
+
+                                    if (++iterator != tokens.end())
+                                    {
+                                        if (iterator->type == Token::Type::RIGHT_PARENTHESIS)
+                                        {
+                                            break;
+                                        }
+                                        else if (iterator->type != Token::Type::COMMA)
+                                        {
+                                            std::cerr << "Expected a comma or right parenthesis" << std::endl;
+                                            return nullptr;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        std::cerr << "Unexpected end of function declaration" << std::endl;
+                                        return nullptr;
+                                    }
+                                }
+                            }
+                            else if (iterator->type != Token::Type::RIGHT_PARENTHESIS)
+                            {
+                                std::cerr << "Expected a keyword or right parenthesis" << std::endl;
+                                return nullptr;
+                            }
+
+                            // parse body
+                            if (++iterator != tokens.end())
+                            {
+                                if (iterator->type == Token::Type::LEFT_BRACE)
+                                {
+                                    // TODO: parse body
+                                    return result;
+                                }
+                                else if (iterator->type != Token::Type::SEMICOLON)
+                                {
+                                    return result;
+                                }
+                                else
+                                {
+                                    std::cerr << "Expected a left brace or semicolon" << std::endl;
+                                    return nullptr;
+                                }
+                            }
+                            else
+                            {
+                                std::cerr << "Unexpected end of function declaration" << std::endl;
+                                return nullptr;
+                            }
+                        }
+                        else
+                        {
+                            std::cerr << "Unexpected end of function declaration" << std::endl;
+                            return nullptr;
+                        }
                     }
                 }
                 else
@@ -93,7 +162,7 @@ std::unique_ptr<ASTNode> ASTContext::parseTopLevel(const std::vector<Token>& tok
             return nullptr;
         }
 
-        return node;
+        return result;
     }
 }
 
@@ -103,15 +172,15 @@ std::unique_ptr<ASTNode> ASTContext::parseStructDecl(const std::vector<Token>& t
     {
         if (++iterator != tokens.end() && iterator->type == Token::Type::IDENTIFIER)
         {
-            std::unique_ptr<ASTNode> node(new ASTNode());
-            node->type = ASTNode::Type::STRUCT_DECLARATION;
-            node->name = iterator->value;
+            std::unique_ptr<ASTNode> result(new ASTNode());
+            result->type = ASTNode::Type::STRUCT_DECLARATION;
+            result->name = iterator->value;
 
             if (++iterator != tokens.end())
             {
                 if (iterator->type == Token::Type::LEFT_BRACE)
                 {
-                    node->definition = true;
+                    result->definition = true;
                     ++iterator;
 
                     for (; iterator != tokens.end(); ++iterator)
@@ -120,9 +189,9 @@ std::unique_ptr<ASTNode> ASTContext::parseStructDecl(const std::vector<Token>& t
                         {
                             if (++iterator != tokens.end() && iterator->type == Token::Type::SEMICOLON)
                             {
-                                if (!node->children.empty())
+                                if (!result->children.empty())
                                 {
-                                    return node;
+                                    return result;
                                 }
                                 else
                                 {
@@ -140,7 +209,12 @@ std::unique_ptr<ASTNode> ASTContext::parseStructDecl(const std::vector<Token>& t
                         {
                             if (std::unique_ptr<ASTNode> field = parseFieldDecl(tokens, iterator))
                             {
-                                node->children.push_back(std::move(field));
+                                result->children.push_back(std::move(field));
+                            }
+                            else
+                            {
+                                std::cerr << "Failed to parse field declaration" << std::endl;
+                                return nullptr;
                             }
                         }
                         else
@@ -152,7 +226,7 @@ std::unique_ptr<ASTNode> ASTContext::parseStructDecl(const std::vector<Token>& t
                 }
                 else if (iterator->type == Token::Type::SEMICOLON)
                 {
-                    return node;
+                    return result;
                 }
                 else
                 {
@@ -175,20 +249,20 @@ std::unique_ptr<ASTNode> ASTContext::parseFieldDecl(const std::vector<Token>& to
 {
     if (iterator->type == Token::Type::IDENTIFIER)
     {
-        std::unique_ptr<ASTNode> field(new ASTNode());
-        field->type = ASTNode::Type::FIELD_DECLARATION;
+        std::unique_ptr<ASTNode> result(new ASTNode());
+        result->type = ASTNode::Type::FIELD_DECLARATION;
 
-        field->typeName = iterator->value;
+        result->typeName = iterator->value;
 
         while (++iterator != tokens.end())
         {
             if (iterator->type == Token::Type::IDENTIFIER)
             {
-                field->name = iterator->value;
+                result->name = iterator->value;
 
                 if (++iterator != tokens.end() && iterator->type == Token::Type::SEMICOLON)
                 {
-                    return field;
+                    return result;
                 }
                 else
                 {
@@ -225,7 +299,7 @@ std::unique_ptr<ASTNode> ASTContext::parseFieldDecl(const std::vector<Token>& to
                         {
                             if (++iterator != tokens.end() && iterator->type == Token::Type::RIGHT_BRACKET)
                             {
-                                field->semantic = semantic;
+                                result->semantic = semantic;
                             }
                             else
                             {
@@ -263,17 +337,17 @@ std::unique_ptr<ASTNode> ASTContext::parseTypedefDecl(const std::vector<Token>& 
     {
         if (++iterator != tokens.end() && iterator->type == Token::Type::IDENTIFIER)
         {
-            std::unique_ptr<ASTNode> node(new ASTNode());
-            node->type = ASTNode::Type::TYPE_DEFINITION_DECLARATION;
-            node->typeName = iterator->value;
+            std::unique_ptr<ASTNode> result(new ASTNode());
+            result->type = ASTNode::Type::TYPE_DEFINITION_DECLARATION;
+            result->typeName = iterator->value;
 
             if (++iterator != tokens.end() && iterator->type == Token::Type::IDENTIFIER)
             {
-                node->name = iterator->value;
+                result->name = iterator->value;
 
                 if (++iterator != tokens.end() && iterator->type == Token::Type::SEMICOLON)
                 {
-                    return node;
+                    return result;
                 }
                 else
                 {
@@ -299,25 +373,48 @@ std::unique_ptr<ASTNode> ASTContext::parseTypedefDecl(const std::vector<Token>& 
 
 std::unique_ptr<ASTNode> ASTContext::parseVarDecl(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator)
 {
-    const Token& token = *iterator;
-
-    if (token.type == Token::Type::IDENTIFIER)
+    if (iterator->type == Token::Type::IDENTIFIER)
     {
-        //node.type = ASTNode::Type::VARIABLE_DECLARATION;
     }
-    else if (token.type == Token::Type::KEYWORD_CONST)
+    else if (iterator->type == Token::Type::KEYWORD_CONST)
     {
-        //node.type = ASTNode::Type::VARIABLE_DECLARATION;
     }
 
     return nullptr;
 }
 
+std::unique_ptr<ASTNode> ASTContext::parseParamDecl(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator)
+{
+    if (iterator->type == Token::Type::IDENTIFIER)
+    {
+        std::unique_ptr<ASTNode> result(new ASTNode());
+        result->type = ASTNode::Type::PARAMETER_DECLARATION;
+        result->typeName = iterator->value;
+
+        if (++iterator != tokens.end() && iterator->type == Token::Type::IDENTIFIER)
+        {
+            result->name = iterator->value;
+        }
+        else
+        {
+            std::cerr << "Expected a keyword" << std::endl;
+            return nullptr;
+        }
+
+        return result;
+    }
+
+    return nullptr;
+}
+
+std::unique_ptr<ASTNode> ASTContext::parseDecl(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator)
+{
+    return nullptr;
+}
+
 std::unique_ptr<ASTNode> ASTContext::parseFunctionDecl(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator)
 {
-    const Token& token = *iterator;
-
-    if (token.type == Token::Type::IDENTIFIER)
+    if (iterator->type == Token::Type::IDENTIFIER)
     {
         //node.type = ASTNode::Type::FUNCTION_DECLARATION;
     }
