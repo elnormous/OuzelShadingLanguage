@@ -45,7 +45,7 @@ int main(int argc, const char * argv[])
 
     for (const Token& token : tokens)
     {
-        std::cout << "Token, type: " << tokenTypeToString(token.type) << ", value: " << token.value << std::endl;
+        std::cout << "Token, kind: " << tokenKindToString(token.kind) << ", type: " << tokenTypeToString(token.type) << ", value: " << token.value << std::endl;
     }
 
     ASTContext context;

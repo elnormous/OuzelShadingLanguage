@@ -13,6 +13,16 @@
 
 struct Token
 {
+    enum class Kind
+    {
+        NONE,
+        LITERAL,
+        KEYWORD,
+        PUNCTUATOR,
+        OPERATOR,
+        IDENTIFIER
+    };
+
     enum class Type
     {
         NONE,
@@ -66,7 +76,6 @@ struct Token
         COMMA, // ,
         SEMICOLON, // ;
         COLON, // :
-        IDENTIFIER,
         OPERATOR_PLUS, // +
         OPERATOR_MINUS, // -
         OPERATOR_MULTIPLY, // *
@@ -104,11 +113,27 @@ struct Token
         OPERATOR_CONDITIONAL, // ?
         OPERATOR_DOT, // .
         OPERATOR_ARROW, // ->
+        IDENTIFIER
     };
 
+    Kind kind = Kind::NONE;
     Type type = Type::NONE;
     std::string value;
 };
+
+inline std::string tokenKindToString(Token::Kind kind)
+{
+    switch (kind)
+    {
+        case Token::Kind::NONE: return "NONE";
+        case Token::Kind::LITERAL: return "LITERAL";
+        case Token::Kind::KEYWORD: return "KEYWORD";
+        case Token::Kind::PUNCTUATOR: return "PUNCTUATOR";
+        case Token::Kind::OPERATOR: return "OPERATOR";
+        case Token::Kind::IDENTIFIER: return "IDENTIFIER";
+        default: return "unknown";
+    }
+}
 
 inline std::string tokenTypeToString(Token::Type type)
 {
