@@ -16,10 +16,10 @@ struct Token
     enum class Type
     {
         NONE,
-        INT_LITERAL, // int
-        FLOAT_LITERAL, // float
-        //CHAR_LITERAL, // char
-        //STRING_LITERAL, // string
+        LITERAL_INT, // int
+        LITERAL_FLOAT, // float
+        //LITERAL_CHAR, // char
+        //LITERAL_STRING, // string
         KEYWORD_IF, // if
         KEYWORD_ELSE, // else
         KEYWORD_RETURN, // return
@@ -91,10 +91,10 @@ inline std::string tokenTypeToString(Token::Type type)
     switch (type)
     {
         case Token::Type::NONE: return "NONE";
-        case Token::Type::INT_LITERAL: return "INT_LITERAL";
-        case Token::Type::FLOAT_LITERAL: return "FLOAT_LITERAL";
-        //case Token::Type::CHAR_LITERAL: return "CHAR_LITERAL";
-        //case Token::Type::STRING_LITERAL: return "STRING_LITERAL";
+        case Token::Type::LITERAL_INT: return "LITERAL_INT";
+        case Token::Type::LITERAL_FLOAT: return "LITERAL_FLOAT";
+        //case Token::Type::LITERAL_CHAR: return "LITERAL_CHAR";
+        //case Token::Type::LITERAL_STRING: return "LITERAL_STRING";
         case Token::Type::KEYWORD_IF: return "KEYWORD_IF";
         case Token::Type::KEYWORD_ELSE: return "KEYWORD_ELSE";
         case Token::Type::KEYWORD_RETURN: return "KEYWORD_RETURN";

@@ -17,28 +17,30 @@ struct ASTNode
     enum class Type
     {
         NONE,
-        STRUCT_DECLARATION,
-        FIELD_DECLARATION,
-        TYPE_DEFINITION_DECLARATION,
-        FUNCTION_DECLARATION,
-        VARIABLE_DECLARATION,
-        PARAMETER_DECLARATION,
-        COMPOUND_STATEMENT,
-        RETURN_STATEMENT,
-        CALL_EXPRESSION,
-        LITERAL_EXPRESSION,
-        DECLARATION_REFERENCE_EXPRESSION,
-        IF_STATEMENT,
-        FOR_STATEMENT,
-        WHILE_STATEMENT,
-        DO_STATEMENT,
-        ASSIGN_OPERATOR,
-        UNARY_OPERATOR,
-        BINARY_OPERATOR,
-        TERNARY_OPERATOR,
+        DECLARATION_STRUCT,
+        DECLARATION_FIELD,
+        DECLARATION_TYPE_DEFINITION,
+        DECLARATION_FUNCTION,
+        DECLARATION_VARIABLE,
+        DECLARATION_PARAMETER,
+        EXPRESSION_CALL,
+        EXPRESSION_LITERAL,
+        EXPRESSION_DECLARATION_REFERENCE,
+        STATEMENT_COMPOUND,
+        STATEMENT_IF,
+        STATEMENT_FOR,
+        STATEMENT_WHILE,
+        STATEMENT_DO,
+        STATEMENT_BREAK,
+        STATEMENT_CONTINUE,
+        STATEMENT_RETURN,
+        OPERATOR_ASSIGN,
+        OPERATOR_UNARY,
+        OPERATOR_BINARY,
+        OPERATOR_TERNARY,
     };
 
-    enum class Semantic
+    enum class Attribute
     {
         NONE,
         BINORMAL,
@@ -54,10 +56,9 @@ struct ASTNode
     };
 
     Type type = Type::NONE;
-    Semantic semantic = Semantic::NONE;
+    Attribute attribute = Attribute::NONE;
     std::string typeName;
     bool constType = false;
-    bool definition = false;
     std::string name;
     std::vector<std::unique_ptr<ASTNode>> children;
 };
@@ -67,44 +68,44 @@ inline std::string nodeTypeToString(ASTNode::Type type)
     switch (type)
     {
         case ASTNode::Type::NONE: return "NONE";
-        case ASTNode::Type::STRUCT_DECLARATION: return "STRUCT_DECLARATION";
-        case ASTNode::Type::FIELD_DECLARATION: return "FIELD_DECLARATION";
-        case ASTNode::Type::TYPE_DEFINITION_DECLARATION: return "TYPE_DEFINITION_DECLARATION";
-        case ASTNode::Type::FUNCTION_DECLARATION: return "FUNCTION_DECLARATION";
-        case ASTNode::Type::VARIABLE_DECLARATION: return "VARIABLE_DECLARATION";
-        case ASTNode::Type::PARAMETER_DECLARATION: return "PARAMETER_DECLARATION";
-        case ASTNode::Type::COMPOUND_STATEMENT: return "COMPOUND_STATEMENT";
-        case ASTNode::Type::RETURN_STATEMENT: return "RETURN_STATEMENT";
-        case ASTNode::Type::CALL_EXPRESSION: return "CALL_EXPRESSION";
-        case ASTNode::Type::LITERAL_EXPRESSION: return "LITERAL_EXPRESSION";
-        case ASTNode::Type::DECLARATION_REFERENCE_EXPRESSION: return "DECLARATION_REFERENCE_EXPRESSION";
-        case ASTNode::Type::IF_STATEMENT: return "IF_STATEMENT";
-        case ASTNode::Type::FOR_STATEMENT: return "FOR_STATEMENT";
-        case ASTNode::Type::WHILE_STATEMENT: return "WHILE_STATEMENT";
-        case ASTNode::Type::DO_STATEMENT: return "DO_STATEMENT";
-        case ASTNode::Type::ASSIGN_OPERATOR: return "ASSIGN_OPERATOR";
-        case ASTNode::Type::UNARY_OPERATOR: return "UNARY_OPERATOR";
-        case ASTNode::Type::BINARY_OPERATOR: return "BINARY_OPERATOR";
-        case ASTNode::Type::TERNARY_OPERATOR: return "TERNARY_OPERATOR";
+        case ASTNode::Type::DECLARATION_STRUCT: return "DECLARATION_STRUCT";
+        case ASTNode::Type::DECLARATION_FIELD: return "DECLARATION_FIELD";
+        case ASTNode::Type::DECLARATION_TYPE_DEFINITION: return "DECLARATION_TYPE_DEFINITION";
+        case ASTNode::Type::DECLARATION_FUNCTION: return "DECLARATION_FUNCTION";
+        case ASTNode::Type::DECLARATION_VARIABLE: return "DECLARATION_VARIABLE";
+        case ASTNode::Type::DECLARATION_PARAMETER: return "DECLARATION_PARAMETER";
+        case ASTNode::Type::STATEMENT_COMPOUND: return "STATEMENT_COMPOUND";
+        case ASTNode::Type::STATEMENT_RETURN: return "STATEMENT_RETURN";
+        case ASTNode::Type::EXPRESSION_CALL: return "EXPRESSION_CALL";
+        case ASTNode::Type::EXPRESSION_LITERAL: return "EXPRESSION_LITERAL";
+        case ASTNode::Type::EXPRESSION_DECLARATION_REFERENCE: return "EXPRESSION_DECLARATION_REFERENCE";
+        case ASTNode::Type::STATEMENT_IF: return "STATEMENT_IF";
+        case ASTNode::Type::STATEMENT_FOR: return "STATEMENT_FOR";
+        case ASTNode::Type::STATEMENT_WHILE: return "STATEMENT_WHILE";
+        case ASTNode::Type::STATEMENT_DO: return "STATEMENT_DO";
+        case ASTNode::Type::OPERATOR_ASSIGN: return "OPERATOR_ASSIGN";
+        case ASTNode::Type::OPERATOR_UNARY: return "OPERATOR_UNARY";
+        case ASTNode::Type::OPERATOR_BINARY: return "OPERATOR_BINARY";
+        case ASTNode::Type::OPERATOR_TERNARY: return "OPERATOR_TERNARY";
         default: return "unknwon";
     }
 }
 
-inline std::string semanticToString(ASTNode::Semantic semantic)
+inline std::string attributeToString(ASTNode::Attribute attribute)
 {
-    switch (semantic)
+    switch (attribute)
     {
-        case ASTNode::Semantic::NONE: return "NONE";
-        case ASTNode::Semantic::BINORMAL: return "BINORMAL";
-        case ASTNode::Semantic::BLEND_INDICES: return "BLEND_INDICES";
-        case ASTNode::Semantic::BLEND_WEIGHT: return "BLEND_WEIGHT";
-        case ASTNode::Semantic::COLOR: return "COLOR";
-        case ASTNode::Semantic::NORMAL: return "NORMAL";
-        case ASTNode::Semantic::POSITION: return "POSITION";
-        case ASTNode::Semantic::POSITION_TRANSFORMED: return "POSITION_TRANSFORMED";
-        case ASTNode::Semantic::POINT_SIZE: return "POINT_SIZE";
-        case ASTNode::Semantic::TANGENT: return "TANGENT";
-        case ASTNode::Semantic::TEXTURE_COORDINATES: return "TEXTURE_COORDINATES";
+        case ASTNode::Attribute::NONE: return "NONE";
+        case ASTNode::Attribute::BINORMAL: return "BINORMAL";
+        case ASTNode::Attribute::BLEND_INDICES: return "BLEND_INDICES";
+        case ASTNode::Attribute::BLEND_WEIGHT: return "BLEND_WEIGHT";
+        case ASTNode::Attribute::COLOR: return "COLOR";
+        case ASTNode::Attribute::NORMAL: return "NORMAL";
+        case ASTNode::Attribute::POSITION: return "POSITION";
+        case ASTNode::Attribute::POSITION_TRANSFORMED: return "POSITION_TRANSFORMED";
+        case ASTNode::Attribute::POINT_SIZE: return "POINT_SIZE";
+        case ASTNode::Attribute::TANGENT: return "TANGENT";
+        case ASTNode::Attribute::TEXTURE_COORDINATES: return "TEXTURE_COORDINATES";
         default: return "unknwon";
     }
 }
@@ -125,13 +126,14 @@ private:
     std::unique_ptr<ASTNode> parseVarDecl(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator);
     std::unique_ptr<ASTNode> parseParamDecl(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator);
     std::unique_ptr<ASTNode> parseDecl(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator);
+    std::unique_ptr<ASTNode> parseCompoundStatement(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator);
+    std::unique_ptr<ASTNode> parseStatement(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator);
     std::unique_ptr<ASTNode> parseFunctionDecl(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator);
 
     std::unique_ptr<ASTNode> parseIf(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator);
     std::unique_ptr<ASTNode> parseFor(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator);
     std::unique_ptr<ASTNode> parseWhile(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator);
     std::unique_ptr<ASTNode> parseDo(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator);
-    std::unique_ptr<ASTNode> parseStatement(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator);
 
     void dumpNode(const std::unique_ptr<ASTNode>& node, std::string indent = std::string());
 

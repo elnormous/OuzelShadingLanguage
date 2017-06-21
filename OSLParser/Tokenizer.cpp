@@ -37,7 +37,7 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
         else if ((*i >= '0' && *i <= '9') ||  // number
                  (*i == '.' && (i + 1) != code.end() && *(i + 1) >= '0' && *(i + 1) <= '9')) // starts with a dot
         {
-            token.type = Token::Type::INT_LITERAL;
+            token.type = Token::Type::LITERAL_INT;
 
             bool dot = false;
 
@@ -54,7 +54,7 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
                     else
                     {
                         dot = true;
-                        token.type = Token::Type::FLOAT_LITERAL;
+                        token.type = Token::Type::LITERAL_FLOAT;
                     }
                 }
 
@@ -64,7 +64,7 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
         }
         else if (*i == '"') // string literal
         {
-            /*token.type = Token::Type::STRING_LITERAL;
+            /*token.type = Token::Type::LITERAL_STRING;
 
             while (++i != code.end() &&
                    *i != '"')
@@ -110,7 +110,7 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
         }
         else if (*i == '\'')
         {
-            /*token.type = Token::Type::CHAR_LITERAL;
+            /*token.type = Token::Type::LITERAL_CHAR;
 
             if (++i == code.end()) // reached end of file
             {

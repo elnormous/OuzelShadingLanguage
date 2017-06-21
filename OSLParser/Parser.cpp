@@ -66,11 +66,11 @@ std::unique_ptr<ASTNode> ASTContext::parseTopLevel(const std::vector<Token>& tok
                 {
                     if (iterator->type == Token::Type::SEMICOLON)
                     {
-                        result->type = ASTNode::Type::VARIABLE_DECLARATION;
+                        result->type = ASTNode::Type::DECLARATION_VARIABLE;
                     }
                     else if (iterator->type == Token::Type::LEFT_PARENTHESIS)
                     {
-                        result->type = ASTNode::Type::FUNCTION_DECLARATION;
+                        result->type = ASTNode::Type::DECLARATION_FUNCTION;
 
                         if (++iterator != tokens.end())
                         {
@@ -118,8 +118,11 @@ std::unique_ptr<ASTNode> ASTContext::parseTopLevel(const std::vector<Token>& tok
                             {
                                 if (iterator->type == Token::Type::LEFT_BRACE)
                                 {
-                                    // TODO: parse body
-                                    result->definition = true;
+                                    if (std::unique_ptr<ASTNode> compound = parseCompoundStatement(tokens, iterator))
+                                    {
+                                        result->children.push_back(std::move(compound));
+                                    }
+
                                     return result;
                                 }
                                 else if (iterator->type != Token::Type::SEMICOLON)
@@ -174,15 +177,13 @@ std::unique_ptr<ASTNode> ASTContext::parseStructDecl(const std::vector<Token>& t
         if (++iterator != tokens.end() && iterator->type == Token::Type::IDENTIFIER)
         {
             std::unique_ptr<ASTNode> result(new ASTNode());
-            result->type = ASTNode::Type::STRUCT_DECLARATION;
+            result->type = ASTNode::Type::DECLARATION_STRUCT;
             result->name = iterator->value;
 
             if (++iterator != tokens.end())
             {
                 if (iterator->type == Token::Type::LEFT_BRACE)
                 {
-                    result->definition = true;
-
                     for (;;)
                     {
                         if (++iterator != tokens.end())
@@ -258,7 +259,7 @@ std::unique_ptr<ASTNode> ASTContext::parseFieldDecl(const std::vector<Token>& to
     if (iterator->type == Token::Type::IDENTIFIER)
     {
         std::unique_ptr<ASTNode> result(new ASTNode());
-        result->type = ASTNode::Type::FIELD_DECLARATION;
+        result->type = ASTNode::Type::DECLARATION_FIELD;
 
         result->typeName = iterator->value;
 
@@ -284,19 +285,19 @@ std::unique_ptr<ASTNode> ASTContext::parseFieldDecl(const std::vector<Token>& to
                 {
                     if (++iterator != tokens.end() && iterator->type == Token::Type::IDENTIFIER)
                     {
-                        ASTNode::Semantic semantic = ASTNode::Semantic::NONE;
+                        ASTNode::Attribute attribute = ASTNode::Attribute::NONE;
 
                         // TODO: find slot number
-                        if (iterator->value == "binormal") semantic = ASTNode::Semantic::BINORMAL;
-                        else if (iterator->value == "blend_indices") semantic = ASTNode::Semantic::BLEND_INDICES;
-                        else if (iterator->value == "blend_weight") semantic = ASTNode::Semantic::BLEND_WEIGHT;
-                        else if (iterator->value == "color") semantic = ASTNode::Semantic::COLOR;
-                        else if (iterator->value == "normal") semantic = ASTNode::Semantic::NORMAL;
-                        else if (iterator->value == "position") semantic = ASTNode::Semantic::POSITION;
-                        else if (iterator->value == "position_transformed") semantic = ASTNode::Semantic::POSITION_TRANSFORMED;
-                        else if (iterator->value == "point_size") semantic = ASTNode::Semantic::POINT_SIZE;
-                        else if (iterator->value == "tangent") semantic = ASTNode::Semantic::TANGENT;
-                        else if (iterator->value == "texture_coordinates") semantic = ASTNode::Semantic::TEXTURE_COORDINATES;
+                        if (iterator->value == "binormal") attribute = ASTNode::Attribute::BINORMAL;
+                        else if (iterator->value == "blend_indices") attribute = ASTNode::Attribute::BLEND_INDICES;
+                        else if (iterator->value == "blend_weight") attribute = ASTNode::Attribute::BLEND_WEIGHT;
+                        else if (iterator->value == "color") attribute = ASTNode::Attribute::COLOR;
+                        else if (iterator->value == "normal") attribute = ASTNode::Attribute::NORMAL;
+                        else if (iterator->value == "position") attribute = ASTNode::Attribute::POSITION;
+                        else if (iterator->value == "position_transformed") attribute = ASTNode::Attribute::POSITION_TRANSFORMED;
+                        else if (iterator->value == "point_size") attribute = ASTNode::Attribute::POINT_SIZE;
+                        else if (iterator->value == "tangent") attribute = ASTNode::Attribute::TANGENT;
+                        else if (iterator->value == "texture_coordinates") attribute = ASTNode::Attribute::TEXTURE_COORDINATES;
                         else
                         {
                             std::cerr << "Invalid semantic" << std::endl;
@@ -307,7 +308,7 @@ std::unique_ptr<ASTNode> ASTContext::parseFieldDecl(const std::vector<Token>& to
                         {
                             if (++iterator != tokens.end() && iterator->type == Token::Type::RIGHT_BRACKET)
                             {
-                                result->semantic = semantic;
+                                result->attribute = attribute;
                             }
                             else
                             {
@@ -346,7 +347,7 @@ std::unique_ptr<ASTNode> ASTContext::parseTypedefDecl(const std::vector<Token>& 
         if (++iterator != tokens.end() && iterator->type == Token::Type::IDENTIFIER)
         {
             std::unique_ptr<ASTNode> result(new ASTNode());
-            result->type = ASTNode::Type::TYPE_DEFINITION_DECLARATION;
+            result->type = ASTNode::Type::DECLARATION_TYPE_DEFINITION;
             result->typeName = iterator->value;
 
             if (++iterator != tokens.end() && iterator->type == Token::Type::IDENTIFIER)
@@ -396,7 +397,7 @@ std::unique_ptr<ASTNode> ASTContext::parseParamDecl(const std::vector<Token>& to
     if (iterator->type == Token::Type::IDENTIFIER)
     {
         std::unique_ptr<ASTNode> result(new ASTNode());
-        result->type = ASTNode::Type::PARAMETER_DECLARATION;
+        result->type = ASTNode::Type::DECLARATION_PARAMETER;
         result->typeName = iterator->value;
 
         if (++iterator != tokens.end() && iterator->type == Token::Type::IDENTIFIER)
@@ -405,7 +406,7 @@ std::unique_ptr<ASTNode> ASTContext::parseParamDecl(const std::vector<Token>& to
         }
         else
         {
-            std::cerr << "Expected a keyword" << std::endl;
+            std::cerr << "Expected an identifier" << std::endl;
             return nullptr;
         }
 
@@ -417,6 +418,111 @@ std::unique_ptr<ASTNode> ASTContext::parseParamDecl(const std::vector<Token>& to
 
 std::unique_ptr<ASTNode> ASTContext::parseDecl(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator)
 {
+    return nullptr;
+}
+
+std::unique_ptr<ASTNode> ASTContext::parseCompoundStatement(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator)
+{
+    if (iterator->type == Token::Type::LEFT_BRACE)
+    {
+        std::unique_ptr<ASTNode> result(new ASTNode());
+        result->type = ASTNode::Type::STATEMENT_COMPOUND;
+
+        for (;;)
+        {
+            if (++iterator != tokens.end())
+            {
+                if (iterator->type == Token::Type::RIGHT_BRACE)
+                {
+                    return result;
+                }
+                else
+                {
+                    
+                }
+            }
+            else
+            {
+                std::cerr << "Unexpected end of compound statement" << std::endl;
+                return nullptr;
+            }
+        }
+
+        return result;
+    }
+    else
+    {
+        std::cerr << "Expected a left brace" << std::endl;
+        return nullptr;
+    }
+
+    return nullptr;
+}
+
+std::unique_ptr<ASTNode> ASTContext::parseStatement(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator)
+{
+    if (iterator->type == Token::Type::LEFT_BRACE)
+    {
+        return parseCompoundStatement(tokens, iterator);
+    }
+    else if (iterator->type == Token::Type::IDENTIFIER)
+    {
+    }
+    else if (iterator->type == Token::Type::KEYWORD_IF)
+    {
+        std::unique_ptr<ASTNode> result(new ASTNode());
+        result->type = ASTNode::Type::STATEMENT_IF;
+
+        return result;
+    }
+    else if (iterator->type == Token::Type::KEYWORD_FOR)
+    {
+        std::unique_ptr<ASTNode> result(new ASTNode());
+        result->type = ASTNode::Type::STATEMENT_FOR;
+
+        return result;
+    }
+    else if (iterator->type == Token::Type::KEYWORD_WHILE)
+    {
+        std::unique_ptr<ASTNode> result(new ASTNode());
+        result->type = ASTNode::Type::STATEMENT_WHILE;
+
+        return result;
+    }
+    else if (iterator->type == Token::Type::KEYWORD_DO)
+    {
+        std::unique_ptr<ASTNode> result(new ASTNode());
+        result->type = ASTNode::Type::STATEMENT_DO;
+
+        return result;
+    }
+    else if (iterator->type == Token::Type::KEYWORD_BREAK)
+    {
+        std::unique_ptr<ASTNode> result(new ASTNode());
+        result->type = ASTNode::Type::STATEMENT_BREAK;
+
+        return result;
+    }
+    else if (iterator->type == Token::Type::KEYWORD_CONTINUE)
+    {
+        std::unique_ptr<ASTNode> result(new ASTNode());
+        result->type = ASTNode::Type::STATEMENT_CONTINUE;
+
+        return result;
+    }
+    else if (iterator->type == Token::Type::KEYWORD_RETURN)
+    {
+        std::unique_ptr<ASTNode> result(new ASTNode());
+        result->type = ASTNode::Type::STATEMENT_RETURN;
+
+        return result;
+    }
+    else
+    {
+        std::cerr << "Expected a keyword or an identifier" << std::endl;
+        return nullptr;
+    }
+
     return nullptr;
 }
 
@@ -450,11 +556,6 @@ std::unique_ptr<ASTNode> ASTContext::parseDo(const std::vector<Token>& tokens, s
     return nullptr;
 }
 
-std::unique_ptr<ASTNode> ASTContext::parseStatement(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator)
-{
-    return nullptr;
-}
-
 void ASTContext::dump()
 {
     for (const std::unique_ptr<ASTNode>& node : nodes)
@@ -475,8 +576,7 @@ void ASTContext::dumpNode(const std::unique_ptr<ASTNode>& node, std::string inde
         std::cout << node->typeName;
 
     }
-    if (node->semantic != ASTNode::Semantic::NONE) std::cout << ", semantic: " << semanticToString(node->semantic);
-    if (node->definition) std::cout << ", has definition";
+    if (node->attribute != ASTNode::Attribute::NONE) std::cout << ", attribute: " << attributeToString(node->attribute);
 
     std::cout << std::endl;
 
