@@ -206,6 +206,7 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
             else if (token.value == "static") { token.kind = Token::Kind::KEYWORD; token.type = Token::Type::KEYWORD_STATIC; }
             else if (token.value == "const") { token.kind = Token::Kind::KEYWORD; token.type = Token::Type::KEYWORD_CONST; }
             else if (token.value == "extern") { token.kind = Token::Kind::KEYWORD; token.type = Token::Type::KEYWORD_EXTERN; }
+            else if (token.value == "mutable") { token.kind = Token::Kind::KEYWORD; token.type = Token::Type::KEYWORD_MUTABLE; }
             else if (token.value == "auto") { token.kind = Token::Kind::KEYWORD; token.type = Token::Type::KEYWORD_AUTO; }
             else if (token.value == "typedef") { token.kind = Token::Kind::KEYWORD; token.type = Token::Type::KEYWORD_TYPEDEF; }
             else if (token.value == "union") { token.kind = Token::Kind::KEYWORD; token.type = Token::Type::KEYWORD_UNION; }
@@ -225,6 +226,7 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
             else if (token.value == "try") { token.kind = Token::Kind::KEYWORD; token.type = Token::Type::KEYWORD_TRY; }
             else if (token.value == "catch") { token.kind = Token::Kind::KEYWORD; token.type = Token::Type::KEYWORD_CATCH; }
             else if (token.value == "throw") { token.kind = Token::Kind::KEYWORD; token.type = Token::Type::KEYWORD_THROW; }
+            else if (token.value == "noexcept") { token.kind = Token::Kind::KEYWORD; token.type = Token::Type::KEYWORD_NOEXCEPT; }
             else { token.kind = Token::Kind::IDENTIFIER; token.type = Token::Type::IDENTIFIER; }
         }
         else if (*i == '+' || *i == '-' ||

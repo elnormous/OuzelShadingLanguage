@@ -48,6 +48,7 @@ struct Token
         KEYWORD_STATIC, // static
         KEYWORD_CONST, // const
         KEYWORD_EXTERN, // extern
+        KEYWORD_MUTABLE, // mutable
         KEYWORD_AUTO, // auto
         KEYWORD_TYPEDEF, // typedef
         KEYWORD_UNION, // union
@@ -67,6 +68,7 @@ struct Token
         KEYWORD_TRY, // try
         KEYWORD_CATCH, // catch
         KEYWORD_THROW, // throw
+        KEYWORD_NOEXCEPT, // noexcept
         LEFT_PARENTHESIS, // )
         RIGHT_PARENTHESIS, // (
         LEFT_BRACE, // {
@@ -162,6 +164,7 @@ inline std::string tokenTypeToString(Token::Type type)
         case Token::Type::KEYWORD_STATIC: return "KEYWORD_STATIC";
         case Token::Type::KEYWORD_CONST: return "KEYWORD_CONST";
         case Token::Type::KEYWORD_EXTERN: return "KEYWORD_EXTERN";
+        case Token::Type::KEYWORD_MUTABLE: return "KEYWORD_MUTABLE";
         case Token::Type::KEYWORD_AUTO: return "KEYWORD_AUTO";
         case Token::Type::KEYWORD_TYPEDEF: return "KEYWORD_TYPEDEF";
         case Token::Type::KEYWORD_UNION: return "KEYWORD_UNION";
@@ -181,6 +184,7 @@ inline std::string tokenTypeToString(Token::Type type)
         case Token::Type::KEYWORD_TRY: return "KEYWORD_TRY";
         case Token::Type::KEYWORD_CATCH: return "KEYWORD_CATCH";
         case Token::Type::KEYWORD_THROW: return "KEYWORD_THROW";
+        case Token::Type::KEYWORD_NOEXCEPT: return "KEYWORD_NOEXCEPT";
         case Token::Type::LEFT_PARENTHESIS: return "LEFT_PARENTHESIS";
         case Token::Type::RIGHT_PARENTHESIS: return "RIGHT_PARENTHESIS";
         case Token::Type::LEFT_BRACE: return "LEFT_BRACE";
