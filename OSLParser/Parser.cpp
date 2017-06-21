@@ -119,6 +119,7 @@ std::unique_ptr<ASTNode> ASTContext::parseTopLevel(const std::vector<Token>& tok
                                 if (iterator->type == Token::Type::LEFT_BRACE)
                                 {
                                     // TODO: parse body
+                                    result->definition = true;
                                     return result;
                                 }
                                 else if (iterator->type != Token::Type::SEMICOLON)
@@ -181,45 +182,52 @@ std::unique_ptr<ASTNode> ASTContext::parseStructDecl(const std::vector<Token>& t
                 if (iterator->type == Token::Type::LEFT_BRACE)
                 {
                     result->definition = true;
-                    ++iterator;
 
-                    for (; iterator != tokens.end(); ++iterator)
+                    for (;;)
                     {
-                        if (iterator->type == Token::Type::RIGHT_BRACE)
+                        if (++iterator != tokens.end())
                         {
-                            if (++iterator != tokens.end() && iterator->type == Token::Type::SEMICOLON)
+                            if (iterator->type == Token::Type::RIGHT_BRACE)
                             {
-                                if (!result->children.empty())
+                                if (++iterator != tokens.end() && iterator->type == Token::Type::SEMICOLON)
                                 {
-                                    return result;
+                                    if (!result->children.empty())
+                                    {
+                                        return result;
+                                    }
+                                    else
+                                    {
+                                        std::cerr << "Structure must have at least one member" << std::endl;
+                                        return nullptr;
+                                    }
                                 }
                                 else
                                 {
-                                    std::cerr << "Structure must have at least one member" << std::endl;
+                                    std::cerr << "Expected a semicolon" << std::endl;
+                                    return nullptr;
+                                }
+                            }
+                            else if (iterator->type == Token::Type::IDENTIFIER)
+                            {
+                                if (std::unique_ptr<ASTNode> field = parseFieldDecl(tokens, iterator))
+                                {
+                                    result->children.push_back(std::move(field));
+                                }
+                                else
+                                {
+                                    std::cerr << "Failed to parse field declaration" << std::endl;
                                     return nullptr;
                                 }
                             }
                             else
                             {
-                                std::cerr << "Expected a semicolon" << std::endl;
-                                return nullptr;
-                            }
-                        }
-                        else if (iterator->type == Token::Type::IDENTIFIER)
-                        {
-                            if (std::unique_ptr<ASTNode> field = parseFieldDecl(tokens, iterator))
-                            {
-                                result->children.push_back(std::move(field));
-                            }
-                            else
-                            {
-                                std::cerr << "Failed to parse field declaration" << std::endl;
+                                std::cerr << "Expected a type name" << std::endl;
                                 return nullptr;
                             }
                         }
                         else
                         {
-                            std::cerr << "Expected a type name" << std::endl;
+                            std::cerr << "Unexpected end of structure declaration" << std::endl;
                             return nullptr;
                         }
                     }
