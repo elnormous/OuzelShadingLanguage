@@ -7,7 +7,7 @@
 //
 
 #include <iostream>
-#include "Tokenizer.h"
+#include "Tokenizer.hpp"
 
 bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
 {

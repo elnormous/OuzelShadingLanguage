@@ -7,7 +7,7 @@
 //
 
 #include <iostream>
-#include "Parser.h"
+#include "Parser.hpp"
 
 std::vector<std::string> builtinTypes = {
     "void", "bool", "int", "uint", "float", "double",

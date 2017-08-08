@@ -10,7 +10,7 @@
 
 #include <vector>
 #include <string>
-#include "Tokenizer.h"
+#include "Tokenizer.hpp"
 
 struct ASTNode
 {

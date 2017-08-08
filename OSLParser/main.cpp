@@ -7,8 +7,8 @@
 //
 
 #include <iostream>
-#include "Tokenizer.h"
-#include "Parser.h"
+#include "Tokenizer.hpp"
+#include "Parser.hpp"
 
 int main(int argc, const char * argv[])
 {
