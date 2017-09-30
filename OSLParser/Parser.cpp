@@ -138,11 +138,11 @@ std::unique_ptr<ASTNode> ASTContext::parseTopLevel(const std::vector<Token>& tok
                                 return nullptr;
                             }
 
-                            // parse body
                             if (++iterator != tokens.end())
                             {
                                 if (iterator->type == Token::Type::LEFT_BRACE)
                                 {
+                                    // parse body
                                     if (std::unique_ptr<ASTNode> compound = parseCompoundStatement(tokens, iterator))
                                     {
                                         result->children.push_back(std::move(compound));
@@ -515,6 +515,13 @@ std::unique_ptr<ASTNode> ASTContext::parseStatement(const std::vector<Token>& to
     {
         std::unique_ptr<ASTNode> result(new ASTNode());
         result->type = ASTNode::Type::STATEMENT_FOR;
+
+        return result;
+    }
+    else if (iterator->type == Token::Type::KEYWORD_SWITCH)
+    {
+        std::unique_ptr<ASTNode> result(new ASTNode());
+        result->type = ASTNode::Type::STATEMENT_SWITCH;
 
         return result;
     }
