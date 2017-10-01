@@ -525,6 +525,13 @@ std::unique_ptr<ASTNode> ASTContext::parseStatement(const std::vector<Token>& to
 
         return result;
     }
+    else if (iterator->type == Token::Type::KEYWORD_CASE)
+    {
+        std::unique_ptr<ASTNode> result(new ASTNode());
+        result->type = ASTNode::Type::STATEMENT_CASE;
+
+        return result;
+    }
     else if (iterator->type == Token::Type::KEYWORD_WHILE)
     {
         std::unique_ptr<ASTNode> result(new ASTNode());

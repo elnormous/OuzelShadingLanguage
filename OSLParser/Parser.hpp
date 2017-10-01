@@ -30,6 +30,7 @@ struct ASTNode
         STATEMENT_IF,
         STATEMENT_FOR,
         STATEMENT_SWITCH,
+        STATEMENT_CASE,
         STATEMENT_WHILE,
         STATEMENT_DO,
         STATEMENT_BREAK,
