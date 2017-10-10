@@ -509,6 +509,24 @@ std::unique_ptr<ASTNode> ASTContext::parseStatement(const std::vector<Token>& to
         std::unique_ptr<ASTNode> result(new ASTNode());
         result->type = ASTNode::Type::STATEMENT_IF;
 
+        if (++iterator != tokens.end())
+        {
+            if (iterator->type == Token::Type::LEFT_PARENTHESIS)
+            {
+                // TODO: parse expression
+            }
+            else
+            {
+                std::cerr << "Expected a left parenthesis" << std::endl;
+                return nullptr;
+            }
+        }
+        else
+        {
+            std::cerr << "Unexpected end of if statement" << std::endl;
+            return nullptr;
+        }
+
         return result;
     }
     else if (iterator->type == Token::Type::KEYWORD_FOR)
@@ -516,12 +534,48 @@ std::unique_ptr<ASTNode> ASTContext::parseStatement(const std::vector<Token>& to
         std::unique_ptr<ASTNode> result(new ASTNode());
         result->type = ASTNode::Type::STATEMENT_FOR;
 
+        if (++iterator != tokens.end())
+        {
+            if (iterator->type == Token::Type::LEFT_PARENTHESIS)
+            {
+                // TODO: parse expression
+            }
+            else
+            {
+                std::cerr << "Expected a left parenthesis" << std::endl;
+                return nullptr;
+            }
+        }
+        else
+        {
+            std::cerr << "Unexpected end of for statement" << std::endl;
+            return nullptr;
+        }
+
         return result;
     }
     else if (iterator->type == Token::Type::KEYWORD_SWITCH)
     {
         std::unique_ptr<ASTNode> result(new ASTNode());
         result->type = ASTNode::Type::STATEMENT_SWITCH;
+
+        if (++iterator != tokens.end())
+        {
+            if (iterator->type == Token::Type::LEFT_PARENTHESIS)
+            {
+                // TODO: parse expression
+            }
+            else
+            {
+                std::cerr << "Expected a left parenthesis" << std::endl;
+                return nullptr;
+            }
+        }
+        else
+        {
+            std::cerr << "Unexpected end of switch statement" << std::endl;
+            return nullptr;
+        }
 
         return result;
     }
@@ -536,6 +590,24 @@ std::unique_ptr<ASTNode> ASTContext::parseStatement(const std::vector<Token>& to
     {
         std::unique_ptr<ASTNode> result(new ASTNode());
         result->type = ASTNode::Type::STATEMENT_WHILE;
+
+        if (++iterator != tokens.end())
+        {
+            if (iterator->type == Token::Type::LEFT_PARENTHESIS)
+            {
+                // TODO: parse expression
+            }
+            else
+            {
+                std::cerr << "Expected a left parenthesis" << std::endl;
+                return nullptr;
+            }
+        }
+        else
+        {
+            std::cerr << "Unexpected end of while statement" << std::endl;
+            return nullptr;
+        }
 
         return result;
     }
