@@ -42,7 +42,7 @@ std::unique_ptr<ASTNode> ASTContext::parseTopLevel(const std::vector<Token>& tok
     {
         return parseTypedefDecl(tokens, iterator);
     }
-    else
+    else if (iterator != tokens.end())
     {
         std::unique_ptr<ASTNode> result(new ASTNode());
 
@@ -77,86 +77,93 @@ std::unique_ptr<ASTNode> ASTContext::parseTopLevel(const std::vector<Token>& tok
             }
         }
 
-        if (iterator != tokens.end() &&
-            iterator->type == Token::Type::IDENTIFIER)
+        if (iterator != tokens.end())
         {
-            result->typeName = iterator->value;
-
-            if (++iterator != tokens.end() &&
-                iterator->type == Token::Type::IDENTIFIER)
+            if (iterator->type == Token::Type::IDENTIFIER)
             {
-                result->name = iterator->value;
+                result->typeName = iterator->value;
 
-                if (++iterator != tokens.end())
+                if (++iterator != tokens.end() &&
+                    iterator->type == Token::Type::IDENTIFIER)
                 {
-                    if (iterator->type == Token::Type::SEMICOLON)
-                    {
-                        result->type = ASTNode::Type::DECLARATION_VARIABLE;
-                    }
-                    else if (iterator->type == Token::Type::LEFT_PARENTHESIS)
-                    {
-                        result->type = ASTNode::Type::DECLARATION_FUNCTION;
+                    result->name = iterator->value;
 
-                        if (++iterator != tokens.end())
+                    if (++iterator != tokens.end())
+                    {
+                        if (iterator->type == Token::Type::SEMICOLON)
                         {
-                            if (iterator->type == Token::Type::IDENTIFIER)
-                            {
-                                for (;;)
-                                {
-                                    if (std::unique_ptr<ASTNode> param = parseParamDecl(tokens, iterator))
-                                    {
-                                        result->children.push_back(std::move(param));
-                                    }
-                                    else
-                                    {
-                                        std::cerr << "Failed to parse parameter declaration" << std::endl;
-                                        return nullptr;
-                                    }
-
-                                    if (++iterator != tokens.end())
-                                    {
-                                        if (iterator->type == Token::Type::RIGHT_PARENTHESIS)
-                                        {
-                                            break;
-                                        }
-                                        else if (iterator->type != Token::Type::COMMA)
-                                        {
-                                            std::cerr << "Expected a comma or right parenthesis" << std::endl;
-                                            return nullptr;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        std::cerr << "Unexpected end of function declaration" << std::endl;
-                                        return nullptr;
-                                    }
-                                }
-                            }
-                            else if (iterator->type != Token::Type::RIGHT_PARENTHESIS)
-                            {
-                                std::cerr << "Expected a keyword or right parenthesis" << std::endl;
-                                return nullptr;
-                            }
+                            result->type = ASTNode::Type::DECLARATION_VARIABLE;
+                        }
+                        else if (iterator->type == Token::Type::LEFT_PARENTHESIS)
+                        {
+                            result->type = ASTNode::Type::DECLARATION_FUNCTION;
 
                             if (++iterator != tokens.end())
                             {
-                                if (iterator->type == Token::Type::LEFT_BRACE)
+                                if (iterator->type == Token::Type::IDENTIFIER)
                                 {
-                                    // parse body
-                                    if (std::unique_ptr<ASTNode> compound = parseCompoundStatement(tokens, iterator))
+                                    for (;;)
                                     {
-                                        result->children.push_back(std::move(compound));
-                                    }
+                                        if (std::unique_ptr<ASTNode> param = parseParamDecl(tokens, iterator))
+                                        {
+                                            result->children.push_back(std::move(param));
+                                        }
+                                        else
+                                        {
+                                            std::cerr << "Failed to parse parameter declaration" << std::endl;
+                                            return nullptr;
+                                        }
 
-                                    return result;
+                                        if (++iterator != tokens.end())
+                                        {
+                                            if (iterator->type == Token::Type::RIGHT_PARENTHESIS)
+                                            {
+                                                break;
+                                            }
+                                            else if (iterator->type != Token::Type::COMMA)
+                                            {
+                                                std::cerr << "Expected a comma or right parenthesis" << std::endl;
+                                                return nullptr;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            std::cerr << "Unexpected end of function declaration" << std::endl;
+                                            return nullptr;
+                                        }
+                                    }
                                 }
-                                else if (iterator->type != Token::Type::SEMICOLON)
+                                else if (iterator->type != Token::Type::RIGHT_PARENTHESIS)
                                 {
-                                    return result;
+                                    std::cerr << "Expected a keyword or right parenthesis" << std::endl;
+                                    return nullptr;
+                                }
+
+                                if (++iterator != tokens.end())
+                                {
+                                    if (iterator->type == Token::Type::LEFT_BRACE)
+                                    {
+                                        // parse body
+                                        if (std::unique_ptr<ASTNode> compound = parseCompoundStatement(tokens, iterator))
+                                        {
+                                            result->children.push_back(std::move(compound));
+                                        }
+
+                                        return result;
+                                    }
+                                    else if (iterator->type != Token::Type::SEMICOLON)
+                                    {
+                                        return result;
+                                    }
+                                    else
+                                    {
+                                        std::cerr << "Expected a left brace or semicolon" << std::endl;
+                                        return nullptr;
+                                    }
                                 }
                                 else
                                 {
-                                    std::cerr << "Expected a left brace or semicolon" << std::endl;
+                                    std::cerr << "Unexpected end of function declaration" << std::endl;
                                     return nullptr;
                                 }
                             }
@@ -172,26 +179,35 @@ std::unique_ptr<ASTNode> ASTContext::parseTopLevel(const std::vector<Token>& tok
                             return nullptr;
                         }
                     }
+                    else
+                    {
+                        std::cerr << "Unexpected end of declaration" << std::endl;
+                        return nullptr;
+                    }
                 }
                 else
                 {
-                    std::cerr << "Unexpected end of declaration" << std::endl;
+                    std::cerr << "Expected a name" << std::endl;
                     return nullptr;
                 }
             }
             else
             {
-                std::cerr << "Expected a name" << std::endl;
+                std::cerr << "Expected a type" << std::endl;
                 return nullptr;
             }
         }
         else
         {
-            std::cerr << "Expected a type" << std::endl;
+            std::cerr << "Unexpected end of declaration" << std::endl;
             return nullptr;
         }
 
         return result;
+    }
+    else
+    {
+        return nullptr;
     }
 }
 
