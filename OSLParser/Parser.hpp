@@ -17,6 +17,7 @@ struct ASTNode
     enum class Type
     {
         NONE,
+        TRANSLATION_UNIT,
         DECLARATION_STRUCT,
         DECLARATION_FIELD,
         DECLARATION_TYPE_DEFINITION,
@@ -71,6 +72,7 @@ inline std::string nodeTypeToString(ASTNode::Type type)
     switch (type)
     {
         case ASTNode::Type::NONE: return "NONE";
+        case ASTNode::Type::TRANSLATION_UNIT: return "TRANSLATION_UNIT";
         case ASTNode::Type::DECLARATION_STRUCT: return "DECLARATION_STRUCT";
         case ASTNode::Type::DECLARATION_FIELD: return "DECLARATION_FIELD";
         case ASTNode::Type::DECLARATION_TYPE_DEFINITION: return "DECLARATION_TYPE_DEFINITION";
@@ -121,13 +123,13 @@ struct ASTContext
 private:
     std::unique_ptr<ASTNode> parseTopLevel(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator);
 
+    std::unique_ptr<ASTNode> parseDecl(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator);
     std::unique_ptr<ASTNode> parseStructDecl(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator);
     std::unique_ptr<ASTNode> parseFieldDecl(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator);
     std::unique_ptr<ASTNode> parseTypedefDecl(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator);
 
     std::unique_ptr<ASTNode> parseVarDecl(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator);
     std::unique_ptr<ASTNode> parseParamDecl(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator);
-    std::unique_ptr<ASTNode> parseDecl(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator);
     std::unique_ptr<ASTNode> parseCompoundStatement(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator);
     std::unique_ptr<ASTNode> parseStatement(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator);
     std::unique_ptr<ASTNode> parseFunctionDecl(const std::vector<Token>& tokens, std::vector<Token>::const_iterator& iterator);
@@ -139,5 +141,5 @@ private:
 
     void dumpNode(const std::unique_ptr<ASTNode>& node, std::string indent = std::string());
 
-    std::vector<std::unique_ptr<ASTNode>> nodes;
+    std::unique_ptr<ASTNode> translationUnit;
 };
