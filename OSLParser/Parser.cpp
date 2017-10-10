@@ -122,7 +122,7 @@ std::unique_ptr<ASTNode> ASTContext::parseTopLevel(const std::vector<Token>& tok
                                             }
                                             else if (iterator->type != Token::Type::COMMA)
                                             {
-                                                std::cerr << "Expected a comma or right parenthesis" << std::endl;
+                                                std::cerr << "Expected a comma or a right parenthesis" << std::endl;
                                                 return nullptr;
                                             }
                                         }
@@ -135,7 +135,7 @@ std::unique_ptr<ASTNode> ASTContext::parseTopLevel(const std::vector<Token>& tok
                                 }
                                 else if (iterator->type != Token::Type::RIGHT_PARENTHESIS)
                                 {
-                                    std::cerr << "Expected a keyword or right parenthesis" << std::endl;
+                                    std::cerr << "Expected a keyword or a right parenthesis" << std::endl;
                                     return nullptr;
                                 }
 
@@ -151,13 +151,13 @@ std::unique_ptr<ASTNode> ASTContext::parseTopLevel(const std::vector<Token>& tok
 
                                         return result;
                                     }
-                                    else if (iterator->type != Token::Type::SEMICOLON)
+                                    else if (iterator->type == Token::Type::SEMICOLON)
                                     {
                                         return result;
                                     }
                                     else
                                     {
-                                        std::cerr << "Expected a left brace or semicolon" << std::endl;
+                                        std::cerr << "Expected a left brace or a semicolon" << std::endl;
                                         return nullptr;
                                     }
                                 }
@@ -280,7 +280,7 @@ std::unique_ptr<ASTNode> ASTContext::parseStructDecl(const std::vector<Token>& t
                 }
                 else
                 {
-                    std::cerr << "Expected left brace or semicolon" << std::endl;
+                    std::cerr << "Expected a left brace or a semicolon" << std::endl;
                     return nullptr;
                 }
             }
