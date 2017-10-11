@@ -556,6 +556,7 @@ std::unique_ptr<ASTNode> ASTContext::parseStatement(const std::vector<Token>& to
             if (iterator->type == Token::Type::LEFT_PARENTHESIS)
             {
                 // function call
+                // TODO: parse parameters
             }
             else if (iterator->type == Token::Type::IDENTIFIER)
             {
