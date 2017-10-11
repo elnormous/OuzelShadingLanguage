@@ -597,7 +597,16 @@ std::unique_ptr<ASTNode> ASTContext::parseStatement(const std::vector<Token>& to
 
             if (++iterator != tokens.end())
             {
-                return result;
+                if (iterator->type == Token::Type::SEMICOLON)
+                {
+                    declarations.back().push_back(result.get());
+                    return result;
+                }
+                else
+                {
+                    std::cerr << "Expected a semicolon" << std::endl;
+                    return nullptr;
+                }
             }
             else
             {
