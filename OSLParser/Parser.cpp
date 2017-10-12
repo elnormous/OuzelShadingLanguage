@@ -9,7 +9,7 @@
 #include <iostream>
 #include "Parser.hpp"
 
-std::vector<std::string> builtinTypes = {
+static const std::vector<std::string> builtinTypes = {
     "void", "bool", "int", "uint", "float", "double",
     "vec2", "vec3", "vec4", "mat3", "mat4"
 };

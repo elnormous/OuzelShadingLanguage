@@ -7,7 +7,64 @@
 //
 
 #include <iostream>
+#include <map>
 #include "Tokenizer.hpp"
+
+static const std::map<std::string, Token::Type> operatorMap = {
+    {"and_eq", Token::Type::OPERATOR_BITWISE_AND_ASSIGNMENT},
+    {"or_eq", Token::Type::OPERATOR_BITWISE_OR_ASSIGNMENT},
+    {"xor_eq", Token::Type::OPERATOR_BITWISE_XOR_ASSIGNMENT},
+    {"compl", Token::Type::OPERATOR_BITWISE_NOT},
+    {"bitand", Token::Type::OPERATOR_BITWISE_AND},
+    {"bitor", Token::Type::OPERATOR_BITWISE_OR},
+    {"xor", Token::Type::OPERATOR_BITWISE_XOR},
+    {"not_eq", Token::Type::OPERATOR_NOT_EQUAL},
+    {"and", Token::Type::OPERATOR_AND},
+    {"or", Token::Type::OPERATOR_OR},
+    {"not", Token::Type::OPERATOR_NOT}
+};
+
+static const std::map<std::string, Token::Type> keywordMap = {
+    {"if", Token::Type::KEYWORD_IF},
+    {"else", Token::Type::KEYWORD_ELSE},
+    {"return", Token::Type::KEYWORD_RETURN},
+    {"for", Token::Type::KEYWORD_FOR},
+    {"while", Token::Type::KEYWORD_WHILE},
+    {"do", Token::Type::KEYWORD_DO},
+    {"break", Token::Type::KEYWORD_BREAK},
+    {"continue", Token::Type::KEYWORD_CONTINUE},
+    {"true", Token::Type::KEYWORD_TRUE},
+    {"false", Token::Type::KEYWORD_FALSE},
+    {"inline", Token::Type::KEYWORD_INLINE},
+    {"goto", Token::Type::KEYWORD_GOTO},
+    {"switch", Token::Type::KEYWORD_SWITCH},
+    {"case", Token::Type::KEYWORD_CASE},
+    {"default", Token::Type::KEYWORD_DEFAULT},
+    {"static", Token::Type::KEYWORD_STATIC},
+    {"const", Token::Type::KEYWORD_CONST},
+    {"extern", Token::Type::KEYWORD_EXTERN},
+    {"mutable", Token::Type::KEYWORD_MUTABLE},
+    {"auto", Token::Type::KEYWORD_AUTO},
+    {"typedef", Token::Type::KEYWORD_TYPEDEF},
+    {"union", Token::Type::KEYWORD_UNION},
+    {"enum", Token::Type::KEYWORD_ENUM},
+    {"template", Token::Type::KEYWORD_TEMPLATE},
+    {"struct", Token::Type::KEYWORD_STRUCT},
+    {"class", Token::Type::KEYWORD_CLASS},
+    {"public", Token::Type::KEYWORD_PUBLIC},
+    {"protected", Token::Type::KEYWORD_PROTECTED},
+    {"private", Token::Type::KEYWORD_PRIVATE},
+    {"new", Token::Type::KEYWORD_NEW},
+    {"delete", Token::Type::KEYWORD_DELETE},
+    {"this", Token::Type::KEYWORD_THIS},
+    {"sizeof", Token::Type::KEYWORD_SIZEOF},
+    {"namespace", Token::Type::KEYWORD_NAMESPACE},
+    {"using", Token::Type::KEYWORD_USING},
+    {"try", Token::Type::KEYWORD_TRY},
+    {"catch", Token::Type::KEYWORD_CATCH},
+    {"throw", Token::Type::KEYWORD_THROW},
+    {"noexcept", Token::Type::KEYWORD_NOEXCEPT}
+};
 
 bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
 {
@@ -177,57 +234,23 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
                 ++i;
             }
 
-            if (token.value == "and_eq") { token.kind = Token::Kind::OPERATOR; token.type = Token::Type::OPERATOR_BITWISE_AND_ASSIGNMENT; }
-            else if (token.value == "or_eq") { token.kind = Token::Kind::OPERATOR; token.type = Token::Type::OPERATOR_BITWISE_OR_ASSIGNMENT; }
-            else if (token.value == "xor_eq") { token.kind = Token::Kind::OPERATOR; token.type = Token::Type::OPERATOR_BITWISE_XOR_ASSIGNMENT; }
-            else if (token.value == "compl") { token.kind = Token::Kind::OPERATOR; token.type = Token::Type::OPERATOR_BITWISE_NOT; }
-            else if (token.value == "bitand") { token.kind = Token::Kind::OPERATOR; token.type = Token::Type::OPERATOR_BITWISE_AND; }
-            else if (token.value == "bitor") { token.kind = Token::Kind::OPERATOR; token.type = Token::Type::OPERATOR_BITWISE_OR; }
-            else if (token.value == "xor") { token.kind = Token::Kind::OPERATOR; token.type = Token::Type::OPERATOR_BITWISE_XOR; }
-            else if (token.value == "not_eq") { token.kind = Token::Kind::OPERATOR; token.type = Token::Type::OPERATOR_NOT_EQUAL; }
-            else if (token.value == "and") { token.kind = Token::Kind::OPERATOR; token.type = Token::Type::OPERATOR_AND; }
-            else if (token.value == "or") { token.kind = Token::Kind::OPERATOR; token.type = Token::Type::OPERATOR_OR; }
-            else if (token.value == "not") { token.kind = Token::Kind::OPERATOR; token.type = Token::Type::OPERATOR_NOT; }
-            else if (token.value == "if") { token.kind = Token::Kind::KEYWORD; token.type = Token::Type::KEYWORD_IF; }
-            else if (token.value == "else") { token.kind = Token::Kind::KEYWORD; token.type = Token::Type::KEYWORD_ELSE; }
-            else if (token.value == "return") { token.kind = Token::Kind::KEYWORD; token.type = Token::Type::KEYWORD_RETURN; }
-            else if (token.value == "for") { token.kind = Token::Kind::KEYWORD; token.type = Token::Type::KEYWORD_FOR; }
-            else if (token.value == "while") { token.kind = Token::Kind::KEYWORD; token.type = Token::Type::KEYWORD_WHILE; }
-            else if (token.value == "do") { token.kind = Token::Kind::KEYWORD; token.type = Token::Type::KEYWORD_DO; }
-            else if (token.value == "break") { token.kind = Token::Kind::KEYWORD; token.type = Token::Type::KEYWORD_BREAK; }
-            else if (token.value == "continue") { token.kind = Token::Kind::KEYWORD; token.type = Token::Type::KEYWORD_CONTINUE; }
-            else if (token.value == "true") { token.kind = Token::Kind::KEYWORD; token.type = Token::Type::KEYWORD_TRUE; }
-            else if (token.value == "false") { token.kind = Token::Kind::KEYWORD; token.type = Token::Type::KEYWORD_FALSE; }
-            else if (token.value == "inline") { token.kind = Token::Kind::KEYWORD; token.type = Token::Type::KEYWORD_INLINE; }
-            else if (token.value == "goto") { token.kind = Token::Kind::KEYWORD; token.type = Token::Type::KEYWORD_GOTO; }
-            else if (token.value == "switch") { token.kind = Token::Kind::KEYWORD; token.type = Token::Type::KEYWORD_SWITCH; }
-            else if (token.value == "case") { token.kind = Token::Kind::KEYWORD; token.type = Token::Type::KEYWORD_CASE; }
-            else if (token.value == "default") { token.kind = Token::Kind::KEYWORD; token.type = Token::Type::KEYWORD_DEFAULT; }
-            else if (token.value == "static") { token.kind = Token::Kind::KEYWORD; token.type = Token::Type::KEYWORD_STATIC; }
-            else if (token.value == "const") { token.kind = Token::Kind::KEYWORD; token.type = Token::Type::KEYWORD_CONST; }
-            else if (token.value == "extern") { token.kind = Token::Kind::KEYWORD; token.type = Token::Type::KEYWORD_EXTERN; }
-            else if (token.value == "mutable") { token.kind = Token::Kind::KEYWORD; token.type = Token::Type::KEYWORD_MUTABLE; }
-            else if (token.value == "auto") { token.kind = Token::Kind::KEYWORD; token.type = Token::Type::KEYWORD_AUTO; }
-            else if (token.value == "typedef") { token.kind = Token::Kind::KEYWORD; token.type = Token::Type::KEYWORD_TYPEDEF; }
-            else if (token.value == "union") { token.kind = Token::Kind::KEYWORD; token.type = Token::Type::KEYWORD_UNION; }
-            else if (token.value == "enum") { token.kind = Token::Kind::KEYWORD; token.type = Token::Type::KEYWORD_ENUM; }
-            else if (token.value == "template") { token.kind = Token::Kind::KEYWORD; token.type = Token::Type::KEYWORD_TEMPLATE; }
-            else if (token.value == "struct") { token.kind = Token::Kind::KEYWORD; token.type = Token::Type::KEYWORD_STRUCT; }
-            else if (token.value == "class") { token.kind = Token::Kind::KEYWORD; token.type = Token::Type::KEYWORD_CLASS; }
-            else if (token.value == "public") { token.kind = Token::Kind::KEYWORD; token.type = Token::Type::KEYWORD_PUBLIC; }
-            else if (token.value == "protected") { token.kind = Token::Kind::KEYWORD; token.type = Token::Type::KEYWORD_PROTECTED; }
-            else if (token.value == "private") { token.kind = Token::Kind::KEYWORD; token.type = Token::Type::KEYWORD_PRIVATE; }
-            else if (token.value == "new") { token.kind = Token::Kind::KEYWORD; token.type = Token::Type::KEYWORD_NEW; }
-            else if (token.value == "delete") { token.kind = Token::Kind::KEYWORD; token.type = Token::Type::KEYWORD_DELETE; }
-            else if (token.value == "this") { token.kind = Token::Kind::KEYWORD; token.type = Token::Type::KEYWORD_THIS; }
-            else if (token.value == "sizeof") { token.kind = Token::Kind::KEYWORD; token.type = Token::Type::KEYWORD_SIZEOF; }
-            else if (token.value == "namespace") { token.kind = Token::Kind::KEYWORD; token.type = Token::Type::KEYWORD_NAMESPACE; }
-            else if (token.value == "using") { token.kind = Token::Kind::KEYWORD; token.type = Token::Type::KEYWORD_USING; }
-            else if (token.value == "try") { token.kind = Token::Kind::KEYWORD; token.type = Token::Type::KEYWORD_TRY; }
-            else if (token.value == "catch") { token.kind = Token::Kind::KEYWORD; token.type = Token::Type::KEYWORD_CATCH; }
-            else if (token.value == "throw") { token.kind = Token::Kind::KEYWORD; token.type = Token::Type::KEYWORD_THROW; }
-            else if (token.value == "noexcept") { token.kind = Token::Kind::KEYWORD; token.type = Token::Type::KEYWORD_NOEXCEPT; }
-            else { token.kind = Token::Kind::IDENTIFIER; token.type = Token::Type::IDENTIFIER; }
+            std::map<std::string, Token::Type>::const_iterator keywordIterator;
+
+            if ((keywordIterator = operatorMap.find(token.value)) != operatorMap.end())
+            {
+                token.kind = Token::Kind::OPERATOR;
+                token.type = keywordIterator->second;
+            }
+            else if ((keywordIterator = keywordMap.find(token.value)) != keywordMap.end())
+            {
+                token.kind = Token::Kind::KEYWORD;
+                token.type = keywordIterator->second;
+            }
+            else
+            {
+                token.kind = Token::Kind::IDENTIFIER;
+                token.type = Token::Type::IDENTIFIER;
+            }
         }
         else if (*i == '+' || *i == '-' ||
                  *i == '*' || *i == '/' ||
