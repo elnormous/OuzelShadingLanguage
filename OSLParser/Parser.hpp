@@ -27,6 +27,7 @@ struct ASTNode
         EXPRESSION_CALL,
         EXPRESSION_LITERAL,
         EXPRESSION_DECLARATION_REFERENCE,
+        STATEMENT_DECLARATION,
         STATEMENT_COMPOUND,
         STATEMENT_IF,
         STATEMENT_FOR,
@@ -83,15 +84,16 @@ inline std::string nodeTypeToString(ASTNode::Type type)
         case ASTNode::Type::DECLARATION_FUNCTION: return "DECLARATION_FUNCTION";
         case ASTNode::Type::DECLARATION_VARIABLE: return "DECLARATION_VARIABLE";
         case ASTNode::Type::DECLARATION_PARAMETER: return "DECLARATION_PARAMETER";
-        case ASTNode::Type::STATEMENT_COMPOUND: return "STATEMENT_COMPOUND";
-        case ASTNode::Type::STATEMENT_RETURN: return "STATEMENT_RETURN";
         case ASTNode::Type::EXPRESSION_CALL: return "EXPRESSION_CALL";
         case ASTNode::Type::EXPRESSION_LITERAL: return "EXPRESSION_LITERAL";
         case ASTNode::Type::EXPRESSION_DECLARATION_REFERENCE: return "EXPRESSION_DECLARATION_REFERENCE";
+        case ASTNode::Type::STATEMENT_DECLARATION: return "STATEMENT_DECLARATION";
+        case ASTNode::Type::STATEMENT_COMPOUND: return "STATEMENT_COMPOUND";
         case ASTNode::Type::STATEMENT_IF: return "STATEMENT_IF";
         case ASTNode::Type::STATEMENT_FOR: return "STATEMENT_FOR";
         case ASTNode::Type::STATEMENT_WHILE: return "STATEMENT_WHILE";
         case ASTNode::Type::STATEMENT_DO: return "STATEMENT_DO";
+        case ASTNode::Type::STATEMENT_RETURN: return "STATEMENT_RETURN";
         case ASTNode::Type::OPERATOR_UNARY: return "OPERATOR_UNARY";
         case ASTNode::Type::OPERATOR_BINARY: return "OPERATOR_BINARY";
         case ASTNode::Type::OPERATOR_TERNARY: return "OPERATOR_TERNARY";
