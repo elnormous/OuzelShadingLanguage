@@ -321,41 +321,43 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
                         token.value.push_back(*i);
                         ++i;
                     }
-                    else if (*i == '/' || // single line comment
-                             *i == '*') // multiline comment
+                    else if (*i == '/') // single-line comment
                     {
-                        if (*i == '/') // single-line comment
+                        ++i;
+
+                        for (; i != code.end(); ++i)
                         {
-                            ++i;
-
-                            while (i != code.end() && *i != '\n')
+                            if (*i == '\n') // reached newline
                             {
-                                if (++i == code.end()) break; // reached end of file
-                            }
-                        }
-                        else if (*i == '*') // multi-line comment
-                        {
-                            ++i;
-
-                            while (i != code.end() && *i != '*' &&
-                                   (i + 1) != code.end() && *(i + 1) != '/')
-                            {
-                                ++i;
-                            }
-
-                            if (*i == '*' && ++i != code.end() &&
-                                *i == '/')
-                            {
-                                ++i;
-                            }
-                            else
-                            {
-                                std::cerr << "Unterminated block comment" << *i << *(i + 1) << std::endl;
-                                return false;
+                                ++i; // skip the newline
+                                break;
                             }
                         }
 
-                        continue;
+                        continue; // skip this token
+                    }
+                    else if (*i == '*') // multi-line comment
+                    {
+                        ++i;
+
+                        bool terminated = false;
+                        for (; i != code.end(); ++i)
+                        {
+                            if (*i == '*' && ++i != code.end() && *i == '/')
+                            {
+                                terminated = true;
+                                ++i;
+                                break;
+                            }
+                        }
+
+                        if (!terminated)
+                        {
+                            std::cerr << "Unterminated block comment" << std::endl;
+                            return false;
+                        }
+
+                        continue; // skip this token
                     }
                 }
             }
