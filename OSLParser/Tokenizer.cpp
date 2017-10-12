@@ -75,8 +75,7 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
         if (*i == '(' || *i == ')' ||
             *i == '{' || *i == '}' ||
             *i == '[' || *i == ']' ||
-            *i == ',' || *i == ';' ||
-            *i == ':') // punctuation
+            *i == ',' || *i == ';') // punctuation
         {
             token.kind = Token::Kind::PUNCTUATOR;
             if (*i == '(') token.type = Token::Type::LEFT_PARENTHESIS;
@@ -87,10 +86,25 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
             if (*i == ']') token.type = Token::Type::RIGHT_BRACKET;
             if (*i == ',') token.type = Token::Type::COMMA;
             if (*i == ';') token.type = Token::Type::SEMICOLON;
-            if (*i == ':') token.type = Token::Type::COLON;
             token.value.push_back(*i);
 
             ++i;
+        }
+        else if (*i == ':')
+        {
+            token.kind = Token::Kind::PUNCTUATOR;
+            token.type = Token::Type::COLON;
+            token.value.push_back(*i);
+
+            if (i != code.end())
+            {
+                if (*i == '>') // :>
+                {
+                    token.type = Token::Type::RIGHT_BRACKET;
+                    token.value.push_back(*i);
+                    ++i;
+                }
+            }
         }
         else if ((*i >= '0' && *i <= '9') ||  // number
                  (*i == '.' && (i + 1) != code.end() && *(i + 1) >= '0' && *(i + 1) <= '9')) // starts with a dot
@@ -269,13 +283,13 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
 
                 if (i != code.end())
                 {
-                    if (*i == '=')
+                    if (*i == '=') // +=
                     {
                         token.type = Token::Type::OPERATOR_PLUS_ASSIGNMENT;
                         token.value.push_back(*i);
                         ++i;
                     }
-                    else if (*i == '+')
+                    else if (*i == '+') // ++
                     {
                         token.type = Token::Type::OPERATOR_INCREMENT;
                         token.value.push_back(*i);
@@ -292,19 +306,19 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
 
                 if (i != code.end())
                 {
-                    if (*i == '=')
+                    if (*i == '=') // -=
                     {
                         token.type = Token::Type::OPERATOR_MINUS_ASSIGNMENT;
                         token.value.push_back(*i);
                         ++i;
                     }
-                    else if (*i == '-')
+                    else if (*i == '-') // --
                     {
                         token.type = Token::Type::OPERATOR_DECREMENT;
                         token.value.push_back(*i);
                         ++i;
                     }
-                    else if (*i == '>')
+                    else if (*i == '>') // ->
                     {
                         token.type = Token::Type::OPERATOR_ARROW;
                         token.value.push_back(*i);
@@ -321,7 +335,7 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
 
                 if (i != code.end())
                 {
-                    if (*i == '=')
+                    if (*i == '=') // *=
                     {
                         token.type = Token::Type::OPERATOR_MULTIPLY_ASSIGNMENT;
                         token.value.push_back(*i);
@@ -338,7 +352,7 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
 
                 if (i != code.end())
                 {
-                    if (*i == '=')
+                    if (*i == '=') // /=
                     {
                         token.type = Token::Type::OPERATOR_MULTIPLY_ASSIGNMENT;
                         token.value.push_back(*i);
@@ -393,9 +407,16 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
 
                 if (i != code.end())
                 {
-                    if (*i == '=')
+                    if (*i == '=') // %=
                     {
                         token.type = Token::Type::OPERATOR_MODULO_ASSIGNMENT;
+                        token.value.push_back(*i);
+                        ++i;
+                    }
+                    else if (*i == '>') // %>
+                    {
+                        token.kind = Token::Kind::PUNCTUATOR;
+                        token.type = Token::Type::RIGHT_BRACE;
                         token.value.push_back(*i);
                         ++i;
                     }
@@ -410,7 +431,7 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
 
                 if (i != code.end())
                 {
-                    if (*i == '=')
+                    if (*i == '=') // ==
                     {
                         token.type = Token::Type::OPERATOR_EQUAL;
                         token.value.push_back(*i);
@@ -427,13 +448,13 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
 
                 if (i != code.end())
                 {
-                    if (*i == '=')
+                    if (*i == '=') // &=
                     {
                         token.type = Token::Type::OPERATOR_BITWISE_AND_ASSIGNMENT;
                         token.value.push_back(*i);
                         ++i;
                     }
-                    else if (*i == '&')
+                    else if (*i == '&') // &&
                     {
                         token.type = Token::Type::OPERATOR_AND;
                         token.value.push_back(*i);
@@ -450,7 +471,7 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
 
                 if (i != code.end())
                 {
-                    if (*i == '=')
+                    if (*i == '=') // ~=
                     {
                         token.type = Token::Type::OPERATOR_BITWISE_NOT_ASSIGNMENT;
                         token.value.push_back(*i);
@@ -467,7 +488,7 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
 
                 if (i != code.end())
                 {
-                    if (*i == '=')
+                    if (*i == '=') // ^=
                     {
                         token.type = Token::Type::OPERATOR_BITWISE_XOR_ASSIGNMENT;
                         token.value.push_back(*i);
@@ -484,13 +505,13 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
 
                 if (i != code.end())
                 {
-                    if (*i == '=')
+                    if (*i == '=') // |=
                     {
                         token.type = Token::Type::OPERATOR_BITWISE_OR_ASSIGNMENT;
                         token.value.push_back(*i);
                         ++i;
                     }
-                    else if (*i == '|')
+                    else if (*i == '|') // ||
                     {
                         token.type = Token::Type::OPERATOR_OR;
                         token.value.push_back(*i);
@@ -507,13 +528,13 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
 
                 if (i != code.end())
                 {
-                    if (*i == '=')
+                    if (*i == '=') // <=
                     {
                         token.type = Token::Type::OPERATOR_LESS_THAN_EQUAL;
                         token.value.push_back(*i);
                         ++i;
                     }
-                    else if (*i == '<')
+                    else if (*i == '<') // <<
                     {
                         token.type = Token::Type::OPERATOR_SHIFT_LEFT;
                         token.value.push_back(*i);
@@ -521,13 +542,27 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
 
                         if (i != code.end())
                         {
-                            if (*i == '=')
+                            if (*i == '=') // <<=
                             {
                                 token.type = Token::Type::OPERATOR_SHIFT_LEFT_ASSIGNMENT;
                                 token.value.push_back(*i);
                                 ++i;
                             }
                         }
+                    }
+                    else if (*i == '%') // <%
+                    {
+                        token.kind = Token::Kind::PUNCTUATOR;
+                        token.type = Token::Type::LEFT_BRACE;
+                        token.value.push_back(*i);
+                        ++i;
+                    }
+                    else if (*i == ':') // <:
+                    {
+                        token.kind = Token::Kind::PUNCTUATOR;
+                        token.type = Token::Type::LEFT_BRACKET;
+                        token.value.push_back(*i);
+                        ++i;
                     }
                 }
             }
@@ -540,13 +575,13 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
 
                 if (i != code.end())
                 {
-                    if (*i == '=')
+                    if (*i == '=') // >=
                     {
                         token.type = Token::Type::OPERATOR_GREATER_THAN_EQUAL;
                         token.value.push_back(*i);
                         ++i;
                     }
-                    else if (*i == '>')
+                    else if (*i == '>') // >>
                     {
                         token.type = Token::Type::OPERATOR_SHIFT_RIGHT;
                         token.value.push_back(*i);
@@ -554,7 +589,7 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
 
                         if (i != code.end())
                         {
-                            if (*i == '=')
+                            if (*i == '=') // >>=
                             {
                                 token.type = Token::Type::OPERATOR_SHIFT_RIGHT_ASSIGNMENT;
                                 token.value.push_back(*i);
@@ -573,7 +608,7 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
 
                 if (i != code.end())
                 {
-                    if (*i == '=')
+                    if (*i == '=') // !=
                     {
                         token.type = Token::Type::OPERATOR_NOT_EQUAL;
                         token.value.push_back(*i);

@@ -71,10 +71,10 @@ struct Token
         KEYWORD_NOEXCEPT, // noexcept
         LEFT_PARENTHESIS, // )
         RIGHT_PARENTHESIS, // (
-        LEFT_BRACE, // {
-        RIGHT_BRACE, // }
-        LEFT_BRACKET, // [
-        RIGHT_BRACKET, // ]
+        LEFT_BRACE, // { or <%
+        RIGHT_BRACE, // } or %>
+        LEFT_BRACKET, // [ or <:
+        RIGHT_BRACKET, // ] or :>
         COMMA, // ,
         SEMICOLON, // ;
         COLON, // :
@@ -91,27 +91,27 @@ struct Token
         OPERATOR_MULTIPLY_ASSIGNMENT, // *=
         OPERATOR_DIVIDE_ASSIGNMENT, // /=
         OPERATOR_MODULO_ASSIGNMENT, // %=
-        OPERATOR_BITWISE_AND_ASSIGNMENT, // &=
-        OPERATOR_BITWISE_OR_ASSIGNMENT, // |=
+        OPERATOR_BITWISE_AND_ASSIGNMENT, // &= or and_eq
+        OPERATOR_BITWISE_OR_ASSIGNMENT, // |= or or_eq
         OPERATOR_BITWISE_NOT_ASSIGNMENT, // ~=
-        OPERATOR_BITWISE_XOR_ASSIGNMENT, // ^=
+        OPERATOR_BITWISE_XOR_ASSIGNMENT, // ^= or xor_eq
         OPERATOR_SHIFT_RIGHT_ASSIGNMENT, // >>=
         OPERATOR_SHIFT_LEFT_ASSIGNMENT, // <<=
-        OPERATOR_BITWISE_AND, // &
-        OPERATOR_BITWISE_OR, // |
-        OPERATOR_BITWISE_NOT, // ~
-        OPERATOR_BITWISE_XOR, // ^
+        OPERATOR_BITWISE_AND, // & or bitand
+        OPERATOR_BITWISE_OR, // | or bitor
+        OPERATOR_BITWISE_NOT, // ~ or compl
+        OPERATOR_BITWISE_XOR, // ^ or xor
         OPERATOR_SHIFT_RIGHT, // >>
         OPERATOR_SHIFT_LEFT, // <<
         OPERATOR_EQUAL, // ==
-        OPERATOR_NOT_EQUAL, // !=
+        OPERATOR_NOT_EQUAL, // != or not_eq
         OPERATOR_LESS_THAN, // <
         OPERATOR_GREATER_THAN, // >
         OPERATOR_LESS_THAN_EQUAL, // <=
         OPERATOR_GREATER_THAN_EQUAL, // >=
-        OPERATOR_AND, // &&
-        OPERATOR_OR, // ||
-        OPERATOR_NOT, // !
+        OPERATOR_AND, // && or and
+        OPERATOR_OR, // || or or
+        OPERATOR_NOT, // ! or not
         OPERATOR_CONDITIONAL, // ?
         OPERATOR_DOT, // .
         OPERATOR_ARROW, // ->
