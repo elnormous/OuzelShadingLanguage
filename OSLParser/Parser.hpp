@@ -41,6 +41,7 @@ struct ASTNode
         OPERATOR_UNARY,
         OPERATOR_BINARY,
         OPERATOR_TERNARY,
+        LITERAL_BOOL,
         LITERAL_INT,
         LITERAL_FLOAT,
         LITERAL_CHAR,
@@ -97,6 +98,7 @@ inline std::string nodeTypeToString(ASTNode::Type type)
         case ASTNode::Type::OPERATOR_UNARY: return "OPERATOR_UNARY";
         case ASTNode::Type::OPERATOR_BINARY: return "OPERATOR_BINARY";
         case ASTNode::Type::OPERATOR_TERNARY: return "OPERATOR_TERNARY";
+        case ASTNode::Type::LITERAL_BOOL: return "LITERAL_BOOL";
         case ASTNode::Type::LITERAL_INT: return "LITERAL_INT";
         case ASTNode::Type::LITERAL_FLOAT: return "LITERAL_FLOAT";
         case ASTNode::Type::LITERAL_CHAR: return "LITERAL_CHAR";
