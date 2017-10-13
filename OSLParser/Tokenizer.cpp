@@ -95,6 +95,7 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
             token.kind = Token::Kind::PUNCTUATOR;
             token.type = Token::Type::COLON;
             token.value.push_back(*i);
+            ++i;
 
             if (i != code.end())
             {
