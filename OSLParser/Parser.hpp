@@ -177,10 +177,6 @@ private:
                                               std::vector<Token>::const_iterator& iterator,
                                               std::vector<std::vector<ASTNode*>>& declarations);
 
-    std::unique_ptr<ASTNode> parseVarDecl(const std::vector<Token>& tokens,
-                                          std::vector<Token>::const_iterator& iterator,
-                                          std::vector<std::vector<ASTNode*>>& declarations);
-
     std::unique_ptr<ASTNode> parseCompoundStatement(const std::vector<Token>& tokens,
                                                     std::vector<Token>::const_iterator& iterator,
                                                     std::vector<std::vector<ASTNode*>>& declarations);
@@ -188,26 +184,6 @@ private:
     std::unique_ptr<ASTNode> parseStatement(const std::vector<Token>& tokens,
                                             std::vector<Token>::const_iterator& iterator,
                                             std::vector<std::vector<ASTNode*>>& declarations);
-
-    std::unique_ptr<ASTNode> parseFunctionDecl(const std::vector<Token>& tokens,
-                                               std::vector<Token>::const_iterator& iterator,
-                                               std::vector<std::vector<ASTNode*>>& declarations);
-
-    std::unique_ptr<ASTNode> parseIf(const std::vector<Token>& tokens,
-                                     std::vector<Token>::const_iterator& iterator,
-                                     std::vector<std::vector<ASTNode*>>& declarations);
-
-    std::unique_ptr<ASTNode> parseFor(const std::vector<Token>& tokens,
-                                      std::vector<Token>::const_iterator& iterator,
-                                      std::vector<std::vector<ASTNode*>>& declarations);
-
-    std::unique_ptr<ASTNode> parseWhile(const std::vector<Token>& tokens,
-                                        std::vector<Token>::const_iterator& iterator,
-                                        std::vector<std::vector<ASTNode*>>& declarations);
-
-    std::unique_ptr<ASTNode> parseDo(const std::vector<Token>& tokens,
-                                     std::vector<Token>::const_iterator& iterator,
-                                     std::vector<std::vector<ASTNode*>>& declarations);
 
     void dumpNode(const std::unique_ptr<ASTNode>& node, std::string indent = std::string());
 
