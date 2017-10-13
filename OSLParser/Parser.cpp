@@ -459,12 +459,32 @@ std::unique_ptr<ASTNode> ASTContext::parseStatement(const std::vector<Token>& to
         std::unique_ptr<ASTNode> result(new ASTNode());
         result->type = ASTNode::Type::STATEMENT_IF;
 
+        if (check(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
+        {
+            // TODO: parse expression
+        }
+        else
+        {
+            std::cerr << "Expected a left parenthesis" << std::endl;
+            return nullptr;
+        }
+
         return result;
     }
     else if (check(Token::Type::KEYWORD_FOR, tokens, iterator))
     {
         std::unique_ptr<ASTNode> result(new ASTNode());
         result->type = ASTNode::Type::STATEMENT_FOR;
+
+        if (check(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
+        {
+            // TODO: parse expression
+        }
+        else
+        {
+            std::cerr << "Expected a left parenthesis" << std::endl;
+            return nullptr;
+        }
 
         return result;
     }
@@ -497,6 +517,16 @@ std::unique_ptr<ASTNode> ASTContext::parseStatement(const std::vector<Token>& to
         std::unique_ptr<ASTNode> result(new ASTNode());
         result->type = ASTNode::Type::STATEMENT_WHILE;
 
+        if (check(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
+        {
+            // TODO: parse expression
+        }
+        else
+        {
+            std::cerr << "Expected a left parenthesis" << std::endl;
+            return nullptr;
+        }
+        
         return result;
     }
     else if (check(Token::Type::KEYWORD_DO, tokens, iterator))
