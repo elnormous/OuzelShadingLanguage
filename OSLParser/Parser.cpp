@@ -65,6 +65,12 @@ std::unique_ptr<ASTNode> ASTContext::parseTopLevel(const std::vector<Token>& tok
                 return nullptr;
             }
         }
+        else if (check(Token::Type::SEMICOLON, tokens, iterator))
+        {
+            std::unique_ptr<ASTNode> decl(new ASTNode());
+            decl->type = ASTNode::Type::DECLARATION_EMPTY;
+            result->children.push_back(std::move(decl));
+        }
         else
         {
             if (std::unique_ptr<ASTNode> decl = parseDecl(tokens, iterator, declarations))
@@ -108,12 +114,7 @@ std::unique_ptr<ASTNode> ASTContext::parseDecl(const std::vector<Token>& tokens,
         }
     }
 
-    if (check(Token::Type::SEMICOLON, tokens, iterator))
-    {
-        result->type = ASTNode::Type::DECLARATION_EMPTY;
-        return result;
-    }
-    else if (check(Token::Type::IDENTIFIER, tokens, iterator))
+    if (check(Token::Type::IDENTIFIER, tokens, iterator))
     {
         result->typeName = (iterator - 1)->value;
 
