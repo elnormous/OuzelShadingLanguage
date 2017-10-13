@@ -108,7 +108,12 @@ std::unique_ptr<ASTNode> ASTContext::parseDecl(const std::vector<Token>& tokens,
         }
     }
 
-    if (check(Token::Type::IDENTIFIER, tokens, iterator))
+    if (check(Token::Type::SEMICOLON, tokens, iterator))
+    {
+        result->type = ASTNode::Type::DECLARATION_EMPTY;
+        return result;
+    }
+    else if (check(Token::Type::IDENTIFIER, tokens, iterator))
     {
         result->typeName = (iterator - 1)->value;
 

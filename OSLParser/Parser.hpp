@@ -18,6 +18,7 @@ struct ASTNode
     {
         NONE,
         TRANSLATION_UNIT,
+        DECLARATION_EMPTY,
         DECLARATION_STRUCT,
         DECLARATION_FIELD,
         DECLARATION_TYPE_DEFINITION,
@@ -79,6 +80,7 @@ inline std::string nodeTypeToString(ASTNode::Type type)
     {
         case ASTNode::Type::NONE: return "NONE";
         case ASTNode::Type::TRANSLATION_UNIT: return "TRANSLATION_UNIT";
+        case ASTNode::Type::DECLARATION_EMPTY: return "DECLARATION_EMPTY";
         case ASTNode::Type::DECLARATION_STRUCT: return "DECLARATION_STRUCT";
         case ASTNode::Type::DECLARATION_FIELD: return "DECLARATION_FIELD";
         case ASTNode::Type::DECLARATION_TYPE_DEFINITION: return "DECLARATION_TYPE_DEFINITION";
