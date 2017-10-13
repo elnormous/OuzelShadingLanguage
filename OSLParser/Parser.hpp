@@ -133,6 +133,34 @@ struct ASTContext
     void dump();
 
 private:
+    bool check(Token::Type tokenType,
+               const std::vector<Token>& tokens,
+               std::vector<Token>::const_iterator& iterator)
+    {
+        if (iterator != tokens.end() && iterator->type == tokenType)
+        {
+            ++iterator;
+            return true;
+        }
+
+        return false;
+    }
+
+    bool match(const std::vector<Token::Type>& tokenTypes,
+               const std::vector<Token>& tokens,
+               std::vector<Token>::const_iterator& iterator)
+    {
+        for (Token::Type tokenType : tokenTypes)
+        {
+            if (check(tokenType, tokens, iterator))
+            {
+                return false;
+            }
+        }
+
+        return false;
+    }
+
     std::unique_ptr<ASTNode> parseTopLevel(const std::vector<Token>& tokens,
                                            std::vector<Token>::const_iterator& iterator,
                                            std::vector<std::vector<ASTNode*>>& declarations);
@@ -145,10 +173,6 @@ private:
                                              std::vector<Token>::const_iterator& iterator,
                                              std::vector<std::vector<ASTNode*>>& declarations);
 
-    std::unique_ptr<ASTNode> parseFieldDecl(const std::vector<Token>& tokens,
-                                            std::vector<Token>::const_iterator& iterator,
-                                            std::vector<std::vector<ASTNode*>>& declarations);
-
     std::unique_ptr<ASTNode> parseTypedefDecl(const std::vector<Token>& tokens,
                                               std::vector<Token>::const_iterator& iterator,
                                               std::vector<std::vector<ASTNode*>>& declarations);
@@ -156,10 +180,6 @@ private:
     std::unique_ptr<ASTNode> parseVarDecl(const std::vector<Token>& tokens,
                                           std::vector<Token>::const_iterator& iterator,
                                           std::vector<std::vector<ASTNode*>>& declarations);
-
-    std::unique_ptr<ASTNode> parseParamDecl(const std::vector<Token>& tokens,
-                                            std::vector<Token>::const_iterator& iterator,
-                                            std::vector<std::vector<ASTNode*>>& declarations);
 
     std::unique_ptr<ASTNode> parseCompoundStatement(const std::vector<Token>& tokens,
                                                     std::vector<Token>::const_iterator& iterator,
