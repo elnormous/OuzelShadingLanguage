@@ -430,36 +430,6 @@ std::unique_ptr<ASTNode> ASTContext::parseStatement(const std::vector<Token>& to
     {
         return parseCompoundStatement(tokens, iterator, declarations);
     }
-    else if (check(Token::Type::IDENTIFIER, tokens, iterator))
-    {
-        std::unique_ptr<ASTNode> result(new ASTNode());
-        std::string typeName = (iterator - 1)->value;
-
-        if (check(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
-        {
-            // function call
-            // TODO: parse parameters
-        }
-        else if (check(Token::Type::IDENTIFIER, tokens, iterator))
-        {
-            result->type = ASTNode::Type::DECLARATION_VARIABLE;
-            result->typeName = typeName;
-            result->name = (iterator - 1)->value;
-        }
-
-        if (check(Token::Type::SEMICOLON, tokens, iterator))
-        {
-            declarations.back().push_back(result.get());
-            return result;
-        }
-        else
-        {
-            std::cerr << "Expected a semicolon" << std::endl;
-            return nullptr;
-        }
-
-        return result;
-    }
     else if (check(Token::Type::KEYWORD_IF, tokens, iterator))
     {
         std::unique_ptr<ASTNode> result(new ASTNode());
@@ -532,7 +502,7 @@ std::unique_ptr<ASTNode> ASTContext::parseStatement(const std::vector<Token>& to
             std::cerr << "Expected a left parenthesis" << std::endl;
             return nullptr;
         }
-        
+
         return result;
     }
     else if (check(Token::Type::KEYWORD_DO, tokens, iterator))
@@ -560,6 +530,39 @@ std::unique_ptr<ASTNode> ASTContext::parseStatement(const std::vector<Token>& to
     {
         std::unique_ptr<ASTNode> result(new ASTNode());
         result->type = ASTNode::Type::STATEMENT_RETURN;
+        
+        return result;
+    }
+    else if (check(Token::Type::IDENTIFIER, tokens, iterator))
+    {
+        // TODO: add expression statement
+        // TODO: parse exprtession
+
+        std::unique_ptr<ASTNode> result(new ASTNode());
+        std::string typeName = (iterator - 1)->value;
+
+        if (check(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
+        {
+            // function call
+            // TODO: parse parameters
+        }
+        else if (check(Token::Type::IDENTIFIER, tokens, iterator))
+        {
+            result->type = ASTNode::Type::DECLARATION_VARIABLE;
+            result->typeName = typeName;
+            result->name = (iterator - 1)->value;
+        }
+
+        if (check(Token::Type::SEMICOLON, tokens, iterator))
+        {
+            declarations.back().push_back(result.get());
+            return result;
+        }
+        else
+        {
+            std::cerr << "Expected a semicolon" << std::endl;
+            return nullptr;
+        }
 
         return result;
     }
