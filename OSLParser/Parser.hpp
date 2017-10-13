@@ -146,15 +146,18 @@ private:
         return false;
     }
 
-    bool match(const std::vector<Token::Type>& tokenTypes,
+    bool check(const std::vector<Token::Type>& tokenTypes,
                const std::vector<Token>& tokens,
                std::vector<Token>::const_iterator& iterator)
     {
+        if (iterator == tokens.end()) return false;
+
         for (Token::Type tokenType : tokenTypes)
         {
-            if (check(tokenType, tokens, iterator))
+            if (iterator->type == tokenType)
             {
-                return false;
+                ++iterator;
+                return true;
             }
         }
 
