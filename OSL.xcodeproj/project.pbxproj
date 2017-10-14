@@ -25,7 +25,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		30DD173D1EAE944F004CAD77 /* OSLParser */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = OSLParser; sourceTree = BUILT_PRODUCTS_DIR; };
+		30DD173D1EAE944F004CAD77 /* OSL */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = OSL; sourceTree = BUILT_PRODUCTS_DIR; };
 		30DD17401EAE944F004CAD77 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		30DD17471EAF967B004CAD77 /* Tokenizer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Tokenizer.cpp; sourceTree = "<group>"; };
 		30DD17481EAF967B004CAD77 /* Tokenizer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Tokenizer.hpp; sourceTree = "<group>"; };
@@ -47,7 +47,7 @@
 		30DD17341EAE944F004CAD77 = {
 			isa = PBXGroup;
 			children = (
-				30DD173F1EAE944F004CAD77 /* OSLParser */,
+				30DD173F1EAE944F004CAD77 /* OSL */,
 				30DD173E1EAE944F004CAD77 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -55,12 +55,12 @@
 		30DD173E1EAE944F004CAD77 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				30DD173D1EAE944F004CAD77 /* OSLParser */,
+				30DD173D1EAE944F004CAD77 /* OSL */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		30DD173F1EAE944F004CAD77 /* OSLParser */ = {
+		30DD173F1EAE944F004CAD77 /* OSL */ = {
 			isa = PBXGroup;
 			children = (
 				30DD17401EAE944F004CAD77 /* main.cpp */,
@@ -69,15 +69,15 @@
 				30DD174A1EAF96CE004CAD77 /* Parser.cpp */,
 				30DD174B1EAF96CE004CAD77 /* Parser.hpp */,
 			);
-			path = OSLParser;
+			path = OSL;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		30DD173C1EAE944F004CAD77 /* OSLParser */ = {
+		30DD173C1EAE944F004CAD77 /* OSL */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 30DD17441EAE944F004CAD77 /* Build configuration list for PBXNativeTarget "OSLParser" */;
+			buildConfigurationList = 30DD17441EAE944F004CAD77 /* Build configuration list for PBXNativeTarget "OSL" */;
 			buildPhases = (
 				30DD17391EAE944F004CAD77 /* Sources */,
 				30DD173A1EAE944F004CAD77 /* Frameworks */,
@@ -87,9 +87,9 @@
 			);
 			dependencies = (
 			);
-			name = OSLParser;
+			name = OSL;
 			productName = OSLParser;
-			productReference = 30DD173D1EAE944F004CAD77 /* OSLParser */;
+			productReference = 30DD173D1EAE944F004CAD77 /* OSL */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
@@ -107,7 +107,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 30DD17381EAE944F004CAD77 /* Build configuration list for PBXProject "OSLParser" */;
+			buildConfigurationList = 30DD17381EAE944F004CAD77 /* Build configuration list for PBXProject "OSL" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -119,7 +119,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				30DD173C1EAE944F004CAD77 /* OSLParser */,
+				30DD173C1EAE944F004CAD77 /* OSL */,
 			);
 		};
 /* End PBXProject section */
@@ -244,7 +244,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		30DD17381EAE944F004CAD77 /* Build configuration list for PBXProject "OSLParser" */ = {
+		30DD17381EAE944F004CAD77 /* Build configuration list for PBXProject "OSL" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				30DD17421EAE944F004CAD77 /* Debug */,
@@ -253,7 +253,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		30DD17441EAE944F004CAD77 /* Build configuration list for PBXNativeTarget "OSLParser" */ = {
+		30DD17441EAE944F004CAD77 /* Build configuration list for PBXNativeTarget "OSL" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				30DD17451EAE944F004CAD77 /* Debug */,
