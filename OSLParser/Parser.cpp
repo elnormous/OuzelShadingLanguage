@@ -457,9 +457,58 @@ bool ASTContext::parseVariableDecl(const std::vector<Token>& tokens,
                 if (check(Token::Type::SEMICOLON, tokens, iterator))
                 {
                 }
+                else if (check(Token::Type::OPERATOR_ASSIGNMENT, tokens, iterator))
+                {
+                    std::unique_ptr<ASTNode> expression;
+                    if (parseExpression(tokens, iterator, declarations, expression))
+                    {
+                        if (check(Token::Type::SEMICOLON, tokens, iterator))
+                        {
+                            result->children.push_back(std::move(expression));
+                        }
+                        else
+                        {
+                            std::cerr << "Expected a semicolon" << std::endl;
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else if (check(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
+                {
+                    std::unique_ptr<ASTNode> expression;
+                    if (parseExpression(tokens, iterator, declarations, expression))
+                    {
+                        if (check(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
+                        {
+                            result->children.push_back(std::move(expression));
+
+                            if (check(Token::Type::SEMICOLON, tokens, iterator))
+                            {
+                            }
+                            else
+                            {
+                                std::cerr << "Expected a semicolon" << std::endl;
+                                return false;
+                            }
+                        }
+                        else
+                        {
+                            std::cerr << "Expected a right parenthesis" << std::endl;
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
                 else
                 {
-                    std::cerr << "Expected a semicolon" << std::endl;
+                    std::cerr << "Expected a semicolon or an initializator" << std::endl;
                     return false;
                 }
             }
@@ -762,66 +811,11 @@ bool ASTContext::parseStatement(const std::vector<Token>& tokens,
     }
     else if (check({Token::Type::KEYWORD_STATIC, Token::Type::KEYWORD_CONST, Token::Type::KEYWORD_VAR}, tokens, iterator))
     {
-        result.reset(new ASTNode());
-        result->type = ASTNode::Type::DECLARATION_VARIABLE;
-
-        if ((iterator - 1)->type == Token::Type::KEYWORD_STATIC)
+        if (parseVariableDecl(tokens, iterator, declarations, result))
         {
-            result->isStatic = true;
         }
         else
         {
-            --iterator;
-        }
-
-        if (check(Token::Type::KEYWORD_CONST, tokens, iterator))
-        {
-            result->isConst = true;
-        }
-        else if (check(Token::Type::KEYWORD_VAR, tokens, iterator))
-        {
-            result->isConst = false;
-        }
-        else
-        {
-            std::cerr << "Expected const or var" << std::endl;
-            return false;
-        }
-
-        if (check(Token::Type::IDENTIFIER, tokens, iterator))
-        {
-            result->name = (iterator - 1)->value;
-
-            if (check(Token::Type::COLON, tokens, iterator))
-            {
-                if (check(Token::Type::IDENTIFIER, tokens, iterator))
-                {
-                    result->typeName = (iterator - 1)->value;
-
-                    if (check(Token::Type::SEMICOLON, tokens, iterator))
-                    {
-                    }
-                    else
-                    {
-                        std::cerr << "Expected a semicolon" << std::endl;
-                        return false;
-                    }
-                }
-                else
-                {
-                    std::cerr << "Expected a type name" << std::endl;
-                    return false;
-                }
-            }
-            else
-            {
-                std::cerr << "Expected a colon" << std::endl;
-                return false;
-            }
-        }
-        else
-        {
-            std::cerr << "Unexpected end of variable declaration" << std::endl;
             return false;
         }
     }
