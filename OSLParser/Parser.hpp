@@ -96,6 +96,8 @@ inline std::string nodeTypeToString(ASTNode::Type type)
         case ASTNode::Type::STATEMENT_FOR: return "STATEMENT_FOR";
         case ASTNode::Type::STATEMENT_WHILE: return "STATEMENT_WHILE";
         case ASTNode::Type::STATEMENT_DO: return "STATEMENT_DO";
+        case ASTNode::Type::STATEMENT_BREAK: return "STATEMENT_BREAK";
+        case ASTNode::Type::STATEMENT_CONTINUE: return "STATEMENT_CONTINUE";
         case ASTNode::Type::STATEMENT_RETURN: return "STATEMENT_RETURN";
         case ASTNode::Type::STATEMENT_EXPRESSION: return "STATEMENT_EXPRESSION";
         case ASTNode::Type::OPERATOR_UNARY: return "OPERATOR_UNARY";
@@ -106,7 +108,7 @@ inline std::string nodeTypeToString(ASTNode::Type type)
         case ASTNode::Type::LITERAL_FLOAT: return "LITERAL_FLOAT";
         case ASTNode::Type::LITERAL_CHAR: return "LITERAL_CHAR";
         case ASTNode::Type::LITERAL_STRING: return "LITERAL_STRING";
-        default: return "unknwon";
+        default: return "unknown";
     }
 }
 
@@ -125,7 +127,7 @@ inline std::string semanticToString(ASTNode::Semantic semantic)
         case ASTNode::Semantic::POINT_SIZE: return "POINT_SIZE";
         case ASTNode::Semantic::TANGENT: return "TANGENT";
         case ASTNode::Semantic::TEXTURE_COORDINATES: return "TEXTURE_COORDINATES";
-        default: return "unknwon";
+        default: return "unknown";
     }
 }
 
@@ -194,6 +196,10 @@ private:
     std::unique_ptr<ASTNode> parseStatement(const std::vector<Token>& tokens,
                                             std::vector<Token>::const_iterator& iterator,
                                             std::vector<std::vector<ASTNode*>>& declarations);
+
+    std::unique_ptr<ASTNode> parseExpression(const std::vector<Token>& tokens,
+                                             std::vector<Token>::const_iterator& iterator,
+                                             std::vector<std::vector<ASTNode*>>& declarations);
 
     void dumpNode(const std::unique_ptr<ASTNode>& node, std::string indent = std::string());
 

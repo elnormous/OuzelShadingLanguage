@@ -614,12 +614,30 @@ std::unique_ptr<ASTNode> ASTContext::parseStatement(const std::vector<Token>& to
         std::unique_ptr<ASTNode> result(new ASTNode());
         result->type = ASTNode::Type::STATEMENT_BREAK;
 
-        return result;
+        if (check(Token::Type::SEMICOLON, tokens, iterator))
+        {
+            return result;
+        }
+        else
+        {
+            std::cerr << "Expected a semicolon" << std::endl;
+            return nullptr;
+        }
     }
     else if (check(Token::Type::KEYWORD_CONTINUE, tokens, iterator))
     {
         std::unique_ptr<ASTNode> result(new ASTNode());
         result->type = ASTNode::Type::STATEMENT_CONTINUE;
+
+        if (check(Token::Type::SEMICOLON, tokens, iterator))
+        {
+            return result;
+        }
+        else
+        {
+            std::cerr << "Expected a semicolon" << std::endl;
+            return nullptr;
+        }
 
         return result;
     }
@@ -627,7 +645,12 @@ std::unique_ptr<ASTNode> ASTContext::parseStatement(const std::vector<Token>& to
     {
         std::unique_ptr<ASTNode> result(new ASTNode());
         result->type = ASTNode::Type::STATEMENT_RETURN;
-        
+
+        if (std::unique_ptr<ASTNode> expression = parseExpression(tokens, iterator, declarations))
+        {
+            result->children.push_back(std::move(expression));
+        }
+
         return result;
     }
     else if (check({Token::Type::KEYWORD_STATIC, Token::Type::KEYWORD_CONST, Token::Type::KEYWORD_VAR}, tokens, iterator))
@@ -702,11 +725,29 @@ std::unique_ptr<ASTNode> ASTContext::parseStatement(const std::vector<Token>& to
         std::unique_ptr<ASTNode> result(new ASTNode());
         result->type = ASTNode::Type::STATEMENT_EXPRESSION;
 
-        // TODO: parse expression
+        if (std::unique_ptr<ASTNode> expression = parseExpression(tokens, iterator, declarations))
+        {
+            result->children.push_back(std::move(expression));
+        }
 
-        return result;
+        if (check(Token::Type::SEMICOLON, tokens, iterator))
+        {
+            return result;
+        }
+        else
+        {
+            std::cerr << "Expected a semicolon" << std::endl;
+            return nullptr;
+        }
     }
 
+    return nullptr;
+}
+
+std::unique_ptr<ASTNode> ASTContext::parseExpression(const std::vector<Token>& tokens,
+                                                     std::vector<Token>::const_iterator& iterator,
+                                                     std::vector<std::vector<ASTNode*>>& declarations)
+{
     return nullptr;
 }
 
