@@ -421,26 +421,27 @@ bool ASTContext::parseVariableDecl(const std::vector<Token>& tokens,
     result.reset(new ASTNode());
     result->type = ASTNode::Type::DECLARATION_VARIABLE;
 
-    --iterator;
-
-    for (;;)
+    if ((iterator - 1)->type == Token::Type::KEYWORD_STATIC)
     {
-        if (check(Token::Type::KEYWORD_STATIC, tokens, iterator))
-        {
-            result->isStatic = true;
-        }
-        else if (check(Token::Type::KEYWORD_CONST, tokens, iterator))
-        {
-            result->isConst = true;
-        }
-        else if (check(Token::Type::KEYWORD_VAR, tokens, iterator))
-        {
-            result->isConst = false;
-        }
-        else
-        {
-            break;
-        }
+        result->isStatic = true;
+    }
+    else
+    {
+        --iterator;
+    }
+
+    if (check(Token::Type::KEYWORD_CONST, tokens, iterator))
+    {
+        result->isConst = true;
+    }
+    else if (check(Token::Type::KEYWORD_VAR, tokens, iterator))
+    {
+        result->isConst = false;
+    }
+    else
+    {
+        std::cerr << "Expected const or var" << std::endl;
+        return false;
     }
 
     if (check(Token::Type::IDENTIFIER, tokens, iterator))
@@ -764,26 +765,27 @@ bool ASTContext::parseStatement(const std::vector<Token>& tokens,
         result.reset(new ASTNode());
         result->type = ASTNode::Type::DECLARATION_VARIABLE;
 
-        --iterator;
-
-        for (;;)
+        if ((iterator - 1)->type == Token::Type::KEYWORD_STATIC)
         {
-            if (check(Token::Type::KEYWORD_STATIC, tokens, iterator))
-            {
-                result->isStatic = true;
-            }
-            else if (check(Token::Type::KEYWORD_CONST, tokens, iterator))
-            {
-                result->isConst = true;
-            }
-            else if (check(Token::Type::KEYWORD_VAR, tokens, iterator))
-            {
-                result->isConst = false;
-            }
-            else
-            {
-                break;
-            }
+            result->isStatic = true;
+        }
+        else
+        {
+            --iterator;
+        }
+
+        if (check(Token::Type::KEYWORD_CONST, tokens, iterator))
+        {
+            result->isConst = true;
+        }
+        else if (check(Token::Type::KEYWORD_VAR, tokens, iterator))
+        {
+            result->isConst = false;
+        }
+        else
+        {
+            std::cerr << "Expected const or var" << std::endl;
+            return false;
         }
 
         if (check(Token::Type::IDENTIFIER, tokens, iterator))
