@@ -13,5 +13,5 @@
 class OutputMetal: public Output
 {
 public:
-    virtual bool output(const ASTContext& context, const std::string& file);
+    virtual bool output(const ASTContext& context, const std::string& outputFile);
 };
