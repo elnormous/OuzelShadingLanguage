@@ -699,7 +699,12 @@ std::unique_ptr<ASTNode> ASTContext::parseStatement(const std::vector<Token>& to
     }
     else
     {
+        std::unique_ptr<ASTNode> result(new ASTNode());
+        result->type = ASTNode::Type::STATEMENT_EXPRESSION;
+
         // TODO: parse expression
+
+        return result;
     }
 
     return nullptr;
