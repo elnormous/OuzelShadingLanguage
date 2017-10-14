@@ -71,8 +71,8 @@ struct Token
         KEYWORD_NOEXCEPT, // noexcept
         KEYWORD_VAR, // var
         KEYWORD_FUNCTION, // function
-        LEFT_PARENTHESIS, // )
-        RIGHT_PARENTHESIS, // (
+        LEFT_PARENTHESIS, // (
+        RIGHT_PARENTHESIS, // )
         LEFT_BRACE, // {
         RIGHT_BRACE, // }
         LEFT_BRACKET, // [
