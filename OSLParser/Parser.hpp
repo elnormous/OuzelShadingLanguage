@@ -92,6 +92,8 @@ inline std::string nodeTypeToString(ASTNode::Type type)
         case ASTNode::Type::STATEMENT_COMPOUND: return "STATEMENT_COMPOUND";
         case ASTNode::Type::STATEMENT_IF: return "STATEMENT_IF";
         case ASTNode::Type::STATEMENT_FOR: return "STATEMENT_FOR";
+        case ASTNode::Type::STATEMENT_SWITCH: return "STATEMENT_SWITCH";
+        case ASTNode::Type::STATEMENT_CASE: return "STATEMENT_CASE";
         case ASTNode::Type::STATEMENT_WHILE: return "STATEMENT_WHILE";
         case ASTNode::Type::STATEMENT_DO: return "STATEMENT_DO";
         case ASTNode::Type::STATEMENT_BREAK: return "STATEMENT_BREAK";

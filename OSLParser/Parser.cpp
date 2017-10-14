@@ -534,7 +534,34 @@ bool ASTContext::parseStatement(const std::vector<Token>& tokens,
 
         if (check(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
         {
-            // TODO: parse expression
+            std::unique_ptr<ASTNode> expression;
+
+            if (parseExpression(tokens, iterator, declarations, expression))
+            {
+                result->children.push_back(std::move(expression));
+
+                if (check(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
+                {
+                    std::unique_ptr<ASTNode> statement;
+                    if (parseStatement(tokens, iterator, declarations, statement))
+                    {
+                        result->children.push_back(std::move(statement));
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    std::cerr << "Expected a right parenthesis" << std::endl;
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
         }
         else
         {
@@ -564,7 +591,34 @@ bool ASTContext::parseStatement(const std::vector<Token>& tokens,
 
         if (check(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
         {
-            // TODO: parse expression
+            std::unique_ptr<ASTNode> expression;
+
+            if (parseExpression(tokens, iterator, declarations, expression))
+            {
+                result->children.push_back(std::move(expression));
+
+                if (check(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
+                {
+                    std::unique_ptr<ASTNode> statement;
+                    if (parseStatement(tokens, iterator, declarations, statement))
+                    {
+                        result->children.push_back(std::move(statement));
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    std::cerr << "Expected a right parenthesis" << std::endl;
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
         }
         else
         {
@@ -576,6 +630,34 @@ bool ASTContext::parseStatement(const std::vector<Token>& tokens,
     {
         result.reset(new ASTNode());
         result->type = ASTNode::Type::STATEMENT_CASE;
+
+        if (check(Token::Type::LITERAL_INT, tokens, iterator))
+        {
+            result->value = (iterator - 1)->value;
+
+            if (check(Token::Type::COLON, tokens, iterator))
+            {
+                std::unique_ptr<ASTNode> statement;
+                if (parseStatement(tokens, iterator, declarations, statement))
+                {
+                    result->children.push_back(std::move(statement));
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                std::cerr << "Expected a colon" << std::endl;
+                return false;
+            }
+        }
+        else
+        {
+            std::cerr << "Expected an integer literal" << std::endl;
+            return false;
+        }
     }
     else if (check(Token::Type::KEYWORD_WHILE, tokens, iterator))
     {
@@ -584,7 +666,34 @@ bool ASTContext::parseStatement(const std::vector<Token>& tokens,
 
         if (check(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
         {
-            // TODO: parse expression
+            std::unique_ptr<ASTNode> expression;
+
+            if (parseExpression(tokens, iterator, declarations, expression))
+            {
+                result->children.push_back(std::move(expression));
+
+                if (check(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
+                {
+                    std::unique_ptr<ASTNode> statement;
+                    if (parseStatement(tokens, iterator, declarations, statement))
+                    {
+                        result->children.push_back(std::move(statement));
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    std::cerr << "Expected a right parenthesis" << std::endl;
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
         }
         else
         {
