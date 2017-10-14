@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		308340D71F9238B6000AE853 /* Output.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 308340D51F9238B6000AE853 /* Output.cpp */; };
+		308340DA1F9238D7000AE853 /* OutputHLSL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 308340D81F9238D7000AE853 /* OutputHLSL.cpp */; };
+		308340DD1F9238F2000AE853 /* OutputGLSL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 308340DB1F9238F2000AE853 /* OutputGLSL.cpp */; };
+		308340E01F923900000AE853 /* OutputMetal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 308340DE1F923900000AE853 /* OutputMetal.cpp */; };
 		30DD17411EAE944F004CAD77 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 30DD17401EAE944F004CAD77 /* main.cpp */; };
 		30DD17491EAF967B004CAD77 /* Tokenizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 30DD17471EAF967B004CAD77 /* Tokenizer.cpp */; };
 		30DD174C1EAF96CE004CAD77 /* Parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 30DD174A1EAF96CE004CAD77 /* Parser.cpp */; };
@@ -25,6 +29,14 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		308340D51F9238B6000AE853 /* Output.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Output.cpp; sourceTree = "<group>"; };
+		308340D61F9238B6000AE853 /* Output.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Output.hpp; sourceTree = "<group>"; };
+		308340D81F9238D7000AE853 /* OutputHLSL.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OutputHLSL.cpp; sourceTree = "<group>"; };
+		308340D91F9238D7000AE853 /* OutputHLSL.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = OutputHLSL.hpp; sourceTree = "<group>"; };
+		308340DB1F9238F2000AE853 /* OutputGLSL.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OutputGLSL.cpp; sourceTree = "<group>"; };
+		308340DC1F9238F2000AE853 /* OutputGLSL.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = OutputGLSL.hpp; sourceTree = "<group>"; };
+		308340DE1F923900000AE853 /* OutputMetal.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OutputMetal.cpp; sourceTree = "<group>"; };
+		308340DF1F923900000AE853 /* OutputMetal.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = OutputMetal.hpp; sourceTree = "<group>"; };
 		30DD173D1EAE944F004CAD77 /* OSL */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = OSL; sourceTree = BUILT_PRODUCTS_DIR; };
 		30DD17401EAE944F004CAD77 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		30DD17471EAF967B004CAD77 /* Tokenizer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Tokenizer.cpp; sourceTree = "<group>"; };
@@ -64,10 +76,18 @@
 			isa = PBXGroup;
 			children = (
 				30DD17401EAE944F004CAD77 /* main.cpp */,
-				30DD17471EAF967B004CAD77 /* Tokenizer.cpp */,
-				30DD17481EAF967B004CAD77 /* Tokenizer.hpp */,
+				308340D51F9238B6000AE853 /* Output.cpp */,
+				308340D61F9238B6000AE853 /* Output.hpp */,
+				308340DB1F9238F2000AE853 /* OutputGLSL.cpp */,
+				308340DC1F9238F2000AE853 /* OutputGLSL.hpp */,
+				308340D81F9238D7000AE853 /* OutputHLSL.cpp */,
+				308340D91F9238D7000AE853 /* OutputHLSL.hpp */,
+				308340DE1F923900000AE853 /* OutputMetal.cpp */,
+				308340DF1F923900000AE853 /* OutputMetal.hpp */,
 				30DD174A1EAF96CE004CAD77 /* Parser.cpp */,
 				30DD174B1EAF96CE004CAD77 /* Parser.hpp */,
+				30DD17471EAF967B004CAD77 /* Tokenizer.cpp */,
+				30DD17481EAF967B004CAD77 /* Tokenizer.hpp */,
 			);
 			path = OSL;
 			sourceTree = "<group>";
@@ -129,6 +149,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				308340DD1F9238F2000AE853 /* OutputGLSL.cpp in Sources */,
+				308340E01F923900000AE853 /* OutputMetal.cpp in Sources */,
+				308340DA1F9238D7000AE853 /* OutputHLSL.cpp in Sources */,
+				308340D71F9238B6000AE853 /* Output.cpp in Sources */,
 				30DD17411EAE944F004CAD77 /* main.cpp in Sources */,
 				30DD174C1EAF96CE004CAD77 /* Parser.cpp in Sources */,
 				30DD17491EAF967B004CAD77 /* Tokenizer.cpp in Sources */,
