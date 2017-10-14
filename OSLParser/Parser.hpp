@@ -49,7 +49,7 @@ struct ASTNode
         LITERAL_STRING
     };
 
-    enum class Attribute
+    enum class Semantic
     {
         NONE,
         BINORMAL,
@@ -65,11 +65,10 @@ struct ASTNode
     };
 
     Type type = Type::NONE;
-    Attribute attribute = Attribute::NONE;
+    Semantic semantic = Semantic::NONE;
     std::string typeName;
+    bool isStatic = false;
     bool isConst = false;
-    bool isInline = false;
-    bool isExtern = false;
     std::string name;
     std::vector<std::unique_ptr<ASTNode>> children;
 };
@@ -109,21 +108,21 @@ inline std::string nodeTypeToString(ASTNode::Type type)
     }
 }
 
-inline std::string attributeToString(ASTNode::Attribute attribute)
+inline std::string semanticToString(ASTNode::Semantic semantic)
 {
-    switch (attribute)
+    switch (semantic)
     {
-        case ASTNode::Attribute::NONE: return "NONE";
-        case ASTNode::Attribute::BINORMAL: return "BINORMAL";
-        case ASTNode::Attribute::BLEND_INDICES: return "BLEND_INDICES";
-        case ASTNode::Attribute::BLEND_WEIGHT: return "BLEND_WEIGHT";
-        case ASTNode::Attribute::COLOR: return "COLOR";
-        case ASTNode::Attribute::NORMAL: return "NORMAL";
-        case ASTNode::Attribute::POSITION: return "POSITION";
-        case ASTNode::Attribute::POSITION_TRANSFORMED: return "POSITION_TRANSFORMED";
-        case ASTNode::Attribute::POINT_SIZE: return "POINT_SIZE";
-        case ASTNode::Attribute::TANGENT: return "TANGENT";
-        case ASTNode::Attribute::TEXTURE_COORDINATES: return "TEXTURE_COORDINATES";
+        case ASTNode::Semantic::NONE: return "NONE";
+        case ASTNode::Semantic::BINORMAL: return "BINORMAL";
+        case ASTNode::Semantic::BLEND_INDICES: return "BLEND_INDICES";
+        case ASTNode::Semantic::BLEND_WEIGHT: return "BLEND_WEIGHT";
+        case ASTNode::Semantic::COLOR: return "COLOR";
+        case ASTNode::Semantic::NORMAL: return "NORMAL";
+        case ASTNode::Semantic::POSITION: return "POSITION";
+        case ASTNode::Semantic::POSITION_TRANSFORMED: return "POSITION_TRANSFORMED";
+        case ASTNode::Semantic::POINT_SIZE: return "POINT_SIZE";
+        case ASTNode::Semantic::TANGENT: return "TANGENT";
+        case ASTNode::Semantic::TEXTURE_COORDINATES: return "TEXTURE_COORDINATES";
         default: return "unknwon";
     }
 }
@@ -170,10 +169,6 @@ private:
                                            std::vector<Token>::const_iterator& iterator,
                                            std::vector<std::vector<ASTNode*>>& declarations);
 
-    std::unique_ptr<ASTNode> parseDecl(const std::vector<Token>& tokens,
-                                       std::vector<Token>::const_iterator& iterator,
-                                       std::vector<std::vector<ASTNode*>>& declarations);
-
     std::unique_ptr<ASTNode> parseStructDecl(const std::vector<Token>& tokens,
                                              std::vector<Token>::const_iterator& iterator,
                                              std::vector<std::vector<ASTNode*>>& declarations);
@@ -181,6 +176,14 @@ private:
     std::unique_ptr<ASTNode> parseTypedefDecl(const std::vector<Token>& tokens,
                                               std::vector<Token>::const_iterator& iterator,
                                               std::vector<std::vector<ASTNode*>>& declarations);
+
+    std::unique_ptr<ASTNode> parseFunctionDecl(const std::vector<Token>& tokens,
+                                               std::vector<Token>::const_iterator& iterator,
+                                               std::vector<std::vector<ASTNode*>>& declarations);
+
+    std::unique_ptr<ASTNode> parseVariableDecl(const std::vector<Token>& tokens,
+                                               std::vector<Token>::const_iterator& iterator,
+                                               std::vector<std::vector<ASTNode*>>& declarations);
 
     std::unique_ptr<ASTNode> parseCompoundStatement(const std::vector<Token>& tokens,
                                                     std::vector<Token>::const_iterator& iterator,
