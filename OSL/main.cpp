@@ -6,6 +6,7 @@
 //  Copyright © 2017 Elviss Strazdins. All rights reserved.
 //
 
+#include <fstream>
 #include <iostream>
 #include "Tokenizer.hpp"
 #include "Parser.hpp"
@@ -53,20 +54,15 @@ int main(int argc, const char * argv[])
 
     std::vector<char> code;
 
-    FILE* file = fopen(inputFile.c_str(), "rb");
+    std::ifstream file(inputFile, std::ios::binary);
 
     if (!file)
     {
-        std::cerr << "Failed to open file" << std::endl;
+        std::cerr << "Failed to open file " << inputFile << std::endl;
         return EXIT_FAILURE;
     }
 
-    fseek(file, 0, SEEK_END);
-    long size = ftell(file);
-    fseek(file, 0, SEEK_SET);
-    code.resize(size);
-    fread(&code[0], size, 1, file);
-    fclose(file);
+    code.assign(std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>());
 
     std::vector<Token> tokens;
 
