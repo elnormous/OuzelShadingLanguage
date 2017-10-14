@@ -132,6 +132,8 @@ struct ASTContext
 
     void dump();
 
+    std::unique_ptr<ASTNode> translationUnit;
+
 private:
     bool check(Token::Type tokenType,
                const std::vector<Token>& tokens,
@@ -240,6 +242,4 @@ private:
                       std::unique_ptr<ASTNode>& result);
 
     void dumpNode(const std::unique_ptr<ASTNode>& node, std::string indent = std::string());
-
-    std::unique_ptr<ASTNode> translationUnit;
 };

@@ -7,3 +7,8 @@
 //
 
 #include "OutputHLSL.hpp"
+
+bool OutputHLSL::output(const ASTContext& context, const std::string& file)
+{
+    return true;
+}

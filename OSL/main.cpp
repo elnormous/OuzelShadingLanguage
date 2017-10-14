@@ -9,18 +9,51 @@
 #include <iostream>
 #include "Tokenizer.hpp"
 #include "Parser.hpp"
+#include "OutputHLSL.hpp"
+#include "OutputGLSL.hpp"
+#include "OutputMetal.hpp"
 
 int main(int argc, const char * argv[])
 {
-    if (argc < 2)
+    std::string inputFile;
+    bool printTokens = false;
+    bool printAST = false;
+    std::string format;
+    std::string outputFile;
+
+    for (int i = 0; i < argc; ++i)
     {
-        std::cerr << "Too few arguments" << std::endl;
+        if (std::string(argv[i]) == "--input")
+        {
+            if (++i < argc) inputFile = argv[i];
+        }
+        else if (std::string(argv[i]) == "--print-tokens")
+        {
+            printTokens = true;
+        }
+        else if (std::string(argv[i]) == "--print-ast")
+        {
+            printAST = true;
+        }
+        else if (std::string(argv[i]) == "--format")
+        {
+            if (++i < argc) format = argv[i];
+        }
+        else if (std::string(argv[i]) == "--output")
+        {
+            if (++i < argc) outputFile = argv[i];
+        }
+    }
+
+    if (inputFile.empty())
+    {
+        std::cerr << "No input file" << std::endl;
         return EXIT_FAILURE;
     }
 
     std::vector<char> code;
 
-    FILE* file = fopen(argv[1], "rb");
+    FILE* file = fopen(inputFile.c_str(), "rb");
 
     if (!file)
     {
@@ -43,9 +76,12 @@ int main(int argc, const char * argv[])
         return EXIT_FAILURE;
     }
 
-    for (const Token& token : tokens)
+    if (printTokens)
     {
-        std::cout << "Token, kind: " << tokenKindToString(token.kind) << ", type: " << tokenTypeToString(token.type) << ", value: " << token.value << std::endl;
+        for (const Token& token : tokens)
+        {
+            std::cout << "Token, kind: " << tokenKindToString(token.kind) << ", type: " << tokenTypeToString(token.type) << ", value: " << token.value << std::endl;
+        }
     }
 
     ASTContext context;
@@ -60,7 +96,45 @@ int main(int argc, const char * argv[])
         return EXIT_FAILURE;
     }
 
-    context.dump();
+    if (printAST)
+    {
+        context.dump();
+    }
+
+    if (!format.empty())
+    {
+        std::unique_ptr<Output> output;
+
+        if (outputFile.empty())
+        {
+            std::cerr << "No output file" << std::endl;
+            return EXIT_FAILURE;
+        }
+
+        if (format == "hlsl")
+        {
+            output.reset(new OutputHLSL());
+        }
+        else if (format == "glsl")
+        {
+            output.reset(new OutputGLSL());
+        }
+        else if (format == "metal")
+        {
+            output.reset(new OutputMetal());
+        }
+        else
+        {
+            std::cerr << "Invalid format" << std::endl;
+            return EXIT_FAILURE;
+        }
+
+        if (!output->output(context, outputFile))
+        {
+            std::cerr << "Failed to output code" << std::endl;
+            return EXIT_FAILURE;
+        }
+    }
 
     return EXIT_SUCCESS;
 }

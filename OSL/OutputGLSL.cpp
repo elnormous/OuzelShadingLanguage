@@ -7,3 +7,8 @@
 //
 
 #include "OutputGLSL.hpp"
+
+bool OutputGLSL::output(const ASTContext& context, const std::string& file)
+{
+    return true;
+}
