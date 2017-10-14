@@ -77,7 +77,8 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
         if (*i == '(' || *i == ')' ||
             *i == '{' || *i == '}' ||
             *i == '[' || *i == ']' ||
-            *i == ',' || *i == ';') // punctuation
+            *i == ',' || *i == ';' ||
+            *i == ':') // punctuation
         {
             token.kind = Token::Kind::PUNCTUATOR;
             if (*i == '(') token.type = Token::Type::LEFT_PARENTHESIS;
@@ -88,26 +89,10 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
             if (*i == ']') token.type = Token::Type::RIGHT_BRACKET;
             if (*i == ',') token.type = Token::Type::COMMA;
             if (*i == ';') token.type = Token::Type::SEMICOLON;
+            if (*i == ':') token.type = Token::Type::COLON;
             token.value.push_back(*i);
 
             ++i;
-        }
-        else if (*i == ':')
-        {
-            token.kind = Token::Kind::PUNCTUATOR;
-            token.type = Token::Type::COLON;
-            token.value.push_back(*i);
-            ++i;
-
-            if (i != code.end())
-            {
-                if (*i == '>') // :>
-                {
-                    token.type = Token::Type::RIGHT_BRACKET;
-                    token.value.push_back(*i);
-                    ++i;
-                }
-            }
         }
         else if ((*i >= '0' && *i <= '9') ||  // number
                  (*i == '.' && (i + 1) != code.end() && *(i + 1) >= '0' && *(i + 1) <= '9')) // starts with a dot
@@ -416,13 +401,6 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
                         token.value.push_back(*i);
                         ++i;
                     }
-                    else if (*i == '>') // %>
-                    {
-                        token.kind = Token::Kind::PUNCTUATOR;
-                        token.type = Token::Type::RIGHT_BRACE;
-                        token.value.push_back(*i);
-                        ++i;
-                    }
                 }
             }
             else if (*i == '=')
@@ -552,20 +530,6 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
                                 ++i;
                             }
                         }
-                    }
-                    else if (*i == '%') // <%
-                    {
-                        token.kind = Token::Kind::PUNCTUATOR;
-                        token.type = Token::Type::LEFT_BRACE;
-                        token.value.push_back(*i);
-                        ++i;
-                    }
-                    else if (*i == ':') // <:
-                    {
-                        token.kind = Token::Kind::PUNCTUATOR;
-                        token.type = Token::Type::LEFT_BRACKET;
-                        token.value.push_back(*i);
-                        ++i;
                     }
                 }
             }

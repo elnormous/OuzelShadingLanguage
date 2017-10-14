@@ -73,10 +73,10 @@ struct Token
         KEYWORD_FUNCTION, // function
         LEFT_PARENTHESIS, // )
         RIGHT_PARENTHESIS, // (
-        LEFT_BRACE, // { or <%
-        RIGHT_BRACE, // } or %>
-        LEFT_BRACKET, // [ or <:
-        RIGHT_BRACKET, // ] or :>
+        LEFT_BRACE, // {
+        RIGHT_BRACE, // }
+        LEFT_BRACKET, // [
+        RIGHT_BRACKET, // ]
         COMMA, // ,
         SEMICOLON, // ;
         COLON, // :
