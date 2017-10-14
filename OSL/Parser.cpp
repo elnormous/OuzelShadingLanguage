@@ -512,14 +512,26 @@ bool ASTContext::parseStatement(const std::vector<Token>& tokens,
             return false;
         }
 
-        std::unique_ptr<ASTNode> expression;
-
-        if (!parseExpression(tokens, iterator, declarations, expression))
+        if (check(Token::Type::KEYWORD_VAR, tokens, iterator))
         {
-            return false;
-        }
+            std::unique_ptr<ASTNode> declaration;
+            if (!parseVariableDecl(tokens, iterator, declarations, declaration))
+            {
+                return false;
+            }
 
-        result->children.push_back(std::move(expression));
+            result->children.push_back(std::move(declaration));
+        }
+        else
+        {
+            std::unique_ptr<ASTNode> expression;
+            if (!parseExpression(tokens, iterator, declarations, expression))
+            {
+                return false;
+            }
+
+            result->children.push_back(std::move(expression));
+        }
 
         if (!check(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
         {
@@ -669,14 +681,26 @@ bool ASTContext::parseStatement(const std::vector<Token>& tokens,
             return false;
         }
 
-        std::unique_ptr<ASTNode> expression;
-
-        if (!parseExpression(tokens, iterator, declarations, expression))
+        if (check(Token::Type::KEYWORD_VAR, tokens, iterator))
         {
-            return false;
-        }
+            std::unique_ptr<ASTNode> declaration;
+            if (!parseVariableDecl(tokens, iterator, declarations, declaration))
+            {
+                return false;
+            }
 
-        result->children.push_back(std::move(expression));
+            result->children.push_back(std::move(declaration));
+        }
+        else
+        {
+            std::unique_ptr<ASTNode> expression;
+            if (!parseExpression(tokens, iterator, declarations, expression))
+            {
+                return false;
+            }
+
+            result->children.push_back(std::move(expression));
+        }
 
         if (!check(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
         {
