@@ -30,6 +30,7 @@ struct ASTNode
         EXPRESSION_DECLARATION_REFERENCE,
         EXPRESSION_PAREN,
         EXPRESSION_MEMBER,
+        EXPRESSION_ARRAY_SUBSCRIPT,
         STATEMENT_DECLARATION,
         STATEMENT_COMPOUND,
         STATEMENT_IF,
@@ -90,6 +91,7 @@ inline std::string nodeTypeToString(ASTNode::Type type)
         case ASTNode::Type::EXPRESSION_DECLARATION_REFERENCE: return "EXPRESSION_DECLARATION_REFERENCE";
         case ASTNode::Type::EXPRESSION_PAREN: return "EXPRESSION_PAREN";
         case ASTNode::Type::EXPRESSION_MEMBER: return "EXPRESSION_MEMBER";
+        case ASTNode::Type::EXPRESSION_ARRAY_SUBSCRIPT: return "EXPRESSION_ARRAY_SUBSCRIPT";
         case ASTNode::Type::STATEMENT_DECLARATION: return "STATEMENT_DECLARATION";
         case ASTNode::Type::STATEMENT_COMPOUND: return "STATEMENT_COMPOUND";
         case ASTNode::Type::STATEMENT_IF: return "STATEMENT_IF";
@@ -105,8 +107,9 @@ inline std::string nodeTypeToString(ASTNode::Type type)
         case ASTNode::Type::OPERATOR_UNARY: return "OPERATOR_UNARY";
         case ASTNode::Type::OPERATOR_BINARY: return "OPERATOR_BINARY";
         case ASTNode::Type::OPERATOR_TERNARY: return "OPERATOR_TERNARY";
-        default: return "unknown";
     }
+
+    return "unknown";
 }
 
 inline std::string semanticToString(ASTNode::Semantic semantic)

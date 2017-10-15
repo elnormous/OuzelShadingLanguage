@@ -1160,6 +1160,27 @@ bool ASTContext::parsePrimary(const std::vector<Token>& tokens,
                 }
             }
         }
+        else if (check(Token::Type::LEFT_BRACKET, tokens, iterator))
+        {
+            result.reset(new ASTNode());
+            result->type = ASTNode::Type::EXPRESSION_ARRAY_SUBSCRIPT;
+            result->name = (iterator - 2)->value;
+
+            std::unique_ptr<ASTNode> expression;
+
+            if (!parseExpression(tokens, iterator, declarations, expression))
+            {
+                return false;
+            }
+
+            if (!check(Token::Type::RIGHT_BRACKET, tokens, iterator))
+            {
+                std::cerr << "Expected a right brace" << std::endl;
+                return false;
+            }
+            
+            result->children.push_back(std::move(expression));
+        }
         else
         {
             result.reset(new ASTNode());

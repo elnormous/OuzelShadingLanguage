@@ -236,8 +236,9 @@ inline std::string tokenTypeToString(Token::Type type)
         case Token::Type::OPERATOR_CONDITIONAL: return "OPERATOR_CONDITIONAL";
         case Token::Type::OPERATOR_DOT: return "OPERATOR_DOT";
         case Token::Type::OPERATOR_ARROW: return "OPERATOR_ARROW";
-        default: return "unknown";
     }
+
+    return "unknown";
 }
 
 bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens);
