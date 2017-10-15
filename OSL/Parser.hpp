@@ -29,6 +29,7 @@ struct ASTNode
         EXPRESSION_LITERAL,
         EXPRESSION_DECLARATION_REFERENCE,
         EXPRESSION_PAREN,
+        EXPRESSION_MEMBER,
         STATEMENT_DECLARATION,
         STATEMENT_COMPOUND,
         STATEMENT_IF,
@@ -88,6 +89,7 @@ inline std::string nodeTypeToString(ASTNode::Type type)
         case ASTNode::Type::EXPRESSION_LITERAL: return "EXPRESSION_LITERAL";
         case ASTNode::Type::EXPRESSION_DECLARATION_REFERENCE: return "EXPRESSION_DECLARATION_REFERENCE";
         case ASTNode::Type::EXPRESSION_PAREN: return "EXPRESSION_PAREN";
+        case ASTNode::Type::EXPRESSION_MEMBER: return "EXPRESSION_MEMBER";
         case ASTNode::Type::STATEMENT_DECLARATION: return "STATEMENT_DECLARATION";
         case ASTNode::Type::STATEMENT_COMPOUND: return "STATEMENT_COMPOUND";
         case ASTNode::Type::STATEMENT_IF: return "STATEMENT_IF";
@@ -230,6 +232,12 @@ private:
                              std::vector<Token>::const_iterator& iterator,
                              std::vector<std::vector<ASTNode*>>& declarations,
                              std::unique_ptr<ASTNode>& result);
+
+    bool parseMember(const std::vector<Token>& tokens,
+                     std::vector<Token>::const_iterator& iterator,
+                     std::vector<std::vector<ASTNode*>>& declarations,
+                     std::unique_ptr<ASTNode>& result);
+
 
     bool parseUnary(const std::vector<Token>& tokens,
                     std::vector<Token>::const_iterator& iterator,
