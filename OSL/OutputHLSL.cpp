@@ -120,21 +120,25 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
 
         case ASTNode::Type::DECLARATION_PARAMETER:
         {
+            code += prefix + node->typeName + " " + node->name;
             break;
         }
 
         case ASTNode::Type::EXPRESSION_CALL:
         {
+            code += prefix + node->name + "()";
             break;
         }
 
         case ASTNode::Type::EXPRESSION_LITERAL:
         {
+            code += node->value;
             break;
         }
 
         case ASTNode::Type::EXPRESSION_DECLARATION_REFERENCE:
         {
+            code += node->name;
             break;
         }
 
@@ -145,6 +149,7 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
 
         case ASTNode::Type::STATEMENT_DECLARATION:
         {
+            code += prefix + node->typeName + " " + node->name;
             break;
         }
 
