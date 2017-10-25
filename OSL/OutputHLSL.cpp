@@ -95,13 +95,26 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
 
         case ASTNode::Type::DECLARATION_FUNCTION:
         {
-            code += prefix + node->typeName + " " + node->name + "();\n";
+            code += prefix + node->typeName + " " + node->name + "(";
+
+            auto i = node->children.cbegin();
+
+            for (; i != node->children.cend() && (*i)->type == ASTNode::Type::DECLARATION_PARAMETER; ++i)
+            {
+                if (i != node->children.cbegin()) code += ", ";
+                if (!printNode(*i, "", code))
+                {
+                    return false;
+                }
+            }
+
+            code += ");\n";
 
             code += prefix + "{\n";
 
-            for (std::unique_ptr<ASTNode>& child : node->children)
+            for (; i != node->children.cend(); ++i)
             {
-                if (!printNode(child, prefix + "    ", code))
+                if (!printNode(*i, prefix + "    ", code))
                 {
                     return false;
                 }
@@ -126,7 +139,18 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
 
         case ASTNode::Type::EXPRESSION_CALL:
         {
-            code += prefix + node->name + "()";
+            code += prefix + node->name + "(";
+
+            for (auto i = node->children.cbegin(); i != node->children.cend(); ++i)
+            {
+                if (i != node->children.cbegin()) code += ", ";
+                if (!printNode(*i, "", code))
+                {
+                    return false;
+                }
+            }
+
+            code += ")";
             break;
         }
 
@@ -216,6 +240,16 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
 
         case ASTNode::Type::STATEMENT_EXPRESSION:
         {
+            code += prefix;
+
+            for (std::unique_ptr<ASTNode>& child : node->children)
+            {
+                if (!printNode(child, "", code))
+                {
+                    return false;
+                }
+                code += ";\n";
+            }
             break;
         }
 
