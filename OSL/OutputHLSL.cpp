@@ -112,7 +112,11 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
                 }
             }
 
-            code += ");\n";
+            code += ")";
+
+            if (i == node->children.end()) code += ";"; // does not have a definition
+
+            code += "\n";
 
             for (; i != node->children.cend(); ++i)
             {
