@@ -125,6 +125,28 @@ bool ASTContext::parseStructDecl(const std::vector<Token>& tokens,
                     std::unique_ptr<ASTNode> field(new ASTNode());
                     field->type = ASTNode::Type::DECLARATION_FIELD;
 
+                    if (!check(Token::Type::IDENTIFIER, tokens, iterator))
+                    {
+                        std::cerr << "Expected an identifier" << std::endl;
+                        return false;
+                    }
+
+                    field->name = (iterator - 1)->value;
+
+                    if (!check(Token::Type::COLON, tokens, iterator))
+                    {
+                        std::cerr << "Expected a colon" << std::endl;
+                        return false;
+                    }
+
+                    if (!check(Token::Type::IDENTIFIER, tokens, iterator))
+                    {
+                        std::cerr << "Expected a type name" << std::endl;
+                        return false;
+                    }
+
+                    field->typeName = (iterator - 1)->value;
+
                     if (check(Token::Type::LEFT_BRACKET, tokens, iterator)) // parse attributes
                     {
                         bool firstAttribute = true;
@@ -190,28 +212,6 @@ bool ASTContext::parseStructDecl(const std::vector<Token>& tokens,
                             }
                         }
                     }
-
-                    if (!check(Token::Type::IDENTIFIER, tokens, iterator))
-                    {
-                        std::cerr << "Expected an identifier" << std::endl;
-                        return false;
-                    }
-
-                    field->name = (iterator - 1)->value;
-
-                    if (!check(Token::Type::COLON, tokens, iterator))
-                    {
-                        std::cerr << "Expected a colon" << std::endl;
-                        return false;
-                    }
-
-                    if (!check(Token::Type::IDENTIFIER, tokens, iterator))
-                    {
-                        std::cerr << "Expected a type name" << std::endl;
-                        return false;
-                    }
-
-                    field->typeName = (iterator - 1)->value;
 
                     if (!check(Token::Type::SEMICOLON, tokens, iterator))
                     {
