@@ -114,17 +114,13 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
 
             code += ");\n";
 
-            code += prefix + "{\n";
-
             for (; i != node->children.cend(); ++i)
             {
-                if (!printNode(*i, prefix + "    ", code))
+                if (!printNode(*i, prefix, code))
                 {
                     return false;
                 }
             }
-
-            code += prefix + "}\n";
 
             break;
         }
