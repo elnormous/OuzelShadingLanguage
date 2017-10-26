@@ -79,7 +79,7 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
                     }
                 }
 
-                code += prefix + "}\n";
+                code += prefix + "};\n";
             }
 
             break;
