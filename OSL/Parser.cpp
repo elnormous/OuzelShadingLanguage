@@ -793,6 +793,47 @@ bool ASTContext::parseStatement(const std::vector<Token>& tokens,
     {
         result.reset(new ASTNode());
         result->type = ASTNode::Type::STATEMENT_DO;
+
+        std::unique_ptr<ASTNode> statement;
+        if (!parseStatement(tokens, iterator, declarations, statement))
+        {
+            return false;
+        }
+
+        result->children.push_back(std::move(statement));
+
+        if (!check(Token::Type::KEYWORD_WHILE, tokens, iterator))
+        {
+            std::cerr << "Expected a \"while\" keyword" << std::endl;
+            return false;
+        }
+
+        if (!check(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
+        {
+            std::cerr << "Expected a left parenthesis" << std::endl;
+            return false;
+        }
+
+        // expression
+        std::unique_ptr<ASTNode> expression;
+        if (!parseExpression(tokens, iterator, declarations, expression))
+        {
+            return false;
+        }
+
+        result->children.push_back(std::move(expression));
+
+        if (!check(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
+        {
+            std::cerr << "Expected a right parenthesis" << std::endl;
+            return false;
+        }
+
+        if (!check(Token::Type::SEMICOLON, tokens, iterator))
+        {
+            std::cerr << "Expected a semicolon" << std::endl;
+            return false;
+        }
     }
     else if (check(Token::Type::KEYWORD_BREAK, tokens, iterator))
     {
