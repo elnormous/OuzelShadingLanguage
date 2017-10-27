@@ -920,7 +920,69 @@ bool ASTContext::parseExpression(const std::vector<Token>& tokens,
                                  std::vector<std::vector<ASTNode*>>& declarations,
                                  std::unique_ptr<ASTNode>& result)
 {
-    return parseAssignment(tokens, iterator, declarations, result);
+    return parseMultiplicationAssignment(tokens, iterator, declarations, result);
+}
+
+bool ASTContext::parseMultiplicationAssignment(const std::vector<Token>& tokens,
+                                               std::vector<Token>::const_iterator& iterator,
+                                               std::vector<std::vector<ASTNode*>>& declarations,
+                                               std::unique_ptr<ASTNode>& result)
+{
+    if (!parseAdditionAssignment(tokens, iterator, declarations, result))
+    {
+        return false;
+    }
+
+    while (check({Token::Type::OPERATOR_MULTIPLY_ASSIGNMENT, Token::Type::OPERATOR_DIVIDE_ASSIGNMENT}, tokens, iterator))
+    {
+        std::unique_ptr<ASTNode> expression(new ASTNode());
+        expression->type = ASTNode::Type::OPERATOR_BINARY;
+        expression->value = (iterator - 1)->value;
+
+        std::unique_ptr<ASTNode> right;
+        if (!parseAdditionAssignment(tokens, iterator, declarations, right))
+        {
+            return false;
+        }
+
+        expression->children.push_back(std::move(result)); // left
+        expression->children.push_back(std::move(right)); // right
+
+        result = std::move(expression);
+    }
+
+    return true;
+}
+
+bool ASTContext::parseAdditionAssignment(const std::vector<Token>& tokens,
+                                         std::vector<Token>::const_iterator& iterator,
+                                         std::vector<std::vector<ASTNode*>>& declarations,
+                                         std::unique_ptr<ASTNode>& result)
+{
+    if (!parseAssignment(tokens, iterator, declarations, result))
+    {
+        return false;
+    }
+
+    while (check({Token::Type::OPERATOR_PLUS_ASSIGNMENT, Token::Type::OPERATOR_MINUS_ASSIGNMENT}, tokens, iterator))
+    {
+        std::unique_ptr<ASTNode> expression(new ASTNode());
+        expression->type = ASTNode::Type::OPERATOR_BINARY;
+        expression->value = (iterator - 1)->value;
+
+        std::unique_ptr<ASTNode> right;
+        if (!parseAssignment(tokens, iterator, declarations, right))
+        {
+            return false;
+        }
+
+        expression->children.push_back(std::move(result)); // left
+        expression->children.push_back(std::move(right)); // right
+
+        result = std::move(expression);
+    }
+
+    return true;
 }
 
 bool ASTContext::parseAssignment(const std::vector<Token>& tokens,
@@ -950,7 +1012,7 @@ bool ASTContext::parseAssignment(const std::vector<Token>& tokens,
 
         result = std::move(expression);
     }
-    
+
     return true;
 }
 
