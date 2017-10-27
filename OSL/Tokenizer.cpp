@@ -260,7 +260,8 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
                  *i == '&' || *i == '|' ||
                  *i == '<' || *i == '>' ||
                  *i == '!' || *i == '.' ||
-                 *i == '~' || *i == '^')
+                 *i == '~' || *i == '^' ||
+                 *i == '?')
         {
             if (*i == '+')
             {

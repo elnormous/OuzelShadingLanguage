@@ -926,7 +926,7 @@ bool ASTContext::parseAssignment(const std::vector<Token>& tokens,
                                  std::vector<std::vector<ASTNode*>>& declarations,
                                  std::unique_ptr<ASTNode>& result)
 {
-    if (!parseEquality(tokens, iterator, declarations, result))
+    if (!parseTernary(tokens, iterator, declarations, result))
     {
         return false;
     }
@@ -938,7 +938,7 @@ bool ASTContext::parseAssignment(const std::vector<Token>& tokens,
         expression->value = (iterator - 1)->value;
 
         std::unique_ptr<ASTNode> right;
-        if (!parseEquality(tokens, iterator, declarations, right))
+        if (!parseTernary(tokens, iterator, declarations, right))
         {
             return false;
         }
@@ -949,6 +949,50 @@ bool ASTContext::parseAssignment(const std::vector<Token>& tokens,
         result = std::move(expression);
     }
     
+    return true;
+}
+
+bool ASTContext::parseTernary(const std::vector<Token>& tokens,
+                              std::vector<Token>::const_iterator& iterator,
+                              std::vector<std::vector<ASTNode*>>& declarations,
+                              std::unique_ptr<ASTNode>& result)
+{
+    if (!parseEquality(tokens, iterator, declarations, result))
+    {
+        return false;
+    }
+
+    while (check(Token::Type::OPERATOR_CONDITIONAL, tokens, iterator))
+    {
+        std::unique_ptr<ASTNode> expression(new ASTNode());
+        expression->type = ASTNode::Type::OPERATOR_TERNARY;
+        expression->value = (iterator - 1)->value;
+
+        std::unique_ptr<ASTNode> left;
+        if (!parseTernary(tokens, iterator, declarations, left))
+        {
+            return false;
+        }
+
+        if (!check(Token::Type::COLON, tokens, iterator))
+        {
+            std::cerr << "Expected a colon" << std::endl;
+            return false;
+        }
+
+        std::unique_ptr<ASTNode> right;
+        if (!parseTernary(tokens, iterator, declarations, right))
+        {
+            return false;
+        }
+
+        expression->children.push_back(std::move(result));
+        expression->children.push_back(std::move(left));
+        expression->children.push_back(std::move(right));
+
+        result = std::move(expression);
+    }
+
     return true;
 }
 
