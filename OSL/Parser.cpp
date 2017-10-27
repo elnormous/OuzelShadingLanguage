@@ -1189,7 +1189,7 @@ bool ASTContext::parseMultiplication(const std::vector<Token>& tokens,
                                      std::vector<std::vector<ASTNode*>>& declarations,
                                      std::unique_ptr<ASTNode>& result)
 {
-    if (!parseMember(tokens, iterator, declarations, result))
+    if (!parseUnary(tokens, iterator, declarations, result))
     {
         return false;
     }
@@ -1198,37 +1198,6 @@ bool ASTContext::parseMultiplication(const std::vector<Token>& tokens,
     {
         std::unique_ptr<ASTNode> expression(new ASTNode());
         expression->type = ASTNode::Type::OPERATOR_BINARY;
-        expression->value = (iterator - 1)->value;
-
-        std::unique_ptr<ASTNode> right;
-        if (!parseMember(tokens, iterator, declarations, right))
-        {
-            return false;
-        }
-
-        expression->children.push_back(std::move(result)); // left
-        expression->children.push_back(std::move(right)); // right
-
-        result = std::move(expression);
-    }
-
-    return true;
-}
-
-bool ASTContext::parseMember(const std::vector<Token>& tokens,
-                             std::vector<Token>::const_iterator& iterator,
-                             std::vector<std::vector<ASTNode*>>& declarations,
-                             std::unique_ptr<ASTNode>& result)
-{
-    if (!parseUnary(tokens, iterator, declarations, result))
-    {
-        return false;
-    }
-
-    while (check(Token::Type::OPERATOR_DOT, tokens, iterator))
-    {
-        std::unique_ptr<ASTNode> expression(new ASTNode());
-        expression->type = ASTNode::Type::EXPRESSION_MEMBER;
         expression->value = (iterator - 1)->value;
 
         std::unique_ptr<ASTNode> right;
@@ -1242,7 +1211,7 @@ bool ASTContext::parseMember(const std::vector<Token>& tokens,
 
         result = std::move(expression);
     }
-    
+
     return true;
 }
 
@@ -1258,7 +1227,7 @@ bool ASTContext::parseUnary(const std::vector<Token>& tokens,
         result->value = (iterator - 1)->value;
 
         std::unique_ptr<ASTNode> right;
-        if (!parseUnary(tokens, iterator, declarations, right))
+        if (!parseMember(tokens, iterator, declarations, right))
         {
             return false;
         }
@@ -1267,12 +1236,43 @@ bool ASTContext::parseUnary(const std::vector<Token>& tokens,
     }
     else
     {
-        if (!parsePrimary(tokens, iterator, declarations, result))
+        if (!parseMember(tokens, iterator, declarations, result))
         {
             return false;
         }
     }
 
+    return true;
+}
+
+bool ASTContext::parseMember(const std::vector<Token>& tokens,
+                             std::vector<Token>::const_iterator& iterator,
+                             std::vector<std::vector<ASTNode*>>& declarations,
+                             std::unique_ptr<ASTNode>& result)
+{
+    if (!parsePrimary(tokens, iterator, declarations, result))
+    {
+        return false;
+    }
+
+    while (check(Token::Type::OPERATOR_DOT, tokens, iterator))
+    {
+        std::unique_ptr<ASTNode> expression(new ASTNode());
+        expression->type = ASTNode::Type::EXPRESSION_MEMBER;
+        expression->value = (iterator - 1)->value;
+
+        std::unique_ptr<ASTNode> right;
+        if (!parsePrimary(tokens, iterator, declarations, right))
+        {
+            return false;
+        }
+
+        expression->children.push_back(std::move(result)); // left
+        expression->children.push_back(std::move(right)); // right
+
+        result = std::move(expression);
+    }
+    
     return true;
 }
 

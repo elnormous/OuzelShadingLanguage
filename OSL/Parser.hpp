@@ -256,15 +256,15 @@ private:
                              std::vector<std::vector<ASTNode*>>& declarations,
                              std::unique_ptr<ASTNode>& result);
 
-    bool parseMember(const std::vector<Token>& tokens,
-                     std::vector<Token>::const_iterator& iterator,
-                     std::vector<std::vector<ASTNode*>>& declarations,
-                     std::unique_ptr<ASTNode>& result);
-
     bool parseUnary(const std::vector<Token>& tokens,
                     std::vector<Token>::const_iterator& iterator,
                     std::vector<std::vector<ASTNode*>>& declarations,
                     std::unique_ptr<ASTNode>& result);
+
+    bool parseMember(const std::vector<Token>& tokens,
+                     std::vector<Token>::const_iterator& iterator,
+                     std::vector<std::vector<ASTNode*>>& declarations,
+                     std::unique_ptr<ASTNode>& result);
 
     bool parsePrimary(const std::vector<Token>& tokens,
                       std::vector<Token>::const_iterator& iterator,
