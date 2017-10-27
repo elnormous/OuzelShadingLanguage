@@ -1065,7 +1065,7 @@ bool ASTContext::parseEquality(const std::vector<Token>& tokens,
                                std::vector<std::vector<ASTNode*>>& declarations,
                                std::unique_ptr<ASTNode>& result)
 {
-    if (!parseComparison(tokens, iterator, declarations, result))
+    if (!parseGreaterThan(tokens, iterator, declarations, result))
     {
         return false;
     }
@@ -1077,7 +1077,7 @@ bool ASTContext::parseEquality(const std::vector<Token>& tokens,
         expression->value = (iterator - 1)->value;
 
         std::unique_ptr<ASTNode> right;
-        if (!parseComparison(tokens, iterator, declarations, right))
+        if (!parseGreaterThan(tokens, iterator, declarations, right))
         {
             return false;
         }
@@ -1091,17 +1091,48 @@ bool ASTContext::parseEquality(const std::vector<Token>& tokens,
     return true;
 }
 
-bool ASTContext::parseComparison(const std::vector<Token>& tokens,
-                                 std::vector<Token>::const_iterator& iterator,
-                                 std::vector<std::vector<ASTNode*>>& declarations,
-                                 std::unique_ptr<ASTNode>& result)
+bool ASTContext::parseGreaterThan(const std::vector<Token>& tokens,
+                                  std::vector<Token>::const_iterator& iterator,
+                                  std::vector<std::vector<ASTNode*>>& declarations,
+                                  std::unique_ptr<ASTNode>& result)
+{
+    if (!parseLessThan(tokens, iterator, declarations, result))
+    {
+        return false;
+    }
+
+    while (check({Token::Type::OPERATOR_GREATER_THAN, Token::Type::OPERATOR_GREATER_THAN_EQUAL}, tokens, iterator))
+    {
+        std::unique_ptr<ASTNode> expression(new ASTNode());
+        expression->type = ASTNode::Type::OPERATOR_BINARY;
+        expression->value = (iterator - 1)->value;
+
+        std::unique_ptr<ASTNode> right;
+        if (!parseLessThan(tokens, iterator, declarations, right))
+        {
+            return false;
+        }
+
+        expression->children.push_back(std::move(result)); // left
+        expression->children.push_back(std::move(right)); // right
+
+        result = std::move(expression);
+    }
+    
+    return true;
+}
+
+bool ASTContext::parseLessThan(const std::vector<Token>& tokens,
+                               std::vector<Token>::const_iterator& iterator,
+                               std::vector<std::vector<ASTNode*>>& declarations,
+                               std::unique_ptr<ASTNode>& result)
 {
     if (!parseAddition(tokens, iterator, declarations, result))
     {
         return false;
     }
 
-    while (check({Token::Type::OPERATOR_GREATER_THAN, Token::Type::OPERATOR_GREATER_THAN_EQUAL, Token::Type::OPERATOR_LESS_THAN, Token::Type::OPERATOR_LESS_THAN_EQUAL}, tokens, iterator))
+    while (check({Token::Type::OPERATOR_LESS_THAN, Token::Type::OPERATOR_LESS_THAN_EQUAL}, tokens, iterator))
     {
         std::unique_ptr<ASTNode> expression(new ASTNode());
         expression->type = ASTNode::Type::OPERATOR_BINARY;
