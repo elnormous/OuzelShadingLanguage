@@ -16,6 +16,8 @@ static const std::vector<std::string> builtinTypes = {
 
 bool ASTContext::parse(const std::vector<Token>& tokens)
 {
+    translationUnit.reset();
+
     auto iterator = tokens.cbegin();
 
     std::vector<std::vector<ASTNode*>> declarations;
