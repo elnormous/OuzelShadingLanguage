@@ -140,9 +140,9 @@ struct ASTContext
     std::unique_ptr<ASTNode> translationUnit;
 
 private:
-    bool check(Token::Type tokenType,
-               const std::vector<Token>& tokens,
-               std::vector<Token>::const_iterator& iterator)
+    bool checkToken(Token::Type tokenType,
+                    const std::vector<Token>& tokens,
+                    std::vector<Token>::const_iterator& iterator)
     {
         if (iterator != tokens.end() && iterator->type == tokenType)
         {
@@ -153,9 +153,9 @@ private:
         return false;
     }
 
-    bool check(const std::vector<Token::Type>& tokenTypes,
-               const std::vector<Token>& tokens,
-               std::vector<Token>::const_iterator& iterator)
+    bool checkTokens(const std::vector<Token::Type>& tokenTypes,
+                     const std::vector<Token>& tokens,
+                     std::vector<Token>::const_iterator& iterator)
     {
         if (iterator == tokens.end()) return false;
 

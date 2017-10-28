@@ -36,7 +36,7 @@ bool ASTContext::parseTopLevel(const std::vector<Token>& tokens,
 
     while (iterator != tokens.end())
     {
-        if (check(Token::Type::KEYWORD_STRUCT, tokens, iterator))
+        if (checkToken(Token::Type::KEYWORD_STRUCT, tokens, iterator))
         {
             std::unique_ptr<ASTNode> decl;
             if (!parseStructDecl(tokens, iterator, declarations, decl))
@@ -47,7 +47,7 @@ bool ASTContext::parseTopLevel(const std::vector<Token>& tokens,
 
             result->children.push_back(std::move(decl));
         }
-        else if (check(Token::Type::KEYWORD_TYPEDEF, tokens, iterator))
+        else if (checkToken(Token::Type::KEYWORD_TYPEDEF, tokens, iterator))
         {
             std::unique_ptr<ASTNode> decl;
             if (!parseTypedefDecl(tokens, iterator, declarations, decl))
@@ -58,7 +58,7 @@ bool ASTContext::parseTopLevel(const std::vector<Token>& tokens,
 
             result->children.push_back(std::move(decl));
         }
-        else if (check(Token::Type::KEYWORD_FUNCTION, tokens, iterator))
+        else if (checkToken(Token::Type::KEYWORD_FUNCTION, tokens, iterator))
         {
             std::unique_ptr<ASTNode> decl;
             if (!parseFunctionDecl(tokens, iterator, declarations, decl))
@@ -69,7 +69,7 @@ bool ASTContext::parseTopLevel(const std::vector<Token>& tokens,
 
             result->children.push_back(std::move(decl));
         }
-        else if (check({Token::Type::KEYWORD_STATIC, Token::Type::KEYWORD_CONST, Token::Type::KEYWORD_VAR}, tokens, iterator))
+        else if (checkTokens({Token::Type::KEYWORD_STATIC, Token::Type::KEYWORD_CONST, Token::Type::KEYWORD_VAR}, tokens, iterator))
         {
             std::unique_ptr<ASTNode> decl;
             if (!parseVariableDecl(tokens, iterator, declarations, decl))
@@ -80,7 +80,7 @@ bool ASTContext::parseTopLevel(const std::vector<Token>& tokens,
 
             result->children.push_back(std::move(decl));
         }
-        else if (check(Token::Type::SEMICOLON, tokens, iterator))
+        else if (checkToken(Token::Type::SEMICOLON, tokens, iterator))
         {
             std::unique_ptr<ASTNode> decl(new ASTNode());
             decl->type = ASTNode::Type::DECLARATION_EMPTY;
@@ -101,17 +101,17 @@ bool ASTContext::parseStructDecl(const std::vector<Token>& tokens,
                                  std::vector<std::vector<ASTNode*>>& declarations,
                                  std::unique_ptr<ASTNode>& result)
 {
-    if (check(Token::Type::IDENTIFIER, tokens, iterator))
+    if (checkToken(Token::Type::IDENTIFIER, tokens, iterator))
     {
         result.reset(new ASTNode());
         result->type = ASTNode::Type::DECLARATION_STRUCT;
         result->name = (iterator - 1)->value;
 
-        if (check(Token::Type::LEFT_BRACE, tokens, iterator))
+        if (checkToken(Token::Type::LEFT_BRACE, tokens, iterator))
         {
             for (;;)
             {
-                if (check(Token::Type::RIGHT_BRACE, tokens, iterator))
+                if (checkToken(Token::Type::RIGHT_BRACE, tokens, iterator))
                 {
                     if (result->children.empty())
                     {
@@ -122,12 +122,12 @@ bool ASTContext::parseStructDecl(const std::vector<Token>& tokens,
                     declarations.back().push_back(result.get());
                     break;
                 }
-                else if (check(Token::Type::KEYWORD_VAR, tokens, iterator))
+                else if (checkToken(Token::Type::KEYWORD_VAR, tokens, iterator))
                 {
                     std::unique_ptr<ASTNode> field(new ASTNode());
                     field->type = ASTNode::Type::DECLARATION_FIELD;
 
-                    if (!check(Token::Type::IDENTIFIER, tokens, iterator))
+                    if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
                     {
                         std::cerr << "Expected an identifier" << std::endl;
                         return false;
@@ -135,13 +135,13 @@ bool ASTContext::parseStructDecl(const std::vector<Token>& tokens,
 
                     field->name = (iterator - 1)->value;
 
-                    if (!check(Token::Type::COLON, tokens, iterator))
+                    if (!checkToken(Token::Type::COLON, tokens, iterator))
                     {
                         std::cerr << "Expected a colon" << std::endl;
                         return false;
                     }
 
-                    if (!check(Token::Type::IDENTIFIER, tokens, iterator))
+                    if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
                     {
                         std::cerr << "Expected a type name" << std::endl;
                         return false;
@@ -149,30 +149,30 @@ bool ASTContext::parseStructDecl(const std::vector<Token>& tokens,
 
                     field->typeName = (iterator - 1)->value;
 
-                    if (check(Token::Type::LEFT_BRACKET, tokens, iterator)) // parse attributes
+                    if (checkToken(Token::Type::LEFT_BRACKET, tokens, iterator)) // parse attributes
                     {
                         bool firstAttribute = true;
 
                         for (;;)
                         {
-                            if (check(Token::Type::RIGHT_BRACKET, tokens, iterator))
+                            if (checkToken(Token::Type::RIGHT_BRACKET, tokens, iterator))
                             {
                                 break;
                             }
-                            else if ((firstAttribute || check(Token::Type::COMMA, tokens, iterator)) &&
-                                     check(Token::Type::IDENTIFIER, tokens, iterator))
+                            else if ((firstAttribute || checkToken(Token::Type::COMMA, tokens, iterator)) &&
+                                     checkToken(Token::Type::IDENTIFIER, tokens, iterator))
                             {
                                 firstAttribute = false;
 
                                 std::string attribute = (iterator - 1)->value;
 
-                                if (!check(Token::Type::OPERATOR_ASSIGNMENT, tokens, iterator))
+                                if (!checkToken(Token::Type::OPERATOR_ASSIGNMENT, tokens, iterator))
                                 {
                                     std::cerr << "Expected an equality sign" << std::endl;
                                     return false;
                                 }
 
-                                if (!check(Token::Type::IDENTIFIER, tokens, iterator))
+                                if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
                                 {
                                     std::cerr << "Expected an identifier" << std::endl;
                                     return false;
@@ -215,7 +215,7 @@ bool ASTContext::parseStructDecl(const std::vector<Token>& tokens,
                         }
                     }
 
-                    if (!check(Token::Type::SEMICOLON, tokens, iterator))
+                    if (!checkToken(Token::Type::SEMICOLON, tokens, iterator))
                     {
                         std::cerr << "Expected a semicolon" << std::endl;
                         return false;
@@ -230,7 +230,7 @@ bool ASTContext::parseStructDecl(const std::vector<Token>& tokens,
                 }
             }
         }
-        else if (check(Token::Type::SEMICOLON, tokens, iterator))
+        else if (checkToken(Token::Type::SEMICOLON, tokens, iterator))
         {
             declarations.back().push_back(result.get());
         }
@@ -252,7 +252,7 @@ bool ASTContext::parseTypedefDecl(const std::vector<Token>& tokens,
     std::cerr << "Typedef is not supported" << std::endl;
     return false;
 
-    /*if (!check(Token::Type::IDENTIFIER, tokens, iterator))
+    /*if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
     {
         std::cerr << "Expected a type name" << std::endl;
         return false;
@@ -262,7 +262,7 @@ bool ASTContext::parseTypedefDecl(const std::vector<Token>& tokens,
     result->type = ASTNode::Type::DECLARATION_TYPE_DEFINITION;
     result->typeName = (iterator - 1)->value;
 
-    if (!check(Token::Type::IDENTIFIER, tokens, iterator))
+    if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
     {
         std::cerr << "Expected a type name" << std::endl;
         return false;
@@ -270,7 +270,7 @@ bool ASTContext::parseTypedefDecl(const std::vector<Token>& tokens,
 
     result->name = (iterator - 1)->value;
 
-    if (!check(Token::Type::SEMICOLON, tokens, iterator))
+    if (!checkToken(Token::Type::SEMICOLON, tokens, iterator))
     {
         std::cerr << "Expected a semicolon" << std::endl;
         return false;
@@ -284,7 +284,7 @@ bool ASTContext::parseFunctionDecl(const std::vector<Token>& tokens,
                                    std::vector<std::vector<ASTNode*>>& declarations,
                                    std::unique_ptr<ASTNode>& result)
 {
-    if (!check(Token::Type::IDENTIFIER, tokens, iterator))
+    if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
     {
         std::cerr << "Expected a function name" << std::endl;
         return false;
@@ -294,7 +294,7 @@ bool ASTContext::parseFunctionDecl(const std::vector<Token>& tokens,
     result->type = ASTNode::Type::DECLARATION_FUNCTION;
     result->name = (iterator - 1)->value;
 
-    if (!check(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
+    if (!checkToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
     {
         std::cerr << "Unexpected end of function declaration" << std::endl;
         return false;
@@ -304,12 +304,12 @@ bool ASTContext::parseFunctionDecl(const std::vector<Token>& tokens,
 
     for (;;)
     {
-        if (check(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
+        if (checkToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
         {
             break;
         }
-        else if ((firstParameter || check(Token::Type::COMMA, tokens, iterator)) &&
-                 check(Token::Type::IDENTIFIER, tokens, iterator))
+        else if ((firstParameter || checkToken(Token::Type::COMMA, tokens, iterator)) &&
+                 checkToken(Token::Type::IDENTIFIER, tokens, iterator))
         {
             firstParameter = false;
 
@@ -317,13 +317,13 @@ bool ASTContext::parseFunctionDecl(const std::vector<Token>& tokens,
             parameter->type = ASTNode::Type::DECLARATION_PARAMETER;
             parameter->name = (iterator - 1)->value;
 
-            if (!check(Token::Type::COLON, tokens, iterator))
+            if (!checkToken(Token::Type::COLON, tokens, iterator))
             {
                 std::cerr << "Expected a colon" << std::endl;
                 return false;
             }
 
-            if (!check(Token::Type::IDENTIFIER, tokens, iterator))
+            if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
             {
                 std::cerr << "Expected a type name" << std::endl;
                 return false;
@@ -339,13 +339,13 @@ bool ASTContext::parseFunctionDecl(const std::vector<Token>& tokens,
         }
     }
 
-    if (!check(Token::Type::COLON, tokens, iterator))
+    if (!checkToken(Token::Type::COLON, tokens, iterator))
     {
         std::cerr << "Expected a colon" << std::endl;
         return false;
     }
 
-    if (!check(Token::Type::IDENTIFIER, tokens, iterator))
+    if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
     {
         std::cerr << "Expected a type name" << std::endl;
         return false;
@@ -353,7 +353,7 @@ bool ASTContext::parseFunctionDecl(const std::vector<Token>& tokens,
 
     result->typeName = (iterator - 1)->value;
 
-    if (check(Token::Type::LEFT_BRACE, tokens, iterator))
+    if (checkToken(Token::Type::LEFT_BRACE, tokens, iterator))
     {
         declarations.back().push_back(result.get());
 
@@ -367,7 +367,7 @@ bool ASTContext::parseFunctionDecl(const std::vector<Token>& tokens,
 
         result->children.push_back(std::move(compound));
     }
-    else if (check(Token::Type::SEMICOLON, tokens, iterator))
+    else if (checkToken(Token::Type::SEMICOLON, tokens, iterator))
     {
         declarations.back().push_back(result.get());
     }
@@ -397,11 +397,11 @@ bool ASTContext::parseVariableDecl(const std::vector<Token>& tokens,
         --iterator;
     }
 
-    if (check(Token::Type::KEYWORD_CONST, tokens, iterator))
+    if (checkToken(Token::Type::KEYWORD_CONST, tokens, iterator))
     {
         result->isConst = true;
     }
-    else if (check(Token::Type::KEYWORD_VAR, tokens, iterator))
+    else if (checkToken(Token::Type::KEYWORD_VAR, tokens, iterator))
     {
         result->isConst = false;
     }
@@ -411,7 +411,7 @@ bool ASTContext::parseVariableDecl(const std::vector<Token>& tokens,
         return false;
     }
 
-    if (!check(Token::Type::IDENTIFIER, tokens, iterator))
+    if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
     {
         std::cerr << "Unexpected end of variable declaration" << std::endl;
         return false;
@@ -419,13 +419,13 @@ bool ASTContext::parseVariableDecl(const std::vector<Token>& tokens,
 
     result->name = (iterator - 1)->value;
 
-    if (!check(Token::Type::COLON, tokens, iterator))
+    if (!checkToken(Token::Type::COLON, tokens, iterator))
     {
         std::cerr << "Expected a colon" << std::endl;
         return false;
     }
 
-    if (!check(Token::Type::IDENTIFIER, tokens, iterator))
+    if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
     {
         std::cerr << "Expected a type name" << std::endl;
         return false;
@@ -433,7 +433,7 @@ bool ASTContext::parseVariableDecl(const std::vector<Token>& tokens,
 
     result->typeName = (iterator - 1)->value;
 
-    if (check(Token::Type::OPERATOR_ASSIGNMENT, tokens, iterator))
+    if (checkToken(Token::Type::OPERATOR_ASSIGNMENT, tokens, iterator))
     {
         std::unique_ptr<ASTNode> expression;
         if (!parseExpression(tokens, iterator, declarations, expression))
@@ -443,7 +443,7 @@ bool ASTContext::parseVariableDecl(const std::vector<Token>& tokens,
 
         result->children.push_back(std::move(expression));
     }
-    else if (check(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
+    else if (checkToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
     {
         std::unique_ptr<ASTNode> expression;
         if (!parseExpression(tokens, iterator, declarations, expression))
@@ -451,7 +451,7 @@ bool ASTContext::parseVariableDecl(const std::vector<Token>& tokens,
             return false;
         }
 
-        if (!check(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
+        if (!checkToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
         {
             std::cerr << "Expected a right parenthesis" << std::endl;
             return false;
@@ -476,7 +476,7 @@ bool ASTContext::parseCompoundStatement(const std::vector<Token>& tokens,
 
     for (;;)
     {
-        if (check(Token::Type::RIGHT_BRACE, tokens, iterator))
+        if (checkToken(Token::Type::RIGHT_BRACE, tokens, iterator))
         {
             declarations.pop_back();
             break;
@@ -502,22 +502,22 @@ bool ASTContext::parseStatement(const std::vector<Token>& tokens,
                                 std::vector<std::vector<ASTNode*>>& declarations,
                                 std::unique_ptr<ASTNode>& result)
 {
-    if (check(Token::Type::LEFT_BRACE, tokens, iterator))
+    if (checkToken(Token::Type::LEFT_BRACE, tokens, iterator))
     {
         return parseCompoundStatement(tokens, iterator, declarations, result);
     }
-    else if (check(Token::Type::KEYWORD_IF, tokens, iterator))
+    else if (checkToken(Token::Type::KEYWORD_IF, tokens, iterator))
     {
         result.reset(new ASTNode());
         result->type = ASTNode::Type::STATEMENT_IF;
 
-        if (!check(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
+        if (!checkToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
         {
             std::cerr << "Expected a left parenthesis" << std::endl;
             return false;
         }
 
-        if (check(Token::Type::KEYWORD_VAR, tokens, iterator))
+        if (checkToken(Token::Type::KEYWORD_VAR, tokens, iterator))
         {
             std::unique_ptr<ASTNode> declaration;
             if (!parseVariableDecl(tokens, iterator, declarations, declaration))
@@ -538,7 +538,7 @@ bool ASTContext::parseStatement(const std::vector<Token>& tokens,
             result->children.push_back(std::move(expression));
         }
 
-        if (!check(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
+        if (!checkToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
         {
             std::cerr << "Expected a right parenthesis" << std::endl;
             return false;
@@ -552,12 +552,12 @@ bool ASTContext::parseStatement(const std::vector<Token>& tokens,
 
         result->children.push_back(std::move(statement));
     }
-    else if (check(Token::Type::KEYWORD_FOR, tokens, iterator))
+    else if (checkToken(Token::Type::KEYWORD_FOR, tokens, iterator))
     {
         result.reset(new ASTNode());
         result->type = ASTNode::Type::STATEMENT_FOR;
 
-        if (!check(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
+        if (!checkToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
         {
             std::cerr << "Expected a left parenthesis" << std::endl;
             return false;
@@ -565,20 +565,20 @@ bool ASTContext::parseStatement(const std::vector<Token>& tokens,
 
         std::unique_ptr<ASTNode> node;
 
-        if (check(Token::Type::KEYWORD_VAR, tokens, iterator))
+        if (checkToken(Token::Type::KEYWORD_VAR, tokens, iterator))
         {
             if (!parseVariableDecl(tokens, iterator, declarations, node))
             {
                 return false;
             }
 
-            if (!check(Token::Type::SEMICOLON, tokens, iterator))
+            if (!checkToken(Token::Type::SEMICOLON, tokens, iterator))
             {
                 std::cerr << "Expected a semicolon" << std::endl;
                 return false;
             }
         }
-        else if (check(Token::Type::SEMICOLON, tokens, iterator))
+        else if (checkToken(Token::Type::SEMICOLON, tokens, iterator))
         {
             node.reset(new ASTNode());
             node->type = ASTNode::Type::NONE;
@@ -590,7 +590,7 @@ bool ASTContext::parseStatement(const std::vector<Token>& tokens,
                 return false;
             }
 
-            if (!check(Token::Type::SEMICOLON, tokens, iterator))
+            if (!checkToken(Token::Type::SEMICOLON, tokens, iterator))
             {
                 std::cerr << "Expected a semicolon" << std::endl;
                 return false;
@@ -599,20 +599,20 @@ bool ASTContext::parseStatement(const std::vector<Token>& tokens,
 
         result->children.push_back(std::move(node));
 
-        if (check(Token::Type::KEYWORD_VAR, tokens, iterator))
+        if (checkToken(Token::Type::KEYWORD_VAR, tokens, iterator))
         {
             if (!parseVariableDecl(tokens, iterator, declarations, node))
             {
                 return false;
             }
 
-            if (!check(Token::Type::SEMICOLON, tokens, iterator))
+            if (!checkToken(Token::Type::SEMICOLON, tokens, iterator))
             {
                 std::cerr << "Expected a semicolon" << std::endl;
                 return false;
             }
         }
-        else if (check(Token::Type::SEMICOLON, tokens, iterator))
+        else if (checkToken(Token::Type::SEMICOLON, tokens, iterator))
         {
             node.reset(new ASTNode());
             node->type = ASTNode::Type::NONE;
@@ -624,7 +624,7 @@ bool ASTContext::parseStatement(const std::vector<Token>& tokens,
                 return false;
             }
 
-            if (!check(Token::Type::SEMICOLON, tokens, iterator))
+            if (!checkToken(Token::Type::SEMICOLON, tokens, iterator))
             {
                 std::cerr << "Expected a semicolon" << std::endl;
                 return false;
@@ -633,20 +633,20 @@ bool ASTContext::parseStatement(const std::vector<Token>& tokens,
 
         result->children.push_back(std::move(node));
 
-        if (check(Token::Type::KEYWORD_VAR, tokens, iterator))
+        if (checkToken(Token::Type::KEYWORD_VAR, tokens, iterator))
         {
             if (!parseVariableDecl(tokens, iterator, declarations, node))
             {
                 return false;
             }
 
-            if (!check(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
+            if (!checkToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
             {
                 std::cerr << "Expected a right parenthesis" << std::endl;
                 return false;
             }
         }
-        else if (check(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
+        else if (checkToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
         {
             node.reset(new ASTNode());
             node->type = ASTNode::Type::NONE;
@@ -658,7 +658,7 @@ bool ASTContext::parseStatement(const std::vector<Token>& tokens,
                 return false;
             }
 
-            if (!check(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
+            if (!checkToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
             {
                 std::cerr << "Expected a right parenthesis" << std::endl;
                 return false;
@@ -675,18 +675,18 @@ bool ASTContext::parseStatement(const std::vector<Token>& tokens,
 
         result->children.push_back(std::move(statement));
     }
-    else if (check(Token::Type::KEYWORD_SWITCH, tokens, iterator))
+    else if (checkToken(Token::Type::KEYWORD_SWITCH, tokens, iterator))
     {
         result.reset(new ASTNode());
         result->type = ASTNode::Type::STATEMENT_SWITCH;
 
-        if (!check(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
+        if (!checkToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
         {
             std::cerr << "Expected a left parenthesis" << std::endl;
             return false;
         }
 
-        if (check(Token::Type::KEYWORD_VAR, tokens, iterator))
+        if (checkToken(Token::Type::KEYWORD_VAR, tokens, iterator))
         {
             std::unique_ptr<ASTNode> declaration;
             if (!parseVariableDecl(tokens, iterator, declarations, declaration))
@@ -707,7 +707,7 @@ bool ASTContext::parseStatement(const std::vector<Token>& tokens,
             result->children.push_back(std::move(expression));
         }
 
-        if (!check(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
+        if (!checkToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
         {
             std::cerr << "Expected a right parenthesis" << std::endl;
             return false;
@@ -721,12 +721,12 @@ bool ASTContext::parseStatement(const std::vector<Token>& tokens,
 
         result->children.push_back(std::move(statement));
     }
-    else if (check(Token::Type::KEYWORD_CASE, tokens, iterator))
+    else if (checkToken(Token::Type::KEYWORD_CASE, tokens, iterator))
     {
         result.reset(new ASTNode());
         result->type = ASTNode::Type::STATEMENT_CASE;
 
-        if (!check(Token::Type::LITERAL_INT, tokens, iterator))
+        if (!checkToken(Token::Type::LITERAL_INT, tokens, iterator))
         {
             std::cerr << "Expected an integer literal" << std::endl;
             return false;
@@ -734,7 +734,7 @@ bool ASTContext::parseStatement(const std::vector<Token>& tokens,
 
         result->value = (iterator - 1)->value;
 
-        if (!check(Token::Type::COLON, tokens, iterator))
+        if (!checkToken(Token::Type::COLON, tokens, iterator))
         {
             std::cerr << "Expected a colon" << std::endl;
             return false;
@@ -748,18 +748,18 @@ bool ASTContext::parseStatement(const std::vector<Token>& tokens,
 
         result->children.push_back(std::move(statement));
     }
-    else if (check(Token::Type::KEYWORD_WHILE, tokens, iterator))
+    else if (checkToken(Token::Type::KEYWORD_WHILE, tokens, iterator))
     {
         result.reset(new ASTNode());
         result->type = ASTNode::Type::STATEMENT_WHILE;
 
-        if (!check(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
+        if (!checkToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
         {
             std::cerr << "Expected a left parenthesis" << std::endl;
             return false;
         }
 
-        if (check(Token::Type::KEYWORD_VAR, tokens, iterator))
+        if (checkToken(Token::Type::KEYWORD_VAR, tokens, iterator))
         {
             std::unique_ptr<ASTNode> declaration;
             if (!parseVariableDecl(tokens, iterator, declarations, declaration))
@@ -780,7 +780,7 @@ bool ASTContext::parseStatement(const std::vector<Token>& tokens,
             result->children.push_back(std::move(expression));
         }
 
-        if (!check(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
+        if (!checkToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
         {
             std::cerr << "Expected a right parenthesis" << std::endl;
             return false;
@@ -794,7 +794,7 @@ bool ASTContext::parseStatement(const std::vector<Token>& tokens,
 
         result->children.push_back(std::move(statement));
     }
-    else if (check(Token::Type::KEYWORD_DO, tokens, iterator))
+    else if (checkToken(Token::Type::KEYWORD_DO, tokens, iterator))
     {
         result.reset(new ASTNode());
         result->type = ASTNode::Type::STATEMENT_DO;
@@ -807,13 +807,13 @@ bool ASTContext::parseStatement(const std::vector<Token>& tokens,
 
         result->children.push_back(std::move(statement));
 
-        if (!check(Token::Type::KEYWORD_WHILE, tokens, iterator))
+        if (!checkToken(Token::Type::KEYWORD_WHILE, tokens, iterator))
         {
             std::cerr << "Expected a \"while\" keyword" << std::endl;
             return false;
         }
 
-        if (!check(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
+        if (!checkToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
         {
             std::cerr << "Expected a left parenthesis" << std::endl;
             return false;
@@ -828,41 +828,41 @@ bool ASTContext::parseStatement(const std::vector<Token>& tokens,
 
         result->children.push_back(std::move(expression));
 
-        if (!check(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
+        if (!checkToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
         {
             std::cerr << "Expected a right parenthesis" << std::endl;
             return false;
         }
 
-        if (!check(Token::Type::SEMICOLON, tokens, iterator))
+        if (!checkToken(Token::Type::SEMICOLON, tokens, iterator))
         {
             std::cerr << "Expected a semicolon" << std::endl;
             return false;
         }
     }
-    else if (check(Token::Type::KEYWORD_BREAK, tokens, iterator))
+    else if (checkToken(Token::Type::KEYWORD_BREAK, tokens, iterator))
     {
         result.reset(new ASTNode());
         result->type = ASTNode::Type::STATEMENT_BREAK;
 
-        if (!check(Token::Type::SEMICOLON, tokens, iterator))
+        if (!checkToken(Token::Type::SEMICOLON, tokens, iterator))
         {
             std::cerr << "Expected a semicolon" << std::endl;
             return false;
         }
     }
-    else if (check(Token::Type::KEYWORD_CONTINUE, tokens, iterator))
+    else if (checkToken(Token::Type::KEYWORD_CONTINUE, tokens, iterator))
     {
         result.reset(new ASTNode());
         result->type = ASTNode::Type::STATEMENT_CONTINUE;
 
-        if (!check(Token::Type::SEMICOLON, tokens, iterator))
+        if (!checkToken(Token::Type::SEMICOLON, tokens, iterator))
         {
             std::cerr << "Expected a semicolon" << std::endl;
             return false;
         }
     }
-    else if (check(Token::Type::KEYWORD_RETURN, tokens, iterator))
+    else if (checkToken(Token::Type::KEYWORD_RETURN, tokens, iterator))
     {
         result.reset(new ASTNode());
         result->type = ASTNode::Type::STATEMENT_RETURN;
@@ -876,20 +876,20 @@ bool ASTContext::parseStatement(const std::vector<Token>& tokens,
 
         result->children.push_back(std::move(expression));
 
-        if (!check(Token::Type::SEMICOLON, tokens, iterator))
+        if (!checkToken(Token::Type::SEMICOLON, tokens, iterator))
         {
             std::cerr << "Expected a semicolon" << std::endl;
             return false;
         }
     }
-    else if (check({Token::Type::KEYWORD_STATIC, Token::Type::KEYWORD_CONST, Token::Type::KEYWORD_VAR}, tokens, iterator))
+    else if (checkTokens({Token::Type::KEYWORD_STATIC, Token::Type::KEYWORD_CONST, Token::Type::KEYWORD_VAR}, tokens, iterator))
     {
         if (!parseVariableDecl(tokens, iterator, declarations, result))
         {
             return false;
         }
 
-        if (!check(Token::Type::SEMICOLON, tokens, iterator))
+        if (!checkToken(Token::Type::SEMICOLON, tokens, iterator))
         {
             std::cerr << "Expected a semicolon" << std::endl;
             return false;
@@ -908,7 +908,7 @@ bool ASTContext::parseStatement(const std::vector<Token>& tokens,
 
         result->children.push_back(std::move(expression));
 
-        if (!check(Token::Type::SEMICOLON, tokens, iterator))
+        if (!checkToken(Token::Type::SEMICOLON, tokens, iterator))
         {
             std::cerr << "Expected a semicolon" << std::endl;
             return false;
@@ -936,7 +936,7 @@ bool ASTContext::parseMultiplicationAssignment(const std::vector<Token>& tokens,
         return false;
     }
 
-    while (check({Token::Type::OPERATOR_MULTIPLY_ASSIGNMENT, Token::Type::OPERATOR_DIVIDE_ASSIGNMENT}, tokens, iterator))
+    while (checkTokens({Token::Type::OPERATOR_MULTIPLY_ASSIGNMENT, Token::Type::OPERATOR_DIVIDE_ASSIGNMENT}, tokens, iterator))
     {
         std::unique_ptr<ASTNode> expression(new ASTNode());
         expression->type = ASTNode::Type::OPERATOR_BINARY;
@@ -967,7 +967,7 @@ bool ASTContext::parseAdditionAssignment(const std::vector<Token>& tokens,
         return false;
     }
 
-    while (check({Token::Type::OPERATOR_PLUS_ASSIGNMENT, Token::Type::OPERATOR_MINUS_ASSIGNMENT}, tokens, iterator))
+    while (checkTokens({Token::Type::OPERATOR_PLUS_ASSIGNMENT, Token::Type::OPERATOR_MINUS_ASSIGNMENT}, tokens, iterator))
     {
         std::unique_ptr<ASTNode> expression(new ASTNode());
         expression->type = ASTNode::Type::OPERATOR_BINARY;
@@ -998,7 +998,7 @@ bool ASTContext::parseAssignment(const std::vector<Token>& tokens,
         return false;
     }
 
-    while (check(Token::Type::OPERATOR_ASSIGNMENT, tokens, iterator))
+    while (checkToken(Token::Type::OPERATOR_ASSIGNMENT, tokens, iterator))
     {
         std::unique_ptr<ASTNode> expression(new ASTNode());
         expression->type = ASTNode::Type::OPERATOR_BINARY;
@@ -1029,7 +1029,7 @@ bool ASTContext::parseTernary(const std::vector<Token>& tokens,
         return false;
     }
 
-    while (check(Token::Type::OPERATOR_CONDITIONAL, tokens, iterator))
+    while (checkToken(Token::Type::OPERATOR_CONDITIONAL, tokens, iterator))
     {
         std::unique_ptr<ASTNode> expression(new ASTNode());
         expression->type = ASTNode::Type::OPERATOR_TERNARY;
@@ -1041,7 +1041,7 @@ bool ASTContext::parseTernary(const std::vector<Token>& tokens,
             return false;
         }
 
-        if (!check(Token::Type::COLON, tokens, iterator))
+        if (!checkToken(Token::Type::COLON, tokens, iterator))
         {
             std::cerr << "Expected a colon" << std::endl;
             return false;
@@ -1073,7 +1073,7 @@ bool ASTContext::parseEquality(const std::vector<Token>& tokens,
         return false;
     }
 
-    while (check({Token::Type::OPERATOR_EQUAL, Token::Type::OPERATOR_NOT_EQUAL}, tokens, iterator))
+    while (checkTokens({Token::Type::OPERATOR_EQUAL, Token::Type::OPERATOR_NOT_EQUAL}, tokens, iterator))
     {
         std::unique_ptr<ASTNode> expression(new ASTNode());
         expression->type = ASTNode::Type::OPERATOR_BINARY;
@@ -1104,7 +1104,7 @@ bool ASTContext::parseGreaterThan(const std::vector<Token>& tokens,
         return false;
     }
 
-    while (check({Token::Type::OPERATOR_GREATER_THAN, Token::Type::OPERATOR_GREATER_THAN_EQUAL}, tokens, iterator))
+    while (checkTokens({Token::Type::OPERATOR_GREATER_THAN, Token::Type::OPERATOR_GREATER_THAN_EQUAL}, tokens, iterator))
     {
         std::unique_ptr<ASTNode> expression(new ASTNode());
         expression->type = ASTNode::Type::OPERATOR_BINARY;
@@ -1135,7 +1135,7 @@ bool ASTContext::parseLessThan(const std::vector<Token>& tokens,
         return false;
     }
 
-    while (check({Token::Type::OPERATOR_LESS_THAN, Token::Type::OPERATOR_LESS_THAN_EQUAL}, tokens, iterator))
+    while (checkTokens({Token::Type::OPERATOR_LESS_THAN, Token::Type::OPERATOR_LESS_THAN_EQUAL}, tokens, iterator))
     {
         std::unique_ptr<ASTNode> expression(new ASTNode());
         expression->type = ASTNode::Type::OPERATOR_BINARY;
@@ -1166,7 +1166,7 @@ bool ASTContext::parseAddition(const std::vector<Token>& tokens,
         return false;
     }
 
-    while (check({Token::Type::OPERATOR_PLUS, Token::Type::OPERATOR_MINUS}, tokens, iterator))
+    while (checkTokens({Token::Type::OPERATOR_PLUS, Token::Type::OPERATOR_MINUS}, tokens, iterator))
     {
         std::unique_ptr<ASTNode> expression(new ASTNode());
         expression->type = ASTNode::Type::OPERATOR_BINARY;
@@ -1197,7 +1197,7 @@ bool ASTContext::parseMultiplication(const std::vector<Token>& tokens,
         return false;
     }
 
-    while (check({Token::Type::OPERATOR_MULTIPLY, Token::Type::OPERATOR_DIVIDE}, tokens, iterator))
+    while (checkTokens({Token::Type::OPERATOR_MULTIPLY, Token::Type::OPERATOR_DIVIDE}, tokens, iterator))
     {
         std::unique_ptr<ASTNode> expression(new ASTNode());
         expression->type = ASTNode::Type::OPERATOR_BINARY;
@@ -1223,7 +1223,7 @@ bool ASTContext::parseUnary(const std::vector<Token>& tokens,
                             std::vector<std::vector<ASTNode*>>& declarations,
                             std::unique_ptr<ASTNode>& result)
 {
-    if (check({Token::Type::OPERATOR_PLUS, Token::Type::OPERATOR_MINUS, Token::Type::OPERATOR_NOT}, tokens, iterator))
+    if (checkTokens({Token::Type::OPERATOR_PLUS, Token::Type::OPERATOR_MINUS, Token::Type::OPERATOR_NOT}, tokens, iterator))
     {
         result.reset(new ASTNode());
         result->type = ASTNode::Type::OPERATOR_UNARY;
@@ -1258,7 +1258,7 @@ bool ASTContext::parseMember(const std::vector<Token>& tokens,
         return false;
     }
 
-    while (check(Token::Type::OPERATOR_DOT, tokens, iterator))
+    while (checkToken(Token::Type::OPERATOR_DOT, tokens, iterator))
     {
         std::unique_ptr<ASTNode> expression(new ASTNode());
         expression->type = ASTNode::Type::EXPRESSION_MEMBER;
@@ -1284,37 +1284,37 @@ bool ASTContext::parsePrimary(const std::vector<Token>& tokens,
                               std::vector<std::vector<ASTNode*>>& declarations,
                               std::unique_ptr<ASTNode>& result)
 {
-    if (check(Token::Type::LITERAL_INT, tokens, iterator))
+    if (checkToken(Token::Type::LITERAL_INT, tokens, iterator))
     {
         result.reset(new ASTNode());
         result->type = ASTNode::Type::EXPRESSION_LITERAL;
         result->typeName = "int";
         result->value = (iterator - 1)->value;
     }
-    else if (check(Token::Type::LITERAL_FLOAT, tokens, iterator))
+    else if (checkToken(Token::Type::LITERAL_FLOAT, tokens, iterator))
     {
         result.reset(new ASTNode());
         result->type = ASTNode::Type::EXPRESSION_LITERAL;
         result->typeName = "float";
         result->value = (iterator - 1)->value;
     }
-    else if (check(Token::Type::LITERAL_STRING, tokens, iterator))
+    else if (checkToken(Token::Type::LITERAL_STRING, tokens, iterator))
     {
         result.reset(new ASTNode());
         result->type = ASTNode::Type::EXPRESSION_LITERAL;
         result->typeName = "string";
         result->value = (iterator - 1)->value;
     }
-    else if (check({Token::Type::KEYWORD_TRUE, Token::Type::KEYWORD_FALSE}, tokens, iterator))
+    else if (checkTokens({Token::Type::KEYWORD_TRUE, Token::Type::KEYWORD_FALSE}, tokens, iterator))
     {
         result.reset(new ASTNode());
         result->type = ASTNode::Type::EXPRESSION_LITERAL;
         result->typeName = "bool";
         result->value = (iterator - 1)->value;
     }
-    else if (check(Token::Type::IDENTIFIER, tokens, iterator))
+    else if (checkToken(Token::Type::IDENTIFIER, tokens, iterator))
     {
-        if (check(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
+        if (checkToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
         {
             result.reset(new ASTNode());
             result->type = ASTNode::Type::EXPRESSION_CALL;
@@ -1325,11 +1325,11 @@ bool ASTContext::parsePrimary(const std::vector<Token>& tokens,
 
             for (;;)
             {
-                if (check(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
+                if (checkToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
                 {
                     break;
                 }
-                else if ((firstParameter || check(Token::Type::COMMA, tokens, iterator)) &&
+                else if ((firstParameter || checkToken(Token::Type::COMMA, tokens, iterator)) &&
                          parseExpression(tokens, iterator, declarations, parameter))
                 {
                     firstParameter = false;
@@ -1343,7 +1343,7 @@ bool ASTContext::parsePrimary(const std::vector<Token>& tokens,
                 }
             }
         }
-        else if (check(Token::Type::LEFT_BRACKET, tokens, iterator))
+        else if (checkToken(Token::Type::LEFT_BRACKET, tokens, iterator))
         {
             result.reset(new ASTNode());
             result->type = ASTNode::Type::EXPRESSION_ARRAY_SUBSCRIPT;
@@ -1356,7 +1356,7 @@ bool ASTContext::parsePrimary(const std::vector<Token>& tokens,
                 return false;
             }
 
-            if (!check(Token::Type::RIGHT_BRACKET, tokens, iterator))
+            if (!checkToken(Token::Type::RIGHT_BRACKET, tokens, iterator))
             {
                 std::cerr << "Expected a right brace" << std::endl;
                 return false;
@@ -1371,7 +1371,7 @@ bool ASTContext::parsePrimary(const std::vector<Token>& tokens,
             result->name = (iterator - 1)->value;
         }
     }
-    else if (check(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
+    else if (checkToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
     {
         result.reset(new ASTNode());
         result->type = ASTNode::Type::EXPRESSION_PAREN;
@@ -1383,7 +1383,7 @@ bool ASTContext::parsePrimary(const std::vector<Token>& tokens,
             return false;
         }
 
-        if (!check(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
+        if (!checkToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
         {
             std::cerr << "Expected a right parenthesis" << std::endl;
             return false;
