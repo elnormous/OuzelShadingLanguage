@@ -88,7 +88,6 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
         case ASTNode::Type::DECLARATION_FIELD:
         {
             code += prefix + node->typeName + " " + node->name + ";\n";
-
             break;
         }
 
@@ -158,13 +157,13 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
 
         case ASTNode::Type::EXPRESSION_LITERAL:
         {
-            code += node->value;
+            code += prefix + node->value;
             break;
         }
 
         case ASTNode::Type::EXPRESSION_DECLARATION_REFERENCE:
         {
-            code += node->name;
+            code += prefix + node->name;
             break;
         }
 
@@ -260,6 +259,7 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
 
         case ASTNode::Type::STATEMENT_CASE:
         {
+            code += prefix + "case " + node->value + ":\n";
             break;
         }
 
@@ -279,24 +279,26 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
 
         case ASTNode::Type::STATEMENT_DO:
         {
+            code += prefix + "do\n";
+            code += prefix + "while ()\n";
             break;
         }
 
         case ASTNode::Type::STATEMENT_BREAK:
         {
-            code += "break;";
+            code += prefix + "break;\n";
             break;
         }
 
         case ASTNode::Type::STATEMENT_CONTINUE:
         {
-            code += "continue;";
+            code += prefix + "continue;\n";
             break;
         }
 
         case ASTNode::Type::STATEMENT_RETURN:
         {
-            code += "return;";
+            code += prefix + "return;\n";
             break;
         }
 
@@ -317,6 +319,16 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
 
         case ASTNode::Type::OPERATOR_UNARY:
         {
+            code += prefix + node->value;
+
+            for (std::unique_ptr<ASTNode>& child : node->children)
+            {
+                if (!printNode(child, "", code))
+                {
+                    return false;
+                }
+            }
+
             break;
         }
 
