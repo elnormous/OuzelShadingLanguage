@@ -92,11 +92,6 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
             break;
         }
 
-        case ASTNode::Type::DECLARATION_TYPE_DEFINITION:
-        {
-            break;
-        }
-
         case ASTNode::Type::DECLARATION_FUNCTION:
         {
             code += prefix + node->typeName + " " + node->name + "(";

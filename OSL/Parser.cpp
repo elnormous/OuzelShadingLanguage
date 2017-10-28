@@ -249,7 +249,10 @@ bool ASTContext::parseTypedefDecl(const std::vector<Token>& tokens,
                                   std::vector<std::vector<ASTNode*>>& declarations,
                                   std::unique_ptr<ASTNode>& result)
 {
-    if (!check(Token::Type::IDENTIFIER, tokens, iterator))
+    std::cerr << "Typedef is not supported" << std::endl;
+    return false;
+
+    /*if (!check(Token::Type::IDENTIFIER, tokens, iterator))
     {
         std::cerr << "Expected a type name" << std::endl;
         return false;
@@ -273,7 +276,7 @@ bool ASTContext::parseTypedefDecl(const std::vector<Token>& tokens,
         return false;
     }
 
-    return true;
+    return true;*/
 }
 
 bool ASTContext::parseFunctionDecl(const std::vector<Token>& tokens,
