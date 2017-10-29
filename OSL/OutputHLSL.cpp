@@ -50,6 +50,8 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
                 {
                     return false;
                 }
+
+                code += "\n";
             }
             break;
         }
@@ -65,7 +67,7 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
 
             if (node->children.empty())
             {
-                code += ";\n";
+                code += ";";
             }
             else
             {
@@ -77,9 +79,11 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
                     {
                         return false;
                     }
+
+                    code += "\n";
                 }
 
-                code += prefix + "};\n";
+                code += prefix + "};";
             }
 
             break;
@@ -87,7 +91,7 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
 
         case ASTNode::Type::DECLARATION_FIELD:
         {
-            code += prefix + node->typeName + " " + node->name + ";\n";
+            code += prefix + node->typeName + " " + node->name + ";";
             break;
         }
 
@@ -108,7 +112,7 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
 
             if (i == node->children.cend())
             {
-                code += ");\n"; // does not have a definition
+                code += ");"; // does not have a definition
             }
             else
             {
@@ -128,7 +132,7 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
 
         case ASTNode::Type::DECLARATION_VARIABLE:
         {
-            code += prefix + node->typeName + " " + node->name + ";\n";
+            code += prefix + node->typeName + " " + node->name + ";";
             break;
         }
 
@@ -209,19 +213,37 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
                 {
                     return false;
                 }
+
+                code += "\n";
             }
 
-            code += prefix + "}\n";
+            code += prefix + "}";
             break;
         }
 
         case ASTNode::Type::STATEMENT_IF:
         {
-            code += prefix + "if ()";
+            code += prefix + "if (";
 
-            for (std::unique_ptr<ASTNode>& child : node->children)
+            auto i = node->children.cbegin();
+
+            if (i == node->children.end())
             {
-                if (!printNode(child, prefix + "    ", code))
+                std::cerr << "Expected a condition" << std::endl;
+                return false;
+            }
+
+            if (!printNode(*i, "", code))
+            {
+                return false;
+            }
+
+            code += ")\n";
+            ++i;
+
+            for (; i != node->children.end(); ++i)
+            {
+                if (!printNode(*i, (*i)->type == ASTNode::Type::STATEMENT_COMPOUND ? prefix : (prefix + "    "), code))
                 {
                     return false;
                 }
@@ -231,11 +253,55 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
 
         case ASTNode::Type::STATEMENT_FOR:
         {
-            code += prefix + "for ()";
+            code += prefix + "for (";
 
-            for (std::unique_ptr<ASTNode>& child : node->children)
+            auto i = node->children.cbegin();
+
+            if (i == node->children.end())
             {
-                if (!printNode(child, prefix + "    ", code))
+                std::cerr << "Expected an initialization" << std::endl;
+                return false;
+            }
+
+            if (!printNode(*i, "", code))
+            {
+                return false;
+            }
+
+            code += "; ";
+            ++i;
+
+            if (i == node->children.end())
+            {
+                std::cerr << "Expected a condition" << std::endl;
+                return false;
+            }
+
+            if (!printNode(*i, "", code))
+            {
+                return false;
+            }
+
+            code += "; ";
+            ++i;
+
+            if (i == node->children.end())
+            {
+                std::cerr << "Expected an increment" << std::endl;
+                return false;
+            }
+
+            if (!printNode(*i, "", code))
+            {
+                return false;
+            }
+
+            code += ")\n";
+            ++i;
+
+            for (; i != node->children.end(); ++i)
+            {
+                if (!printNode(*i, (*i)->type == ASTNode::Type::STATEMENT_COMPOUND ? prefix : (prefix + "    "), code))
                 {
                     return false;
                 }
@@ -245,11 +311,27 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
 
         case ASTNode::Type::STATEMENT_SWITCH:
         {
-            code += prefix + "switch ()";
+            code += prefix + "switch (";
 
-            for (std::unique_ptr<ASTNode>& child : node->children)
+            auto i = node->children.cbegin();
+
+            if (i == node->children.end())
             {
-                if (!printNode(child, prefix + "    ", code))
+                std::cerr << "Expected a condition" << std::endl;
+                return false;
+            }
+
+            if (!printNode(*i, "", code))
+            {
+                return false;
+            }
+
+            code += ")\n";
+            ++i;
+
+            for (; i != node->children.end(); ++i)
+            {
+                if (!printNode(*i, (*i)->type == ASTNode::Type::STATEMENT_COMPOUND ? prefix : (prefix + "    "), code))
                 {
                     return false;
                 }
@@ -260,16 +342,40 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
         case ASTNode::Type::STATEMENT_CASE:
         {
             code += prefix + "case " + node->value + ":\n";
+
+            for (auto i = node->children.cbegin(); i != node->children.end(); ++i)
+            {
+                if (!printNode(*i, (*i)->type == ASTNode::Type::STATEMENT_COMPOUND ? prefix : (prefix + "    "), code))
+                {
+                    return false;
+                }
+            }
             break;
         }
 
         case ASTNode::Type::STATEMENT_WHILE:
         {
-            code += prefix + "while ()";
+            code += prefix + "while (";
 
-            for (std::unique_ptr<ASTNode>& child : node->children)
+            auto i = node->children.cbegin();
+
+            if (i == node->children.end())
             {
-                if (!printNode(child, prefix + "    ", code))
+                std::cerr << "Expected a condition" << std::endl;
+                return false;
+            }
+
+            if (!printNode(*i, "", code))
+            {
+                return false;
+            }
+
+            code += ")\n";
+            ++i;
+
+            for (; i != node->children.end(); ++i)
+            {
+                if (!printNode(*i, (*i)->type == ASTNode::Type::STATEMENT_COMPOUND ? prefix : (prefix + "    "), code))
                 {
                     return false;
                 }
@@ -280,25 +386,51 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
         case ASTNode::Type::STATEMENT_DO:
         {
             code += prefix + "do\n";
-            code += prefix + "while ()\n";
+
+            auto i = node->children.cbegin();
+            if (i == node->children.end())
+            {
+                std::cerr << "Expected a statement" << std::endl;
+                return false;
+            }
+
+            for (; i + 1 != node->children.end(); ++i)
+            {
+                if (!printNode(*i, (*i)->type == ASTNode::Type::STATEMENT_COMPOUND ? prefix : (prefix + "    "), code))
+                {
+                    return false;
+                }
+
+                code += "\n";
+            }
+
+            code += prefix + "while (";
+
+            if (!printNode(*i, (*i)->type == ASTNode::Type::STATEMENT_COMPOUND ? prefix : (prefix + "    "), code))
+            {
+                return false;
+            }
+
+            code += ")";
+
             break;
         }
 
         case ASTNode::Type::STATEMENT_BREAK:
         {
-            code += prefix + "break;\n";
+            code += prefix + "break;";
             break;
         }
 
         case ASTNode::Type::STATEMENT_CONTINUE:
         {
-            code += prefix + "continue;\n";
+            code += prefix + "continue;";
             break;
         }
 
         case ASTNode::Type::STATEMENT_RETURN:
         {
-            code += prefix + "return;\n";
+            code += prefix + "return;";
             break;
         }
 
@@ -312,7 +444,7 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
                 {
                     return false;
                 }
-                code += ";\n";
+                code += ";";
             }
             break;
         }
@@ -321,12 +453,16 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
         {
             code += prefix + node->value;
 
-            for (std::unique_ptr<ASTNode>& child : node->children)
+            auto i = node->children.cbegin();
+            if (i == node->children.end())
             {
-                if (!printNode(child, "", code))
-                {
-                    return false;
-                }
+                std::cerr << "Expected an expression" << std::endl;
+                return false;
+            }
+
+            if (!printNode(*i, "", code))
+            {
+                return false;
             }
 
             break;
