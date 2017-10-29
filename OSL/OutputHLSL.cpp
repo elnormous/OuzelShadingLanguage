@@ -194,6 +194,23 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
 
         case ASTNode::Type::EXPRESSION_ARRAY_SUBSCRIPT:
         {
+            code += prefix + node->name;
+
+            auto i = node->children.cbegin();
+            if (i == node->children.end())
+            {
+                std::cerr << "Expected an expression" << std::endl;
+                return false;
+            }
+
+            code += "[";
+
+            if (!printNode(*i, "", code))
+            {
+                return false;
+            }
+
+            code += "]";
             break;
         }
 
