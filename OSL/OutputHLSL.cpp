@@ -202,6 +202,31 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
 
         case ASTNode::Type::EXPRESSION_MEMBER:
         {
+            auto i = node->children.cbegin();
+            if (i == node->children.end())
+            {
+                std::cerr << "Expected a variable name" << std::endl;
+                return false;
+            }
+
+            if (!printNode(*i, "", code))
+            {
+                return false;
+            }
+
+            code += ".";
+            ++i;
+
+            if (i == node->children.end())
+            {
+                std::cerr << "Expected a field name" << std::endl;
+                return false;
+            }
+
+            if (!printNode(*i, "", code))
+            {
+                return false;
+            }
             break;
         }
 
@@ -471,7 +496,22 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
 
         case ASTNode::Type::STATEMENT_RETURN:
         {
-            code += prefix + "return;";
+            code += prefix + "return";
+
+            if (!node->children.empty())
+            {
+                code += " ";
+
+                for (std::unique_ptr<ASTNode>& child : node->children)
+                {
+                    if (!printNode(child, "", code))
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            code += ";";
             break;
         }
 

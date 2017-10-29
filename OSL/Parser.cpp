@@ -1262,7 +1262,11 @@ bool ASTContext::parseMember(const std::vector<Token>& tokens,
     {
         std::unique_ptr<ASTNode> expression(new ASTNode());
         expression->type = ASTNode::Type::EXPRESSION_MEMBER;
-        expression->value = (iterator - 1)->value;
+
+        std::unique_ptr<ASTNode> declRefExpression(new ASTNode());
+        declRefExpression->type = ASTNode::Type::EXPRESSION_DECLARATION_REFERENCE;
+        declRefExpression->name = (iterator - 1)->value;
+        result->children.push_back(std::move(declRefExpression));
 
         std::unique_ptr<ASTNode> right;
         if (!parsePrimary(tokens, iterator, declarations, right))
