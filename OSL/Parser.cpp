@@ -633,20 +633,7 @@ bool ASTContext::parseStatement(const std::vector<Token>& tokens,
 
         result->children.push_back(std::move(node));
 
-        if (checkToken(Token::Type::KEYWORD_VAR, tokens, iterator))
-        {
-            if (!parseVariableDecl(tokens, iterator, declarations, node))
-            {
-                return false;
-            }
-
-            if (!checkToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
-            {
-                std::cerr << "Expected a right parenthesis" << std::endl;
-                return false;
-            }
-        }
-        else if (checkToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
+        if (checkToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
         {
             node.reset(new ASTNode());
             node->type = ASTNode::Type::NONE;
