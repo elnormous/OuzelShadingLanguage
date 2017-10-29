@@ -144,11 +144,24 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
 
         case ASTNode::Type::EXPRESSION_CALL:
         {
-            code += prefix + node->name + "(";
-
-            for (auto i = node->children.cbegin(); i != node->children.cend(); ++i)
+            auto i = node->children.cbegin();
+            if (i == node->children.end())
             {
-                if (i != node->children.cbegin()) code += ", ";
+                std::cerr << "Expected an expression" << std::endl;
+                return false;
+            }
+
+            if (!printNode(*i, prefix, code))
+            {
+                return false;
+            }
+
+            ++i;
+            code += "(";
+
+            for (; i != node->children.cend(); ++i)
+            {
+                if (i != node->children.cbegin() + 1) code += ", ";
                 if (!printNode(*i, "", code))
                 {
                     return false;
@@ -194,9 +207,19 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
 
         case ASTNode::Type::EXPRESSION_ARRAY_SUBSCRIPT:
         {
-            code += prefix + node->name;
-
             auto i = node->children.cbegin();
+            if (i == node->children.end())
+            {
+                std::cerr << "Expected an expression" << std::endl;
+                return false;
+            }
+
+            if (!printNode(*i, prefix, code))
+            {
+                return false;
+            }
+
+            ++i;
             if (i == node->children.end())
             {
                 std::cerr << "Expected an expression" << std::endl;
@@ -211,6 +234,7 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
             }
 
             code += "]";
+            
             break;
         }
 

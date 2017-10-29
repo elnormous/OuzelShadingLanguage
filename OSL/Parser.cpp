@@ -1318,7 +1318,11 @@ bool ASTContext::parsePrimary(const std::vector<Token>& tokens,
         {
             result.reset(new ASTNode());
             result->type = ASTNode::Type::EXPRESSION_CALL;
-            result->name = (iterator - 2)->value;
+
+            std::unique_ptr<ASTNode> declRefExpression(new ASTNode());
+            declRefExpression->type = ASTNode::Type::EXPRESSION_DECLARATION_REFERENCE;
+            declRefExpression->name = (iterator - 2)->value;
+            result->children.push_back(std::move(declRefExpression));
 
             bool firstParameter = true;
             std::unique_ptr<ASTNode> parameter;
@@ -1347,7 +1351,11 @@ bool ASTContext::parsePrimary(const std::vector<Token>& tokens,
         {
             result.reset(new ASTNode());
             result->type = ASTNode::Type::EXPRESSION_ARRAY_SUBSCRIPT;
-            result->name = (iterator - 2)->value;
+
+            std::unique_ptr<ASTNode> declRefExpression(new ASTNode());
+            declRefExpression->type = ASTNode::Type::EXPRESSION_DECLARATION_REFERENCE;
+            declRefExpression->name = (iterator - 2)->value;
+            result->children.push_back(std::move(declRefExpression));
 
             std::unique_ptr<ASTNode> expression;
 
