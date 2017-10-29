@@ -67,10 +67,10 @@ struct ASTNode
     Semantic semantic = Semantic::NONE;
     bool isStatic = false;
     bool isConst = false;
-    std::string typeName;
     std::string name;
     std::string value;
     std::vector<std::unique_ptr<ASTNode>> children;
+    ASTNode* reference = nullptr;
 };
 
 inline std::string nodeTypeToString(ASTNode::Type type)
@@ -131,13 +131,15 @@ inline std::string semanticToString(ASTNode::Semantic semantic)
     }
 }
 
-struct ASTContext
+class ASTContext
 {
+public:
+    ASTContext();
     bool parse(const std::vector<Token>& tokens);
 
-    void dump();
+    const std::unique_ptr<ASTNode>& getTranslationUnit() const { return translationUnit; }
 
-    std::unique_ptr<ASTNode> translationUnit;
+    void dump();
 
 private:
     bool checkToken(Token::Type tokenType,
@@ -169,6 +171,34 @@ private:
         }
 
         return false;
+    }
+
+    ASTNode* findDeclaration(const std::string& name, std::vector<std::vector<ASTNode*>>& declarations)
+    {
+        for (auto i = declarations.crbegin(); i != declarations.crend(); ++i)
+        {
+            for (auto declaration = i->cbegin(); declaration != i->cend(); ++declaration)
+            {
+                if ((*declaration)->name == name) return *declaration;
+            }
+        }
+
+        for (auto i = builtinDeclarations.cbegin(); i != builtinDeclarations.cend(); ++i)
+        {
+            if ((*i)->name == name) return (*i).get();
+        }
+
+        return nullptr;
+    }
+
+    ASTNode* findField(const std::string& name, ASTNode* declaration)
+    {
+        for (auto field = declaration->children.cbegin(); field != declaration->children.cend(); ++field)
+        {
+            if ((*field)->name == name) return field->get();
+        }
+
+        return nullptr;
     }
 
     bool parseTopLevel(const std::vector<Token>& tokens,
@@ -272,4 +302,7 @@ private:
                       std::unique_ptr<ASTNode>& result);
 
     void dumpNode(const std::unique_ptr<ASTNode>& node, std::string indent = std::string());
+
+    std::unique_ptr<ASTNode> translationUnit;
+    std::vector<std::unique_ptr<ASTNode>> builtinDeclarations;
 };

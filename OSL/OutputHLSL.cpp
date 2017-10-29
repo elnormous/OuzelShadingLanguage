@@ -22,7 +22,7 @@ bool OutputHLSL::output(const ASTContext& context, const std::string& outputFile
         return EXIT_FAILURE;
     }
 
-    if (!printNode(context.translationUnit, "", code))
+    if (!printNode(context.getTranslationUnit(), "", code))
     {
         std::cerr << "Failed to print code" << std::endl;
         return EXIT_FAILURE;
@@ -91,13 +91,25 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
 
         case ASTNode::Type::DECLARATION_FIELD:
         {
-            code += prefix + node->typeName + " " + node->name + ";";
+            if (!node->reference)
+            {
+                std::cerr << "Invalid declaration reference" << std::endl;
+                return false;
+            }
+
+            code += prefix + node->reference->name + " " + node->name + ";";
             break;
         }
 
         case ASTNode::Type::DECLARATION_FUNCTION:
         {
-            code += prefix + node->typeName + " " + node->name + "(";
+            if (!node->reference)
+            {
+                std::cerr << "Invalid declaration reference" << std::endl;
+                return false;
+            }
+
+            code += prefix + node->reference->name + " " + node->name + "(";
 
             auto i = node->children.cbegin();
 
@@ -132,13 +144,25 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
 
         case ASTNode::Type::DECLARATION_VARIABLE:
         {
-            code += prefix + node->typeName + " " + node->name + ";";
+            if (!node->reference)
+            {
+                std::cerr << "Invalid declaration reference" << std::endl;
+                return false;
+            }
+
+            code += prefix + node->reference->name + " " + node->name + ";";
             break;
         }
 
         case ASTNode::Type::DECLARATION_PARAMETER:
         {
-            code += prefix + node->typeName + " " + node->name;
+            if (!node->reference)
+            {
+                std::cerr << "Invalid declaration reference" << std::endl;
+                return false;
+            }
+
+            code += prefix + node->reference->name + " " + node->name;
             break;
         }
 
@@ -180,7 +204,13 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
 
         case ASTNode::Type::EXPRESSION_DECLARATION_REFERENCE:
         {
-            code += prefix + node->name;
+            if (!node->reference)
+            {
+                std::cerr << "Invalid declaration reference" << std::endl;
+                return false;
+            }
+
+            code += prefix + node->reference->name;
             break;
         }
 
@@ -265,7 +295,13 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
 
         case ASTNode::Type::STATEMENT_DECLARATION:
         {
-            code += prefix + node->typeName + " " + node->name;
+            if (!node->reference)
+            {
+                std::cerr << "Invalid declaration reference" << std::endl;
+                return false;
+            }
+
+            code += prefix + node->reference->name + " " + node->name;
             break;
         }
 

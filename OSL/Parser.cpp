@@ -14,6 +14,54 @@ static const std::vector<std::string> builtinTypes = {
     "vec2", "vec3", "vec4", "mat3", "mat4"
 };
 
+ASTContext::ASTContext()
+{
+    std::unique_ptr<ASTNode> boolType(new ASTNode());
+    boolType->type = ASTNode::Type::DECLARATION_STRUCT;
+    boolType->name = "bool";
+    builtinDeclarations.push_back(std::move(boolType));
+
+    std::unique_ptr<ASTNode> intType(new ASTNode());
+    intType->type = ASTNode::Type::DECLARATION_STRUCT;
+    intType->name = "int";
+    builtinDeclarations.push_back(std::move(intType));
+
+    std::unique_ptr<ASTNode> floatType(new ASTNode());
+    floatType->type = ASTNode::Type::DECLARATION_STRUCT;
+    floatType->name = "float";
+    builtinDeclarations.push_back(std::move(floatType));
+
+    std::unique_ptr<ASTNode> vec2Type(new ASTNode());
+    vec2Type->type = ASTNode::Type::DECLARATION_STRUCT;
+    vec2Type->name = "vec2";
+    builtinDeclarations.push_back(std::move(vec2Type));
+
+    std::unique_ptr<ASTNode> vec3Type(new ASTNode());
+    vec3Type->type = ASTNode::Type::DECLARATION_STRUCT;
+    vec3Type->name = "vec3";
+    builtinDeclarations.push_back(std::move(vec3Type));
+
+    std::unique_ptr<ASTNode> vec4Type(new ASTNode());
+    vec4Type->type = ASTNode::Type::DECLARATION_STRUCT;
+    vec4Type->name = "vec4";
+    builtinDeclarations.push_back(std::move(vec4Type));
+
+    std::unique_ptr<ASTNode> stringType(new ASTNode());
+    stringType->type = ASTNode::Type::DECLARATION_STRUCT;
+    stringType->name = "string";
+    builtinDeclarations.push_back(std::move(stringType));
+
+    std::unique_ptr<ASTNode> samplerStateType(new ASTNode());
+    samplerStateType->type = ASTNode::Type::DECLARATION_STRUCT;
+    samplerStateType->name = "SamplerState";
+    builtinDeclarations.push_back(std::move(samplerStateType));
+
+    std::unique_ptr<ASTNode> texture2DType(new ASTNode());
+    texture2DType->type = ASTNode::Type::DECLARATION_STRUCT;
+    texture2DType->name = "Texture2D";
+    builtinDeclarations.push_back(std::move(texture2DType));
+}
+
 bool ASTContext::parse(const std::vector<Token>& tokens)
 {
     translationUnit.reset();
@@ -147,7 +195,13 @@ bool ASTContext::parseStructDecl(const std::vector<Token>& tokens,
                         return false;
                     }
 
-                    field->typeName = (iterator - 1)->value;
+                    field->reference = findDeclaration((iterator - 1)->value, declarations);
+
+                    if (!field->reference)
+                    {
+                        std::cerr << "Invalid declaration reference: " << (iterator - 1)->value << std::endl;
+                        return false;
+                    }
 
                     if (checkToken(Token::Type::LEFT_BRACKET, tokens, iterator)) // parse attributes
                     {
@@ -260,7 +314,13 @@ bool ASTContext::parseTypedefDecl(const std::vector<Token>& tokens,
 
     result.reset(new ASTNode());
     result->type = ASTNode::Type::DECLARATION_TYPE_DEFINITION;
-    result->typeName = (iterator - 1)->value;
+    result->reference = findDeclaration((iterator - 1)->value, declarations);
+
+    if (!result->reference)
+    {
+        std::cerr << "Invalid declaration reference: " << (iterator - 1)->value << std::endl;
+        return false;
+    }
 
     if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
     {
@@ -329,7 +389,14 @@ bool ASTContext::parseFunctionDecl(const std::vector<Token>& tokens,
                 return false;
             }
 
-            parameter->typeName = (iterator - 1)->value;
+            parameter->reference = findDeclaration((iterator - 1)->value, declarations);
+
+            if (!parameter->reference)
+            {
+                std::cerr << "Invalid declaration reference: " << (iterator - 1)->value << std::endl;
+                return false;
+            }
+
             result->children.push_back(std::move(parameter));
         }
         else
@@ -351,7 +418,13 @@ bool ASTContext::parseFunctionDecl(const std::vector<Token>& tokens,
         return false;
     }
 
-    result->typeName = (iterator - 1)->value;
+    result->reference = findDeclaration((iterator - 1)->value, declarations);
+
+    if (!result->reference)
+    {
+        std::cerr << "Invalid declaration reference: " << (iterator - 1)->value << std::endl;
+        return false;
+    }
 
     if (checkToken(Token::Type::LEFT_BRACE, tokens, iterator))
     {
@@ -431,7 +504,13 @@ bool ASTContext::parseVariableDecl(const std::vector<Token>& tokens,
         return false;
     }
 
-    result->typeName = (iterator - 1)->value;
+    result->reference = findDeclaration((iterator - 1)->value, declarations);
+
+    if (!result->reference)
+    {
+        std::cerr << "Invalid declaration reference: " << (iterator - 1)->value << std::endl;
+        return false;
+    }
 
     if (checkToken(Token::Type::OPERATOR_ASSIGNMENT, tokens, iterator))
     {
@@ -460,6 +539,8 @@ bool ASTContext::parseVariableDecl(const std::vector<Token>& tokens,
         result->children.push_back(std::move(expression));
 
     }
+
+    declarations.back().push_back(result.get());
 
     return true;
 }
@@ -1250,19 +1331,39 @@ bool ASTContext::parseMember(const std::vector<Token>& tokens,
         std::unique_ptr<ASTNode> expression(new ASTNode());
         expression->type = ASTNode::Type::EXPRESSION_MEMBER;
 
-        std::unique_ptr<ASTNode> declRefExpression(new ASTNode());
-        declRefExpression->type = ASTNode::Type::EXPRESSION_DECLARATION_REFERENCE;
-        declRefExpression->name = (iterator - 1)->value;
-        result->children.push_back(std::move(declRefExpression));
+        ASTNode* declaration = findDeclaration((iterator - 2)->value, declarations);
 
-        std::unique_ptr<ASTNode> right;
-        if (!parsePrimary(tokens, iterator, declarations, right))
+        if (!declaration)
         {
+            std::cerr << "Invalid declaration reference: " << (iterator - 2)->value << std::endl;
             return false;
         }
 
+        std::unique_ptr<ASTNode> declRefExpression(new ASTNode());
+        declRefExpression->type = ASTNode::Type::EXPRESSION_DECLARATION_REFERENCE;
+        declRefExpression->reference = declaration;
+
+        result->children.push_back(std::move(declRefExpression));
+
+        if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
+        {
+            std::cerr << "Expected an identifier" << std::endl;
+            return false;
+        }
+
+        std::unique_ptr<ASTNode> fieldRefExpression(new ASTNode());
+        fieldRefExpression->type = ASTNode::Type::EXPRESSION_DECLARATION_REFERENCE;
+        fieldRefExpression->reference = findField((iterator - 1)->value, declaration->reference);
+
+        if (!fieldRefExpression->reference)
+        {
+            std::cerr << "Invalid member reference: " << (iterator - 1)->value << std::endl;
+            return false;
+        }
+
+
         expression->children.push_back(std::move(result)); // left
-        expression->children.push_back(std::move(right)); // right
+        expression->children.push_back(std::move(fieldRefExpression)); // right
 
         result = std::move(expression);
     }
@@ -1279,28 +1380,28 @@ bool ASTContext::parsePrimary(const std::vector<Token>& tokens,
     {
         result.reset(new ASTNode());
         result->type = ASTNode::Type::EXPRESSION_LITERAL;
-        result->typeName = "int";
+        result->reference = findDeclaration("int", declarations);
         result->value = (iterator - 1)->value;
     }
     else if (checkToken(Token::Type::LITERAL_FLOAT, tokens, iterator))
     {
         result.reset(new ASTNode());
         result->type = ASTNode::Type::EXPRESSION_LITERAL;
-        result->typeName = "float";
+        result->reference = findDeclaration("float", declarations);
         result->value = (iterator - 1)->value;
     }
     else if (checkToken(Token::Type::LITERAL_STRING, tokens, iterator))
     {
         result.reset(new ASTNode());
         result->type = ASTNode::Type::EXPRESSION_LITERAL;
-        result->typeName = "string";
+        result->reference = findDeclaration("string", declarations);
         result->value = (iterator - 1)->value;
     }
     else if (checkTokens({Token::Type::KEYWORD_TRUE, Token::Type::KEYWORD_FALSE}, tokens, iterator))
     {
         result.reset(new ASTNode());
         result->type = ASTNode::Type::EXPRESSION_LITERAL;
-        result->typeName = "bool";
+        result->reference = findDeclaration("bool", declarations);
         result->value = (iterator - 1)->value;
     }
     else if (checkToken(Token::Type::IDENTIFIER, tokens, iterator))
@@ -1312,7 +1413,14 @@ bool ASTContext::parsePrimary(const std::vector<Token>& tokens,
 
             std::unique_ptr<ASTNode> declRefExpression(new ASTNode());
             declRefExpression->type = ASTNode::Type::EXPRESSION_DECLARATION_REFERENCE;
-            declRefExpression->name = (iterator - 2)->value;
+            declRefExpression->reference = findDeclaration((iterator - 2)->value, declarations);
+
+            if (!declRefExpression->reference)
+            {
+                std::cerr << "Invalid declaration reference: " << (iterator - 2)->value << std::endl;
+                return false;
+            }
+
             result->children.push_back(std::move(declRefExpression));
 
             bool firstParameter = true;
@@ -1345,7 +1453,14 @@ bool ASTContext::parsePrimary(const std::vector<Token>& tokens,
 
             std::unique_ptr<ASTNode> declRefExpression(new ASTNode());
             declRefExpression->type = ASTNode::Type::EXPRESSION_DECLARATION_REFERENCE;
-            declRefExpression->name = (iterator - 2)->value;
+            declRefExpression->reference = findDeclaration((iterator - 2)->value, declarations);
+
+            if (!declRefExpression->reference)
+            {
+                std::cerr << "Invalid declaration reference: " << (iterator - 2)->value << std::endl;
+                return false;
+            }
+
             result->children.push_back(std::move(declRefExpression));
 
             std::unique_ptr<ASTNode> expression;
@@ -1367,7 +1482,13 @@ bool ASTContext::parsePrimary(const std::vector<Token>& tokens,
         {
             result.reset(new ASTNode());
             result->type = ASTNode::Type::EXPRESSION_DECLARATION_REFERENCE;
-            result->name = (iterator - 1)->value;
+            result->reference = findDeclaration((iterator - 1)->value, declarations);
+
+            if (!result->reference)
+            {
+                std::cerr << "Invalid declaration reference: " << (iterator - 1)->value << std::endl;
+                return false;
+            }
         }
     }
     else if (checkToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
@@ -1412,12 +1533,12 @@ void ASTContext::dumpNode(const std::unique_ptr<ASTNode>& node, std::string inde
     std::cout << indent << node.get() << " " << nodeTypeToString(node->type);
 
     if (!node->name.empty()) std::cout << ", name: " << node->name;
-    if (!node->typeName.empty())
+    if (node->reference)
     {
-        std::cout << ", type: ";
+        std::cout << ", reference: ";
         if (node->isStatic) std::cout << "static ";
         if (node->isConst) std::cout << "const ";
-        std::cout << node->typeName;
+        std::cout << node->reference->name;
 
     }
     if (!node->value.empty()) std::cout << ", value: " << node->value;
