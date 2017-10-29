@@ -470,11 +470,76 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
 
         case ASTNode::Type::OPERATOR_BINARY:
         {
+            auto i = node->children.cbegin();
+            if (i == node->children.end())
+            {
+                std::cerr << "Expected an expression" << std::endl;
+                return false;
+            }
+
+            if (!printNode(*i, "", code))
+            {
+                return false;
+            }
+
+            code += " " + node->value + " ";
+            ++i;
+
+            if (i == node->children.end())
+            {
+                std::cerr << "Expected an expression" << std::endl;
+                return false;
+            }
+
+            if (!printNode(*i, "", code))
+            {
+                return false;
+            }
+
             break;
         }
 
         case ASTNode::Type::OPERATOR_TERNARY:
         {
+            auto i = node->children.cbegin();
+            if (i == node->children.end())
+            {
+                std::cerr << "Expected an expression" << std::endl;
+                return false;
+            }
+
+            if (!printNode(*i, "", code))
+            {
+                return false;
+            }
+
+            code += " ? ";
+            ++i;
+
+            if (i == node->children.end())
+            {
+                std::cerr << "Expected an expression" << std::endl;
+                return false;
+            }
+
+            if (!printNode(*i, "", code))
+            {
+                return false;
+            }
+
+            code += " : ";
+            ++i;
+
+            if (i == node->children.end())
+            {
+                std::cerr << "Expected an expression" << std::endl;
+                return false;
+            }
+
+            if (!printNode(*i, "", code))
+            {
+                return false;
+            }
             break;
         }
     }
