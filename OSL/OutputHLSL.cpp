@@ -42,11 +42,28 @@ bool OutputHLSL::printNode(const Construct* node, const std::string& prefix, std
             break;
         }
 
+        case Construct::Kind::TYPE_SIMPLE:
+        {
+            break;
+        }
+
+        case Construct::Kind::TYPE_STRUCT:
+        {
+            break;
+        }
+
+        case Construct::Kind::FIELD:
+        {
+            break;
+        }
+
         case Construct::Kind::TRANSLATION_UNIT:
         {
-            for (const std::unique_ptr<Construct>& child : node->children)
+            const TranslationUnit* translationUnit = static_cast<const TranslationUnit*>(node);
+
+            for (Declaration* declaration : translationUnit->declarations)
             {
-                if (!printNode(child.get(), prefix, code))
+                if (!printNode(declaration, prefix, code))
                 {
                     return false;
                 }
@@ -63,9 +80,10 @@ bool OutputHLSL::printNode(const Construct* node, const std::string& prefix, std
 
         case Construct::Kind::DECLARATION_STRUCT:
         {
-            code += prefix + "struct " + node->name;
+            const StructDeclaration* structDeclaration = static_cast<const StructDeclaration*>(node);
+            code += prefix + "struct " + structDeclaration->type->name;
 
-            if (node->children.empty())
+            if (structDeclaration->fieldDeclarations.empty())
             {
                 code += ";";
             }
@@ -73,9 +91,9 @@ bool OutputHLSL::printNode(const Construct* node, const std::string& prefix, std
             {
                 code += prefix + "\n{\n";
 
-                for (const std::unique_ptr<Construct>& child : node->children)
+                for (const FieldDeclaration* fieldDeclaration : structDeclaration->fieldDeclarations)
                 {
-                    if (!printNode(child.get(), prefix + "    ", code))
+                    if (!printNode(fieldDeclaration, prefix + "    ", code))
                     {
                         return false;
                     }
@@ -91,52 +109,48 @@ bool OutputHLSL::printNode(const Construct* node, const std::string& prefix, std
 
         case Construct::Kind::DECLARATION_FIELD:
         {
-            if (!node->reference)
-            {
-                std::cerr << "Invalid declaration reference" << std::endl;
-                return false;
-            }
-
-            code += prefix + node->reference->name + " " + node->name + ";";
+            const FieldDeclaration* fieldDeclaration = static_cast<const FieldDeclaration*>(node);
+            code += prefix + fieldDeclaration->field->type->name + " " + fieldDeclaration->field->name + ";";
             break;
         }
 
         case Construct::Kind::DECLARATION_FUNCTION:
         {
+            const FunctionDeclaration* functionDeclaration = static_cast<const FunctionDeclaration*>(node);
+
             if (!node->reference)
             {
                 std::cerr << "Invalid declaration reference" << std::endl;
                 return false;
             }
 
-            code += prefix + node->reference->name + " " + node->name + "(";
+            code += prefix + functionDeclaration->resultType->name + " " + functionDeclaration->name + "(";
 
-            auto i = node->children.cbegin();
+            bool firstParameter = true;
 
-            for (; i != node->children.cend() && (*i)->kind == Construct::Kind::DECLARATION_PARAMETER; ++i)
+            for (ParameterDeclaration* parameter : functionDeclaration->parameterDeclarations)
             {
-                if (i != node->children.cbegin()) code += ", ";
-                if (!printNode(i->get(), "", code))
+                if (!firstParameter) code += ", ";
+                firstParameter = false;
+
+                if (!printNode(parameter, "", code))
                 {
                     return false;
                 }
             }
 
-            if (i == node->children.cend())
-            {
-                code += ");"; // does not have a definition
-            }
-            else
+            if (functionDeclaration->body)
             {
                 code += ")\n";
 
-                for (; i != node->children.cend(); ++i)
+                if (!printNode(functionDeclaration->body, prefix, code))
                 {
-                    if (!printNode(i->get(), prefix, code))
-                    {
-                        return false;
-                    }
+                    return false;
                 }
+            }
+            else
+            {
+                code += ");"; // does not have a definition
             }
 
             break;
@@ -144,49 +158,37 @@ bool OutputHLSL::printNode(const Construct* node, const std::string& prefix, std
 
         case Construct::Kind::DECLARATION_VARIABLE:
         {
-            if (!node->reference)
-            {
-                std::cerr << "Invalid declaration reference" << std::endl;
-                return false;
-            }
-
-            code += prefix + node->reference->name + " " + node->name + ";";
+            const VariableDeclaration* variableDeclaration = static_cast<const VariableDeclaration*>(node);
+            code += prefix + variableDeclaration->type->name + " " + variableDeclaration->name + ";";
             break;
         }
 
         case Construct::Kind::DECLARATION_PARAMETER:
         {
-            if (!node->reference)
-            {
-                std::cerr << "Invalid declaration reference" << std::endl;
-                return false;
-            }
-
-            code += prefix + node->reference->name + " " + node->name;
+            const ParameterDeclaration* parameterDeclaration = static_cast<const ParameterDeclaration*>(node);
+            code += prefix + parameterDeclaration->type->name + " " + parameterDeclaration->name;
             break;
         }
 
         case Construct::Kind::EXPRESSION_CALL:
         {
-            auto i = node->children.cbegin();
-            if (i == node->children.end())
-            {
-                std::cerr << "Expected an expression" << std::endl;
-                return false;
-            }
+            const CallExpression* callExpression = static_cast<const CallExpression*>(node);
 
-            if (!printNode(i->get(), prefix, code))
+            if (!printNode(callExpression->declarationReference, prefix, code))
             {
                 return false;
             }
 
-            ++i;
             code += "(";
 
-            for (; i != node->children.cend(); ++i)
+            bool firstParameter = true;
+
+            for (Expression* parameter : callExpression->parameters)
             {
-                if (i != node->children.cbegin() + 1) code += ", ";
-                if (!printNode(i->get(), "", code))
+                if (!firstParameter) code += ", ";
+                firstParameter = false;
+
+                if (!printNode(parameter, "", code))
                 {
                     return false;
                 }
@@ -198,32 +200,32 @@ bool OutputHLSL::printNode(const Construct* node, const std::string& prefix, std
 
         case Construct::Kind::EXPRESSION_LITERAL:
         {
-            code += prefix + node->value;
+            const Expression* expression = static_cast<const Expression*>(node);
+            code += prefix + expression->value;
             break;
         }
 
         case Construct::Kind::EXPRESSION_DECLARATION_REFERENCE:
         {
-            if (!node->reference)
+            const DeclarationReferenceExpression* declarationReferenceExpression = static_cast<const DeclarationReferenceExpression*>(node);
+            Declaration* declaration = declarationReferenceExpression->declaration;
+
+            if (!printNode(declaration, prefix, code))
             {
-                std::cerr << "Invalid declaration reference" << std::endl;
                 return false;
             }
-
-            code += prefix + node->reference->name;
             break;
         }
 
         case Construct::Kind::EXPRESSION_PAREN:
         {
+            const ParenExpression* parenExpression = static_cast<const ParenExpression*>(node);
+
             code += prefix + "(";
 
-            for (const std::unique_ptr<Construct>& child : node->children)
+            if (!printNode(parenExpression, "", code))
             {
-                if (!printNode(child.get(), "", code))
-                {
-                    return false;
-                }
+                return false;
             }
 
             code += ")";
@@ -232,28 +234,16 @@ bool OutputHLSL::printNode(const Construct* node, const std::string& prefix, std
 
         case Construct::Kind::EXPRESSION_MEMBER:
         {
-            auto i = node->children.cbegin();
-            if (i == node->children.end())
-            {
-                std::cerr << "Expected a variable name" << std::endl;
-                return false;
-            }
+            const MemberExpression* memberExpression = static_cast<const MemberExpression*>(node);
 
-            if (!printNode(i->get(), "", code))
+            if (!printNode(memberExpression->expression, prefix, code))
             {
                 return false;
             }
 
             code += ".";
-            ++i;
 
-            if (i == node->children.end())
-            {
-                std::cerr << "Expected a field name" << std::endl;
-                return false;
-            }
-
-            if (!printNode(i->get(), "", code))
+            if (!printNode(memberExpression->declarationReference, "", code))
             {
                 return false;
             }
@@ -262,28 +252,16 @@ bool OutputHLSL::printNode(const Construct* node, const std::string& prefix, std
 
         case Construct::Kind::EXPRESSION_ARRAY_SUBSCRIPT:
         {
-            auto i = node->children.cbegin();
-            if (i == node->children.end())
-            {
-                std::cerr << "Expected an expression" << std::endl;
-                return false;
-            }
+            const ArraySubscriptExpression* arraySubscriptExpression = static_cast<const ArraySubscriptExpression*>(node);
 
-            if (!printNode(i->get(), prefix, code))
+            if (!printNode(arraySubscriptExpression->expression, "", code))
             {
-                return false;
-            }
-
-            ++i;
-            if (i == node->children.end())
-            {
-                std::cerr << "Expected an expression" << std::endl;
                 return false;
             }
 
             code += "[";
 
-            if (!printNode(i->get(), "", code))
+            if (!printNode(arraySubscriptExpression->declarationReference, "", code))
             {
                 return false;
             }
@@ -293,30 +271,35 @@ bool OutputHLSL::printNode(const Construct* node, const std::string& prefix, std
             break;
         }
 
+        case Construct::Kind::STATEMENT_EMPTY:
+        {
+            break;
+        }
+
         case Construct::Kind::STATEMENT_DECLARATION:
         {
-            if (!node->reference)
+            const DeclarationStatement* declarationStatement = static_cast<const DeclarationStatement*>(node);
+            if (!printNode(declarationStatement->declaration, prefix, code))
             {
-                std::cerr << "Invalid declaration reference" << std::endl;
                 return false;
             }
-
-            code += prefix + node->reference->name + " " + node->name;
             break;
         }
 
         case Construct::Kind::STATEMENT_COMPOUND:
         {
+            const CompoundStatement* compoundStatement = static_cast<const CompoundStatement*>(node);
+
             code += prefix + "{\n";
 
-            for (const std::unique_ptr<Construct>& child : node->children)
+            for (Statement* statement : compoundStatement->statements)
             {
-                if (!printNode(child.get(), prefix + "    ", code))
+                if (!printNode(statement, prefix + "    ", code))
                 {
                     return false;
                 }
 
-                code += "\n";
+                code += ";\n";
             }
 
             code += prefix + "}";
@@ -325,29 +308,51 @@ bool OutputHLSL::printNode(const Construct* node, const std::string& prefix, std
 
         case Construct::Kind::STATEMENT_IF:
         {
+            const IfStatement* ifStatement = static_cast<const IfStatement*>(node);
+
             code += prefix + "if (";
 
-            auto i = node->children.cbegin();
-
-            if (i == node->children.end())
-            {
-                std::cerr << "Expected a condition" << std::endl;
-                return false;
-            }
-
-            if (!printNode(i->get(), "", code))
+            if (!printNode(ifStatement->condition, "", code))
             {
                 return false;
             }
 
             code += ")\n";
-            ++i;
 
-            for (; i != node->children.end(); ++i)
+            if (ifStatement->body->kind == Construct::Kind::STATEMENT_COMPOUND)
             {
-                if (!printNode(i->get(), (*i)->kind == Construct::Kind::STATEMENT_COMPOUND ? prefix : (prefix + "    "), code))
+                if (!printNode(ifStatement->body, prefix, code))
                 {
                     return false;
+                }
+            }
+            else
+            {
+                if (!printNode(ifStatement->body, prefix + "    ", code))
+                {
+                    return false;
+                }
+
+                code += ";\n";
+            }
+
+            if (ifStatement->elseBody)
+            {
+                if (ifStatement->elseBody->kind == Construct::Kind::STATEMENT_COMPOUND)
+                {
+                    if (!printNode(ifStatement->elseBody, prefix, code))
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    if (!printNode(ifStatement->elseBody, prefix + "    ", code))
+                    {
+                        return false;
+                    }
+
+                    code += ";\n";
                 }
             }
             break;
@@ -355,160 +360,172 @@ bool OutputHLSL::printNode(const Construct* node, const std::string& prefix, std
 
         case Construct::Kind::STATEMENT_FOR:
         {
+            const ForStatement* forStatement = static_cast<const ForStatement*>(node);
+
             code += prefix + "for (";
 
-            auto i = node->children.cbegin();
-
-            if (i == node->children.end())
-            {
-                std::cerr << "Expected an initialization" << std::endl;
-                return false;
-            }
-
-            if (!printNode(i->get(), "", code))
+            if (!printNode(forStatement->initialization, "", code))
             {
                 return false;
             }
 
             code += "; ";
-            ++i;
 
-            if (i == node->children.end())
-            {
-                std::cerr << "Expected a condition" << std::endl;
-                return false;
-            }
-
-            if (!printNode(i->get(), "", code))
+            if (!printNode(forStatement->condition, "", code))
             {
                 return false;
             }
 
             code += "; ";
-            ++i;
 
-            if (i == node->children.end())
-            {
-                std::cerr << "Expected an increment" << std::endl;
-                return false;
-            }
-
-            if (!printNode(i->get(), "", code))
+            if (!printNode(forStatement->increment, "", code))
             {
                 return false;
             }
 
             code += ")\n";
-            ++i;
 
-            for (; i != node->children.end(); ++i)
+            if (forStatement->body->kind == Construct::Kind::STATEMENT_COMPOUND)
             {
-                if (!printNode(i->get(), (*i)->kind == Construct::Kind::STATEMENT_COMPOUND ? prefix : (prefix + "    "), code))
+                if (!printNode(forStatement->body, prefix, code))
                 {
                     return false;
                 }
+            }
+            else
+            {
+                if (!printNode(forStatement->body, prefix + "    ", code))
+                {
+                    return false;
+                }
+
+                code += ";\n";
             }
             break;
         }
 
         case Construct::Kind::STATEMENT_SWITCH:
         {
+            const SwitchStatement* switchStatement = static_cast<const SwitchStatement*>(node);
+
             code += prefix + "switch (";
 
-            auto i = node->children.cbegin();
-
-            if (i == node->children.end())
-            {
-                std::cerr << "Expected a condition" << std::endl;
-                return false;
-            }
-
-            if (!printNode(i->get(), "", code))
+            if (!printNode(switchStatement->condition, "", code))
             {
                 return false;
             }
 
             code += ")\n";
-            ++i;
 
-            for (; i != node->children.end(); ++i)
+            if (switchStatement->body->kind == Construct::Kind::STATEMENT_COMPOUND)
             {
-                if (!printNode(i->get(), (*i)->kind == Construct::Kind::STATEMENT_COMPOUND ? prefix : (prefix + "    "), code))
+                if (!printNode(switchStatement->body, prefix, code))
                 {
                     return false;
                 }
+            }
+            else
+            {
+                if (!printNode(switchStatement->body, prefix + "    ", code))
+                {
+                    return false;
+                }
+
+                code += ";\n";
             }
             break;
         }
 
         case Construct::Kind::STATEMENT_CASE:
         {
-            code += prefix + "case " + node->value + ":\n";
+            const CaseStatement* caseStatement = static_cast<const CaseStatement*>(node);
 
-            for (auto i = node->children.cbegin(); i != node->children.end(); ++i)
+            code += prefix + "case ";
+
+            if (!printNode(caseStatement->condition, "", code))
             {
-                if (!printNode(i->get(), (*i)->kind == Construct::Kind::STATEMENT_COMPOUND ? prefix : (prefix + "    "), code))
+                return false;
+            }
+
+            code += ":\n";
+
+            if (caseStatement->body->kind == Construct::Kind::STATEMENT_COMPOUND)
+            {
+                if (!printNode(caseStatement->body, prefix, code))
                 {
                     return false;
                 }
+            }
+            else
+            {
+                if (!printNode(caseStatement->body, prefix + "    ", code))
+                {
+                    return false;
+                }
+
+                code += ";\n";
             }
             break;
         }
 
         case Construct::Kind::STATEMENT_WHILE:
         {
+            const WhileStatement* whileStatement = static_cast<const WhileStatement*>(node);
+
             code += prefix + "while (";
 
-            auto i = node->children.cbegin();
-
-            if (i == node->children.end())
-            {
-                std::cerr << "Expected a condition" << std::endl;
-                return false;
-            }
-
-            if (!printNode(i->get(), "", code))
+            if (!printNode(whileStatement->condition, "", code))
             {
                 return false;
             }
 
             code += ")\n";
-            ++i;
 
-            for (; i != node->children.end(); ++i)
+            if (whileStatement->body->kind == Construct::Kind::STATEMENT_COMPOUND)
             {
-                if (!printNode(i->get(), (*i)->kind == Construct::Kind::STATEMENT_COMPOUND ? prefix : (prefix + "    "), code))
+                if (!printNode(whileStatement->body, prefix, code))
                 {
                     return false;
                 }
+            }
+            else
+            {
+                if (!printNode(whileStatement->body, prefix + "    ", code))
+                {
+                    return false;
+                }
+
+                code += ";\n";
             }
             break;
         }
 
         case Construct::Kind::STATEMENT_DO:
         {
+            const DoStatement* doStatement = static_cast<const DoStatement*>(node);
+
             code += prefix + "do\n";
 
-            auto i = node->children.cbegin();
-            if (i == node->children.end())
+            if (doStatement->body->kind == Construct::Kind::STATEMENT_COMPOUND)
             {
-                std::cerr << "Expected a statement" << std::endl;
-                return false;
+                if (!printNode(doStatement->body, prefix, code))
+                {
+                    return false;
+                }
             }
-
-            for (; i + 1 != node->children.end(); ++i)
+            else
             {
-                if (!printNode(i->get(), (*i)->kind == Construct::Kind::STATEMENT_COMPOUND ? prefix : (prefix + "    "), code))
+                if (!printNode(doStatement->body, prefix + "    ", code))
                 {
                     return false;
                 }
 
-                code += "\n";
+                code += ";\n";
             }
 
             code += prefix + "while (";
 
-            if (!printNode(i->get(), (*i)->kind == Construct::Kind::STATEMENT_COMPOUND ? prefix : (prefix + "    "), code))
+            if (!printNode(doStatement->condition, "", code))
             {
                 return false;
             }
@@ -532,18 +549,17 @@ bool OutputHLSL::printNode(const Construct* node, const std::string& prefix, std
 
         case Construct::Kind::STATEMENT_RETURN:
         {
+            const ReturnStatement* returnStatement = static_cast<const ReturnStatement*>(node);
+
             code += prefix + "return";
 
-            if (!node->children.empty())
+            if (returnStatement->result)
             {
                 code += " ";
 
-                for (const std::unique_ptr<Construct>& child : node->children)
+                if (!printNode(returnStatement->result, "", code))
                 {
-                    if (!printNode(child.get(), "", code))
-                    {
-                        return false;
-                    }
+                    return false;
                 }
             }
 
@@ -551,109 +567,56 @@ bool OutputHLSL::printNode(const Construct* node, const std::string& prefix, std
             break;
         }
 
-        case Construct::Kind::STATEMENT_EXPRESSION:
-        {
-            code += prefix;
-
-            for (const std::unique_ptr<Construct>& child : node->children)
-            {
-                if (!printNode(child.get(), "", code))
-                {
-                    return false;
-                }
-                code += ";";
-            }
-            break;
-        }
-
         case Construct::Kind::OPERATOR_UNARY:
         {
-            code += prefix + node->value;
+            const UnaryOperatorExpression* unaryOperatorExpression = static_cast<const UnaryOperatorExpression*>(node);
 
-            auto i = node->children.cbegin();
-            if (i == node->children.end())
-            {
-                std::cerr << "Expected an expression" << std::endl;
-                return false;
-            }
+            code += prefix + unaryOperatorExpression->value;
 
-            if (!printNode(i->get(), "", code))
+            if (!printNode(unaryOperatorExpression->expression, "", code))
             {
                 return false;
             }
-
             break;
         }
 
         case Construct::Kind::OPERATOR_BINARY:
         {
-            auto i = node->children.cbegin();
-            if (i == node->children.end())
-            {
-                std::cerr << "Expected an expression" << std::endl;
-                return false;
-            }
+            const BinaryOperatorExpression* binaryOperatorExpression = static_cast<const BinaryOperatorExpression*>(node);
 
-            if (!printNode(i->get(), "", code))
+            if (!printNode(binaryOperatorExpression->leftExpression, prefix, code))
             {
                 return false;
             }
 
-            code += " " + node->value + " ";
-            ++i;
+            code += " " + binaryOperatorExpression->value + " ";
 
-            if (i == node->children.end())
-            {
-                std::cerr << "Expected an expression" << std::endl;
-                return false;
-            }
-
-            if (!printNode(i->get(), "", code))
+            if (!printNode(binaryOperatorExpression->rightExpression, "", code))
             {
                 return false;
             }
-
             break;
         }
 
         case Construct::Kind::OPERATOR_TERNARY:
         {
-            auto i = node->children.cbegin();
-            if (i == node->children.end())
-            {
-                std::cerr << "Expected an expression" << std::endl;
-                return false;
-            }
+            const TernaryOperatorExpression* ternaryOperatorExpression = static_cast<const TernaryOperatorExpression*>(node);
 
-            if (!printNode(i->get(), "", code))
+            if (!printNode(ternaryOperatorExpression->condition, prefix, code))
             {
                 return false;
             }
 
             code += " ? ";
-            ++i;
 
-            if (i == node->children.end())
-            {
-                std::cerr << "Expected an expression" << std::endl;
-                return false;
-            }
-
-            if (!printNode(i->get(), "", code))
+            if (!printNode(ternaryOperatorExpression->leftExpression, "", code))
             {
                 return false;
             }
 
             code += " : ";
-            ++i;
 
-            if (i == node->children.end())
-            {
-                std::cerr << "Expected an expression" << std::endl;
-                return false;
-            }
-
-            if (!printNode(i->get(), "", code))
+            if (!printNode(ternaryOperatorExpression->rightExpression, "", code))
             {
                 return false;
             }

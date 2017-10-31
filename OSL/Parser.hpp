@@ -12,12 +12,30 @@
 #include <string>
 #include "Tokenizer.hpp"
 
+enum class Semantic
+{
+    NONE,
+    BINORMAL,
+    BLEND_INDICES,
+    BLEND_WEIGHT,
+    COLOR,
+    NORMAL,
+    POSITION,
+    POSITION_TRANSFORMED,
+    POINT_SIZE,
+    TANGENT,
+    TEXTURE_COORDINATES
+};
+
 class Construct
 {
 public:
     enum class Kind
     {
         NONE,
+        TYPE_SIMPLE,
+        TYPE_STRUCT,
+        FIELD,
         TRANSLATION_UNIT,
         DECLARATION_EMPTY,
         DECLARATION_STRUCT,
@@ -32,6 +50,7 @@ public:
         EXPRESSION_PAREN,
         EXPRESSION_MEMBER,
         EXPRESSION_ARRAY_SUBSCRIPT,
+        STATEMENT_EMPTY,
         STATEMENT_DECLARATION,
         STATEMENT_COMPOUND,
         STATEMENT_IF,
@@ -43,34 +62,12 @@ public:
         STATEMENT_BREAK,
         STATEMENT_CONTINUE,
         STATEMENT_RETURN,
-        STATEMENT_EXPRESSION,
         OPERATOR_UNARY,
         OPERATOR_BINARY,
         OPERATOR_TERNARY,
     };
 
-    enum class Semantic
-    {
-        NONE,
-        BINORMAL,
-        BLEND_INDICES,
-        BLEND_WEIGHT,
-        COLOR,
-        NORMAL,
-        POSITION,
-        POSITION_TRANSFORMED,
-        POINT_SIZE,
-        TANGENT,
-        TEXTURE_COORDINATES
-    };
-
     Kind kind = Kind::NONE;
-    Semantic semantic = Semantic::NONE;
-    bool isStatic = false;
-    bool isConst = false;
-    std::string name;
-    std::string value;
-    std::vector<std::unique_ptr<Construct>> children;
     Construct* reference = nullptr;
 };
 
@@ -79,6 +76,9 @@ inline std::string nodeKindToString(Construct::Kind type)
     switch (type)
     {
         case Construct::Kind::NONE: return "NONE";
+        case Construct::Kind::TYPE_SIMPLE: return "TYPE_SIMPLE";
+        case Construct::Kind::TYPE_STRUCT: return "TYPE_STRUCT";
+        case Construct::Kind::FIELD: return "FIELD";
         case Construct::Kind::TRANSLATION_UNIT: return "TRANSLATION_UNIT";
         case Construct::Kind::DECLARATION_EMPTY: return "DECLARATION_EMPTY";
         case Construct::Kind::DECLARATION_STRUCT: return "DECLARATION_STRUCT";
@@ -87,6 +87,7 @@ inline std::string nodeKindToString(Construct::Kind type)
         case Construct::Kind::DECLARATION_FUNCTION: return "DECLARATION_FUNCTION";
         case Construct::Kind::DECLARATION_VARIABLE: return "DECLARATION_VARIABLE";
         case Construct::Kind::DECLARATION_PARAMETER: return "DECLARATION_PARAMETER";
+        case Construct::Kind::STATEMENT_EMPTY: return "STATEMENT_EMPTY";
         case Construct::Kind::STATEMENT_DECLARATION: return "STATEMENT_DECLARATION";
         case Construct::Kind::STATEMENT_COMPOUND: return "STATEMENT_COMPOUND";
         case Construct::Kind::STATEMENT_IF: return "STATEMENT_IF";
@@ -98,7 +99,6 @@ inline std::string nodeKindToString(Construct::Kind type)
         case Construct::Kind::STATEMENT_BREAK: return "STATEMENT_BREAK";
         case Construct::Kind::STATEMENT_CONTINUE: return "STATEMENT_CONTINUE";
         case Construct::Kind::STATEMENT_RETURN: return "STATEMENT_RETURN";
-        case Construct::Kind::STATEMENT_EXPRESSION: return "STATEMENT_EXPRESSION";
         case Construct::Kind::EXPRESSION_CALL: return "EXPRESSION_CALL";
         case Construct::Kind::EXPRESSION_LITERAL: return "EXPRESSION_LITERAL";
         case Construct::Kind::EXPRESSION_DECLARATION_REFERENCE: return "EXPRESSION_DECLARATION_REFERENCE";
@@ -113,21 +113,21 @@ inline std::string nodeKindToString(Construct::Kind type)
     return "unknown";
 }
 
-inline std::string semanticToString(Construct::Semantic semantic)
+inline std::string semanticToString(Semantic semantic)
 {
     switch (semantic)
     {
-        case Construct::Semantic::NONE: return "NONE";
-        case Construct::Semantic::BINORMAL: return "BINORMAL";
-        case Construct::Semantic::BLEND_INDICES: return "BLEND_INDICES";
-        case Construct::Semantic::BLEND_WEIGHT: return "BLEND_WEIGHT";
-        case Construct::Semantic::COLOR: return "COLOR";
-        case Construct::Semantic::NORMAL: return "NORMAL";
-        case Construct::Semantic::POSITION: return "POSITION";
-        case Construct::Semantic::POSITION_TRANSFORMED: return "POSITION_TRANSFORMED";
-        case Construct::Semantic::POINT_SIZE: return "POINT_SIZE";
-        case Construct::Semantic::TANGENT: return "TANGENT";
-        case Construct::Semantic::TEXTURE_COORDINATES: return "TEXTURE_COORDINATES";
+        case Semantic::NONE: return "NONE";
+        case Semantic::BINORMAL: return "BINORMAL";
+        case Semantic::BLEND_INDICES: return "BLEND_INDICES";
+        case Semantic::BLEND_WEIGHT: return "BLEND_WEIGHT";
+        case Semantic::COLOR: return "COLOR";
+        case Semantic::NORMAL: return "NORMAL";
+        case Semantic::POSITION: return "POSITION";
+        case Semantic::POSITION_TRANSFORMED: return "POSITION_TRANSFORMED";
+        case Semantic::POINT_SIZE: return "POINT_SIZE";
+        case Semantic::TANGENT: return "TANGENT";
+        case Semantic::TEXTURE_COORDINATES: return "TEXTURE_COORDINATES";
         default: return "unknown";
     }
 }
@@ -138,11 +138,32 @@ public:
     std::string name;
 };
 
+class Statement: public Construct
+{
+public:
+};
+
+class Expression: public Statement
+{
+public:
+    std::string value;
+    Type* resultType = nullptr;
+};
+
 class Field: public Construct
 {
 public:
     Type* type = nullptr;
     std::string name;
+    Semantic semantic = Semantic::NONE;
+    bool isStatic = false;
+    bool isConst = false;
+};
+
+class SimpleType: public Type
+{
+public:
+    bool scalar = false;
 };
 
 class StructType: public Type
@@ -150,7 +171,6 @@ class StructType: public Type
 public:
     std::vector<Field*> fields;
 };
-
 
 class Declaration: public Construct
 {
@@ -174,13 +194,12 @@ class FieldDeclaration: public Construct
 public:
     Field* field = nullptr;
     Type* type = nullptr;
-    std::string name;
 };
 
-class StructureDeclaration: public TypeDeclaration
+class StructDeclaration: public TypeDeclaration
 {
 public:
-    std::string name;
+    Type* type;
     std::vector<FieldDeclaration*> fieldDeclarations;
 };
 
@@ -189,6 +208,7 @@ class ParameterDeclaration: public Declaration
 public:
     Type* type = nullptr;
     std::string name;
+    bool isConst = false;
 };
 
 class FunctionDeclaration: public Declaration
@@ -196,6 +216,8 @@ class FunctionDeclaration: public Declaration
 public:
     Type* resultType = nullptr;
     std::string name;
+    std::vector<ParameterDeclaration*> parameterDeclarations;
+    Statement* body = nullptr;
 };
 
 class VariableDeclaration: public Declaration
@@ -203,16 +225,9 @@ class VariableDeclaration: public Declaration
 public:
     Type* type = nullptr;
     std::string name;
-};
-
-class Statement: public Construct
-{
-public:
-};
-
-class Expression: public Statement
-{
-public:
+    bool isStatic = false;
+    bool isConst = false;
+    Statement* initialization = nullptr;
 };
 
 class DeclarationStatement: public Statement
@@ -231,14 +246,16 @@ class IfStatement: public Statement
 {
 public:
     Statement* condition = nullptr;
-    Statement* truePart = nullptr;
-    Statement* falsePart = nullptr;
+    Statement* body = nullptr;
+    Statement* elseBody = nullptr;
 };
 
 class ForStatement: public Statement
 {
 public:
+    Statement* initialization = nullptr;
     Statement* condition = nullptr;
+    Expression* increment = nullptr;
     Statement* body = nullptr;
 };
 
@@ -259,7 +276,7 @@ public:
 class WhileStatement: public Statement
 {
 public:
-    Expression* condition = nullptr;
+    Statement* condition = nullptr;
     Statement* body = nullptr;
 };
 
@@ -303,7 +320,7 @@ class CallExpression: public Expression
 {
 public:
     DeclarationReferenceExpression* declarationReference = nullptr;
-    std::vector<ParameterDeclaration*> parameters;
+    std::vector<Expression*> parameters;
 };
 
 class ParenExpression: public Expression
@@ -315,14 +332,15 @@ public:
 class MemberExpression: public Expression
 {
 public:
+    Expression* expression = nullptr;
     DeclarationReferenceExpression* declarationReference = nullptr;
 };
 
 class ArraySubscriptExpression: public Expression
 {
 public:
-    DeclarationReferenceExpression* declarationReference = nullptr;
     Expression* expression = nullptr;
+    DeclarationReferenceExpression* declarationReference = nullptr;
 };
 
 class UnaryOperatorExpression: public Expression
@@ -334,16 +352,16 @@ public:
 class BinaryOperatorExpression: public Expression
 {
 public:
-    Expression* leftExpressions = nullptr;
-    Expression* rightExpressions = nullptr;
+    Expression* leftExpression = nullptr;
+    Expression* rightExpression = nullptr;
 };
 
-class TernarySubscriptExpression: public Expression
+class TernaryOperatorExpression: public Expression
 {
 public:
     Expression* condition;
-    Expression* leftExpressions = nullptr;
-    Expression* rightExpressions = nullptr;
+    Expression* leftExpression = nullptr;
+    Expression* rightExpression = nullptr;
 };
 
 class ASTContext
@@ -352,7 +370,7 @@ public:
     ASTContext();
     bool parse(const std::vector<Token>& tokens);
 
-    const TranslationUnit* getTranslationUnit() const { return translationUnit.get(); }
+    const TranslationUnit* getTranslationUnit() const { return translationUnit; }
 
     void dump();
 
@@ -388,136 +406,178 @@ private:
         return false;
     }
 
-    Construct* findDeclaration(const std::string& name, std::vector<std::vector<Construct*>>& declarations)
+    Declaration* findDeclaration(const std::string& name, std::vector<std::vector<Declaration*>>& declarations)
     {
         for (auto i = declarations.crbegin(); i != declarations.crend(); ++i)
         {
-            for (auto declaration = i->cbegin(); declaration != i->cend(); ++declaration)
+            for (Declaration* declaration : *i)
             {
-                if ((*declaration)->name == name) return *declaration;
+                switch (declaration->kind)
+                {
+                    case Construct::Kind::DECLARATION_STRUCT:
+                    {
+                        StructDeclaration* structDeclaration = static_cast<StructDeclaration*>(declaration);
+                        if (structDeclaration->type->name == name) return declaration;
+                        break;
+                    }
+                    case Construct::Kind::DECLARATION_FUNCTION:
+                    {
+                        FunctionDeclaration* functionDeclaration = static_cast<FunctionDeclaration*>(declaration);
+                        if (functionDeclaration->name == name) return declaration;
+                        break;
+                    }
+                    case Construct::Kind::DECLARATION_VARIABLE:
+                    {
+                        VariableDeclaration* variableDeclaration = static_cast<VariableDeclaration*>(declaration);
+                        if (variableDeclaration->name == name) return declaration;
+                        break;
+                    }
+                    case Construct::Kind::DECLARATION_PARAMETER:
+                    {
+                        ParameterDeclaration* parameterDeclaration = static_cast<ParameterDeclaration*>(declaration);
+                        if (parameterDeclaration->name == name) return declaration;
+                        break;
+                    }
+                    default:
+                        break;
+                }
             }
         }
 
-        for (auto i = builtinDeclarations.cbegin(); i != builtinDeclarations.cend(); ++i)
+        /*for (auto i = builtinTypes.cbegin(); i != builtinTypes.cend(); ++i)
         {
             if ((*i)->name == name) return (*i).get();
-        }
+        }*/
 
         return nullptr;
     }
 
-    Construct* findField(const std::string& name, Construct* declaration)
+    FieldDeclaration* findField(const std::string& name, StructDeclaration* declaration)
     {
-        for (auto field = declaration->children.cbegin(); field != declaration->children.cend(); ++field)
+        for (FieldDeclaration* fieldDeclaration : declaration->fieldDeclarations)
         {
-            if ((*field)->name == name) return field->get();
+            if (fieldDeclaration->field->name == name) return fieldDeclaration;
         }
 
         return nullptr;
     }
 
-    bool parseTopLevel(const std::vector<Token>& tokens,
-                       std::vector<Token>::const_iterator& iterator,
-                       std::vector<std::vector<Construct*>>& declarations,
-                       std::unique_ptr<TranslationUnit>& result);
+    TranslationUnit* parseTopLevel(const std::vector<Token>& tokens,
+                                   std::vector<Token>::const_iterator& iterator,
+                                   std::vector<std::vector<Declaration*>>& declarations);
 
-    bool parseStructDecl(const std::vector<Token>& tokens,
-                         std::vector<Token>::const_iterator& iterator,
-                         std::vector<std::vector<Construct*>>& declarations,
-                         std::unique_ptr<Construct>& result);
-
-    bool parseTypedefDecl(const std::vector<Token>& tokens,
-                          std::vector<Token>::const_iterator& iterator,
-                          std::vector<std::vector<Construct*>>& declarations,
-                          std::unique_ptr<Construct>& result);
-
-    bool parseFunctionDecl(const std::vector<Token>& tokens,
-                           std::vector<Token>::const_iterator& iterator,
-                           std::vector<std::vector<Construct*>>& declarations,
-                           std::unique_ptr<Construct>& result);
-
-    bool parseVariableDecl(const std::vector<Token>& tokens,
-                           std::vector<Token>::const_iterator& iterator,
-                           std::vector<std::vector<Construct*>>& declarations,
-                           std::unique_ptr<Construct>& result);
-
-    bool parseCompoundStatement(const std::vector<Token>& tokens,
-                                std::vector<Token>::const_iterator& iterator,
-                                std::vector<std::vector<Construct*>>& declarations,
-                                std::unique_ptr<Construct>& result);
-
-    bool parseStatement(const std::vector<Token>& tokens,
-                        std::vector<Token>::const_iterator& iterator,
-                        std::vector<std::vector<Construct*>>& declarations,
-                        std::unique_ptr<Construct>& result);
-
-    bool parseExpression(const std::vector<Token>& tokens,
-                         std::vector<Token>::const_iterator& iterator,
-                         std::vector<std::vector<Construct*>>& declarations,
-                         std::unique_ptr<Construct>& result);
-
-    bool parseMultiplicationAssignment(const std::vector<Token>& tokens,
+    StructDeclaration* parseStructDecl(const std::vector<Token>& tokens,
                                        std::vector<Token>::const_iterator& iterator,
-                                       std::vector<std::vector<Construct*>>& declarations,
-                                       std::unique_ptr<Construct>& result);
+                                       std::vector<std::vector<Declaration*>>& declarations);
 
-    bool parseAdditionAssignment(const std::vector<Token>& tokens,
-                                 std::vector<Token>::const_iterator& iterator,
-                                 std::vector<std::vector<Construct*>>& declarations,
-                                 std::unique_ptr<Construct>& result);
-
-    bool parseAssignment(const std::vector<Token>& tokens,
-                         std::vector<Token>::const_iterator& iterator,
-                         std::vector<std::vector<Construct*>>& declarations,
-                         std::unique_ptr<Construct>& result);
-
-    bool parseTernary(const std::vector<Token>& tokens,
-                      std::vector<Token>::const_iterator& iterator,
-                      std::vector<std::vector<Construct*>>& declarations,
-                      std::unique_ptr<Construct>& result);
-
-    bool parseEquality(const std::vector<Token>& tokens,
-                       std::vector<Token>::const_iterator& iterator,
-                       std::vector<std::vector<Construct*>>& declarations,
-                       std::unique_ptr<Construct>& result);
-
-    bool parseGreaterThan(const std::vector<Token>& tokens,
+    /*bool parseTypedefDecl(const std::vector<Token>& tokens,
                           std::vector<Token>::const_iterator& iterator,
-                          std::vector<std::vector<Construct*>>& declarations,
-                          std::unique_ptr<Construct>& result);
+                          std::vector<std::vector<Declaration*>>& declarations,
+                          std::unique_ptr<Construct>& result);*/
 
-    bool parseLessThan(const std::vector<Token>& tokens,
-                       std::vector<Token>::const_iterator& iterator,
-                       std::vector<std::vector<Construct*>>& declarations,
-                       std::unique_ptr<Construct>& result);
+    FunctionDeclaration* parseFunctionDecl(const std::vector<Token>& tokens,
+                                           std::vector<Token>::const_iterator& iterator,
+                                           std::vector<std::vector<Declaration*>>& declarations);
 
-    bool parseAddition(const std::vector<Token>& tokens,
-                       std::vector<Token>::const_iterator& iterator,
-                       std::vector<std::vector<Construct*>>& declarations,
-                       std::unique_ptr<Construct>& result);
+    VariableDeclaration* parseVariableDecl(const std::vector<Token>& tokens,
+                                           std::vector<Token>::const_iterator& iterator,
+                                           std::vector<std::vector<Declaration*>>& declarations);
 
-    bool parseMultiplication(const std::vector<Token>& tokens,
+    Statement* parseStatement(const std::vector<Token>& tokens,
+                              std::vector<Token>::const_iterator& iterator,
+                              std::vector<std::vector<Declaration*>>& declarations);
+
+    CompoundStatement* parseCompoundStatement(const std::vector<Token>& tokens,
+                                              std::vector<Token>::const_iterator& iterator,
+                                              std::vector<std::vector<Declaration*>>& declarations);
+
+    DeclarationStatement* parseVariableDeclStatement(const std::vector<Token>& tokens,
+                                                     std::vector<Token>::const_iterator& iterator,
+                                                     std::vector<std::vector<Declaration*>>& declarations);
+
+    IfStatement* parseIfStatement(const std::vector<Token>& tokens,
+                                  std::vector<Token>::const_iterator& iterator,
+                                  std::vector<std::vector<Declaration*>>& declarations);
+
+    ForStatement* parseForStatement(const std::vector<Token>& tokens,
+                                    std::vector<Token>::const_iterator& iterator,
+                                    std::vector<std::vector<Declaration*>>& declarations);
+
+    SwitchStatement* parseSwitchStatement(const std::vector<Token>& tokens,
+                                          std::vector<Token>::const_iterator& iterator,
+                                          std::vector<std::vector<Declaration*>>& declarations);
+
+    CaseStatement* parseCaseStatement(const std::vector<Token>& tokens,
+                                      std::vector<Token>::const_iterator& iterator,
+                                      std::vector<std::vector<Declaration*>>& declarations);
+
+    WhileStatement* parseWhileStatement(const std::vector<Token>& tokens,
+                                        std::vector<Token>::const_iterator& iterator,
+                                        std::vector<std::vector<Declaration*>>& declarations);
+
+    DoStatement* parseDoStatement(const std::vector<Token>& tokens,
+                                  std::vector<Token>::const_iterator& iterator,
+                                  std::vector<std::vector<Declaration*>>& declarations);
+
+    ReturnStatement* parseReturnStatement(const std::vector<Token>& tokens,
+                                          std::vector<Token>::const_iterator& iterator,
+                                          std::vector<std::vector<Declaration*>>& declarations);
+
+    Expression* parseExpression(const std::vector<Token>& tokens,
+                                std::vector<Token>::const_iterator& iterator,
+                                std::vector<std::vector<Declaration*>>& declarations);
+
+    Expression* parseMultiplicationAssignment(const std::vector<Token>& tokens,
+                                              std::vector<Token>::const_iterator& iterator,
+                                              std::vector<std::vector<Declaration*>>& declarations);
+
+    Expression* parseAdditionAssignment(const std::vector<Token>& tokens,
+                                        std::vector<Token>::const_iterator& iterator,
+                                        std::vector<std::vector<Declaration*>>& declarations);
+
+    Expression* parseAssignment(const std::vector<Token>& tokens,
+                                std::vector<Token>::const_iterator& iterator,
+                                std::vector<std::vector<Declaration*>>& declarations);
+
+    Expression* parseTernary(const std::vector<Token>& tokens,
                              std::vector<Token>::const_iterator& iterator,
-                             std::vector<std::vector<Construct*>>& declarations,
-                             std::unique_ptr<Construct>& result);
+                             std::vector<std::vector<Declaration*>>& declarations);
 
-    bool parseUnary(const std::vector<Token>& tokens,
-                    std::vector<Token>::const_iterator& iterator,
-                    std::vector<std::vector<Construct*>>& declarations,
-                    std::unique_ptr<Construct>& result);
+    Expression* parseEquality(const std::vector<Token>& tokens,
+                              std::vector<Token>::const_iterator& iterator,
+                              std::vector<std::vector<Declaration*>>& declarations);
 
-    bool parseMember(const std::vector<Token>& tokens,
-                     std::vector<Token>::const_iterator& iterator,
-                     std::vector<std::vector<Construct*>>& declarations,
-                     std::unique_ptr<Construct>& result);
+    Expression* parseGreaterThan(const std::vector<Token>& tokens,
+                                 std::vector<Token>::const_iterator& iterator,
+                                 std::vector<std::vector<Declaration*>>& declarations);
 
-    bool parsePrimary(const std::vector<Token>& tokens,
-                      std::vector<Token>::const_iterator& iterator,
-                      std::vector<std::vector<Construct*>>& declarations,
-                      std::unique_ptr<Construct>& result);
+    Expression* parseLessThan(const std::vector<Token>& tokens,
+                              std::vector<Token>::const_iterator& iterator,
+                              std::vector<std::vector<Declaration*>>& declarations);
+
+    Expression* parseAddition(const std::vector<Token>& tokens,
+                              std::vector<Token>::const_iterator& iterator,
+                              std::vector<std::vector<Declaration*>>& declarations);
+
+    Expression* parseMultiplication(const std::vector<Token>& tokens,
+                                    std::vector<Token>::const_iterator& iterator,
+                                    std::vector<std::vector<Declaration*>>& declarations);
+
+    Expression* parseUnary(const std::vector<Token>& tokens,
+                           std::vector<Token>::const_iterator& iterator,
+                           std::vector<std::vector<Declaration*>>& declarations);
+
+    Expression* parseMember(const std::vector<Token>& tokens,
+                            std::vector<Token>::const_iterator& iterator,
+                            std::vector<std::vector<Declaration*>>& declarations);
+
+    Expression* parsePrimary(const std::vector<Token>& tokens,
+                             std::vector<Token>::const_iterator& iterator,
+                             std::vector<std::vector<Declaration*>>& declarations);
 
     void dumpNode(const Construct* node, std::string indent = std::string());
     
-    std::unique_ptr<TranslationUnit> translationUnit;
-    std::vector<std::unique_ptr<Construct>> builtinDeclarations;
+    TranslationUnit* translationUnit = nullptr;
+    std::vector<std::unique_ptr<Construct>> constructs;
+    std::vector<std::unique_ptr<Type>> builtinTypes;
 };
