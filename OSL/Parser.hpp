@@ -12,7 +12,7 @@
 #include <string>
 #include "Tokenizer.hpp"
 
-struct ASTNode
+struct Construct
 {
     enum class Kind
     {
@@ -69,64 +69,64 @@ struct ASTNode
     bool isConst = false;
     std::string name;
     std::string value;
-    std::vector<std::unique_ptr<ASTNode>> children;
-    ASTNode* reference = nullptr;
+    std::vector<std::unique_ptr<Construct>> children;
+    Construct* reference = nullptr;
 };
 
-inline std::string nodeKindToString(ASTNode::Kind type)
+inline std::string nodeKindToString(Construct::Kind type)
 {
     switch (type)
     {
-        case ASTNode::Kind::NONE: return "NONE";
-        case ASTNode::Kind::TRANSLATION_UNIT: return "TRANSLATION_UNIT";
-        case ASTNode::Kind::DECLARATION_EMPTY: return "DECLARATION_EMPTY";
-        case ASTNode::Kind::DECLARATION_STRUCT: return "DECLARATION_STRUCT";
-        case ASTNode::Kind::DECLARATION_FIELD: return "DECLARATION_FIELD";
-        //case ASTNode::Kind::DECLARATION_TYPE_DEFINITION: return "DECLARATION_TYPE_DEFINITION";
-        case ASTNode::Kind::DECLARATION_FUNCTION: return "DECLARATION_FUNCTION";
-        case ASTNode::Kind::DECLARATION_VARIABLE: return "DECLARATION_VARIABLE";
-        case ASTNode::Kind::DECLARATION_PARAMETER: return "DECLARATION_PARAMETER";
-        case ASTNode::Kind::STATEMENT_DECLARATION: return "STATEMENT_DECLARATION";
-        case ASTNode::Kind::STATEMENT_COMPOUND: return "STATEMENT_COMPOUND";
-        case ASTNode::Kind::STATEMENT_IF: return "STATEMENT_IF";
-        case ASTNode::Kind::STATEMENT_FOR: return "STATEMENT_FOR";
-        case ASTNode::Kind::STATEMENT_SWITCH: return "STATEMENT_SWITCH";
-        case ASTNode::Kind::STATEMENT_CASE: return "STATEMENT_CASE";
-        case ASTNode::Kind::STATEMENT_WHILE: return "STATEMENT_WHILE";
-        case ASTNode::Kind::STATEMENT_DO: return "STATEMENT_DO";
-        case ASTNode::Kind::STATEMENT_BREAK: return "STATEMENT_BREAK";
-        case ASTNode::Kind::STATEMENT_CONTINUE: return "STATEMENT_CONTINUE";
-        case ASTNode::Kind::STATEMENT_RETURN: return "STATEMENT_RETURN";
-        case ASTNode::Kind::STATEMENT_EXPRESSION: return "STATEMENT_EXPRESSION";
-        case ASTNode::Kind::EXPRESSION_CALL: return "EXPRESSION_CALL";
-        case ASTNode::Kind::EXPRESSION_LITERAL: return "EXPRESSION_LITERAL";
-        case ASTNode::Kind::EXPRESSION_DECLARATION_REFERENCE: return "EXPRESSION_DECLARATION_REFERENCE";
-        case ASTNode::Kind::EXPRESSION_PAREN: return "EXPRESSION_PAREN";
-        case ASTNode::Kind::EXPRESSION_MEMBER: return "EXPRESSION_MEMBER";
-        case ASTNode::Kind::EXPRESSION_ARRAY_SUBSCRIPT: return "EXPRESSION_ARRAY_SUBSCRIPT";
-        case ASTNode::Kind::OPERATOR_UNARY: return "OPERATOR_UNARY";
-        case ASTNode::Kind::OPERATOR_BINARY: return "OPERATOR_BINARY";
-        case ASTNode::Kind::OPERATOR_TERNARY: return "OPERATOR_TERNARY";
+        case Construct::Kind::NONE: return "NONE";
+        case Construct::Kind::TRANSLATION_UNIT: return "TRANSLATION_UNIT";
+        case Construct::Kind::DECLARATION_EMPTY: return "DECLARATION_EMPTY";
+        case Construct::Kind::DECLARATION_STRUCT: return "DECLARATION_STRUCT";
+        case Construct::Kind::DECLARATION_FIELD: return "DECLARATION_FIELD";
+        //case Construct::Kind::DECLARATION_TYPE_DEFINITION: return "DECLARATION_TYPE_DEFINITION";
+        case Construct::Kind::DECLARATION_FUNCTION: return "DECLARATION_FUNCTION";
+        case Construct::Kind::DECLARATION_VARIABLE: return "DECLARATION_VARIABLE";
+        case Construct::Kind::DECLARATION_PARAMETER: return "DECLARATION_PARAMETER";
+        case Construct::Kind::STATEMENT_DECLARATION: return "STATEMENT_DECLARATION";
+        case Construct::Kind::STATEMENT_COMPOUND: return "STATEMENT_COMPOUND";
+        case Construct::Kind::STATEMENT_IF: return "STATEMENT_IF";
+        case Construct::Kind::STATEMENT_FOR: return "STATEMENT_FOR";
+        case Construct::Kind::STATEMENT_SWITCH: return "STATEMENT_SWITCH";
+        case Construct::Kind::STATEMENT_CASE: return "STATEMENT_CASE";
+        case Construct::Kind::STATEMENT_WHILE: return "STATEMENT_WHILE";
+        case Construct::Kind::STATEMENT_DO: return "STATEMENT_DO";
+        case Construct::Kind::STATEMENT_BREAK: return "STATEMENT_BREAK";
+        case Construct::Kind::STATEMENT_CONTINUE: return "STATEMENT_CONTINUE";
+        case Construct::Kind::STATEMENT_RETURN: return "STATEMENT_RETURN";
+        case Construct::Kind::STATEMENT_EXPRESSION: return "STATEMENT_EXPRESSION";
+        case Construct::Kind::EXPRESSION_CALL: return "EXPRESSION_CALL";
+        case Construct::Kind::EXPRESSION_LITERAL: return "EXPRESSION_LITERAL";
+        case Construct::Kind::EXPRESSION_DECLARATION_REFERENCE: return "EXPRESSION_DECLARATION_REFERENCE";
+        case Construct::Kind::EXPRESSION_PAREN: return "EXPRESSION_PAREN";
+        case Construct::Kind::EXPRESSION_MEMBER: return "EXPRESSION_MEMBER";
+        case Construct::Kind::EXPRESSION_ARRAY_SUBSCRIPT: return "EXPRESSION_ARRAY_SUBSCRIPT";
+        case Construct::Kind::OPERATOR_UNARY: return "OPERATOR_UNARY";
+        case Construct::Kind::OPERATOR_BINARY: return "OPERATOR_BINARY";
+        case Construct::Kind::OPERATOR_TERNARY: return "OPERATOR_TERNARY";
     }
 
     return "unknown";
 }
 
-inline std::string semanticToString(ASTNode::Semantic semantic)
+inline std::string semanticToString(Construct::Semantic semantic)
 {
     switch (semantic)
     {
-        case ASTNode::Semantic::NONE: return "NONE";
-        case ASTNode::Semantic::BINORMAL: return "BINORMAL";
-        case ASTNode::Semantic::BLEND_INDICES: return "BLEND_INDICES";
-        case ASTNode::Semantic::BLEND_WEIGHT: return "BLEND_WEIGHT";
-        case ASTNode::Semantic::COLOR: return "COLOR";
-        case ASTNode::Semantic::NORMAL: return "NORMAL";
-        case ASTNode::Semantic::POSITION: return "POSITION";
-        case ASTNode::Semantic::POSITION_TRANSFORMED: return "POSITION_TRANSFORMED";
-        case ASTNode::Semantic::POINT_SIZE: return "POINT_SIZE";
-        case ASTNode::Semantic::TANGENT: return "TANGENT";
-        case ASTNode::Semantic::TEXTURE_COORDINATES: return "TEXTURE_COORDINATES";
+        case Construct::Semantic::NONE: return "NONE";
+        case Construct::Semantic::BINORMAL: return "BINORMAL";
+        case Construct::Semantic::BLEND_INDICES: return "BLEND_INDICES";
+        case Construct::Semantic::BLEND_WEIGHT: return "BLEND_WEIGHT";
+        case Construct::Semantic::COLOR: return "COLOR";
+        case Construct::Semantic::NORMAL: return "NORMAL";
+        case Construct::Semantic::POSITION: return "POSITION";
+        case Construct::Semantic::POSITION_TRANSFORMED: return "POSITION_TRANSFORMED";
+        case Construct::Semantic::POINT_SIZE: return "POINT_SIZE";
+        case Construct::Semantic::TANGENT: return "TANGENT";
+        case Construct::Semantic::TEXTURE_COORDINATES: return "TEXTURE_COORDINATES";
         default: return "unknown";
     }
 }
@@ -137,7 +137,7 @@ public:
     ASTContext();
     bool parse(const std::vector<Token>& tokens);
 
-    const std::unique_ptr<ASTNode>& getTranslationUnit() const { return translationUnit; }
+    const std::unique_ptr<Construct>& getTranslationUnit() const { return translationUnit; }
 
     void dump();
 
@@ -173,7 +173,7 @@ private:
         return false;
     }
 
-    ASTNode* findDeclaration(const std::string& name, std::vector<std::vector<ASTNode*>>& declarations)
+    Construct* findDeclaration(const std::string& name, std::vector<std::vector<Construct*>>& declarations)
     {
         for (auto i = declarations.crbegin(); i != declarations.crend(); ++i)
         {
@@ -191,7 +191,7 @@ private:
         return nullptr;
     }
 
-    ASTNode* findField(const std::string& name, ASTNode* declaration)
+    Construct* findField(const std::string& name, Construct* declaration)
     {
         for (auto field = declaration->children.cbegin(); field != declaration->children.cend(); ++field)
         {
@@ -203,120 +203,120 @@ private:
 
     bool parseTopLevel(const std::vector<Token>& tokens,
                        std::vector<Token>::const_iterator& iterator,
-                       std::vector<std::vector<ASTNode*>>& declarations,
-                       std::unique_ptr<ASTNode>& result);
+                       std::vector<std::vector<Construct*>>& declarations,
+                       std::unique_ptr<Construct>& result);
 
     bool parseStructDecl(const std::vector<Token>& tokens,
                          std::vector<Token>::const_iterator& iterator,
-                         std::vector<std::vector<ASTNode*>>& declarations,
-                         std::unique_ptr<ASTNode>& result);
+                         std::vector<std::vector<Construct*>>& declarations,
+                         std::unique_ptr<Construct>& result);
 
     bool parseTypedefDecl(const std::vector<Token>& tokens,
                           std::vector<Token>::const_iterator& iterator,
-                          std::vector<std::vector<ASTNode*>>& declarations,
-                          std::unique_ptr<ASTNode>& result);
+                          std::vector<std::vector<Construct*>>& declarations,
+                          std::unique_ptr<Construct>& result);
 
     bool parseFunctionDecl(const std::vector<Token>& tokens,
                            std::vector<Token>::const_iterator& iterator,
-                           std::vector<std::vector<ASTNode*>>& declarations,
-                           std::unique_ptr<ASTNode>& result);
+                           std::vector<std::vector<Construct*>>& declarations,
+                           std::unique_ptr<Construct>& result);
 
     bool parseVariableDecl(const std::vector<Token>& tokens,
                            std::vector<Token>::const_iterator& iterator,
-                           std::vector<std::vector<ASTNode*>>& declarations,
-                           std::unique_ptr<ASTNode>& result);
+                           std::vector<std::vector<Construct*>>& declarations,
+                           std::unique_ptr<Construct>& result);
 
     bool parseCompoundStatement(const std::vector<Token>& tokens,
                                 std::vector<Token>::const_iterator& iterator,
-                                std::vector<std::vector<ASTNode*>>& declarations,
-                                std::unique_ptr<ASTNode>& result);
+                                std::vector<std::vector<Construct*>>& declarations,
+                                std::unique_ptr<Construct>& result);
 
     bool parseStatement(const std::vector<Token>& tokens,
                         std::vector<Token>::const_iterator& iterator,
-                        std::vector<std::vector<ASTNode*>>& declarations,
-                        std::unique_ptr<ASTNode>& result);
+                        std::vector<std::vector<Construct*>>& declarations,
+                        std::unique_ptr<Construct>& result);
 
     bool parseExpression(const std::vector<Token>& tokens,
                          std::vector<Token>::const_iterator& iterator,
-                         std::vector<std::vector<ASTNode*>>& declarations,
-                         std::unique_ptr<ASTNode>& result);
+                         std::vector<std::vector<Construct*>>& declarations,
+                         std::unique_ptr<Construct>& result);
 
     bool parseMultiplicationAssignment(const std::vector<Token>& tokens,
                                        std::vector<Token>::const_iterator& iterator,
-                                       std::vector<std::vector<ASTNode*>>& declarations,
-                                       std::unique_ptr<ASTNode>& result);
+                                       std::vector<std::vector<Construct*>>& declarations,
+                                       std::unique_ptr<Construct>& result);
 
     bool parseAdditionAssignment(const std::vector<Token>& tokens,
                                  std::vector<Token>::const_iterator& iterator,
-                                 std::vector<std::vector<ASTNode*>>& declarations,
-                                 std::unique_ptr<ASTNode>& result);
+                                 std::vector<std::vector<Construct*>>& declarations,
+                                 std::unique_ptr<Construct>& result);
 
     bool parseAssignment(const std::vector<Token>& tokens,
                          std::vector<Token>::const_iterator& iterator,
-                         std::vector<std::vector<ASTNode*>>& declarations,
-                         std::unique_ptr<ASTNode>& result);
+                         std::vector<std::vector<Construct*>>& declarations,
+                         std::unique_ptr<Construct>& result);
 
     bool parseTernary(const std::vector<Token>& tokens,
                       std::vector<Token>::const_iterator& iterator,
-                      std::vector<std::vector<ASTNode*>>& declarations,
-                      std::unique_ptr<ASTNode>& result);
+                      std::vector<std::vector<Construct*>>& declarations,
+                      std::unique_ptr<Construct>& result);
 
     bool parseEquality(const std::vector<Token>& tokens,
                        std::vector<Token>::const_iterator& iterator,
-                       std::vector<std::vector<ASTNode*>>& declarations,
-                       std::unique_ptr<ASTNode>& result);
+                       std::vector<std::vector<Construct*>>& declarations,
+                       std::unique_ptr<Construct>& result);
 
     bool parseGreaterThan(const std::vector<Token>& tokens,
                           std::vector<Token>::const_iterator& iterator,
-                          std::vector<std::vector<ASTNode*>>& declarations,
-                          std::unique_ptr<ASTNode>& result);
+                          std::vector<std::vector<Construct*>>& declarations,
+                          std::unique_ptr<Construct>& result);
 
     bool parseLessThan(const std::vector<Token>& tokens,
                        std::vector<Token>::const_iterator& iterator,
-                       std::vector<std::vector<ASTNode*>>& declarations,
-                       std::unique_ptr<ASTNode>& result);
+                       std::vector<std::vector<Construct*>>& declarations,
+                       std::unique_ptr<Construct>& result);
 
     bool parseAddition(const std::vector<Token>& tokens,
                        std::vector<Token>::const_iterator& iterator,
-                       std::vector<std::vector<ASTNode*>>& declarations,
-                       std::unique_ptr<ASTNode>& result);
+                       std::vector<std::vector<Construct*>>& declarations,
+                       std::unique_ptr<Construct>& result);
 
     bool parseMultiplication(const std::vector<Token>& tokens,
                              std::vector<Token>::const_iterator& iterator,
-                             std::vector<std::vector<ASTNode*>>& declarations,
-                             std::unique_ptr<ASTNode>& result);
+                             std::vector<std::vector<Construct*>>& declarations,
+                             std::unique_ptr<Construct>& result);
 
     bool parseUnary(const std::vector<Token>& tokens,
                     std::vector<Token>::const_iterator& iterator,
-                    std::vector<std::vector<ASTNode*>>& declarations,
-                    std::unique_ptr<ASTNode>& result);
+                    std::vector<std::vector<Construct*>>& declarations,
+                    std::unique_ptr<Construct>& result);
 
     bool parseMember(const std::vector<Token>& tokens,
                      std::vector<Token>::const_iterator& iterator,
-                     std::vector<std::vector<ASTNode*>>& declarations,
-                     std::unique_ptr<ASTNode>& result);
+                     std::vector<std::vector<Construct*>>& declarations,
+                     std::unique_ptr<Construct>& result);
 
     bool parsePrimary(const std::vector<Token>& tokens,
                       std::vector<Token>::const_iterator& iterator,
-                      std::vector<std::vector<ASTNode*>>& declarations,
-                      std::unique_ptr<ASTNode>& result);
+                      std::vector<std::vector<Construct*>>& declarations,
+                      std::unique_ptr<Construct>& result);
 
-    void dumpNode(const std::unique_ptr<ASTNode>& node, std::string indent = std::string());
+    void dumpNode(const std::unique_ptr<Construct>& node, std::string indent = std::string());
 
-    std::unique_ptr<ASTNode> translationUnit;
-    std::vector<std::unique_ptr<ASTNode>> builtinDeclarations;
+    std::unique_ptr<Construct> translationUnit;
+    std::vector<std::unique_ptr<Construct>> builtinDeclarations;
 };
 
-class Type
+class Type: public Construct
 {
 public:
     std::string name;
 };
 
-class Field
+class Field: public Construct
 {
 public:
-    Type* type;
+    Type* type = nullptr;
     std::string name;
 };
 
@@ -327,12 +327,12 @@ public:
 };
 
 
-class Declaration: public ASTNode
+class Declaration: public Construct
 {
 public:
 };
 
-class TranslationUnit: public ASTNode
+class TranslationUnit: public Construct
 {
 public:
     std::vector<Declaration*> declarations;
@@ -341,14 +341,14 @@ public:
 class TypeDeclaration: public Declaration
 {
 public:
-    Type* type;
+    Type* type = nullptr;
 };
 
-class FieldDeclaration: public ASTNode
+class FieldDeclaration: public Construct
 {
 public:
-    Field* field;
-    Type* type;
+    Field* field = nullptr;
+    Type* type = nullptr;
     std::string name;
 };
 
@@ -362,25 +362,25 @@ public:
 class ParameterDeclaration: public Declaration
 {
 public:
-    Type* type;
+    Type* type = nullptr;
     std::string name;
 };
 
 class FunctionDeclaration: public Declaration
 {
 public:
-    Type* resultType;
+    Type* resultType = nullptr;
     std::string name;
 };
 
 class VariableDeclaration: public Declaration
 {
 public:
-    Type* type;
+    Type* type = nullptr;
     std::string name;
 };
 
-class Statement: public ASTNode
+class Statement: public Construct
 {
 public:
 };
@@ -393,7 +393,7 @@ public:
 class DeclarationStatement: public Statement
 {
 public:
-    Declaration* declaration;
+    Declaration* declaration = nullptr;
 };
 
 class CompoundStatement: public Statement
@@ -402,110 +402,121 @@ public:
     std::vector<Statement*> statements;
 };
 
-class IfDeclaration: public Statement
+class IfStatement: public Statement
 {
 public:
-    Statement* condition;
-    Statement* ifPart;
-    Statement* thenPart;
+    Statement* condition = nullptr;
+    Statement* truePart = nullptr;
+    Statement* falsePart = nullptr;
 };
 
-class ForDeclaration: public Statement
+class ForStatement: public Statement
 {
 public:
-    Statement* condition;
-    Statement* body;
+    Statement* condition = nullptr;
+    Statement* body = nullptr;
 };
 
-class SwitchDeclaration: public Statement
+class SwitchStatement: public Statement
 {
 public:
-    Statement* condition;
-    Statement* body;
+    Statement* condition = nullptr;
+    Statement* body = nullptr;
 };
 
-class CaseDeclaration: public Statement
+class CaseStatement: public Statement
 {
 public:
-    Expression* condition;
-    Statement* body;
+    Expression* condition = nullptr;
+    Statement* body = nullptr;
 };
 
-class WhileDeclaration: public Statement
+class WhileStatement: public Statement
 {
 public:
-    Expression* condition;
-    Statement* body;
+    Expression* condition = nullptr;
+    Statement* body = nullptr;
 };
 
-class DoDeclaration: public Statement
+class DoStatement: public Statement
 {
 public:
-    Expression* condition;
-    Statement* body;
+    Expression* condition = nullptr;
+    Statement* body = nullptr;
 };
 
-class BreakDeclaration: public Statement
-{
-public:
-};
-
-class ContinueDeclaration: public Statement
+class BreakStatement: public Statement
 {
 public:
 };
 
-class ReturnDeclaration: public Statement
+class ContinueStatement: public Statement
 {
 public:
-    Statement* result;
 };
 
-class CallExpression: public Expression
+class ReturnStatement: public Statement
 {
 public:
+    Statement* result = nullptr;
 };
 
 class LiteralExpression: public Expression
 {
 public:
+    Type* type = nullptr;
+    std::string value;
 };
 
 class DeclarationReferenceExpression: public Expression
 {
 public:
+    Declaration* declaration = nullptr;
+};
+
+class CallExpression: public Expression
+{
+public:
+    DeclarationReferenceExpression* declarationReference = nullptr;
+    std::vector<ParameterDeclaration*> parameters;
 };
 
 class ParenExpression: public Expression
 {
 public:
+    Expression* expression = nullptr;
 };
 
 class MemberExpression: public Expression
 {
 public:
+    DeclarationReferenceExpression* declarationReference = nullptr;
 };
 
 class ArraySubscriptExpression: public Expression
 {
 public:
+    DeclarationReferenceExpression* declarationReference = nullptr;
+    Expression* expression = nullptr;
 };
 
 class UnaryOperatorExpression: public Expression
 {
 public:
-    Expression* expression;
+    Expression* expression = nullptr;
 };
 
 class BinaryOperatorExpression: public Expression
 {
 public:
-    Expression* expressions[2];
+    Expression* leftExpressions = nullptr;
+    Expression* rightExpressions = nullptr;
 };
 
 class TernarySubscriptExpression: public Expression
 {
 public:
     Expression* condition;
-    Expression* expressions[2];
+    Expression* leftExpressions = nullptr;
+    Expression* rightExpressions = nullptr;
 };

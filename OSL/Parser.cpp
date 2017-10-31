@@ -16,48 +16,48 @@ static const std::vector<std::string> builtinTypes = {
 
 ASTContext::ASTContext()
 {
-    std::unique_ptr<ASTNode> boolType(new ASTNode());
-    boolType->kind = ASTNode::Kind::DECLARATION_STRUCT;
+    std::unique_ptr<Construct> boolType(new Construct());
+    boolType->kind = Construct::Kind::DECLARATION_STRUCT;
     boolType->name = "bool";
     builtinDeclarations.push_back(std::move(boolType));
 
-    std::unique_ptr<ASTNode> intType(new ASTNode());
-    intType->kind = ASTNode::Kind::DECLARATION_STRUCT;
+    std::unique_ptr<Construct> intType(new Construct());
+    intType->kind = Construct::Kind::DECLARATION_STRUCT;
     intType->name = "int";
     builtinDeclarations.push_back(std::move(intType));
 
-    std::unique_ptr<ASTNode> floatType(new ASTNode());
-    floatType->kind = ASTNode::Kind::DECLARATION_STRUCT;
+    std::unique_ptr<Construct> floatType(new Construct());
+    floatType->kind = Construct::Kind::DECLARATION_STRUCT;
     floatType->name = "float";
     builtinDeclarations.push_back(std::move(floatType));
 
-    std::unique_ptr<ASTNode> vec2Type(new ASTNode());
-    vec2Type->kind = ASTNode::Kind::DECLARATION_STRUCT;
+    std::unique_ptr<Construct> vec2Type(new Construct());
+    vec2Type->kind = Construct::Kind::DECLARATION_STRUCT;
     vec2Type->name = "vec2";
     builtinDeclarations.push_back(std::move(vec2Type));
 
-    std::unique_ptr<ASTNode> vec3Type(new ASTNode());
-    vec3Type->kind = ASTNode::Kind::DECLARATION_STRUCT;
+    std::unique_ptr<Construct> vec3Type(new Construct());
+    vec3Type->kind = Construct::Kind::DECLARATION_STRUCT;
     vec3Type->name = "vec3";
     builtinDeclarations.push_back(std::move(vec3Type));
 
-    std::unique_ptr<ASTNode> vec4Type(new ASTNode());
-    vec4Type->kind = ASTNode::Kind::DECLARATION_STRUCT;
+    std::unique_ptr<Construct> vec4Type(new Construct());
+    vec4Type->kind = Construct::Kind::DECLARATION_STRUCT;
     vec4Type->name = "vec4";
     builtinDeclarations.push_back(std::move(vec4Type));
 
-    std::unique_ptr<ASTNode> stringType(new ASTNode());
-    stringType->kind = ASTNode::Kind::DECLARATION_STRUCT;
+    std::unique_ptr<Construct> stringType(new Construct());
+    stringType->kind = Construct::Kind::DECLARATION_STRUCT;
     stringType->name = "string";
     builtinDeclarations.push_back(std::move(stringType));
 
-    std::unique_ptr<ASTNode> samplerStateType(new ASTNode());
-    samplerStateType->kind = ASTNode::Kind::DECLARATION_STRUCT;
+    std::unique_ptr<Construct> samplerStateType(new Construct());
+    samplerStateType->kind = Construct::Kind::DECLARATION_STRUCT;
     samplerStateType->name = "SamplerState";
     builtinDeclarations.push_back(std::move(samplerStateType));
 
-    std::unique_ptr<ASTNode> texture2DType(new ASTNode());
-    texture2DType->kind = ASTNode::Kind::DECLARATION_STRUCT;
+    std::unique_ptr<Construct> texture2DType(new Construct());
+    texture2DType->kind = Construct::Kind::DECLARATION_STRUCT;
     texture2DType->name = "Texture2D";
     builtinDeclarations.push_back(std::move(texture2DType));
 }
@@ -68,25 +68,25 @@ bool ASTContext::parse(const std::vector<Token>& tokens)
 
     auto iterator = tokens.cbegin();
 
-    std::vector<std::vector<ASTNode*>> declarations;
-    declarations.push_back(std::vector<ASTNode*>());
+    std::vector<std::vector<Construct*>> declarations;
+    declarations.push_back(std::vector<Construct*>());
 
     return parseTopLevel(tokens, iterator, declarations, translationUnit);
 }
 
 bool ASTContext::parseTopLevel(const std::vector<Token>& tokens,
                                std::vector<Token>::const_iterator& iterator,
-                               std::vector<std::vector<ASTNode*>>& declarations,
-                               std::unique_ptr<ASTNode>& result)
+                               std::vector<std::vector<Construct*>>& declarations,
+                               std::unique_ptr<Construct>& result)
 {
-    result.reset(new ASTNode());
-    result->kind = ASTNode::Kind::TRANSLATION_UNIT;
+    result.reset(new Construct());
+    result->kind = Construct::Kind::TRANSLATION_UNIT;
 
     while (iterator != tokens.end())
     {
         if (checkToken(Token::Type::KEYWORD_STRUCT, tokens, iterator))
         {
-            std::unique_ptr<ASTNode> decl;
+            std::unique_ptr<Construct> decl;
             if (!parseStructDecl(tokens, iterator, declarations, decl))
             {
                 std::cerr << "Failed to parse a structure declaration" << std::endl;
@@ -97,7 +97,7 @@ bool ASTContext::parseTopLevel(const std::vector<Token>& tokens,
         }
         else if (checkToken(Token::Type::KEYWORD_TYPEDEF, tokens, iterator))
         {
-            std::unique_ptr<ASTNode> decl;
+            std::unique_ptr<Construct> decl;
             if (!parseTypedefDecl(tokens, iterator, declarations, decl))
             {
                 std::cerr << "Failed to parse a type definition declaration" << std::endl;
@@ -108,7 +108,7 @@ bool ASTContext::parseTopLevel(const std::vector<Token>& tokens,
         }
         else if (checkToken(Token::Type::KEYWORD_FUNCTION, tokens, iterator))
         {
-            std::unique_ptr<ASTNode> decl;
+            std::unique_ptr<Construct> decl;
             if (!parseFunctionDecl(tokens, iterator, declarations, decl))
             {
                 std::cerr << "Failed to parse a function declaration" << std::endl;
@@ -119,7 +119,7 @@ bool ASTContext::parseTopLevel(const std::vector<Token>& tokens,
         }
         else if (checkTokens({Token::Type::KEYWORD_STATIC, Token::Type::KEYWORD_CONST, Token::Type::KEYWORD_VAR}, tokens, iterator))
         {
-            std::unique_ptr<ASTNode> decl;
+            std::unique_ptr<Construct> decl;
             if (!parseVariableDecl(tokens, iterator, declarations, decl))
             {
                 std::cerr << "Failed to parse a variable declaration" << std::endl;
@@ -130,8 +130,8 @@ bool ASTContext::parseTopLevel(const std::vector<Token>& tokens,
         }
         else if (checkToken(Token::Type::SEMICOLON, tokens, iterator))
         {
-            std::unique_ptr<ASTNode> decl(new ASTNode());
-            decl->kind = ASTNode::Kind::DECLARATION_EMPTY;
+            std::unique_ptr<Construct> decl(new Construct());
+            decl->kind = Construct::Kind::DECLARATION_EMPTY;
             result->children.push_back(std::move(decl));
         }
         else
@@ -146,13 +146,13 @@ bool ASTContext::parseTopLevel(const std::vector<Token>& tokens,
 
 bool ASTContext::parseStructDecl(const std::vector<Token>& tokens,
                                  std::vector<Token>::const_iterator& iterator,
-                                 std::vector<std::vector<ASTNode*>>& declarations,
-                                 std::unique_ptr<ASTNode>& result)
+                                 std::vector<std::vector<Construct*>>& declarations,
+                                 std::unique_ptr<Construct>& result)
 {
     if (checkToken(Token::Type::IDENTIFIER, tokens, iterator))
     {
-        result.reset(new ASTNode());
-        result->kind = ASTNode::Kind::DECLARATION_STRUCT;
+        result.reset(new Construct());
+        result->kind = Construct::Kind::DECLARATION_STRUCT;
         result->name = (iterator - 1)->value;
 
         if (checkToken(Token::Type::LEFT_BRACE, tokens, iterator))
@@ -172,8 +172,8 @@ bool ASTContext::parseStructDecl(const std::vector<Token>& tokens,
                 }
                 else if (checkToken(Token::Type::KEYWORD_VAR, tokens, iterator))
                 {
-                    std::unique_ptr<ASTNode> field(new ASTNode());
-                    field->kind = ASTNode::Kind::DECLARATION_FIELD;
+                    std::unique_ptr<Construct> field(new Construct());
+                    field->kind = Construct::Kind::DECLARATION_FIELD;
 
                     if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
                     {
@@ -234,19 +234,19 @@ bool ASTContext::parseStructDecl(const std::vector<Token>& tokens,
 
                                 if (attribute == "semantic")
                                 {
-                                    ASTNode::Semantic semantic = ASTNode::Semantic::NONE;
+                                    Construct::Semantic semantic = Construct::Semantic::NONE;
 
                                     // TODO: find slot number
-                                    if ((iterator - 1)->value == "binormal") semantic = ASTNode::Semantic::BINORMAL;
-                                    else if ((iterator - 1)->value == "blend_indices") semantic = ASTNode::Semantic::BLEND_INDICES;
-                                    else if ((iterator - 1)->value == "blend_weight") semantic = ASTNode::Semantic::BLEND_WEIGHT;
-                                    else if ((iterator - 1)->value == "color") semantic = ASTNode::Semantic::COLOR;
-                                    else if ((iterator - 1)->value == "normal") semantic = ASTNode::Semantic::NORMAL;
-                                    else if ((iterator - 1)->value == "position") semantic = ASTNode::Semantic::POSITION;
-                                    else if ((iterator - 1)->value == "position_transformed") semantic = ASTNode::Semantic::POSITION_TRANSFORMED;
-                                    else if ((iterator - 1)->value == "point_size") semantic = ASTNode::Semantic::POINT_SIZE;
-                                    else if ((iterator - 1)->value == "tangent") semantic = ASTNode::Semantic::TANGENT;
-                                    else if ((iterator - 1)->value == "texture_coordinates") semantic = ASTNode::Semantic::TEXTURE_COORDINATES;
+                                    if ((iterator - 1)->value == "binormal") semantic = Construct::Semantic::BINORMAL;
+                                    else if ((iterator - 1)->value == "blend_indices") semantic = Construct::Semantic::BLEND_INDICES;
+                                    else if ((iterator - 1)->value == "blend_weight") semantic = Construct::Semantic::BLEND_WEIGHT;
+                                    else if ((iterator - 1)->value == "color") semantic = Construct::Semantic::COLOR;
+                                    else if ((iterator - 1)->value == "normal") semantic = Construct::Semantic::NORMAL;
+                                    else if ((iterator - 1)->value == "position") semantic = Construct::Semantic::POSITION;
+                                    else if ((iterator - 1)->value == "position_transformed") semantic = Construct::Semantic::POSITION_TRANSFORMED;
+                                    else if ((iterator - 1)->value == "point_size") semantic = Construct::Semantic::POINT_SIZE;
+                                    else if ((iterator - 1)->value == "tangent") semantic = Construct::Semantic::TANGENT;
+                                    else if ((iterator - 1)->value == "texture_coordinates") semantic = Construct::Semantic::TEXTURE_COORDINATES;
                                     else
                                     {
                                         std::cerr << "Invalid semantic" << std::endl;
@@ -300,8 +300,8 @@ bool ASTContext::parseStructDecl(const std::vector<Token>& tokens,
 
 bool ASTContext::parseTypedefDecl(const std::vector<Token>& tokens,
                                   std::vector<Token>::const_iterator& iterator,
-                                  std::vector<std::vector<ASTNode*>>& declarations,
-                                  std::unique_ptr<ASTNode>& result)
+                                  std::vector<std::vector<Construct*>>& declarations,
+                                  std::unique_ptr<Construct>& result)
 {
     std::cerr << "Typedef is not supported" << std::endl;
     return false;
@@ -312,8 +312,8 @@ bool ASTContext::parseTypedefDecl(const std::vector<Token>& tokens,
         return false;
     }
 
-    result.reset(new ASTNode());
-    result->kind = ASTNode::Kind::DECLARATION_TYPE_DEFINITION;
+    result.reset(new Construct());
+    result->kind = Construct::Kind::DECLARATION_TYPE_DEFINITION;
     result->reference = findDeclaration((iterator - 1)->value, declarations);
 
     if (!result->reference)
@@ -341,8 +341,8 @@ bool ASTContext::parseTypedefDecl(const std::vector<Token>& tokens,
 
 bool ASTContext::parseFunctionDecl(const std::vector<Token>& tokens,
                                    std::vector<Token>::const_iterator& iterator,
-                                   std::vector<std::vector<ASTNode*>>& declarations,
-                                   std::unique_ptr<ASTNode>& result)
+                                   std::vector<std::vector<Construct*>>& declarations,
+                                   std::unique_ptr<Construct>& result)
 {
     if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
     {
@@ -350,8 +350,8 @@ bool ASTContext::parseFunctionDecl(const std::vector<Token>& tokens,
         return false;
     }
 
-    result.reset(new ASTNode());
-    result->kind = ASTNode::Kind::DECLARATION_FUNCTION;
+    result.reset(new Construct());
+    result->kind = Construct::Kind::DECLARATION_FUNCTION;
     result->name = (iterator - 1)->value;
 
     if (!checkToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
@@ -373,8 +373,8 @@ bool ASTContext::parseFunctionDecl(const std::vector<Token>& tokens,
         {
             firstParameter = false;
 
-            std::unique_ptr<ASTNode> parameter(new ASTNode());
-            parameter->kind = ASTNode::Kind::DECLARATION_PARAMETER;
+            std::unique_ptr<Construct> parameter(new Construct());
+            parameter->kind = Construct::Kind::DECLARATION_PARAMETER;
             parameter->name = (iterator - 1)->value;
 
             if (!checkToken(Token::Type::COLON, tokens, iterator))
@@ -431,7 +431,7 @@ bool ASTContext::parseFunctionDecl(const std::vector<Token>& tokens,
         declarations.back().push_back(result.get());
 
         // parse body
-        std::unique_ptr<ASTNode> compound;
+        std::unique_ptr<Construct> compound;
         if (!parseCompoundStatement(tokens, iterator, declarations, compound))
         {
             std::cerr << "Failed to parse a compound statement" << std::endl;
@@ -455,11 +455,11 @@ bool ASTContext::parseFunctionDecl(const std::vector<Token>& tokens,
 
 bool ASTContext::parseVariableDecl(const std::vector<Token>& tokens,
                                    std::vector<Token>::const_iterator& iterator,
-                                   std::vector<std::vector<ASTNode*>>& declarations,
-                                   std::unique_ptr<ASTNode>& result)
+                                   std::vector<std::vector<Construct*>>& declarations,
+                                   std::unique_ptr<Construct>& result)
 {
-    result.reset(new ASTNode());
-    result->kind = ASTNode::Kind::DECLARATION_VARIABLE;
+    result.reset(new Construct());
+    result->kind = Construct::Kind::DECLARATION_VARIABLE;
 
     if ((iterator - 1)->type == Token::Type::KEYWORD_STATIC)
     {
@@ -514,7 +514,7 @@ bool ASTContext::parseVariableDecl(const std::vector<Token>& tokens,
 
     if (checkToken(Token::Type::OPERATOR_ASSIGNMENT, tokens, iterator))
     {
-        std::unique_ptr<ASTNode> expression;
+        std::unique_ptr<Construct> expression;
         if (!parseExpression(tokens, iterator, declarations, expression))
         {
             return false;
@@ -524,7 +524,7 @@ bool ASTContext::parseVariableDecl(const std::vector<Token>& tokens,
     }
     else if (checkToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
     {
-        std::unique_ptr<ASTNode> expression;
+        std::unique_ptr<Construct> expression;
         if (!parseExpression(tokens, iterator, declarations, expression))
         {
             return false;
@@ -547,13 +547,13 @@ bool ASTContext::parseVariableDecl(const std::vector<Token>& tokens,
 
 bool ASTContext::parseCompoundStatement(const std::vector<Token>& tokens,
                                         std::vector<Token>::const_iterator& iterator,
-                                        std::vector<std::vector<ASTNode*>>& declarations,
-                                        std::unique_ptr<ASTNode>& result)
+                                        std::vector<std::vector<Construct*>>& declarations,
+                                        std::unique_ptr<Construct>& result)
 {
-    declarations.push_back(std::vector<ASTNode*>());
+    declarations.push_back(std::vector<Construct*>());
 
-    result.reset(new ASTNode());
-    result->kind = ASTNode::Kind::STATEMENT_COMPOUND;
+    result.reset(new Construct());
+    result->kind = Construct::Kind::STATEMENT_COMPOUND;
 
     for (;;)
     {
@@ -564,7 +564,7 @@ bool ASTContext::parseCompoundStatement(const std::vector<Token>& tokens,
         }
         else
         {
-            std::unique_ptr<ASTNode> statement;
+            std::unique_ptr<Construct> statement;
             if (!parseStatement(tokens, iterator, declarations, statement))
             {
                 std::cerr << "Failed to parse a statement" << std::endl;
@@ -580,8 +580,8 @@ bool ASTContext::parseCompoundStatement(const std::vector<Token>& tokens,
 
 bool ASTContext::parseStatement(const std::vector<Token>& tokens,
                                 std::vector<Token>::const_iterator& iterator,
-                                std::vector<std::vector<ASTNode*>>& declarations,
-                                std::unique_ptr<ASTNode>& result)
+                                std::vector<std::vector<Construct*>>& declarations,
+                                std::unique_ptr<Construct>& result)
 {
     if (checkToken(Token::Type::LEFT_BRACE, tokens, iterator))
     {
@@ -589,8 +589,8 @@ bool ASTContext::parseStatement(const std::vector<Token>& tokens,
     }
     else if (checkToken(Token::Type::KEYWORD_IF, tokens, iterator))
     {
-        result.reset(new ASTNode());
-        result->kind = ASTNode::Kind::STATEMENT_IF;
+        result.reset(new Construct());
+        result->kind = Construct::Kind::STATEMENT_IF;
 
         if (!checkToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
         {
@@ -600,7 +600,7 @@ bool ASTContext::parseStatement(const std::vector<Token>& tokens,
 
         if (checkToken(Token::Type::KEYWORD_VAR, tokens, iterator))
         {
-            std::unique_ptr<ASTNode> declaration;
+            std::unique_ptr<Construct> declaration;
             if (!parseVariableDecl(tokens, iterator, declarations, declaration))
             {
                 return false;
@@ -610,7 +610,7 @@ bool ASTContext::parseStatement(const std::vector<Token>& tokens,
         }
         else
         {
-            std::unique_ptr<ASTNode> expression;
+            std::unique_ptr<Construct> expression;
             if (!parseExpression(tokens, iterator, declarations, expression))
             {
                 return false;
@@ -625,7 +625,7 @@ bool ASTContext::parseStatement(const std::vector<Token>& tokens,
             return false;
         }
 
-        std::unique_ptr<ASTNode> statement;
+        std::unique_ptr<Construct> statement;
         if (!parseStatement(tokens, iterator, declarations, statement))
         {
             return false;
@@ -635,8 +635,8 @@ bool ASTContext::parseStatement(const std::vector<Token>& tokens,
     }
     else if (checkToken(Token::Type::KEYWORD_FOR, tokens, iterator))
     {
-        result.reset(new ASTNode());
-        result->kind = ASTNode::Kind::STATEMENT_FOR;
+        result.reset(new Construct());
+        result->kind = Construct::Kind::STATEMENT_FOR;
 
         if (!checkToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
         {
@@ -644,7 +644,7 @@ bool ASTContext::parseStatement(const std::vector<Token>& tokens,
             return false;
         }
 
-        std::unique_ptr<ASTNode> node;
+        std::unique_ptr<Construct> node;
 
         if (checkToken(Token::Type::KEYWORD_VAR, tokens, iterator))
         {
@@ -661,8 +661,8 @@ bool ASTContext::parseStatement(const std::vector<Token>& tokens,
         }
         else if (checkToken(Token::Type::SEMICOLON, tokens, iterator))
         {
-            node.reset(new ASTNode());
-            node->kind = ASTNode::Kind::NONE;
+            node.reset(new Construct());
+            node->kind = Construct::Kind::NONE;
         }
         else
         {
@@ -695,8 +695,8 @@ bool ASTContext::parseStatement(const std::vector<Token>& tokens,
         }
         else if (checkToken(Token::Type::SEMICOLON, tokens, iterator))
         {
-            node.reset(new ASTNode());
-            node->kind = ASTNode::Kind::NONE;
+            node.reset(new Construct());
+            node->kind = Construct::Kind::NONE;
         }
         else
         {
@@ -716,8 +716,8 @@ bool ASTContext::parseStatement(const std::vector<Token>& tokens,
 
         if (checkToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
         {
-            node.reset(new ASTNode());
-            node->kind = ASTNode::Kind::NONE;
+            node.reset(new Construct());
+            node->kind = Construct::Kind::NONE;
         }
         else
         {
@@ -735,7 +735,7 @@ bool ASTContext::parseStatement(const std::vector<Token>& tokens,
 
         result->children.push_back(std::move(node));
 
-        std::unique_ptr<ASTNode> statement;
+        std::unique_ptr<Construct> statement;
         if (!parseStatement(tokens, iterator, declarations, statement))
         {
             return false;
@@ -745,8 +745,8 @@ bool ASTContext::parseStatement(const std::vector<Token>& tokens,
     }
     else if (checkToken(Token::Type::KEYWORD_SWITCH, tokens, iterator))
     {
-        result.reset(new ASTNode());
-        result->kind = ASTNode::Kind::STATEMENT_SWITCH;
+        result.reset(new Construct());
+        result->kind = Construct::Kind::STATEMENT_SWITCH;
 
         if (!checkToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
         {
@@ -756,7 +756,7 @@ bool ASTContext::parseStatement(const std::vector<Token>& tokens,
 
         if (checkToken(Token::Type::KEYWORD_VAR, tokens, iterator))
         {
-            std::unique_ptr<ASTNode> declaration;
+            std::unique_ptr<Construct> declaration;
             if (!parseVariableDecl(tokens, iterator, declarations, declaration))
             {
                 return false;
@@ -766,7 +766,7 @@ bool ASTContext::parseStatement(const std::vector<Token>& tokens,
         }
         else
         {
-            std::unique_ptr<ASTNode> expression;
+            std::unique_ptr<Construct> expression;
             if (!parseExpression(tokens, iterator, declarations, expression))
             {
                 return false;
@@ -781,7 +781,7 @@ bool ASTContext::parseStatement(const std::vector<Token>& tokens,
             return false;
         }
 
-        std::unique_ptr<ASTNode> statement;
+        std::unique_ptr<Construct> statement;
         if (!parseStatement(tokens, iterator, declarations, statement))
         {
             return false;
@@ -791,8 +791,8 @@ bool ASTContext::parseStatement(const std::vector<Token>& tokens,
     }
     else if (checkToken(Token::Type::KEYWORD_CASE, tokens, iterator))
     {
-        result.reset(new ASTNode());
-        result->kind = ASTNode::Kind::STATEMENT_CASE;
+        result.reset(new Construct());
+        result->kind = Construct::Kind::STATEMENT_CASE;
 
         if (!checkToken(Token::Type::LITERAL_INT, tokens, iterator))
         {
@@ -808,7 +808,7 @@ bool ASTContext::parseStatement(const std::vector<Token>& tokens,
             return false;
         }
 
-        std::unique_ptr<ASTNode> statement;
+        std::unique_ptr<Construct> statement;
         if (!parseStatement(tokens, iterator, declarations, statement))
         {
             return false;
@@ -818,8 +818,8 @@ bool ASTContext::parseStatement(const std::vector<Token>& tokens,
     }
     else if (checkToken(Token::Type::KEYWORD_WHILE, tokens, iterator))
     {
-        result.reset(new ASTNode());
-        result->kind = ASTNode::Kind::STATEMENT_WHILE;
+        result.reset(new Construct());
+        result->kind = Construct::Kind::STATEMENT_WHILE;
 
         if (!checkToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
         {
@@ -829,7 +829,7 @@ bool ASTContext::parseStatement(const std::vector<Token>& tokens,
 
         if (checkToken(Token::Type::KEYWORD_VAR, tokens, iterator))
         {
-            std::unique_ptr<ASTNode> declaration;
+            std::unique_ptr<Construct> declaration;
             if (!parseVariableDecl(tokens, iterator, declarations, declaration))
             {
                 return false;
@@ -839,7 +839,7 @@ bool ASTContext::parseStatement(const std::vector<Token>& tokens,
         }
         else
         {
-            std::unique_ptr<ASTNode> expression;
+            std::unique_ptr<Construct> expression;
             if (!parseExpression(tokens, iterator, declarations, expression))
             {
                 return false;
@@ -854,7 +854,7 @@ bool ASTContext::parseStatement(const std::vector<Token>& tokens,
             return false;
         }
 
-        std::unique_ptr<ASTNode> statement;
+        std::unique_ptr<Construct> statement;
         if (!parseStatement(tokens, iterator, declarations, statement))
         {
             return false;
@@ -864,10 +864,10 @@ bool ASTContext::parseStatement(const std::vector<Token>& tokens,
     }
     else if (checkToken(Token::Type::KEYWORD_DO, tokens, iterator))
     {
-        result.reset(new ASTNode());
-        result->kind = ASTNode::Kind::STATEMENT_DO;
+        result.reset(new Construct());
+        result->kind = Construct::Kind::STATEMENT_DO;
 
-        std::unique_ptr<ASTNode> statement;
+        std::unique_ptr<Construct> statement;
         if (!parseStatement(tokens, iterator, declarations, statement))
         {
             return false;
@@ -888,7 +888,7 @@ bool ASTContext::parseStatement(const std::vector<Token>& tokens,
         }
 
         // expression
-        std::unique_ptr<ASTNode> expression;
+        std::unique_ptr<Construct> expression;
         if (!parseExpression(tokens, iterator, declarations, expression))
         {
             return false;
@@ -910,8 +910,8 @@ bool ASTContext::parseStatement(const std::vector<Token>& tokens,
     }
     else if (checkToken(Token::Type::KEYWORD_BREAK, tokens, iterator))
     {
-        result.reset(new ASTNode());
-        result->kind = ASTNode::Kind::STATEMENT_BREAK;
+        result.reset(new Construct());
+        result->kind = Construct::Kind::STATEMENT_BREAK;
 
         if (!checkToken(Token::Type::SEMICOLON, tokens, iterator))
         {
@@ -921,8 +921,8 @@ bool ASTContext::parseStatement(const std::vector<Token>& tokens,
     }
     else if (checkToken(Token::Type::KEYWORD_CONTINUE, tokens, iterator))
     {
-        result.reset(new ASTNode());
-        result->kind = ASTNode::Kind::STATEMENT_CONTINUE;
+        result.reset(new Construct());
+        result->kind = Construct::Kind::STATEMENT_CONTINUE;
 
         if (!checkToken(Token::Type::SEMICOLON, tokens, iterator))
         {
@@ -932,10 +932,10 @@ bool ASTContext::parseStatement(const std::vector<Token>& tokens,
     }
     else if (checkToken(Token::Type::KEYWORD_RETURN, tokens, iterator))
     {
-        result.reset(new ASTNode());
-        result->kind = ASTNode::Kind::STATEMENT_RETURN;
+        result.reset(new Construct());
+        result->kind = Construct::Kind::STATEMENT_RETURN;
 
-        std::unique_ptr<ASTNode> expression;
+        std::unique_ptr<Construct> expression;
         if (!parseExpression(tokens, iterator, declarations, expression))
         {
             std::cerr << "Expected an expression" << std::endl;
@@ -965,10 +965,10 @@ bool ASTContext::parseStatement(const std::vector<Token>& tokens,
     }
     else
     {
-        result.reset(new ASTNode());
-        result->kind = ASTNode::Kind::STATEMENT_EXPRESSION;
+        result.reset(new Construct());
+        result->kind = Construct::Kind::STATEMENT_EXPRESSION;
 
-        std::unique_ptr<ASTNode> expression;
+        std::unique_ptr<Construct> expression;
         if (!parseExpression(tokens, iterator, declarations, expression))
         {
             return false;
@@ -988,16 +988,16 @@ bool ASTContext::parseStatement(const std::vector<Token>& tokens,
 
 bool ASTContext::parseExpression(const std::vector<Token>& tokens,
                                  std::vector<Token>::const_iterator& iterator,
-                                 std::vector<std::vector<ASTNode*>>& declarations,
-                                 std::unique_ptr<ASTNode>& result)
+                                 std::vector<std::vector<Construct*>>& declarations,
+                                 std::unique_ptr<Construct>& result)
 {
     return parseMultiplicationAssignment(tokens, iterator, declarations, result);
 }
 
 bool ASTContext::parseMultiplicationAssignment(const std::vector<Token>& tokens,
                                                std::vector<Token>::const_iterator& iterator,
-                                               std::vector<std::vector<ASTNode*>>& declarations,
-                                               std::unique_ptr<ASTNode>& result)
+                                               std::vector<std::vector<Construct*>>& declarations,
+                                               std::unique_ptr<Construct>& result)
 {
     if (!parseAdditionAssignment(tokens, iterator, declarations, result))
     {
@@ -1006,11 +1006,11 @@ bool ASTContext::parseMultiplicationAssignment(const std::vector<Token>& tokens,
 
     while (checkTokens({Token::Type::OPERATOR_MULTIPLY_ASSIGNMENT, Token::Type::OPERATOR_DIVIDE_ASSIGNMENT}, tokens, iterator))
     {
-        std::unique_ptr<ASTNode> expression(new ASTNode());
-        expression->kind = ASTNode::Kind::OPERATOR_BINARY;
+        std::unique_ptr<Construct> expression(new Construct());
+        expression->kind = Construct::Kind::OPERATOR_BINARY;
         expression->value = (iterator - 1)->value;
 
-        std::unique_ptr<ASTNode> right;
+        std::unique_ptr<Construct> right;
         if (!parseAdditionAssignment(tokens, iterator, declarations, right))
         {
             return false;
@@ -1027,8 +1027,8 @@ bool ASTContext::parseMultiplicationAssignment(const std::vector<Token>& tokens,
 
 bool ASTContext::parseAdditionAssignment(const std::vector<Token>& tokens,
                                          std::vector<Token>::const_iterator& iterator,
-                                         std::vector<std::vector<ASTNode*>>& declarations,
-                                         std::unique_ptr<ASTNode>& result)
+                                         std::vector<std::vector<Construct*>>& declarations,
+                                         std::unique_ptr<Construct>& result)
 {
     if (!parseAssignment(tokens, iterator, declarations, result))
     {
@@ -1037,11 +1037,11 @@ bool ASTContext::parseAdditionAssignment(const std::vector<Token>& tokens,
 
     while (checkTokens({Token::Type::OPERATOR_PLUS_ASSIGNMENT, Token::Type::OPERATOR_MINUS_ASSIGNMENT}, tokens, iterator))
     {
-        std::unique_ptr<ASTNode> expression(new ASTNode());
-        expression->kind = ASTNode::Kind::OPERATOR_BINARY;
+        std::unique_ptr<Construct> expression(new Construct());
+        expression->kind = Construct::Kind::OPERATOR_BINARY;
         expression->value = (iterator - 1)->value;
 
-        std::unique_ptr<ASTNode> right;
+        std::unique_ptr<Construct> right;
         if (!parseAssignment(tokens, iterator, declarations, right))
         {
             return false;
@@ -1058,8 +1058,8 @@ bool ASTContext::parseAdditionAssignment(const std::vector<Token>& tokens,
 
 bool ASTContext::parseAssignment(const std::vector<Token>& tokens,
                                  std::vector<Token>::const_iterator& iterator,
-                                 std::vector<std::vector<ASTNode*>>& declarations,
-                                 std::unique_ptr<ASTNode>& result)
+                                 std::vector<std::vector<Construct*>>& declarations,
+                                 std::unique_ptr<Construct>& result)
 {
     if (!parseTernary(tokens, iterator, declarations, result))
     {
@@ -1068,11 +1068,11 @@ bool ASTContext::parseAssignment(const std::vector<Token>& tokens,
 
     while (checkToken(Token::Type::OPERATOR_ASSIGNMENT, tokens, iterator))
     {
-        std::unique_ptr<ASTNode> expression(new ASTNode());
-        expression->kind = ASTNode::Kind::OPERATOR_BINARY;
+        std::unique_ptr<Construct> expression(new Construct());
+        expression->kind = Construct::Kind::OPERATOR_BINARY;
         expression->value = (iterator - 1)->value;
 
-        std::unique_ptr<ASTNode> right;
+        std::unique_ptr<Construct> right;
         if (!parseTernary(tokens, iterator, declarations, right))
         {
             return false;
@@ -1089,8 +1089,8 @@ bool ASTContext::parseAssignment(const std::vector<Token>& tokens,
 
 bool ASTContext::parseTernary(const std::vector<Token>& tokens,
                               std::vector<Token>::const_iterator& iterator,
-                              std::vector<std::vector<ASTNode*>>& declarations,
-                              std::unique_ptr<ASTNode>& result)
+                              std::vector<std::vector<Construct*>>& declarations,
+                              std::unique_ptr<Construct>& result)
 {
     if (!parseEquality(tokens, iterator, declarations, result))
     {
@@ -1099,11 +1099,11 @@ bool ASTContext::parseTernary(const std::vector<Token>& tokens,
 
     while (checkToken(Token::Type::OPERATOR_CONDITIONAL, tokens, iterator))
     {
-        std::unique_ptr<ASTNode> expression(new ASTNode());
-        expression->kind = ASTNode::Kind::OPERATOR_TERNARY;
+        std::unique_ptr<Construct> expression(new Construct());
+        expression->kind = Construct::Kind::OPERATOR_TERNARY;
         expression->value = (iterator - 1)->value;
 
-        std::unique_ptr<ASTNode> left;
+        std::unique_ptr<Construct> left;
         if (!parseTernary(tokens, iterator, declarations, left))
         {
             return false;
@@ -1115,7 +1115,7 @@ bool ASTContext::parseTernary(const std::vector<Token>& tokens,
             return false;
         }
 
-        std::unique_ptr<ASTNode> right;
+        std::unique_ptr<Construct> right;
         if (!parseTernary(tokens, iterator, declarations, right))
         {
             return false;
@@ -1133,8 +1133,8 @@ bool ASTContext::parseTernary(const std::vector<Token>& tokens,
 
 bool ASTContext::parseEquality(const std::vector<Token>& tokens,
                                std::vector<Token>::const_iterator& iterator,
-                               std::vector<std::vector<ASTNode*>>& declarations,
-                               std::unique_ptr<ASTNode>& result)
+                               std::vector<std::vector<Construct*>>& declarations,
+                               std::unique_ptr<Construct>& result)
 {
     if (!parseGreaterThan(tokens, iterator, declarations, result))
     {
@@ -1143,11 +1143,11 @@ bool ASTContext::parseEquality(const std::vector<Token>& tokens,
 
     while (checkTokens({Token::Type::OPERATOR_EQUAL, Token::Type::OPERATOR_NOT_EQUAL}, tokens, iterator))
     {
-        std::unique_ptr<ASTNode> expression(new ASTNode());
-        expression->kind = ASTNode::Kind::OPERATOR_BINARY;
+        std::unique_ptr<Construct> expression(new Construct());
+        expression->kind = Construct::Kind::OPERATOR_BINARY;
         expression->value = (iterator - 1)->value;
 
-        std::unique_ptr<ASTNode> right;
+        std::unique_ptr<Construct> right;
         if (!parseGreaterThan(tokens, iterator, declarations, right))
         {
             return false;
@@ -1164,8 +1164,8 @@ bool ASTContext::parseEquality(const std::vector<Token>& tokens,
 
 bool ASTContext::parseGreaterThan(const std::vector<Token>& tokens,
                                   std::vector<Token>::const_iterator& iterator,
-                                  std::vector<std::vector<ASTNode*>>& declarations,
-                                  std::unique_ptr<ASTNode>& result)
+                                  std::vector<std::vector<Construct*>>& declarations,
+                                  std::unique_ptr<Construct>& result)
 {
     if (!parseLessThan(tokens, iterator, declarations, result))
     {
@@ -1174,11 +1174,11 @@ bool ASTContext::parseGreaterThan(const std::vector<Token>& tokens,
 
     while (checkTokens({Token::Type::OPERATOR_GREATER_THAN, Token::Type::OPERATOR_GREATER_THAN_EQUAL}, tokens, iterator))
     {
-        std::unique_ptr<ASTNode> expression(new ASTNode());
-        expression->kind = ASTNode::Kind::OPERATOR_BINARY;
+        std::unique_ptr<Construct> expression(new Construct());
+        expression->kind = Construct::Kind::OPERATOR_BINARY;
         expression->value = (iterator - 1)->value;
 
-        std::unique_ptr<ASTNode> right;
+        std::unique_ptr<Construct> right;
         if (!parseLessThan(tokens, iterator, declarations, right))
         {
             return false;
@@ -1195,8 +1195,8 @@ bool ASTContext::parseGreaterThan(const std::vector<Token>& tokens,
 
 bool ASTContext::parseLessThan(const std::vector<Token>& tokens,
                                std::vector<Token>::const_iterator& iterator,
-                               std::vector<std::vector<ASTNode*>>& declarations,
-                               std::unique_ptr<ASTNode>& result)
+                               std::vector<std::vector<Construct*>>& declarations,
+                               std::unique_ptr<Construct>& result)
 {
     if (!parseAddition(tokens, iterator, declarations, result))
     {
@@ -1205,11 +1205,11 @@ bool ASTContext::parseLessThan(const std::vector<Token>& tokens,
 
     while (checkTokens({Token::Type::OPERATOR_LESS_THAN, Token::Type::OPERATOR_LESS_THAN_EQUAL}, tokens, iterator))
     {
-        std::unique_ptr<ASTNode> expression(new ASTNode());
-        expression->kind = ASTNode::Kind::OPERATOR_BINARY;
+        std::unique_ptr<Construct> expression(new Construct());
+        expression->kind = Construct::Kind::OPERATOR_BINARY;
         expression->value = (iterator - 1)->value;
 
-        std::unique_ptr<ASTNode> right;
+        std::unique_ptr<Construct> right;
         if (!parseAddition(tokens, iterator, declarations, right))
         {
             return false;
@@ -1226,8 +1226,8 @@ bool ASTContext::parseLessThan(const std::vector<Token>& tokens,
 
 bool ASTContext::parseAddition(const std::vector<Token>& tokens,
                                std::vector<Token>::const_iterator& iterator,
-                               std::vector<std::vector<ASTNode*>>& declarations,
-                               std::unique_ptr<ASTNode>& result)
+                               std::vector<std::vector<Construct*>>& declarations,
+                               std::unique_ptr<Construct>& result)
 {
     if (!parseMultiplication(tokens, iterator, declarations, result))
     {
@@ -1236,11 +1236,11 @@ bool ASTContext::parseAddition(const std::vector<Token>& tokens,
 
     while (checkTokens({Token::Type::OPERATOR_PLUS, Token::Type::OPERATOR_MINUS}, tokens, iterator))
     {
-        std::unique_ptr<ASTNode> expression(new ASTNode());
-        expression->kind = ASTNode::Kind::OPERATOR_BINARY;
+        std::unique_ptr<Construct> expression(new Construct());
+        expression->kind = Construct::Kind::OPERATOR_BINARY;
         expression->value = (iterator - 1)->value;
 
-        std::unique_ptr<ASTNode> right;
+        std::unique_ptr<Construct> right;
         if (!parseMultiplication(tokens, iterator, declarations, right))
         {
             return false;
@@ -1257,8 +1257,8 @@ bool ASTContext::parseAddition(const std::vector<Token>& tokens,
 
 bool ASTContext::parseMultiplication(const std::vector<Token>& tokens,
                                      std::vector<Token>::const_iterator& iterator,
-                                     std::vector<std::vector<ASTNode*>>& declarations,
-                                     std::unique_ptr<ASTNode>& result)
+                                     std::vector<std::vector<Construct*>>& declarations,
+                                     std::unique_ptr<Construct>& result)
 {
     if (!parseUnary(tokens, iterator, declarations, result))
     {
@@ -1267,11 +1267,11 @@ bool ASTContext::parseMultiplication(const std::vector<Token>& tokens,
 
     while (checkTokens({Token::Type::OPERATOR_MULTIPLY, Token::Type::OPERATOR_DIVIDE}, tokens, iterator))
     {
-        std::unique_ptr<ASTNode> expression(new ASTNode());
-        expression->kind = ASTNode::Kind::OPERATOR_BINARY;
+        std::unique_ptr<Construct> expression(new Construct());
+        expression->kind = Construct::Kind::OPERATOR_BINARY;
         expression->value = (iterator - 1)->value;
 
-        std::unique_ptr<ASTNode> right;
+        std::unique_ptr<Construct> right;
         if (!parseUnary(tokens, iterator, declarations, right))
         {
             return false;
@@ -1288,16 +1288,16 @@ bool ASTContext::parseMultiplication(const std::vector<Token>& tokens,
 
 bool ASTContext::parseUnary(const std::vector<Token>& tokens,
                             std::vector<Token>::const_iterator& iterator,
-                            std::vector<std::vector<ASTNode*>>& declarations,
-                            std::unique_ptr<ASTNode>& result)
+                            std::vector<std::vector<Construct*>>& declarations,
+                            std::unique_ptr<Construct>& result)
 {
     if (checkTokens({Token::Type::OPERATOR_PLUS, Token::Type::OPERATOR_MINUS, Token::Type::OPERATOR_NOT}, tokens, iterator))
     {
-        result.reset(new ASTNode());
-        result->kind = ASTNode::Kind::OPERATOR_UNARY;
+        result.reset(new Construct());
+        result->kind = Construct::Kind::OPERATOR_UNARY;
         result->value = (iterator - 1)->value;
 
-        std::unique_ptr<ASTNode> right;
+        std::unique_ptr<Construct> right;
         if (!parseMember(tokens, iterator, declarations, right))
         {
             return false;
@@ -1318,8 +1318,8 @@ bool ASTContext::parseUnary(const std::vector<Token>& tokens,
 
 bool ASTContext::parseMember(const std::vector<Token>& tokens,
                              std::vector<Token>::const_iterator& iterator,
-                             std::vector<std::vector<ASTNode*>>& declarations,
-                             std::unique_ptr<ASTNode>& result)
+                             std::vector<std::vector<Construct*>>& declarations,
+                             std::unique_ptr<Construct>& result)
 {
     if (!parsePrimary(tokens, iterator, declarations, result))
     {
@@ -1328,10 +1328,10 @@ bool ASTContext::parseMember(const std::vector<Token>& tokens,
 
     while (checkToken(Token::Type::OPERATOR_DOT, tokens, iterator))
     {
-        std::unique_ptr<ASTNode> expression(new ASTNode());
-        expression->kind = ASTNode::Kind::EXPRESSION_MEMBER;
+        std::unique_ptr<Construct> expression(new Construct());
+        expression->kind = Construct::Kind::EXPRESSION_MEMBER;
 
-        ASTNode* declaration = findDeclaration((iterator - 2)->value, declarations);
+        Construct* declaration = findDeclaration((iterator - 2)->value, declarations);
 
         if (!declaration)
         {
@@ -1339,8 +1339,8 @@ bool ASTContext::parseMember(const std::vector<Token>& tokens,
             return false;
         }
 
-        std::unique_ptr<ASTNode> declRefExpression(new ASTNode());
-        declRefExpression->kind = ASTNode::Kind::EXPRESSION_DECLARATION_REFERENCE;
+        std::unique_ptr<Construct> declRefExpression(new Construct());
+        declRefExpression->kind = Construct::Kind::EXPRESSION_DECLARATION_REFERENCE;
         declRefExpression->reference = declaration;
 
         result->children.push_back(std::move(declRefExpression));
@@ -1351,8 +1351,8 @@ bool ASTContext::parseMember(const std::vector<Token>& tokens,
             return false;
         }
 
-        std::unique_ptr<ASTNode> fieldRefExpression(new ASTNode());
-        fieldRefExpression->kind = ASTNode::Kind::EXPRESSION_DECLARATION_REFERENCE;
+        std::unique_ptr<Construct> fieldRefExpression(new Construct());
+        fieldRefExpression->kind = Construct::Kind::EXPRESSION_DECLARATION_REFERENCE;
         fieldRefExpression->reference = findField((iterator - 1)->value, declaration->reference);
 
         if (!fieldRefExpression->reference)
@@ -1373,34 +1373,34 @@ bool ASTContext::parseMember(const std::vector<Token>& tokens,
 
 bool ASTContext::parsePrimary(const std::vector<Token>& tokens,
                               std::vector<Token>::const_iterator& iterator,
-                              std::vector<std::vector<ASTNode*>>& declarations,
-                              std::unique_ptr<ASTNode>& result)
+                              std::vector<std::vector<Construct*>>& declarations,
+                              std::unique_ptr<Construct>& result)
 {
     if (checkToken(Token::Type::LITERAL_INT, tokens, iterator))
     {
-        result.reset(new ASTNode());
-        result->kind = ASTNode::Kind::EXPRESSION_LITERAL;
+        result.reset(new Construct());
+        result->kind = Construct::Kind::EXPRESSION_LITERAL;
         result->reference = findDeclaration("int", declarations);
         result->value = (iterator - 1)->value;
     }
     else if (checkToken(Token::Type::LITERAL_FLOAT, tokens, iterator))
     {
-        result.reset(new ASTNode());
-        result->kind = ASTNode::Kind::EXPRESSION_LITERAL;
+        result.reset(new Construct());
+        result->kind = Construct::Kind::EXPRESSION_LITERAL;
         result->reference = findDeclaration("float", declarations);
         result->value = (iterator - 1)->value;
     }
     else if (checkToken(Token::Type::LITERAL_STRING, tokens, iterator))
     {
-        result.reset(new ASTNode());
-        result->kind = ASTNode::Kind::EXPRESSION_LITERAL;
+        result.reset(new Construct());
+        result->kind = Construct::Kind::EXPRESSION_LITERAL;
         result->reference = findDeclaration("string", declarations);
         result->value = (iterator - 1)->value;
     }
     else if (checkTokens({Token::Type::KEYWORD_TRUE, Token::Type::KEYWORD_FALSE}, tokens, iterator))
     {
-        result.reset(new ASTNode());
-        result->kind = ASTNode::Kind::EXPRESSION_LITERAL;
+        result.reset(new Construct());
+        result->kind = Construct::Kind::EXPRESSION_LITERAL;
         result->reference = findDeclaration("bool", declarations);
         result->value = (iterator - 1)->value;
     }
@@ -1408,11 +1408,11 @@ bool ASTContext::parsePrimary(const std::vector<Token>& tokens,
     {
         if (checkToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
         {
-            result.reset(new ASTNode());
-            result->kind = ASTNode::Kind::EXPRESSION_CALL;
+            result.reset(new Construct());
+            result->kind = Construct::Kind::EXPRESSION_CALL;
 
-            std::unique_ptr<ASTNode> declRefExpression(new ASTNode());
-            declRefExpression->kind = ASTNode::Kind::EXPRESSION_DECLARATION_REFERENCE;
+            std::unique_ptr<Construct> declRefExpression(new Construct());
+            declRefExpression->kind = Construct::Kind::EXPRESSION_DECLARATION_REFERENCE;
             declRefExpression->reference = findDeclaration((iterator - 2)->value, declarations);
 
             if (!declRefExpression->reference)
@@ -1424,7 +1424,7 @@ bool ASTContext::parsePrimary(const std::vector<Token>& tokens,
             result->children.push_back(std::move(declRefExpression));
 
             bool firstParameter = true;
-            std::unique_ptr<ASTNode> parameter;
+            std::unique_ptr<Construct> parameter;
 
             for (;;)
             {
@@ -1448,11 +1448,11 @@ bool ASTContext::parsePrimary(const std::vector<Token>& tokens,
         }
         else if (checkToken(Token::Type::LEFT_BRACKET, tokens, iterator))
         {
-            result.reset(new ASTNode());
-            result->kind = ASTNode::Kind::EXPRESSION_ARRAY_SUBSCRIPT;
+            result.reset(new Construct());
+            result->kind = Construct::Kind::EXPRESSION_ARRAY_SUBSCRIPT;
 
-            std::unique_ptr<ASTNode> declRefExpression(new ASTNode());
-            declRefExpression->kind = ASTNode::Kind::EXPRESSION_DECLARATION_REFERENCE;
+            std::unique_ptr<Construct> declRefExpression(new Construct());
+            declRefExpression->kind = Construct::Kind::EXPRESSION_DECLARATION_REFERENCE;
             declRefExpression->reference = findDeclaration((iterator - 2)->value, declarations);
 
             if (!declRefExpression->reference)
@@ -1463,7 +1463,7 @@ bool ASTContext::parsePrimary(const std::vector<Token>& tokens,
 
             result->children.push_back(std::move(declRefExpression));
 
-            std::unique_ptr<ASTNode> expression;
+            std::unique_ptr<Construct> expression;
 
             if (!parseExpression(tokens, iterator, declarations, expression))
             {
@@ -1480,8 +1480,8 @@ bool ASTContext::parsePrimary(const std::vector<Token>& tokens,
         }
         else
         {
-            result.reset(new ASTNode());
-            result->kind = ASTNode::Kind::EXPRESSION_DECLARATION_REFERENCE;
+            result.reset(new Construct());
+            result->kind = Construct::Kind::EXPRESSION_DECLARATION_REFERENCE;
             result->reference = findDeclaration((iterator - 1)->value, declarations);
 
             if (!result->reference)
@@ -1493,10 +1493,10 @@ bool ASTContext::parsePrimary(const std::vector<Token>& tokens,
     }
     else if (checkToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
     {
-        result.reset(new ASTNode());
-        result->kind = ASTNode::Kind::EXPRESSION_PAREN;
+        result.reset(new Construct());
+        result->kind = Construct::Kind::EXPRESSION_PAREN;
 
-        std::unique_ptr<ASTNode> expression;
+        std::unique_ptr<Construct> expression;
 
         if (!parseExpression(tokens, iterator, declarations, expression))
         {
@@ -1528,7 +1528,7 @@ void ASTContext::dump()
     }
 }
 
-void ASTContext::dumpNode(const std::unique_ptr<ASTNode>& node, std::string indent)
+void ASTContext::dumpNode(const std::unique_ptr<Construct>& node, std::string indent)
 {
     std::cout << indent << node.get() << " " << nodeKindToString(node->kind);
 
@@ -1542,11 +1542,11 @@ void ASTContext::dumpNode(const std::unique_ptr<ASTNode>& node, std::string inde
 
     }
     if (!node->value.empty()) std::cout << ", value: " << node->value;
-    if (node->semantic != ASTNode::Semantic::NONE) std::cout << ", semantic: " << semanticToString(node->semantic);
+    if (node->semantic != Construct::Semantic::NONE) std::cout << ", semantic: " << semanticToString(node->semantic);
 
     std::cout << std::endl;
 
-    for (const std::unique_ptr<ASTNode>& child : node->children)
+    for (const std::unique_ptr<Construct>& child : node->children)
     {
         ASTContext::dumpNode(child, indent + "  ");
     }
