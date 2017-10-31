@@ -307,11 +307,6 @@ private:
     std::vector<std::unique_ptr<ASTNode>> builtinDeclarations;
 };
 
-class TranslationUnit: public ASTNode
-{
-public:
-};
-
 class Type
 {
 public:
@@ -328,7 +323,7 @@ public:
 class StructType: public Type
 {
 public:
-    std::vector<Field> fields;
+    std::vector<Field*> fields;
 };
 
 
@@ -337,7 +332,13 @@ class Declaration: public ASTNode
 public:
 };
 
-class TypeDeclaration: public ASTNode
+class TranslationUnit: public ASTNode
+{
+public:
+    std::vector<Declaration*> declarations;
+};
+
+class TypeDeclaration: public Declaration
 {
 public:
     Type* type;
@@ -355,7 +356,7 @@ class StructureDeclaration: public TypeDeclaration
 {
 public:
     std::string name;
-    std::vector<FieldDeclaration> fieldDeclarations;
+    std::vector<FieldDeclaration*> fieldDeclarations;
 };
 
 class ParameterDeclaration: public Declaration
@@ -372,7 +373,19 @@ public:
     std::string name;
 };
 
+class VariableDeclaration: public Declaration
+{
+public:
+    Type* type;
+    std::string name;
+};
+
 class Statement: public ASTNode
+{
+public:
+};
+
+class Expression: public Statement
 {
 public:
 };
@@ -380,44 +393,56 @@ public:
 class DeclarationStatement: public Statement
 {
 public:
-    Type* type;
-    std::string name;
+    Declaration* declaration;
 };
 
 class CompoundStatement: public Statement
 {
 public:
-    std::vector<Statement> statements;
+    std::vector<Statement*> statements;
 };
 
 class IfDeclaration: public Statement
 {
 public:
+    Statement* condition;
+    Statement* ifPart;
+    Statement* thenPart;
 };
 
 class ForDeclaration: public Statement
 {
 public:
+    Statement* condition;
+    Statement* body;
 };
 
 class SwitchDeclaration: public Statement
 {
 public:
+    Statement* condition;
+    Statement* body;
 };
 
 class CaseDeclaration: public Statement
 {
 public:
+    Expression* condition;
+    Statement* body;
 };
 
 class WhileDeclaration: public Statement
 {
 public:
+    Expression* condition;
+    Statement* body;
 };
 
 class DoDeclaration: public Statement
 {
 public:
+    Expression* condition;
+    Statement* body;
 };
 
 class BreakDeclaration: public Statement
@@ -433,9 +458,54 @@ public:
 class ReturnDeclaration: public Statement
 {
 public:
+    Statement* result;
 };
 
-class Expression: public Statement
+class CallExpression: public Expression
 {
 public:
+};
+
+class LiteralExpression: public Expression
+{
+public:
+};
+
+class DeclarationReferenceExpression: public Expression
+{
+public:
+};
+
+class ParenExpression: public Expression
+{
+public:
+};
+
+class MemberExpression: public Expression
+{
+public:
+};
+
+class ArraySubscriptExpression: public Expression
+{
+public:
+};
+
+class UnaryOperatorExpression: public Expression
+{
+public:
+    Expression* expression;
+};
+
+class BinaryOperatorExpression: public Expression
+{
+public:
+    Expression* expressions[2];
+};
+
+class TernarySubscriptExpression: public Expression
+{
+public:
+    Expression* condition;
+    Expression* expressions[2];
 };
