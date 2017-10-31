@@ -93,7 +93,7 @@ TranslationUnit* ASTContext::parseTopLevel(const std::vector<Token>& tokens,
         if (checkToken(Token::Type::KEYWORD_STRUCT, tokens, iterator))
         {
             StructDeclaration* decl;
-            if (!(decl = parseStructDecl(tokens, iterator, declarations)))
+            if (!(decl = parseStructDeclaration(tokens, iterator, declarations)))
             {
                 std::cerr << "Failed to parse a structure declaration" << std::endl;
                 return nullptr;
@@ -104,7 +104,7 @@ TranslationUnit* ASTContext::parseTopLevel(const std::vector<Token>& tokens,
         /*else if (checkToken(Token::Type::KEYWORD_TYPEDEF, tokens, iterator))
         {
             std::unique_ptr<Construct> decl;
-            if (!parseTypedefDecl(tokens, iterator, declarations, decl))
+            if (!parseTypedefDeclaration(tokens, iterator, declarations, decl))
             {
                 std::cerr << "Failed to parse a type definition declaration" << std::endl;
                 return nullptr;
@@ -115,7 +115,7 @@ TranslationUnit* ASTContext::parseTopLevel(const std::vector<Token>& tokens,
         else if (checkToken(Token::Type::KEYWORD_FUNCTION, tokens, iterator))
         {
             FunctionDeclaration* decl;
-            if (!(decl = parseFunctionDecl(tokens, iterator, declarations)))
+            if (!(decl = parseFunctionDeclaration(tokens, iterator, declarations)))
             {
                 std::cerr << "Failed to parse a function declaration" << std::endl;
                 return nullptr;
@@ -126,7 +126,7 @@ TranslationUnit* ASTContext::parseTopLevel(const std::vector<Token>& tokens,
         else if (checkTokens({Token::Type::KEYWORD_STATIC, Token::Type::KEYWORD_CONST, Token::Type::KEYWORD_VAR}, tokens, iterator))
         {
             VariableDeclaration* decl;
-            if (!(decl = parseVariableDecl(tokens, iterator, declarations)))
+            if (!(decl = parseVariableDeclaration(tokens, iterator, declarations)))
             {
                 std::cerr << "Failed to parse a variable declaration" << std::endl;
                 return nullptr;
@@ -151,9 +151,9 @@ TranslationUnit* ASTContext::parseTopLevel(const std::vector<Token>& tokens,
     return result;
 }
 
-StructDeclaration* ASTContext::parseStructDecl(const std::vector<Token>& tokens,
-                                               std::vector<Token>::const_iterator& iterator,
-                                               std::vector<std::vector<Declaration*>>& declarations)
+StructDeclaration* ASTContext::parseStructDeclaration(const std::vector<Token>& tokens,
+                                                      std::vector<Token>::const_iterator& iterator,
+                                                      std::vector<std::vector<Declaration*>>& declarations)
 {
     StructDeclaration* result = new StructDeclaration();
     constructs.push_back(std::unique_ptr<Construct>(result));
@@ -318,7 +318,7 @@ StructDeclaration* ASTContext::parseStructDecl(const std::vector<Token>& tokens,
     return result;
 }
 
-/*bool ASTContext::parseTypedefDecl(const std::vector<Token>& tokens,
+/*bool ASTContext::parseTypedefDeclaration(const std::vector<Token>& tokens,
                                   std::vector<Token>::const_iterator& iterator,
                                   std::vector<std::vector<Declaration*>>& declarations,
                                   std::unique_ptr<Construct>& result)
@@ -359,9 +359,9 @@ StructDeclaration* ASTContext::parseStructDecl(const std::vector<Token>& tokens,
     return true;
 }*/
 
-FunctionDeclaration* ASTContext::parseFunctionDecl(const std::vector<Token>& tokens,
-                                                   std::vector<Token>::const_iterator& iterator,
-                                                   std::vector<std::vector<Declaration*>>& declarations)
+FunctionDeclaration* ASTContext::parseFunctionDeclaration(const std::vector<Token>& tokens,
+                                                          std::vector<Token>::const_iterator& iterator,
+                                                          std::vector<std::vector<Declaration*>>& declarations)
 {
     if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
     {
@@ -471,9 +471,9 @@ FunctionDeclaration* ASTContext::parseFunctionDecl(const std::vector<Token>& tok
     return result;
 }
 
-VariableDeclaration* ASTContext::parseVariableDecl(const std::vector<Token>& tokens,
-                                                   std::vector<Token>::const_iterator& iterator,
-                                                   std::vector<std::vector<Declaration*>>& declarations)
+VariableDeclaration* ASTContext::parseVariableDeclaration(const std::vector<Token>& tokens,
+                                                          std::vector<Token>::const_iterator& iterator,
+                                                          std::vector<std::vector<Declaration*>>& declarations)
 {
     VariableDeclaration* result = new VariableDeclaration();
     constructs.push_back(std::unique_ptr<VariableDeclaration>(result));
@@ -623,7 +623,7 @@ Statement* ASTContext::parseStatement(const std::vector<Token>& tokens,
     else if (checkTokens({Token::Type::KEYWORD_STATIC, Token::Type::KEYWORD_CONST, Token::Type::KEYWORD_VAR}, tokens, iterator))
     {
         VariableDeclaration* declaration;
-        if (!(declaration = parseVariableDecl(tokens, iterator, declarations)))
+        if (!(declaration = parseVariableDeclaration(tokens, iterator, declarations)))
         {
             return nullptr;
         }
@@ -699,7 +699,7 @@ DeclarationStatement* ASTContext::parseVariableDeclStatement(const std::vector<T
                                                              std::vector<std::vector<Declaration*>>& declarations)
 {
     VariableDeclaration* declaration;
-    if (!(declaration = parseVariableDecl(tokens, iterator, declarations)))
+    if (!(declaration = parseVariableDeclaration(tokens, iterator, declarations)))
     {
         return nullptr;
     }

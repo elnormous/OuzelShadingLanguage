@@ -132,10 +132,13 @@ inline std::string semanticToString(Semantic semantic)
     }
 }
 
+class TypeDeclaration;
+
 class Type: public Construct
 {
 public:
     std::string name;
+    TypeDeclaration* declaration = nullptr;
 };
 
 class Statement: public Construct
@@ -466,22 +469,22 @@ private:
                                    std::vector<Token>::const_iterator& iterator,
                                    std::vector<std::vector<Declaration*>>& declarations);
 
-    StructDeclaration* parseStructDecl(const std::vector<Token>& tokens,
-                                       std::vector<Token>::const_iterator& iterator,
-                                       std::vector<std::vector<Declaration*>>& declarations);
+    StructDeclaration* parseStructDeclaration(const std::vector<Token>& tokens,
+                                              std::vector<Token>::const_iterator& iterator,
+                                              std::vector<std::vector<Declaration*>>& declarations);
 
-    /*bool parseTypedefDecl(const std::vector<Token>& tokens,
+    /*bool parseTypedefDeclaration(const std::vector<Token>& tokens,
                           std::vector<Token>::const_iterator& iterator,
                           std::vector<std::vector<Declaration*>>& declarations,
                           std::unique_ptr<Construct>& result);*/
 
-    FunctionDeclaration* parseFunctionDecl(const std::vector<Token>& tokens,
-                                           std::vector<Token>::const_iterator& iterator,
-                                           std::vector<std::vector<Declaration*>>& declarations);
+    FunctionDeclaration* parseFunctionDeclaration(const std::vector<Token>& tokens,
+                                                  std::vector<Token>::const_iterator& iterator,
+                                                  std::vector<std::vector<Declaration*>>& declarations);
 
-    VariableDeclaration* parseVariableDecl(const std::vector<Token>& tokens,
-                                           std::vector<Token>::const_iterator& iterator,
-                                           std::vector<std::vector<Declaration*>>& declarations);
+    VariableDeclaration* parseVariableDeclaration(const std::vector<Token>& tokens,
+                                                  std::vector<Token>::const_iterator& iterator,
+                                                  std::vector<std::vector<Declaration*>>& declarations);
 
     Statement* parseStatement(const std::vector<Token>& tokens,
                               std::vector<Token>::const_iterator& iterator,
