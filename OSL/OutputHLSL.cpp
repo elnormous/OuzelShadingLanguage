@@ -35,14 +35,14 @@ bool OutputHLSL::output(const ASTContext& context, const std::string& outputFile
 
 bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::string& prefix, std::string& code)
 {
-    switch (node->type)
+    switch (node->kind)
     {
-        case ASTNode::Type::NONE:
+        case ASTNode::Kind::NONE:
         {
             break;
         }
 
-        case ASTNode::Type::TRANSLATION_UNIT:
+        case ASTNode::Kind::TRANSLATION_UNIT:
         {
             for (std::unique_ptr<ASTNode>& child : node->children)
             {
@@ -56,12 +56,12 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
             break;
         }
 
-        case ASTNode::Type::DECLARATION_EMPTY:
+        case ASTNode::Kind::DECLARATION_EMPTY:
         {
             break;
         }
 
-        case ASTNode::Type::DECLARATION_STRUCT:
+        case ASTNode::Kind::DECLARATION_STRUCT:
         {
             code += prefix + "struct " + node->name;
 
@@ -89,7 +89,7 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
             break;
         }
 
-        case ASTNode::Type::DECLARATION_FIELD:
+        case ASTNode::Kind::DECLARATION_FIELD:
         {
             if (!node->reference)
             {
@@ -101,7 +101,7 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
             break;
         }
 
-        case ASTNode::Type::DECLARATION_FUNCTION:
+        case ASTNode::Kind::DECLARATION_FUNCTION:
         {
             if (!node->reference)
             {
@@ -113,7 +113,7 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
 
             auto i = node->children.cbegin();
 
-            for (; i != node->children.cend() && (*i)->type == ASTNode::Type::DECLARATION_PARAMETER; ++i)
+            for (; i != node->children.cend() && (*i)->kind == ASTNode::Kind::DECLARATION_PARAMETER; ++i)
             {
                 if (i != node->children.cbegin()) code += ", ";
                 if (!printNode(*i, "", code))
@@ -142,7 +142,7 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
             break;
         }
 
-        case ASTNode::Type::DECLARATION_VARIABLE:
+        case ASTNode::Kind::DECLARATION_VARIABLE:
         {
             if (!node->reference)
             {
@@ -154,7 +154,7 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
             break;
         }
 
-        case ASTNode::Type::DECLARATION_PARAMETER:
+        case ASTNode::Kind::DECLARATION_PARAMETER:
         {
             if (!node->reference)
             {
@@ -166,7 +166,7 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
             break;
         }
 
-        case ASTNode::Type::EXPRESSION_CALL:
+        case ASTNode::Kind::EXPRESSION_CALL:
         {
             auto i = node->children.cbegin();
             if (i == node->children.end())
@@ -196,13 +196,13 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
             break;
         }
 
-        case ASTNode::Type::EXPRESSION_LITERAL:
+        case ASTNode::Kind::EXPRESSION_LITERAL:
         {
             code += prefix + node->value;
             break;
         }
 
-        case ASTNode::Type::EXPRESSION_DECLARATION_REFERENCE:
+        case ASTNode::Kind::EXPRESSION_DECLARATION_REFERENCE:
         {
             if (!node->reference)
             {
@@ -214,7 +214,7 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
             break;
         }
 
-        case ASTNode::Type::EXPRESSION_PAREN:
+        case ASTNode::Kind::EXPRESSION_PAREN:
         {
             code += prefix + "(";
 
@@ -230,7 +230,7 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
             break;
         }
 
-        case ASTNode::Type::EXPRESSION_MEMBER:
+        case ASTNode::Kind::EXPRESSION_MEMBER:
         {
             auto i = node->children.cbegin();
             if (i == node->children.end())
@@ -260,7 +260,7 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
             break;
         }
 
-        case ASTNode::Type::EXPRESSION_ARRAY_SUBSCRIPT:
+        case ASTNode::Kind::EXPRESSION_ARRAY_SUBSCRIPT:
         {
             auto i = node->children.cbegin();
             if (i == node->children.end())
@@ -293,7 +293,7 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
             break;
         }
 
-        case ASTNode::Type::STATEMENT_DECLARATION:
+        case ASTNode::Kind::STATEMENT_DECLARATION:
         {
             if (!node->reference)
             {
@@ -305,7 +305,7 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
             break;
         }
 
-        case ASTNode::Type::STATEMENT_COMPOUND:
+        case ASTNode::Kind::STATEMENT_COMPOUND:
         {
             code += prefix + "{\n";
 
@@ -323,7 +323,7 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
             break;
         }
 
-        case ASTNode::Type::STATEMENT_IF:
+        case ASTNode::Kind::STATEMENT_IF:
         {
             code += prefix + "if (";
 
@@ -345,7 +345,7 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
 
             for (; i != node->children.end(); ++i)
             {
-                if (!printNode(*i, (*i)->type == ASTNode::Type::STATEMENT_COMPOUND ? prefix : (prefix + "    "), code))
+                if (!printNode(*i, (*i)->kind == ASTNode::Kind::STATEMENT_COMPOUND ? prefix : (prefix + "    "), code))
                 {
                     return false;
                 }
@@ -353,7 +353,7 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
             break;
         }
 
-        case ASTNode::Type::STATEMENT_FOR:
+        case ASTNode::Kind::STATEMENT_FOR:
         {
             code += prefix + "for (";
 
@@ -403,7 +403,7 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
 
             for (; i != node->children.end(); ++i)
             {
-                if (!printNode(*i, (*i)->type == ASTNode::Type::STATEMENT_COMPOUND ? prefix : (prefix + "    "), code))
+                if (!printNode(*i, (*i)->kind == ASTNode::Kind::STATEMENT_COMPOUND ? prefix : (prefix + "    "), code))
                 {
                     return false;
                 }
@@ -411,7 +411,7 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
             break;
         }
 
-        case ASTNode::Type::STATEMENT_SWITCH:
+        case ASTNode::Kind::STATEMENT_SWITCH:
         {
             code += prefix + "switch (";
 
@@ -433,7 +433,7 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
 
             for (; i != node->children.end(); ++i)
             {
-                if (!printNode(*i, (*i)->type == ASTNode::Type::STATEMENT_COMPOUND ? prefix : (prefix + "    "), code))
+                if (!printNode(*i, (*i)->kind == ASTNode::Kind::STATEMENT_COMPOUND ? prefix : (prefix + "    "), code))
                 {
                     return false;
                 }
@@ -441,13 +441,13 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
             break;
         }
 
-        case ASTNode::Type::STATEMENT_CASE:
+        case ASTNode::Kind::STATEMENT_CASE:
         {
             code += prefix + "case " + node->value + ":\n";
 
             for (auto i = node->children.cbegin(); i != node->children.end(); ++i)
             {
-                if (!printNode(*i, (*i)->type == ASTNode::Type::STATEMENT_COMPOUND ? prefix : (prefix + "    "), code))
+                if (!printNode(*i, (*i)->kind == ASTNode::Kind::STATEMENT_COMPOUND ? prefix : (prefix + "    "), code))
                 {
                     return false;
                 }
@@ -455,7 +455,7 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
             break;
         }
 
-        case ASTNode::Type::STATEMENT_WHILE:
+        case ASTNode::Kind::STATEMENT_WHILE:
         {
             code += prefix + "while (";
 
@@ -477,7 +477,7 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
 
             for (; i != node->children.end(); ++i)
             {
-                if (!printNode(*i, (*i)->type == ASTNode::Type::STATEMENT_COMPOUND ? prefix : (prefix + "    "), code))
+                if (!printNode(*i, (*i)->kind == ASTNode::Kind::STATEMENT_COMPOUND ? prefix : (prefix + "    "), code))
                 {
                     return false;
                 }
@@ -485,7 +485,7 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
             break;
         }
 
-        case ASTNode::Type::STATEMENT_DO:
+        case ASTNode::Kind::STATEMENT_DO:
         {
             code += prefix + "do\n";
 
@@ -498,7 +498,7 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
 
             for (; i + 1 != node->children.end(); ++i)
             {
-                if (!printNode(*i, (*i)->type == ASTNode::Type::STATEMENT_COMPOUND ? prefix : (prefix + "    "), code))
+                if (!printNode(*i, (*i)->kind == ASTNode::Kind::STATEMENT_COMPOUND ? prefix : (prefix + "    "), code))
                 {
                     return false;
                 }
@@ -508,7 +508,7 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
 
             code += prefix + "while (";
 
-            if (!printNode(*i, (*i)->type == ASTNode::Type::STATEMENT_COMPOUND ? prefix : (prefix + "    "), code))
+            if (!printNode(*i, (*i)->kind == ASTNode::Kind::STATEMENT_COMPOUND ? prefix : (prefix + "    "), code))
             {
                 return false;
             }
@@ -518,19 +518,19 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
             break;
         }
 
-        case ASTNode::Type::STATEMENT_BREAK:
+        case ASTNode::Kind::STATEMENT_BREAK:
         {
             code += prefix + "break;";
             break;
         }
 
-        case ASTNode::Type::STATEMENT_CONTINUE:
+        case ASTNode::Kind::STATEMENT_CONTINUE:
         {
             code += prefix + "continue;";
             break;
         }
 
-        case ASTNode::Type::STATEMENT_RETURN:
+        case ASTNode::Kind::STATEMENT_RETURN:
         {
             code += prefix + "return";
 
@@ -551,7 +551,7 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
             break;
         }
 
-        case ASTNode::Type::STATEMENT_EXPRESSION:
+        case ASTNode::Kind::STATEMENT_EXPRESSION:
         {
             code += prefix;
 
@@ -566,7 +566,7 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
             break;
         }
 
-        case ASTNode::Type::OPERATOR_UNARY:
+        case ASTNode::Kind::OPERATOR_UNARY:
         {
             code += prefix + node->value;
 
@@ -585,7 +585,7 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
             break;
         }
 
-        case ASTNode::Type::OPERATOR_BINARY:
+        case ASTNode::Kind::OPERATOR_BINARY:
         {
             auto i = node->children.cbegin();
             if (i == node->children.end())
@@ -616,7 +616,7 @@ bool OutputHLSL::printNode(const std::unique_ptr<ASTNode>& node, const std::stri
             break;
         }
 
-        case ASTNode::Type::OPERATOR_TERNARY:
+        case ASTNode::Kind::OPERATOR_TERNARY:
         {
             auto i = node->children.cbegin();
             if (i == node->children.end())

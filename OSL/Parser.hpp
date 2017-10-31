@@ -14,7 +14,7 @@
 
 struct ASTNode
 {
-    enum class Type
+    enum class Kind
     {
         NONE,
         TRANSLATION_UNIT,
@@ -63,7 +63,7 @@ struct ASTNode
         TEXTURE_COORDINATES
     };
 
-    Type type = Type::NONE;
+    Kind kind = Kind::NONE;
     Semantic semantic = Semantic::NONE;
     bool isStatic = false;
     bool isConst = false;
@@ -73,40 +73,40 @@ struct ASTNode
     ASTNode* reference = nullptr;
 };
 
-inline std::string nodeTypeToString(ASTNode::Type type)
+inline std::string nodeKindToString(ASTNode::Kind type)
 {
     switch (type)
     {
-        case ASTNode::Type::NONE: return "NONE";
-        case ASTNode::Type::TRANSLATION_UNIT: return "TRANSLATION_UNIT";
-        case ASTNode::Type::DECLARATION_EMPTY: return "DECLARATION_EMPTY";
-        case ASTNode::Type::DECLARATION_STRUCT: return "DECLARATION_STRUCT";
-        case ASTNode::Type::DECLARATION_FIELD: return "DECLARATION_FIELD";
-        //case ASTNode::Type::DECLARATION_TYPE_DEFINITION: return "DECLARATION_TYPE_DEFINITION";
-        case ASTNode::Type::DECLARATION_FUNCTION: return "DECLARATION_FUNCTION";
-        case ASTNode::Type::DECLARATION_VARIABLE: return "DECLARATION_VARIABLE";
-        case ASTNode::Type::DECLARATION_PARAMETER: return "DECLARATION_PARAMETER";
-        case ASTNode::Type::EXPRESSION_CALL: return "EXPRESSION_CALL";
-        case ASTNode::Type::EXPRESSION_LITERAL: return "EXPRESSION_LITERAL";
-        case ASTNode::Type::EXPRESSION_DECLARATION_REFERENCE: return "EXPRESSION_DECLARATION_REFERENCE";
-        case ASTNode::Type::EXPRESSION_PAREN: return "EXPRESSION_PAREN";
-        case ASTNode::Type::EXPRESSION_MEMBER: return "EXPRESSION_MEMBER";
-        case ASTNode::Type::EXPRESSION_ARRAY_SUBSCRIPT: return "EXPRESSION_ARRAY_SUBSCRIPT";
-        case ASTNode::Type::STATEMENT_DECLARATION: return "STATEMENT_DECLARATION";
-        case ASTNode::Type::STATEMENT_COMPOUND: return "STATEMENT_COMPOUND";
-        case ASTNode::Type::STATEMENT_IF: return "STATEMENT_IF";
-        case ASTNode::Type::STATEMENT_FOR: return "STATEMENT_FOR";
-        case ASTNode::Type::STATEMENT_SWITCH: return "STATEMENT_SWITCH";
-        case ASTNode::Type::STATEMENT_CASE: return "STATEMENT_CASE";
-        case ASTNode::Type::STATEMENT_WHILE: return "STATEMENT_WHILE";
-        case ASTNode::Type::STATEMENT_DO: return "STATEMENT_DO";
-        case ASTNode::Type::STATEMENT_BREAK: return "STATEMENT_BREAK";
-        case ASTNode::Type::STATEMENT_CONTINUE: return "STATEMENT_CONTINUE";
-        case ASTNode::Type::STATEMENT_RETURN: return "STATEMENT_RETURN";
-        case ASTNode::Type::STATEMENT_EXPRESSION: return "STATEMENT_EXPRESSION";
-        case ASTNode::Type::OPERATOR_UNARY: return "OPERATOR_UNARY";
-        case ASTNode::Type::OPERATOR_BINARY: return "OPERATOR_BINARY";
-        case ASTNode::Type::OPERATOR_TERNARY: return "OPERATOR_TERNARY";
+        case ASTNode::Kind::NONE: return "NONE";
+        case ASTNode::Kind::TRANSLATION_UNIT: return "TRANSLATION_UNIT";
+        case ASTNode::Kind::DECLARATION_EMPTY: return "DECLARATION_EMPTY";
+        case ASTNode::Kind::DECLARATION_STRUCT: return "DECLARATION_STRUCT";
+        case ASTNode::Kind::DECLARATION_FIELD: return "DECLARATION_FIELD";
+        //case ASTNode::Kind::DECLARATION_TYPE_DEFINITION: return "DECLARATION_TYPE_DEFINITION";
+        case ASTNode::Kind::DECLARATION_FUNCTION: return "DECLARATION_FUNCTION";
+        case ASTNode::Kind::DECLARATION_VARIABLE: return "DECLARATION_VARIABLE";
+        case ASTNode::Kind::DECLARATION_PARAMETER: return "DECLARATION_PARAMETER";
+        case ASTNode::Kind::STATEMENT_DECLARATION: return "STATEMENT_DECLARATION";
+        case ASTNode::Kind::STATEMENT_COMPOUND: return "STATEMENT_COMPOUND";
+        case ASTNode::Kind::STATEMENT_IF: return "STATEMENT_IF";
+        case ASTNode::Kind::STATEMENT_FOR: return "STATEMENT_FOR";
+        case ASTNode::Kind::STATEMENT_SWITCH: return "STATEMENT_SWITCH";
+        case ASTNode::Kind::STATEMENT_CASE: return "STATEMENT_CASE";
+        case ASTNode::Kind::STATEMENT_WHILE: return "STATEMENT_WHILE";
+        case ASTNode::Kind::STATEMENT_DO: return "STATEMENT_DO";
+        case ASTNode::Kind::STATEMENT_BREAK: return "STATEMENT_BREAK";
+        case ASTNode::Kind::STATEMENT_CONTINUE: return "STATEMENT_CONTINUE";
+        case ASTNode::Kind::STATEMENT_RETURN: return "STATEMENT_RETURN";
+        case ASTNode::Kind::STATEMENT_EXPRESSION: return "STATEMENT_EXPRESSION";
+        case ASTNode::Kind::EXPRESSION_CALL: return "EXPRESSION_CALL";
+        case ASTNode::Kind::EXPRESSION_LITERAL: return "EXPRESSION_LITERAL";
+        case ASTNode::Kind::EXPRESSION_DECLARATION_REFERENCE: return "EXPRESSION_DECLARATION_REFERENCE";
+        case ASTNode::Kind::EXPRESSION_PAREN: return "EXPRESSION_PAREN";
+        case ASTNode::Kind::EXPRESSION_MEMBER: return "EXPRESSION_MEMBER";
+        case ASTNode::Kind::EXPRESSION_ARRAY_SUBSCRIPT: return "EXPRESSION_ARRAY_SUBSCRIPT";
+        case ASTNode::Kind::OPERATOR_UNARY: return "OPERATOR_UNARY";
+        case ASTNode::Kind::OPERATOR_BINARY: return "OPERATOR_BINARY";
+        case ASTNode::Kind::OPERATOR_TERNARY: return "OPERATOR_TERNARY";
     }
 
     return "unknown";
@@ -305,4 +305,137 @@ private:
 
     std::unique_ptr<ASTNode> translationUnit;
     std::vector<std::unique_ptr<ASTNode>> builtinDeclarations;
+};
+
+class TranslationUnit: public ASTNode
+{
+public:
+};
+
+class Type
+{
+public:
+    std::string name;
+};
+
+class Field
+{
+public:
+    Type* type;
+    std::string name;
+};
+
+class StructType: public Type
+{
+public:
+    std::vector<Field> fields;
+};
+
+
+class Declaration: public ASTNode
+{
+public:
+};
+
+class TypeDeclaration: public ASTNode
+{
+public:
+    Type* type;
+};
+
+class FieldDeclaration: public ASTNode
+{
+public:
+    Field* field;
+    Type* type;
+    std::string name;
+};
+
+class StructureDeclaration: public TypeDeclaration
+{
+public:
+    std::string name;
+    std::vector<FieldDeclaration> fieldDeclarations;
+};
+
+class ParameterDeclaration: public Declaration
+{
+public:
+    Type* type;
+    std::string name;
+};
+
+class FunctionDeclaration: public Declaration
+{
+public:
+    Type* resultType;
+    std::string name;
+};
+
+class Statement: public ASTNode
+{
+public:
+};
+
+class DeclarationStatement: public Statement
+{
+public:
+    Type* type;
+    std::string name;
+};
+
+class CompoundStatement: public Statement
+{
+public:
+    std::vector<Statement> statements;
+};
+
+class IfDeclaration: public Statement
+{
+public:
+};
+
+class ForDeclaration: public Statement
+{
+public:
+};
+
+class SwitchDeclaration: public Statement
+{
+public:
+};
+
+class CaseDeclaration: public Statement
+{
+public:
+};
+
+class WhileDeclaration: public Statement
+{
+public:
+};
+
+class DoDeclaration: public Statement
+{
+public:
+};
+
+class BreakDeclaration: public Statement
+{
+public:
+};
+
+class ContinueDeclaration: public Statement
+{
+public:
+};
+
+class ReturnDeclaration: public Statement
+{
+public:
+};
+
+class Expression: public Statement
+{
+public:
 };
