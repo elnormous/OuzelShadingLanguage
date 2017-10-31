@@ -77,9 +77,9 @@ bool ASTContext::parse(const std::vector<Token>& tokens)
 bool ASTContext::parseTopLevel(const std::vector<Token>& tokens,
                                std::vector<Token>::const_iterator& iterator,
                                std::vector<std::vector<Construct*>>& declarations,
-                               std::unique_ptr<Construct>& result)
+                               std::unique_ptr<TranslationUnit>& result)
 {
-    result.reset(new Construct());
+    result.reset(new TranslationUnit());
     result->kind = Construct::Kind::TRANSLATION_UNIT;
 
     while (iterator != tokens.end())
@@ -1524,13 +1524,13 @@ void ASTContext::dump()
 {
     if (translationUnit)
     {
-        ASTContext::dumpNode(translationUnit);
+        ASTContext::dumpNode(translationUnit.get());
     }
 }
 
-void ASTContext::dumpNode(const std::unique_ptr<Construct>& node, std::string indent)
+void ASTContext::dumpNode(const Construct* node, std::string indent)
 {
-    std::cout << indent << node.get() << " " << nodeKindToString(node->kind);
+    std::cout << indent << node << " " << nodeKindToString(node->kind);
 
     if (!node->name.empty()) std::cout << ", name: " << node->name;
     if (node->reference)
@@ -1548,6 +1548,6 @@ void ASTContext::dumpNode(const std::unique_ptr<Construct>& node, std::string in
 
     for (const std::unique_ptr<Construct>& child : node->children)
     {
-        ASTContext::dumpNode(child, indent + "  ");
+        ASTContext::dumpNode(child.get(), indent + "  ");
     }
 }

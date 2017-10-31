@@ -16,5 +16,5 @@ public:
     virtual bool output(const ASTContext& context, const std::string& outputFile);
 
 private:
-    bool printNode(const std::unique_ptr<Construct>& node, const std::string& prefix, std::string& code);
+    bool printNode(const Construct* node, const std::string& prefix, std::string& code);
 };

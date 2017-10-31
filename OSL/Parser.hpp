@@ -12,8 +12,9 @@
 #include <string>
 #include "Tokenizer.hpp"
 
-struct Construct
+class Construct
 {
+public:
     enum class Kind
     {
         NONE,
@@ -130,182 +131,6 @@ inline std::string semanticToString(Construct::Semantic semantic)
         default: return "unknown";
     }
 }
-
-class ASTContext
-{
-public:
-    ASTContext();
-    bool parse(const std::vector<Token>& tokens);
-
-    const std::unique_ptr<Construct>& getTranslationUnit() const { return translationUnit; }
-
-    void dump();
-
-private:
-    bool checkToken(Token::Type tokenType,
-                    const std::vector<Token>& tokens,
-                    std::vector<Token>::const_iterator& iterator)
-    {
-        if (iterator != tokens.end() && iterator->type == tokenType)
-        {
-            ++iterator;
-            return true;
-        }
-
-        return false;
-    }
-
-    bool checkTokens(const std::vector<Token::Type>& tokenTypes,
-                     const std::vector<Token>& tokens,
-                     std::vector<Token>::const_iterator& iterator)
-    {
-        if (iterator == tokens.end()) return false;
-
-        for (Token::Type tokenType : tokenTypes)
-        {
-            if (iterator->type == tokenType)
-            {
-                ++iterator;
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    Construct* findDeclaration(const std::string& name, std::vector<std::vector<Construct*>>& declarations)
-    {
-        for (auto i = declarations.crbegin(); i != declarations.crend(); ++i)
-        {
-            for (auto declaration = i->cbegin(); declaration != i->cend(); ++declaration)
-            {
-                if ((*declaration)->name == name) return *declaration;
-            }
-        }
-
-        for (auto i = builtinDeclarations.cbegin(); i != builtinDeclarations.cend(); ++i)
-        {
-            if ((*i)->name == name) return (*i).get();
-        }
-
-        return nullptr;
-    }
-
-    Construct* findField(const std::string& name, Construct* declaration)
-    {
-        for (auto field = declaration->children.cbegin(); field != declaration->children.cend(); ++field)
-        {
-            if ((*field)->name == name) return field->get();
-        }
-
-        return nullptr;
-    }
-
-    bool parseTopLevel(const std::vector<Token>& tokens,
-                       std::vector<Token>::const_iterator& iterator,
-                       std::vector<std::vector<Construct*>>& declarations,
-                       std::unique_ptr<Construct>& result);
-
-    bool parseStructDecl(const std::vector<Token>& tokens,
-                         std::vector<Token>::const_iterator& iterator,
-                         std::vector<std::vector<Construct*>>& declarations,
-                         std::unique_ptr<Construct>& result);
-
-    bool parseTypedefDecl(const std::vector<Token>& tokens,
-                          std::vector<Token>::const_iterator& iterator,
-                          std::vector<std::vector<Construct*>>& declarations,
-                          std::unique_ptr<Construct>& result);
-
-    bool parseFunctionDecl(const std::vector<Token>& tokens,
-                           std::vector<Token>::const_iterator& iterator,
-                           std::vector<std::vector<Construct*>>& declarations,
-                           std::unique_ptr<Construct>& result);
-
-    bool parseVariableDecl(const std::vector<Token>& tokens,
-                           std::vector<Token>::const_iterator& iterator,
-                           std::vector<std::vector<Construct*>>& declarations,
-                           std::unique_ptr<Construct>& result);
-
-    bool parseCompoundStatement(const std::vector<Token>& tokens,
-                                std::vector<Token>::const_iterator& iterator,
-                                std::vector<std::vector<Construct*>>& declarations,
-                                std::unique_ptr<Construct>& result);
-
-    bool parseStatement(const std::vector<Token>& tokens,
-                        std::vector<Token>::const_iterator& iterator,
-                        std::vector<std::vector<Construct*>>& declarations,
-                        std::unique_ptr<Construct>& result);
-
-    bool parseExpression(const std::vector<Token>& tokens,
-                         std::vector<Token>::const_iterator& iterator,
-                         std::vector<std::vector<Construct*>>& declarations,
-                         std::unique_ptr<Construct>& result);
-
-    bool parseMultiplicationAssignment(const std::vector<Token>& tokens,
-                                       std::vector<Token>::const_iterator& iterator,
-                                       std::vector<std::vector<Construct*>>& declarations,
-                                       std::unique_ptr<Construct>& result);
-
-    bool parseAdditionAssignment(const std::vector<Token>& tokens,
-                                 std::vector<Token>::const_iterator& iterator,
-                                 std::vector<std::vector<Construct*>>& declarations,
-                                 std::unique_ptr<Construct>& result);
-
-    bool parseAssignment(const std::vector<Token>& tokens,
-                         std::vector<Token>::const_iterator& iterator,
-                         std::vector<std::vector<Construct*>>& declarations,
-                         std::unique_ptr<Construct>& result);
-
-    bool parseTernary(const std::vector<Token>& tokens,
-                      std::vector<Token>::const_iterator& iterator,
-                      std::vector<std::vector<Construct*>>& declarations,
-                      std::unique_ptr<Construct>& result);
-
-    bool parseEquality(const std::vector<Token>& tokens,
-                       std::vector<Token>::const_iterator& iterator,
-                       std::vector<std::vector<Construct*>>& declarations,
-                       std::unique_ptr<Construct>& result);
-
-    bool parseGreaterThan(const std::vector<Token>& tokens,
-                          std::vector<Token>::const_iterator& iterator,
-                          std::vector<std::vector<Construct*>>& declarations,
-                          std::unique_ptr<Construct>& result);
-
-    bool parseLessThan(const std::vector<Token>& tokens,
-                       std::vector<Token>::const_iterator& iterator,
-                       std::vector<std::vector<Construct*>>& declarations,
-                       std::unique_ptr<Construct>& result);
-
-    bool parseAddition(const std::vector<Token>& tokens,
-                       std::vector<Token>::const_iterator& iterator,
-                       std::vector<std::vector<Construct*>>& declarations,
-                       std::unique_ptr<Construct>& result);
-
-    bool parseMultiplication(const std::vector<Token>& tokens,
-                             std::vector<Token>::const_iterator& iterator,
-                             std::vector<std::vector<Construct*>>& declarations,
-                             std::unique_ptr<Construct>& result);
-
-    bool parseUnary(const std::vector<Token>& tokens,
-                    std::vector<Token>::const_iterator& iterator,
-                    std::vector<std::vector<Construct*>>& declarations,
-                    std::unique_ptr<Construct>& result);
-
-    bool parseMember(const std::vector<Token>& tokens,
-                     std::vector<Token>::const_iterator& iterator,
-                     std::vector<std::vector<Construct*>>& declarations,
-                     std::unique_ptr<Construct>& result);
-
-    bool parsePrimary(const std::vector<Token>& tokens,
-                      std::vector<Token>::const_iterator& iterator,
-                      std::vector<std::vector<Construct*>>& declarations,
-                      std::unique_ptr<Construct>& result);
-
-    void dumpNode(const std::unique_ptr<Construct>& node, std::string indent = std::string());
-
-    std::unique_ptr<Construct> translationUnit;
-    std::vector<std::unique_ptr<Construct>> builtinDeclarations;
-};
 
 class Type: public Construct
 {
@@ -519,4 +344,180 @@ public:
     Expression* condition;
     Expression* leftExpressions = nullptr;
     Expression* rightExpressions = nullptr;
+};
+
+class ASTContext
+{
+public:
+    ASTContext();
+    bool parse(const std::vector<Token>& tokens);
+
+    const TranslationUnit* getTranslationUnit() const { return translationUnit.get(); }
+
+    void dump();
+
+private:
+    bool checkToken(Token::Type tokenType,
+                    const std::vector<Token>& tokens,
+                    std::vector<Token>::const_iterator& iterator)
+    {
+        if (iterator != tokens.end() && iterator->type == tokenType)
+        {
+            ++iterator;
+            return true;
+        }
+
+        return false;
+    }
+
+    bool checkTokens(const std::vector<Token::Type>& tokenTypes,
+                     const std::vector<Token>& tokens,
+                     std::vector<Token>::const_iterator& iterator)
+    {
+        if (iterator == tokens.end()) return false;
+
+        for (Token::Type tokenType : tokenTypes)
+        {
+            if (iterator->type == tokenType)
+            {
+                ++iterator;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    Construct* findDeclaration(const std::string& name, std::vector<std::vector<Construct*>>& declarations)
+    {
+        for (auto i = declarations.crbegin(); i != declarations.crend(); ++i)
+        {
+            for (auto declaration = i->cbegin(); declaration != i->cend(); ++declaration)
+            {
+                if ((*declaration)->name == name) return *declaration;
+            }
+        }
+
+        for (auto i = builtinDeclarations.cbegin(); i != builtinDeclarations.cend(); ++i)
+        {
+            if ((*i)->name == name) return (*i).get();
+        }
+
+        return nullptr;
+    }
+
+    Construct* findField(const std::string& name, Construct* declaration)
+    {
+        for (auto field = declaration->children.cbegin(); field != declaration->children.cend(); ++field)
+        {
+            if ((*field)->name == name) return field->get();
+        }
+
+        return nullptr;
+    }
+
+    bool parseTopLevel(const std::vector<Token>& tokens,
+                       std::vector<Token>::const_iterator& iterator,
+                       std::vector<std::vector<Construct*>>& declarations,
+                       std::unique_ptr<TranslationUnit>& result);
+
+    bool parseStructDecl(const std::vector<Token>& tokens,
+                         std::vector<Token>::const_iterator& iterator,
+                         std::vector<std::vector<Construct*>>& declarations,
+                         std::unique_ptr<Construct>& result);
+
+    bool parseTypedefDecl(const std::vector<Token>& tokens,
+                          std::vector<Token>::const_iterator& iterator,
+                          std::vector<std::vector<Construct*>>& declarations,
+                          std::unique_ptr<Construct>& result);
+
+    bool parseFunctionDecl(const std::vector<Token>& tokens,
+                           std::vector<Token>::const_iterator& iterator,
+                           std::vector<std::vector<Construct*>>& declarations,
+                           std::unique_ptr<Construct>& result);
+
+    bool parseVariableDecl(const std::vector<Token>& tokens,
+                           std::vector<Token>::const_iterator& iterator,
+                           std::vector<std::vector<Construct*>>& declarations,
+                           std::unique_ptr<Construct>& result);
+
+    bool parseCompoundStatement(const std::vector<Token>& tokens,
+                                std::vector<Token>::const_iterator& iterator,
+                                std::vector<std::vector<Construct*>>& declarations,
+                                std::unique_ptr<Construct>& result);
+
+    bool parseStatement(const std::vector<Token>& tokens,
+                        std::vector<Token>::const_iterator& iterator,
+                        std::vector<std::vector<Construct*>>& declarations,
+                        std::unique_ptr<Construct>& result);
+
+    bool parseExpression(const std::vector<Token>& tokens,
+                         std::vector<Token>::const_iterator& iterator,
+                         std::vector<std::vector<Construct*>>& declarations,
+                         std::unique_ptr<Construct>& result);
+
+    bool parseMultiplicationAssignment(const std::vector<Token>& tokens,
+                                       std::vector<Token>::const_iterator& iterator,
+                                       std::vector<std::vector<Construct*>>& declarations,
+                                       std::unique_ptr<Construct>& result);
+
+    bool parseAdditionAssignment(const std::vector<Token>& tokens,
+                                 std::vector<Token>::const_iterator& iterator,
+                                 std::vector<std::vector<Construct*>>& declarations,
+                                 std::unique_ptr<Construct>& result);
+
+    bool parseAssignment(const std::vector<Token>& tokens,
+                         std::vector<Token>::const_iterator& iterator,
+                         std::vector<std::vector<Construct*>>& declarations,
+                         std::unique_ptr<Construct>& result);
+
+    bool parseTernary(const std::vector<Token>& tokens,
+                      std::vector<Token>::const_iterator& iterator,
+                      std::vector<std::vector<Construct*>>& declarations,
+                      std::unique_ptr<Construct>& result);
+
+    bool parseEquality(const std::vector<Token>& tokens,
+                       std::vector<Token>::const_iterator& iterator,
+                       std::vector<std::vector<Construct*>>& declarations,
+                       std::unique_ptr<Construct>& result);
+
+    bool parseGreaterThan(const std::vector<Token>& tokens,
+                          std::vector<Token>::const_iterator& iterator,
+                          std::vector<std::vector<Construct*>>& declarations,
+                          std::unique_ptr<Construct>& result);
+
+    bool parseLessThan(const std::vector<Token>& tokens,
+                       std::vector<Token>::const_iterator& iterator,
+                       std::vector<std::vector<Construct*>>& declarations,
+                       std::unique_ptr<Construct>& result);
+
+    bool parseAddition(const std::vector<Token>& tokens,
+                       std::vector<Token>::const_iterator& iterator,
+                       std::vector<std::vector<Construct*>>& declarations,
+                       std::unique_ptr<Construct>& result);
+
+    bool parseMultiplication(const std::vector<Token>& tokens,
+                             std::vector<Token>::const_iterator& iterator,
+                             std::vector<std::vector<Construct*>>& declarations,
+                             std::unique_ptr<Construct>& result);
+
+    bool parseUnary(const std::vector<Token>& tokens,
+                    std::vector<Token>::const_iterator& iterator,
+                    std::vector<std::vector<Construct*>>& declarations,
+                    std::unique_ptr<Construct>& result);
+
+    bool parseMember(const std::vector<Token>& tokens,
+                     std::vector<Token>::const_iterator& iterator,
+                     std::vector<std::vector<Construct*>>& declarations,
+                     std::unique_ptr<Construct>& result);
+
+    bool parsePrimary(const std::vector<Token>& tokens,
+                      std::vector<Token>::const_iterator& iterator,
+                      std::vector<std::vector<Construct*>>& declarations,
+                      std::unique_ptr<Construct>& result);
+
+    void dumpNode(const Construct* node, std::string indent = std::string());
+    
+    std::unique_ptr<TranslationUnit> translationUnit;
+    std::vector<std::unique_ptr<Construct>> builtinDeclarations;
 };

@@ -33,7 +33,7 @@ bool OutputHLSL::output(const ASTContext& context, const std::string& outputFile
     return true;
 }
 
-bool OutputHLSL::printNode(const std::unique_ptr<Construct>& node, const std::string& prefix, std::string& code)
+bool OutputHLSL::printNode(const Construct* node, const std::string& prefix, std::string& code)
 {
     switch (node->kind)
     {
@@ -44,9 +44,9 @@ bool OutputHLSL::printNode(const std::unique_ptr<Construct>& node, const std::st
 
         case Construct::Kind::TRANSLATION_UNIT:
         {
-            for (std::unique_ptr<Construct>& child : node->children)
+            for (const std::unique_ptr<Construct>& child : node->children)
             {
-                if (!printNode(child, prefix, code))
+                if (!printNode(child.get(), prefix, code))
                 {
                     return false;
                 }
@@ -73,9 +73,9 @@ bool OutputHLSL::printNode(const std::unique_ptr<Construct>& node, const std::st
             {
                 code += prefix + "\n{\n";
 
-                for (std::unique_ptr<Construct>& child : node->children)
+                for (const std::unique_ptr<Construct>& child : node->children)
                 {
-                    if (!printNode(child, prefix + "    ", code))
+                    if (!printNode(child.get(), prefix + "    ", code))
                     {
                         return false;
                     }
@@ -116,7 +116,7 @@ bool OutputHLSL::printNode(const std::unique_ptr<Construct>& node, const std::st
             for (; i != node->children.cend() && (*i)->kind == Construct::Kind::DECLARATION_PARAMETER; ++i)
             {
                 if (i != node->children.cbegin()) code += ", ";
-                if (!printNode(*i, "", code))
+                if (!printNode(i->get(), "", code))
                 {
                     return false;
                 }
@@ -132,7 +132,7 @@ bool OutputHLSL::printNode(const std::unique_ptr<Construct>& node, const std::st
 
                 for (; i != node->children.cend(); ++i)
                 {
-                    if (!printNode(*i, prefix, code))
+                    if (!printNode(i->get(), prefix, code))
                     {
                         return false;
                     }
@@ -175,7 +175,7 @@ bool OutputHLSL::printNode(const std::unique_ptr<Construct>& node, const std::st
                 return false;
             }
 
-            if (!printNode(*i, prefix, code))
+            if (!printNode(i->get(), prefix, code))
             {
                 return false;
             }
@@ -186,7 +186,7 @@ bool OutputHLSL::printNode(const std::unique_ptr<Construct>& node, const std::st
             for (; i != node->children.cend(); ++i)
             {
                 if (i != node->children.cbegin() + 1) code += ", ";
-                if (!printNode(*i, "", code))
+                if (!printNode(i->get(), "", code))
                 {
                     return false;
                 }
@@ -218,9 +218,9 @@ bool OutputHLSL::printNode(const std::unique_ptr<Construct>& node, const std::st
         {
             code += prefix + "(";
 
-            for (std::unique_ptr<Construct>& child : node->children)
+            for (const std::unique_ptr<Construct>& child : node->children)
             {
-                if (!printNode(child, "", code))
+                if (!printNode(child.get(), "", code))
                 {
                     return false;
                 }
@@ -239,7 +239,7 @@ bool OutputHLSL::printNode(const std::unique_ptr<Construct>& node, const std::st
                 return false;
             }
 
-            if (!printNode(*i, "", code))
+            if (!printNode(i->get(), "", code))
             {
                 return false;
             }
@@ -253,7 +253,7 @@ bool OutputHLSL::printNode(const std::unique_ptr<Construct>& node, const std::st
                 return false;
             }
 
-            if (!printNode(*i, "", code))
+            if (!printNode(i->get(), "", code))
             {
                 return false;
             }
@@ -269,7 +269,7 @@ bool OutputHLSL::printNode(const std::unique_ptr<Construct>& node, const std::st
                 return false;
             }
 
-            if (!printNode(*i, prefix, code))
+            if (!printNode(i->get(), prefix, code))
             {
                 return false;
             }
@@ -283,7 +283,7 @@ bool OutputHLSL::printNode(const std::unique_ptr<Construct>& node, const std::st
 
             code += "[";
 
-            if (!printNode(*i, "", code))
+            if (!printNode(i->get(), "", code))
             {
                 return false;
             }
@@ -309,9 +309,9 @@ bool OutputHLSL::printNode(const std::unique_ptr<Construct>& node, const std::st
         {
             code += prefix + "{\n";
 
-            for (std::unique_ptr<Construct>& child : node->children)
+            for (const std::unique_ptr<Construct>& child : node->children)
             {
-                if (!printNode(child, prefix + "    ", code))
+                if (!printNode(child.get(), prefix + "    ", code))
                 {
                     return false;
                 }
@@ -335,7 +335,7 @@ bool OutputHLSL::printNode(const std::unique_ptr<Construct>& node, const std::st
                 return false;
             }
 
-            if (!printNode(*i, "", code))
+            if (!printNode(i->get(), "", code))
             {
                 return false;
             }
@@ -345,7 +345,7 @@ bool OutputHLSL::printNode(const std::unique_ptr<Construct>& node, const std::st
 
             for (; i != node->children.end(); ++i)
             {
-                if (!printNode(*i, (*i)->kind == Construct::Kind::STATEMENT_COMPOUND ? prefix : (prefix + "    "), code))
+                if (!printNode(i->get(), (*i)->kind == Construct::Kind::STATEMENT_COMPOUND ? prefix : (prefix + "    "), code))
                 {
                     return false;
                 }
@@ -365,7 +365,7 @@ bool OutputHLSL::printNode(const std::unique_ptr<Construct>& node, const std::st
                 return false;
             }
 
-            if (!printNode(*i, "", code))
+            if (!printNode(i->get(), "", code))
             {
                 return false;
             }
@@ -379,7 +379,7 @@ bool OutputHLSL::printNode(const std::unique_ptr<Construct>& node, const std::st
                 return false;
             }
 
-            if (!printNode(*i, "", code))
+            if (!printNode(i->get(), "", code))
             {
                 return false;
             }
@@ -393,7 +393,7 @@ bool OutputHLSL::printNode(const std::unique_ptr<Construct>& node, const std::st
                 return false;
             }
 
-            if (!printNode(*i, "", code))
+            if (!printNode(i->get(), "", code))
             {
                 return false;
             }
@@ -403,7 +403,7 @@ bool OutputHLSL::printNode(const std::unique_ptr<Construct>& node, const std::st
 
             for (; i != node->children.end(); ++i)
             {
-                if (!printNode(*i, (*i)->kind == Construct::Kind::STATEMENT_COMPOUND ? prefix : (prefix + "    "), code))
+                if (!printNode(i->get(), (*i)->kind == Construct::Kind::STATEMENT_COMPOUND ? prefix : (prefix + "    "), code))
                 {
                     return false;
                 }
@@ -423,7 +423,7 @@ bool OutputHLSL::printNode(const std::unique_ptr<Construct>& node, const std::st
                 return false;
             }
 
-            if (!printNode(*i, "", code))
+            if (!printNode(i->get(), "", code))
             {
                 return false;
             }
@@ -433,7 +433,7 @@ bool OutputHLSL::printNode(const std::unique_ptr<Construct>& node, const std::st
 
             for (; i != node->children.end(); ++i)
             {
-                if (!printNode(*i, (*i)->kind == Construct::Kind::STATEMENT_COMPOUND ? prefix : (prefix + "    "), code))
+                if (!printNode(i->get(), (*i)->kind == Construct::Kind::STATEMENT_COMPOUND ? prefix : (prefix + "    "), code))
                 {
                     return false;
                 }
@@ -447,7 +447,7 @@ bool OutputHLSL::printNode(const std::unique_ptr<Construct>& node, const std::st
 
             for (auto i = node->children.cbegin(); i != node->children.end(); ++i)
             {
-                if (!printNode(*i, (*i)->kind == Construct::Kind::STATEMENT_COMPOUND ? prefix : (prefix + "    "), code))
+                if (!printNode(i->get(), (*i)->kind == Construct::Kind::STATEMENT_COMPOUND ? prefix : (prefix + "    "), code))
                 {
                     return false;
                 }
@@ -467,7 +467,7 @@ bool OutputHLSL::printNode(const std::unique_ptr<Construct>& node, const std::st
                 return false;
             }
 
-            if (!printNode(*i, "", code))
+            if (!printNode(i->get(), "", code))
             {
                 return false;
             }
@@ -477,7 +477,7 @@ bool OutputHLSL::printNode(const std::unique_ptr<Construct>& node, const std::st
 
             for (; i != node->children.end(); ++i)
             {
-                if (!printNode(*i, (*i)->kind == Construct::Kind::STATEMENT_COMPOUND ? prefix : (prefix + "    "), code))
+                if (!printNode(i->get(), (*i)->kind == Construct::Kind::STATEMENT_COMPOUND ? prefix : (prefix + "    "), code))
                 {
                     return false;
                 }
@@ -498,7 +498,7 @@ bool OutputHLSL::printNode(const std::unique_ptr<Construct>& node, const std::st
 
             for (; i + 1 != node->children.end(); ++i)
             {
-                if (!printNode(*i, (*i)->kind == Construct::Kind::STATEMENT_COMPOUND ? prefix : (prefix + "    "), code))
+                if (!printNode(i->get(), (*i)->kind == Construct::Kind::STATEMENT_COMPOUND ? prefix : (prefix + "    "), code))
                 {
                     return false;
                 }
@@ -508,7 +508,7 @@ bool OutputHLSL::printNode(const std::unique_ptr<Construct>& node, const std::st
 
             code += prefix + "while (";
 
-            if (!printNode(*i, (*i)->kind == Construct::Kind::STATEMENT_COMPOUND ? prefix : (prefix + "    "), code))
+            if (!printNode(i->get(), (*i)->kind == Construct::Kind::STATEMENT_COMPOUND ? prefix : (prefix + "    "), code))
             {
                 return false;
             }
@@ -538,9 +538,9 @@ bool OutputHLSL::printNode(const std::unique_ptr<Construct>& node, const std::st
             {
                 code += " ";
 
-                for (std::unique_ptr<Construct>& child : node->children)
+                for (const std::unique_ptr<Construct>& child : node->children)
                 {
-                    if (!printNode(child, "", code))
+                    if (!printNode(child.get(), "", code))
                     {
                         return false;
                     }
@@ -555,9 +555,9 @@ bool OutputHLSL::printNode(const std::unique_ptr<Construct>& node, const std::st
         {
             code += prefix;
 
-            for (std::unique_ptr<Construct>& child : node->children)
+            for (const std::unique_ptr<Construct>& child : node->children)
             {
-                if (!printNode(child, "", code))
+                if (!printNode(child.get(), "", code))
                 {
                     return false;
                 }
@@ -577,7 +577,7 @@ bool OutputHLSL::printNode(const std::unique_ptr<Construct>& node, const std::st
                 return false;
             }
 
-            if (!printNode(*i, "", code))
+            if (!printNode(i->get(), "", code))
             {
                 return false;
             }
@@ -594,7 +594,7 @@ bool OutputHLSL::printNode(const std::unique_ptr<Construct>& node, const std::st
                 return false;
             }
 
-            if (!printNode(*i, "", code))
+            if (!printNode(i->get(), "", code))
             {
                 return false;
             }
@@ -608,7 +608,7 @@ bool OutputHLSL::printNode(const std::unique_ptr<Construct>& node, const std::st
                 return false;
             }
 
-            if (!printNode(*i, "", code))
+            if (!printNode(i->get(), "", code))
             {
                 return false;
             }
@@ -625,7 +625,7 @@ bool OutputHLSL::printNode(const std::unique_ptr<Construct>& node, const std::st
                 return false;
             }
 
-            if (!printNode(*i, "", code))
+            if (!printNode(i->get(), "", code))
             {
                 return false;
             }
@@ -639,7 +639,7 @@ bool OutputHLSL::printNode(const std::unique_ptr<Construct>& node, const std::st
                 return false;
             }
 
-            if (!printNode(*i, "", code))
+            if (!printNode(i->get(), "", code))
             {
                 return false;
             }
@@ -653,7 +653,7 @@ bool OutputHLSL::printNode(const std::unique_ptr<Construct>& node, const std::st
                 return false;
             }
 
-            if (!printNode(*i, "", code))
+            if (!printNode(i->get(), "", code))
             {
                 return false;
             }
