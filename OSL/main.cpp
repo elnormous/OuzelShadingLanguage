@@ -1,9 +1,5 @@
 //
-//  main.cpp
-//  OSLParser
-//
-//  Created by Elviss Strazdins on 24/04/2017.
-//  Copyright © 2017 Elviss Strazdins. All rights reserved.
+//  OSL
 //
 
 #include <fstream>

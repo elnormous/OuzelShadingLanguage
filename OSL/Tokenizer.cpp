@@ -1,9 +1,5 @@
 //
-//  Tokenizer.cpp
-//  OSLParser
-//
-//  Created by Elviss Strazdins on 25/04/2017.
-//  Copyright (c) 2017 Elviss Strazdins. All rights reserved.
+//  OSL
 //
 
 #include <iostream>
