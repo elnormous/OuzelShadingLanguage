@@ -761,15 +761,17 @@ IfStatement* ASTContext::parseIfStatement(const std::vector<Token>& tokens,
     Statement* statement;
     if (!(statement = parseStatement(tokens, iterator, declarations)))
     {
+        std::cerr << "Failed to parse the statement" << std::endl;
         return nullptr;
     }
 
     result->body = statement;
 
-    if (!checkToken(Token::Type::KEYWORD_ELSE, tokens, iterator))
+    if (checkToken(Token::Type::KEYWORD_ELSE, tokens, iterator))
     {
         if (!(statement = parseStatement(tokens, iterator, declarations)))
         {
+            std::cerr << "Failed to parse the statement" << std::endl;
             return nullptr;
         }
 
@@ -1912,7 +1914,7 @@ void ASTContext::dumpNode(const Construct* node, std::string indent)
 
             dumpNode(ifStatement->condition, indent + "  ");
             dumpNode(ifStatement->body, indent + "  ");
-            dumpNode(ifStatement->elseBody, indent + "  ");
+            if (ifStatement->elseBody) dumpNode(ifStatement->elseBody, indent + "  ");
             break;
         }
 
