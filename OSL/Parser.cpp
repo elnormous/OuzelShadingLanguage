@@ -1699,22 +1699,336 @@ void ASTContext::dumpNode(const Construct* node, std::string indent)
 {
     std::cout << indent << node << " " << nodeKindToString(node->kind);
 
-    //if (!node->name.empty()) std::cout << ", name: " << node->name;
-    //if (node->type)
+    switch (node->kind)
     {
-        //std::cout << ", reference: ";
-        //if (node->isStatic) std::cout << "static ";
-        //if (node->isConst) std::cout << "const ";
-        //std::cout << node->type->name;
+        case Construct::Kind::NONE:
+        {
+            std::cout << std::endl;
+            break;
+        }
 
+        case Construct::Kind::TYPE_SIMPLE:
+        {
+            const SimpleType* simpleType = static_cast<const SimpleType*>(node);
+            std::cout << ", name" << simpleType->name << ", scalar: " << simpleType->scalar << std::endl;
+            break;
+        }
+
+        case Construct::Kind::TYPE_STRUCT:
+        {
+            const StructType* structType = static_cast<const StructType*>(node);
+            std::cout << ", name" << structType->name << std::endl;
+            break;
+        }
+
+        case Construct::Kind::FIELD:
+        {
+            const Field* field = static_cast<const Field*>(node);
+            std::cout << ", name" << field->name << ", type: " << field->type->name << std::endl;
+            break;
+        }
+
+        case Construct::Kind::TRANSLATION_UNIT:
+        {
+            const TranslationUnit* translationUnit = static_cast<const TranslationUnit*>(node);
+
+            std::cout << std::endl;
+
+            for (Declaration* declaration : translationUnit->declarations)
+            {
+                dumpNode(declaration, indent + "  ");
+            }
+            break;
+        }
+
+        case Construct::Kind::DECLARATION_EMPTY:
+        {
+            std::cout << std::endl;
+            break;
+        }
+
+        case Construct::Kind::DECLARATION_STRUCT:
+        {
+            const StructDeclaration* structDeclaration = static_cast<const StructDeclaration*>(node);
+
+            std::cout << ", name: " << structDeclaration->type->name << std::endl;
+
+            for (const FieldDeclaration* fieldDeclaration : structDeclaration->fieldDeclarations)
+            {
+                dumpNode(fieldDeclaration, indent + "  ");
+            }
+
+            break;
+        }
+
+        case Construct::Kind::DECLARATION_FIELD:
+        {
+            const FieldDeclaration* fieldDeclaration = static_cast<const FieldDeclaration*>(node);
+
+            std::cout << ", name: " << fieldDeclaration->field->name << std::endl;
+
+            dumpNode(fieldDeclaration->field, indent + "  ");
+            break;
+        }
+
+        case Construct::Kind::DECLARATION_FUNCTION:
+        {
+            const FunctionDeclaration* functionDeclaration = static_cast<const FunctionDeclaration*>(node);
+
+            std::cout << ", name: " << functionDeclaration->name;
+
+            if (functionDeclaration->resultType)
+            {
+                std::cout << ", result type: " << functionDeclaration->resultType->name;
+            }
+
+            std::cout << std::endl;
+
+            for (ParameterDeclaration* parameter : functionDeclaration->parameterDeclarations)
+            {
+                dumpNode(parameter, indent + "  ");
+            }
+
+            if (functionDeclaration->body)
+            {
+                dumpNode(functionDeclaration->body, indent + "  ");
+            }
+            break;
+        }
+
+        case Construct::Kind::DECLARATION_VARIABLE:
+        {
+            const VariableDeclaration* variableDeclaration = static_cast<const VariableDeclaration*>(node);
+            std::cout << ", name: " << variableDeclaration->name << ", type: " << variableDeclaration->type->name << std::endl;
+            break;
+        }
+
+        case Construct::Kind::DECLARATION_PARAMETER:
+        {
+            const ParameterDeclaration* parameterDeclaration = static_cast<const ParameterDeclaration*>(node);
+            std::cout << ", name: " << parameterDeclaration->name << ", type: " << parameterDeclaration->type->name << std::endl;
+            break;
+        }
+
+        case Construct::Kind::EXPRESSION_CALL:
+        {
+            const CallExpression* callExpression = static_cast<const CallExpression*>(node);
+
+            std::cout << std::endl;
+
+            dumpNode(callExpression->declarationReference, indent + "  ");
+
+            for (Expression* parameter : callExpression->parameters)
+            {
+                dumpNode(parameter, indent + "  ");
+            }
+            
+            break;
+        }
+
+        case Construct::Kind::EXPRESSION_LITERAL:
+        {
+            const Expression* expression = static_cast<const Expression*>(node);
+            std::cout << ", value: " << expression->value << std::endl;
+            break;
+        }
+
+        case Construct::Kind::EXPRESSION_DECLARATION_REFERENCE:
+        {
+            const DeclarationReferenceExpression* declarationReferenceExpression = static_cast<const DeclarationReferenceExpression*>(node);
+
+            std::cout << std::endl;
+
+            dumpNode(declarationReferenceExpression->declaration, indent + "  ");
+            break;
+        }
+
+        case Construct::Kind::EXPRESSION_PAREN:
+        {
+            const ParenExpression* parenExpression = static_cast<const ParenExpression*>(node);
+
+            std::cout << std::endl;
+
+            dumpNode(parenExpression->expression, indent + "  ");
+            break;
+        }
+
+        case Construct::Kind::EXPRESSION_MEMBER:
+        {
+            const MemberExpression* memberExpression = static_cast<const MemberExpression*>(node);
+
+            std::cout << std::endl;
+
+            dumpNode(memberExpression->expression, indent + "  ");
+            dumpNode(memberExpression->field, indent + "  ");
+            break;
+        }
+
+        case Construct::Kind::EXPRESSION_ARRAY_SUBSCRIPT:
+        {
+            const ArraySubscriptExpression* arraySubscriptExpression = static_cast<const ArraySubscriptExpression*>(node);
+
+            std::cout << std::endl;
+
+            dumpNode(arraySubscriptExpression->expression, indent + "  ");
+            dumpNode(arraySubscriptExpression->declarationReference, indent + "  ");
+            break;
+        }
+
+        case Construct::Kind::STATEMENT_EMPTY:
+        {
+            std::cout << std::endl;
+            break;
+        }
+
+        case Construct::Kind::STATEMENT_DECLARATION:
+        {
+            const DeclarationStatement* declarationStatement = static_cast<const DeclarationStatement*>(node);
+
+            std::cout << std::endl;
+
+            dumpNode(declarationStatement->declaration, indent + "  ");
+            break;
+        }
+
+        case Construct::Kind::STATEMENT_COMPOUND:
+        {
+            const CompoundStatement* compoundStatement = static_cast<const CompoundStatement*>(node);
+
+            std::cout << std::endl;
+
+            for (Statement* statement : compoundStatement->statements)
+            {
+                dumpNode(statement, indent + "  ");
+            }
+            break;
+        }
+
+        case Construct::Kind::STATEMENT_IF:
+        {
+            const IfStatement* ifStatement = static_cast<const IfStatement*>(node);
+
+            std::cout << std::endl;
+
+            dumpNode(ifStatement->condition, indent + "  ");
+            dumpNode(ifStatement->body, indent + "  ");
+            dumpNode(ifStatement->elseBody, indent + "  ");
+            break;
+        }
+
+        case Construct::Kind::STATEMENT_FOR:
+        {
+            const ForStatement* forStatement = static_cast<const ForStatement*>(node);
+
+            std::cout << std::endl;
+
+            dumpNode(forStatement->initialization, indent + "  ");
+            dumpNode(forStatement->condition, indent + "  ");
+            dumpNode(forStatement->increment, indent + "  ");
+            dumpNode(forStatement->body, indent + "  ");
+            break;
+        }
+
+        case Construct::Kind::STATEMENT_SWITCH:
+        {
+            const SwitchStatement* switchStatement = static_cast<const SwitchStatement*>(node);
+
+            std::cout << std::endl;
+
+            dumpNode(switchStatement->condition, indent + "  ");
+            dumpNode(switchStatement->body, indent + "  ");
+            break;
+        }
+
+        case Construct::Kind::STATEMENT_CASE:
+        {
+            const CaseStatement* caseStatement = static_cast<const CaseStatement*>(node);
+
+            std::cout << std::endl;
+
+            dumpNode(caseStatement->condition, indent + "  ");
+            dumpNode(caseStatement->body, indent + "  ");
+            break;
+        }
+
+        case Construct::Kind::STATEMENT_WHILE:
+        {
+            const WhileStatement* whileStatement = static_cast<const WhileStatement*>(node);
+
+            std::cout << std::endl;
+
+            dumpNode(whileStatement->condition, indent + "  ");
+            dumpNode(whileStatement->body, indent + "  ");
+            break;
+        }
+
+        case Construct::Kind::STATEMENT_DO:
+        {
+            const DoStatement* doStatement = static_cast<const DoStatement*>(node);
+
+            std::cout << std::endl;
+
+            dumpNode(doStatement->body, indent + "  ");
+            dumpNode(doStatement->condition, indent + "  ");
+            break;
+        }
+
+        case Construct::Kind::STATEMENT_BREAK:
+        {
+            std::cout << std::endl;
+            break;
+        }
+
+        case Construct::Kind::STATEMENT_CONTINUE:
+        {
+            std::cout << std::endl;
+            break;
+        }
+
+        case Construct::Kind::STATEMENT_RETURN:
+        {
+            const ReturnStatement* returnStatement = static_cast<const ReturnStatement*>(node);
+
+            std::cout << std::endl;
+
+            if (returnStatement->result)
+            {
+                dumpNode(returnStatement->result, indent + "  ");
+            }
+            break;
+        }
+
+        case Construct::Kind::OPERATOR_UNARY:
+        {
+            const UnaryOperatorExpression* unaryOperatorExpression = static_cast<const UnaryOperatorExpression*>(node);
+
+            std::cout << std::endl;
+
+            dumpNode(unaryOperatorExpression->expression, indent + "  ");
+            break;
+        }
+            
+        case Construct::Kind::OPERATOR_BINARY:
+        {
+            const BinaryOperatorExpression* binaryOperatorExpression = static_cast<const BinaryOperatorExpression*>(node);
+            
+            std::cout << std::endl;
+
+            dumpNode(binaryOperatorExpression->leftExpression, indent + "  ");
+            dumpNode(binaryOperatorExpression->rightExpression, indent + "  ");
+            break;
+        }
+            
+        case Construct::Kind::OPERATOR_TERNARY:
+        {
+            const TernaryOperatorExpression* ternaryOperatorExpression = static_cast<const TernaryOperatorExpression*>(node);
+            
+            std::cout << std::endl;
+
+            dumpNode(ternaryOperatorExpression->condition, indent + "  ");
+            dumpNode(ternaryOperatorExpression->leftExpression, indent + "  ");
+            dumpNode(ternaryOperatorExpression->rightExpression, indent + "  ");
+            break;
+        }
     }
-    //if (!node->value.empty()) std::cout << ", value: " << node->value;
-    //if (node->semantic != Construct::Semantic::NONE) std::cout << ", semantic: " << semanticToString(node->semantic);
-
-    std::cout << std::endl;
-
-    /*for (const std::unique_ptr<Construct>& child : node->children)
-    {
-        ASTContext::dumpNode(child.get(), indent + "  ");
-    }*/
 }

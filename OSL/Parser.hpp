@@ -200,7 +200,6 @@ class FieldDeclaration: public Declaration
 {
 public:
     Field* field = nullptr;
-    Type* type = nullptr;
 };
 
 class StructDeclaration: public TypeDeclaration
