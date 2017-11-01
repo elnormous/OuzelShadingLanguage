@@ -161,6 +161,8 @@ public:
     Semantic semantic = Semantic::NONE;
     bool isStatic = false;
     bool isConst = false;
+    bool isArray = false;
+    uint32_t arraySize = 0;
 };
 
 class SimpleType: public Type
@@ -229,6 +231,8 @@ public:
     std::string name;
     bool isStatic = false;
     bool isConst = false;
+    bool isArray = false;
+    uint32_t arraySize = 0;
     Statement* initialization = nullptr;
 };
 

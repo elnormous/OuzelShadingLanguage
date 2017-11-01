@@ -290,6 +290,25 @@ StructDeclaration* ASTContext::parseStructDeclaration(const std::vector<Token>& 
                     }
                 }
 
+                if (checkToken(Token::Type::LEFT_BRACKET, tokens, iterator))
+                {
+                    field->isArray = true;
+
+                    if (!checkToken(Token::Type::LITERAL_INT, tokens, iterator))
+                    {
+                        std::cerr << "Expected an integer literal" << std::endl;
+                        return nullptr;
+                    }
+
+                    field->arraySize = std::stoi((iterator - 1)->value);
+
+                    if (!checkToken(Token::Type::RIGHT_BRACKET, tokens, iterator))
+                    {
+                        std::cerr << "Expected a right bracket" << std::endl;
+                        return nullptr;
+                    }
+                }
+
                 if (!checkToken(Token::Type::SEMICOLON, tokens, iterator))
                 {
                     std::cerr << "Expected a semicolon" << std::endl;
@@ -535,6 +554,25 @@ VariableDeclaration* ASTContext::parseVariableDeclaration(const std::vector<Toke
     {
         std::cerr << "Invalid type: " << (iterator - 1)->value << std::endl;
         return nullptr;
+    }
+
+    if (checkToken(Token::Type::LEFT_BRACKET, tokens, iterator))
+    {
+        result->isArray = true;
+
+        if (!checkToken(Token::Type::LITERAL_INT, tokens, iterator))
+        {
+            std::cerr << "Expected an integer literal" << std::endl;
+            return nullptr;
+        }
+
+        result->arraySize = std::stoi((iterator - 1)->value);
+
+        if (!checkToken(Token::Type::RIGHT_BRACKET, tokens, iterator))
+        {
+            std::cerr << "Expected a right bracket" << std::endl;
+            return nullptr;
+        }
     }
 
     if (checkToken(Token::Type::OPERATOR_ASSIGNMENT, tokens, iterator))
