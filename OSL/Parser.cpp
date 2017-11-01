@@ -1829,7 +1829,7 @@ void ASTContext::dumpNode(const Construct* node, std::string indent)
         case Construct::Kind::EXPRESSION_LITERAL:
         {
             const Expression* expression = static_cast<const Expression*>(node);
-            std::cout << ", value: " << expression->value << std::endl;
+            std::cout << ", value: " << expression->value << ", type: " << expression->resultType->name << std::endl;
             break;
         }
 
@@ -1870,8 +1870,8 @@ void ASTContext::dumpNode(const Construct* node, std::string indent)
 
             std::cout << std::endl;
 
-            dumpNode(arraySubscriptExpression->expression, indent + "  ");
             dumpNode(arraySubscriptExpression->declarationReference, indent + "  ");
+            dumpNode(arraySubscriptExpression->expression, indent + "  ");
             break;
         }
 

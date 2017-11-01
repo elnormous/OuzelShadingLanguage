@@ -345,8 +345,8 @@ public:
 class ArraySubscriptExpression: public Expression
 {
 public:
-    Expression* expression = nullptr;
     DeclarationReferenceExpression* declarationReference = nullptr;
+    Expression* expression = nullptr;
 };
 
 class UnaryOperatorExpression: public Expression
