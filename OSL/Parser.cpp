@@ -1104,6 +1104,9 @@ Expression* ASTContext::parseMultiplicationAssignment(const std::vector<Token>& 
             return nullptr;
         }
 
+        // TODO: fix this
+        expression->resultType = expression->leftExpression->resultType;
+
         result = expression;
     }
 
@@ -1133,6 +1136,9 @@ Expression* ASTContext::parseAdditionAssignment(const std::vector<Token>& tokens
             return nullptr;
         }
 
+        // TODO: fix this
+        expression->resultType = expression->leftExpression->resultType;
+
         result = expression;
     }
 
@@ -1161,6 +1167,9 @@ Expression* ASTContext::parseAssignment(const std::vector<Token>& tokens,
         {
             return nullptr;
         }
+
+        // TODO: fix this
+        expression->resultType = expression->leftExpression->resultType;
 
         result = expression;
     }
@@ -1202,6 +1211,9 @@ Expression* ASTContext::parseTernary(const std::vector<Token>& tokens,
             return nullptr;
         }
 
+        // TODO: fix this
+        expression->resultType = expression->leftExpression->resultType;
+
         result = expression;
     }
 
@@ -1230,6 +1242,9 @@ Expression* ASTContext::parseEquality(const std::vector<Token>& tokens,
         {
             return nullptr;
         }
+
+        // TODO: fix this
+        expression->resultType = expression->leftExpression->resultType;
 
         result = expression;
     }
@@ -1260,6 +1275,9 @@ Expression* ASTContext::parseGreaterThan(const std::vector<Token>& tokens,
             return nullptr;
         }
 
+        // TODO: fix this
+        expression->resultType = expression->leftExpression->resultType;
+
         result = expression;
     }
     
@@ -1288,6 +1306,9 @@ Expression* ASTContext::parseLessThan(const std::vector<Token>& tokens,
         {
             return nullptr;
         }
+
+        // TODO: fix this
+        expression->resultType = expression->leftExpression->resultType;
 
         result = expression;
     }
@@ -1318,6 +1339,9 @@ Expression* ASTContext::parseAddition(const std::vector<Token>& tokens,
             return nullptr;
         }
 
+        // TODO: fix this
+        expression->resultType = expression->leftExpression->resultType;
+
         result = expression;
     }
     
@@ -1329,7 +1353,7 @@ Expression* ASTContext::parseMultiplication(const std::vector<Token>& tokens,
                                             std::vector<std::vector<Declaration*>>& declarations)
 {
     Expression* result;
-    if (!(result = parseUnary(tokens, iterator, declarations)))
+    if (!(result = parseNot(tokens, iterator, declarations)))
     {
         return nullptr;
     }
@@ -1342,10 +1366,13 @@ Expression* ASTContext::parseMultiplication(const std::vector<Token>& tokens,
         expression->value = (iterator - 1)->value;
         expression->leftExpression = result;
 
-        if (!(expression->rightExpression = parseUnary(tokens, iterator, declarations)))
+        if (!(expression->rightExpression = parseNot(tokens, iterator, declarations)))
         {
             return nullptr;
         }
+
+        // TODO: fix this
+        expression->resultType = expression->leftExpression->resultType;
 
         result = expression;
     }
@@ -1353,11 +1380,43 @@ Expression* ASTContext::parseMultiplication(const std::vector<Token>& tokens,
     return result;
 }
 
-Expression* ASTContext::parseUnary(const std::vector<Token>& tokens,
-                                   std::vector<Token>::const_iterator& iterator,
-                                   std::vector<std::vector<Declaration*>>& declarations)
+Expression* ASTContext::parseNot(const std::vector<Token>& tokens,
+                                 std::vector<Token>::const_iterator& iterator,
+                                 std::vector<std::vector<Declaration*>>& declarations)
 {
-    if (checkTokens({Token::Type::OPERATOR_PLUS, Token::Type::OPERATOR_MINUS, Token::Type::OPERATOR_NOT}, tokens, iterator))
+    if (checkToken(Token::Type::OPERATOR_NOT, tokens, iterator))
+    {
+        UnaryOperatorExpression* result = new UnaryOperatorExpression();
+        constructs.push_back(std::unique_ptr<Construct>(result));
+        result->kind = Construct::Kind::OPERATOR_UNARY;
+        result->value = (iterator - 1)->value;
+
+        if (!(result->expression = parseSign(tokens, iterator, declarations)))
+        {
+            return nullptr;
+        }
+
+        result->resultType = findType("bool", declarations);
+
+        return result;
+    }
+    else
+    {
+        Expression* result;
+        if (!(result = parseSign(tokens, iterator, declarations)))
+        {
+            return nullptr;
+        }
+
+        return result;
+    }
+}
+
+Expression* ASTContext::parseSign(const std::vector<Token>& tokens,
+                                  std::vector<Token>::const_iterator& iterator,
+                                  std::vector<std::vector<Declaration*>>& declarations)
+{
+    if (checkTokens({Token::Type::OPERATOR_PLUS, Token::Type::OPERATOR_MINUS}, tokens, iterator))
     {
         UnaryOperatorExpression* result = new UnaryOperatorExpression();
         constructs.push_back(std::unique_ptr<Construct>(result));
@@ -1368,6 +1427,8 @@ Expression* ASTContext::parseUnary(const std::vector<Token>& tokens,
         {
             return nullptr;
         }
+
+        result->resultType = result->expression->resultType;
 
         return result;
     }
@@ -1427,6 +1488,8 @@ Expression* ASTContext::parseMember(const std::vector<Token>& tokens,
             std::cerr << "Structure " << structType->name <<  " has no member " << (iterator - 1)->value << std::endl;
             return nullptr;
         }
+
+        expression->resultType = expression->field->type;
 
         result = expression;
     }
@@ -1494,6 +1557,16 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
             }
 
             result->declarationReference = declRefExpression;
+
+            if (declRefExpression->declaration->kind != Construct::Kind::DECLARATION_FUNCTION)
+            {
+                std::cerr << (iterator - 2)->value << " is not a function" << std::endl;
+                return nullptr;
+            }
+
+            FunctionDeclaration* functionDeclaration = static_cast<FunctionDeclaration*>(declRefExpression->declaration);
+            declRefExpression->resultType = functionDeclaration->resultType;
+            result->resultType = functionDeclaration->resultType;
 
             bool firstParameter = true;
             std::unique_ptr<Construct> parameter;
@@ -1565,6 +1638,24 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
                 return nullptr;
             }
 
+            switch (result->declaration->kind)
+            {
+                case Construct::Kind::DECLARATION_STRUCT:
+                {
+                    StructDeclaration* structDeclaration = static_cast<StructDeclaration*>(result->declaration);
+                    result->resultType = structDeclaration->type;
+                    break;
+                }
+                case Construct::Kind::DECLARATION_VARIABLE:
+                {
+                    VariableDeclaration* variableDeclaration = static_cast<VariableDeclaration*>(result->declaration);
+                    result->resultType = variableDeclaration->type;
+                    break;
+                }
+                default:
+                    break;
+            }
+
             return result;
         }
     }
@@ -1578,6 +1669,8 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
         {
             return nullptr;
         }
+
+        result->resultType = result->expression->resultType;
 
         if (!checkToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
         {

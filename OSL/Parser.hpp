@@ -587,9 +587,13 @@ private:
                                     std::vector<Token>::const_iterator& iterator,
                                     std::vector<std::vector<Declaration*>>& declarations);
 
-    Expression* parseUnary(const std::vector<Token>& tokens,
-                           std::vector<Token>::const_iterator& iterator,
-                           std::vector<std::vector<Declaration*>>& declarations);
+    Expression* parseNot(const std::vector<Token>& tokens,
+                         std::vector<Token>::const_iterator& iterator,
+                         std::vector<std::vector<Declaration*>>& declarations);
+
+    Expression* parseSign(const std::vector<Token>& tokens,
+                          std::vector<Token>::const_iterator& iterator,
+                          std::vector<std::vector<Declaration*>>& declarations);
 
     Expression* parseMember(const std::vector<Token>& tokens,
                             std::vector<Token>::const_iterator& iterator,
