@@ -166,6 +166,7 @@ StructDeclaration* ASTContext::parseStructDeclaration(const std::vector<Token>& 
         constructs.push_back(std::unique_ptr<Construct>(type));
         type->kind = Construct::Kind::TYPE_STRUCT;
         type->name = (iterator - 1)->value;
+        type->declaration = result;
         result->type = type;
 
         if (checkToken(Token::Type::LEFT_BRACE, tokens, iterator))
@@ -198,7 +199,9 @@ StructDeclaration* ASTContext::parseStructDeclaration(const std::vector<Token>& 
                     Field* field = new Field();
                     constructs.push_back(std::unique_ptr<Construct>(field));
                     field->kind = Construct::Kind::FIELD;
+                    field->structType = type;
                     field->name = (iterator - 1)->value;
+                    field->declaration = fieldDeclaration;
 
                     if (!checkToken(Token::Type::COLON, tokens, iterator))
                     {
@@ -212,11 +215,11 @@ StructDeclaration* ASTContext::parseStructDeclaration(const std::vector<Token>& 
                         return nullptr;
                     }
 
-                    field->reference = findDeclaration((iterator - 1)->value, declarations);
+                    field->type = findType((iterator - 1)->value, declarations);
 
-                    if (!field->reference)
+                    if (!field->type)
                     {
-                        std::cerr << "Invalid declaration reference: " << (iterator - 1)->value << std::endl;
+                        std::cerr << "Invalid type: " << (iterator - 1)->value << std::endl;
                         return nullptr;
                     }
 
@@ -334,11 +337,11 @@ StructDeclaration* ASTContext::parseStructDeclaration(const std::vector<Token>& 
 
     result.reset(new Construct());
     result->kind = Construct::Kind::DECLARATION_TYPE_DEFINITION;
-    result->reference = findDeclaration((iterator - 1)->value, declarations);
+    result->type = findType((iterator - 1)->value, declarations);
 
-    if (!result->reference)
+    if (!result->type)
     {
-        std::cerr << "Invalid declaration reference: " << (iterator - 1)->value << std::endl;
+        std::cerr << "Invalid type: " << (iterator - 1)->value << std::endl;
         return false;
     }
 
@@ -410,11 +413,11 @@ FunctionDeclaration* ASTContext::parseFunctionDeclaration(const std::vector<Toke
                 return nullptr;
             }
 
-            parameter->reference = findDeclaration((iterator - 1)->value, declarations);
+            parameter->type = findType((iterator - 1)->value, declarations);
 
-            if (!parameter->reference)
+            if (!parameter->type)
             {
-                std::cerr << "Invalid declaration reference: " << (iterator - 1)->value << std::endl;
+                std::cerr << "Invalid type: " << (iterator - 1)->value << std::endl;
                 return nullptr;
             }
 
@@ -439,11 +442,11 @@ FunctionDeclaration* ASTContext::parseFunctionDeclaration(const std::vector<Toke
         return nullptr;
     }
 
-    result->reference = findDeclaration((iterator - 1)->value, declarations);
+    result->resultType = findType((iterator - 1)->value, declarations);
 
-    if (!result->reference)
+    if (!result->resultType)
     {
-        std::cerr << "Invalid declaration reference: " << (iterator - 1)->value << std::endl;
+        std::cerr << "Invalid type: " << (iterator - 1)->value << std::endl;
         return nullptr;
     }
 
@@ -522,11 +525,11 @@ VariableDeclaration* ASTContext::parseVariableDeclaration(const std::vector<Toke
         return nullptr;
     }
 
-    result->reference = findDeclaration((iterator - 1)->value, declarations);
+    result->type = findType((iterator - 1)->value, declarations);
 
-    if (!result->reference)
+    if (!result->type)
     {
-        std::cerr << "Invalid declaration reference: " << (iterator - 1)->value << std::endl;
+        std::cerr << "Invalid type: " << (iterator - 1)->value << std::endl;
         return nullptr;
     }
 
@@ -1389,47 +1392,33 @@ Expression* ASTContext::parseMember(const std::vector<Token>& tokens,
         expression->kind = Construct::Kind::EXPRESSION_MEMBER;
         expression->expression = result;
 
-        Declaration* declaration = findDeclaration((iterator - 2)->value, declarations);
-
-        if (!declaration)
-        {
-            std::cerr << "Invalid declaration reference: " << (iterator - 2)->value << std::endl;
-            return nullptr;
-        }
-
-        if (declaration->kind != Construct::Kind::DECLARATION_STRUCT)
-        {
-            std::cerr << "Expected a reference to structure, but got: " << (iterator - 2)->value << std::endl;
-            return nullptr;
-        }
-
-        StructDeclaration* structDeclaration = static_cast<StructDeclaration*>(declaration);
-
-        std::unique_ptr<Construct> declRefExpression(new Construct());
-        declRefExpression->kind = Construct::Kind::EXPRESSION_DECLARATION_REFERENCE;
-        declRefExpression->reference = declaration;
-
-        // TODO: implement
-        //expression->declarationReference = declRefExpression;
-
         if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
         {
             std::cerr << "Expected an identifier" << std::endl;
             return nullptr;
         }
 
-        DeclarationReferenceExpression* fieldRefExpression = new DeclarationReferenceExpression();
-        constructs.push_back(std::unique_ptr<Construct>(fieldRefExpression));
-        fieldRefExpression->kind = Construct::Kind::EXPRESSION_DECLARATION_REFERENCE;
-        fieldRefExpression->reference = findField((iterator - 1)->value, structDeclaration);
-
-        if (!fieldRefExpression->reference)
+        if (!result->resultType)
         {
-            std::cerr << "Invalid member reference: " << (iterator - 1)->value << std::endl;
+            std::cerr << "Expression has no result type" << std::endl;
             return nullptr;
         }
 
-        expression->declarationReference = fieldRefExpression;
+        if (result->resultType->kind != Construct::Kind::TYPE_STRUCT)
+        {
+            std::cerr << result->resultType->name << " is not a structure" << std::endl;
+            return nullptr;
+        }
+
+        StructType* structType = static_cast<StructType*>(result->resultType);
+
+        expression->field = findField((iterator - 1)->value, structType);
+
+        if (!expression->field)
+        {
+            std::cerr << "Structure " << structType->name <<  " has no member " << (iterator - 1)->value << std::endl;
+            return nullptr;
+        }
 
         result = expression;
     }
@@ -1446,7 +1435,7 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
         Expression* result = new Expression();
         constructs.push_back(std::unique_ptr<Construct>(result));
         result->kind = Construct::Kind::EXPRESSION_LITERAL;
-        result->reference = findDeclaration("int", declarations);
+        result->resultType = findType("int", declarations);
         result->value = (iterator - 1)->value;
         return result;
     }
@@ -1455,7 +1444,7 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
         Expression* result = new Expression();
         constructs.push_back(std::unique_ptr<Construct>(result));
         result->kind = Construct::Kind::EXPRESSION_LITERAL;
-        result->reference = findDeclaration("float", declarations);
+        result->resultType = findType("float", declarations);
         result->value = (iterator - 1)->value;
         return result;
     }
@@ -1464,7 +1453,7 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
         Expression* result = new Expression();
         constructs.push_back(std::unique_ptr<Construct>(result));
         result->kind = Construct::Kind::EXPRESSION_LITERAL;
-        result->reference = findDeclaration("string", declarations);
+        result->resultType = findType("string", declarations);
         result->value = (iterator - 1)->value;
         return result;
     }
@@ -1473,7 +1462,7 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
         Expression* result = new Expression();
         constructs.push_back(std::unique_ptr<Construct>(result));
         result->kind = Construct::Kind::EXPRESSION_LITERAL;
-        result->reference = findDeclaration("bool", declarations);
+        result->resultType = findType("bool", declarations);
         result->value = (iterator - 1)->value;
         return result;
     }
@@ -1488,9 +1477,9 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
             DeclarationReferenceExpression* declRefExpression = new DeclarationReferenceExpression();
             constructs.push_back(std::unique_ptr<Construct>(declRefExpression));
             declRefExpression->kind = Construct::Kind::EXPRESSION_DECLARATION_REFERENCE;
-            declRefExpression->reference = findDeclaration((iterator - 2)->value, declarations);
+            declRefExpression->declaration = findDeclaration((iterator - 2)->value, declarations);
 
-            if (!declRefExpression->reference)
+            if (!declRefExpression->declaration)
             {
                 std::cerr << "Invalid declaration reference: " << (iterator - 2)->value << std::endl;
                 return nullptr;
@@ -1532,9 +1521,9 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
             DeclarationReferenceExpression* declRefExpression = new DeclarationReferenceExpression();
             constructs.push_back(std::unique_ptr<Construct>(declRefExpression));
             declRefExpression->kind = Construct::Kind::EXPRESSION_DECLARATION_REFERENCE;
-            declRefExpression->reference = findDeclaration((iterator - 2)->value, declarations);
+            declRefExpression->declaration = findDeclaration((iterator - 2)->value, declarations);
 
-            if (!declRefExpression->reference)
+            if (!declRefExpression->declaration)
             {
                 std::cerr << "Invalid declaration reference: " << (iterator - 2)->value << std::endl;
                 return nullptr;
@@ -1560,9 +1549,9 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
             DeclarationReferenceExpression* result = new DeclarationReferenceExpression();
             constructs.push_back(std::unique_ptr<Construct>(result));
             result->kind = Construct::Kind::EXPRESSION_DECLARATION_REFERENCE;
-            result->reference = findDeclaration((iterator - 1)->value, declarations);
+            result->declaration = findDeclaration((iterator - 1)->value, declarations);
 
-            if (!result->reference)
+            if (!result->declaration)
             {
                 std::cerr << "Invalid declaration reference: " << (iterator - 1)->value << std::endl;
                 return nullptr;
@@ -1610,12 +1599,12 @@ void ASTContext::dumpNode(const Construct* node, std::string indent)
     std::cout << indent << node << " " << nodeKindToString(node->kind);
 
     //if (!node->name.empty()) std::cout << ", name: " << node->name;
-    if (node->reference)
+    //if (node->type)
     {
-        std::cout << ", reference: ";
+        //std::cout << ", reference: ";
         //if (node->isStatic) std::cout << "static ";
         //if (node->isConst) std::cout << "const ";
-        //std::cout << node->reference->name;
+        //std::cout << node->type->name;
 
     }
     //if (!node->value.empty()) std::cout << ", value: " << node->value;

@@ -118,12 +118,6 @@ bool OutputHLSL::printNode(const Construct* node, const std::string& prefix, std
         {
             const FunctionDeclaration* functionDeclaration = static_cast<const FunctionDeclaration*>(node);
 
-            if (!node->reference)
-            {
-                std::cerr << "Invalid declaration reference" << std::endl;
-                return false;
-            }
-
             code += prefix + functionDeclaration->resultType->name + " " + functionDeclaration->name + "(";
 
             bool firstParameter = true;
@@ -243,7 +237,7 @@ bool OutputHLSL::printNode(const Construct* node, const std::string& prefix, std
 
             code += ".";
 
-            if (!printNode(memberExpression->declarationReference, "", code))
+            if (!printNode(memberExpression->field, "", code))
             {
                 return false;
             }

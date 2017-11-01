@@ -68,7 +68,6 @@ public:
     };
 
     Kind kind = Kind::NONE;
-    Construct* reference = nullptr;
 };
 
 inline std::string nodeKindToString(Construct::Kind type)
@@ -153,10 +152,15 @@ public:
     Type* resultType = nullptr;
 };
 
+class StructType;
+class FieldDeclaration;
+
 class Field: public Construct
 {
 public:
+    StructType* structType = nullptr;
     Type* type = nullptr;
+    FieldDeclaration* declaration = nullptr;
     std::string name;
     Semantic semantic = Semantic::NONE;
     bool isStatic = false;
@@ -192,7 +196,7 @@ public:
     Type* type = nullptr;
 };
 
-class FieldDeclaration: public Construct
+class FieldDeclaration: public Declaration
 {
 public:
     Field* field = nullptr;
@@ -336,7 +340,7 @@ class MemberExpression: public Expression
 {
 public:
     Expression* expression = nullptr;
-    DeclarationReferenceExpression* declarationReference = nullptr;
+    Field* field = nullptr;
 };
 
 class ArraySubscriptExpression: public Expression
@@ -447,19 +451,37 @@ private:
             }
         }
 
-        /*for (auto i = builtinTypes.cbegin(); i != builtinTypes.cend(); ++i)
+        return nullptr;
+    }
+
+    Type* findType(const std::string& name, std::vector<std::vector<Declaration*>>& declarations)
+    {
+        for (auto i = declarations.crbegin(); i != declarations.crend(); ++i)
+        {
+            for (Declaration* declaration : *i)
+            {
+                if (declaration->kind == Construct::Kind::DECLARATION_STRUCT)
+                {
+                    StructDeclaration* structDeclaration = static_cast<StructDeclaration*>(declaration);
+                    if (structDeclaration->type->name == name) return structDeclaration->type;
+                    break;
+                }
+            }
+        }
+
+        for (auto i = builtinTypes.cbegin(); i != builtinTypes.cend(); ++i)
         {
             if ((*i)->name == name) return (*i).get();
-        }*/
+        }
 
         return nullptr;
     }
 
-    FieldDeclaration* findField(const std::string& name, StructDeclaration* declaration)
+    Field* findField(const std::string& name, StructType* structType)
     {
-        for (FieldDeclaration* fieldDeclaration : declaration->fieldDeclarations)
+        for (Field* field : structType->fields)
         {
-            if (fieldDeclaration->field->name == name) return fieldDeclaration;
+            if (field->name == name) return field;
         }
 
         return nullptr;
