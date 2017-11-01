@@ -464,7 +464,6 @@ private:
                 {
                     StructDeclaration* structDeclaration = static_cast<StructDeclaration*>(declaration);
                     if (structDeclaration->type->name == name) return structDeclaration->type;
-                    break;
                 }
             }
         }

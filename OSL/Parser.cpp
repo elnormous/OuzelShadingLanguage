@@ -155,167 +155,175 @@ StructDeclaration* ASTContext::parseStructDeclaration(const std::vector<Token>& 
                                                       std::vector<Token>::const_iterator& iterator,
                                                       std::vector<std::vector<Declaration*>>& declarations)
 {
+    if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
+    {
+        std::cerr << "Expected an identifier" << std::endl;
+        return nullptr;
+    }
+
     StructDeclaration* result = new StructDeclaration();
     constructs.push_back(std::unique_ptr<Construct>(result));
+    result->kind = Construct::Kind::DECLARATION_STRUCT;
 
-    if (checkToken(Token::Type::IDENTIFIER, tokens, iterator))
+    StructType* type = new StructType();
+    constructs.push_back(std::unique_ptr<Construct>(type));
+    type->kind = Construct::Kind::TYPE_STRUCT;
+    type->name = (iterator - 1)->value;
+    type->declaration = result;
+    result->type = type;
+
+    if (checkToken(Token::Type::LEFT_BRACE, tokens, iterator))
     {
-        result->kind = Construct::Kind::DECLARATION_STRUCT;
-
-        StructType* type = new StructType();
-        constructs.push_back(std::unique_ptr<Construct>(type));
-        type->kind = Construct::Kind::TYPE_STRUCT;
-        type->name = (iterator - 1)->value;
-        type->declaration = result;
-        result->type = type;
-
-        if (checkToken(Token::Type::LEFT_BRACE, tokens, iterator))
+        for (;;)
         {
-            for (;;)
+            if (checkToken(Token::Type::RIGHT_BRACE, tokens, iterator))
             {
-                if (checkToken(Token::Type::RIGHT_BRACE, tokens, iterator))
+                if (result->fieldDeclarations.empty())
                 {
-                    if (result->fieldDeclarations.empty())
-                    {
-                        std::cerr << "Structure must have at least one member" << std::endl;
-                        return nullptr;
-                    }
-
-                    declarations.back().push_back(result);
-                    break;
+                    std::cerr << "Structure must have at least one member" << std::endl;
+                    return nullptr;
                 }
-                else if (checkToken(Token::Type::KEYWORD_VAR, tokens, iterator))
+
+                declarations.back().push_back(result);
+                break;
+            }
+            else if (checkToken(Token::Type::KEYWORD_VAR, tokens, iterator))
+            {
+                FieldDeclaration* fieldDeclaration = new FieldDeclaration();
+                constructs.push_back(std::unique_ptr<Construct>(fieldDeclaration));
+                fieldDeclaration->kind = Construct::Kind::DECLARATION_FIELD;
+
+                if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
                 {
-                    FieldDeclaration* fieldDeclaration = new FieldDeclaration();
-                    constructs.push_back(std::unique_ptr<Construct>(fieldDeclaration));
-                    fieldDeclaration->kind = Construct::Kind::DECLARATION_FIELD;
+                    std::cerr << "Expected an identifier" << std::endl;
+                    return nullptr;
+                }
 
-                    if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
+                Field* field = new Field();
+                constructs.push_back(std::unique_ptr<Construct>(field));
+                field->kind = Construct::Kind::FIELD;
+                field->structType = type;
+                field->name = (iterator - 1)->value;
+                field->declaration = fieldDeclaration;
+
+                if (!checkToken(Token::Type::COLON, tokens, iterator))
+                {
+                    std::cerr << "Expected a colon" << std::endl;
+                    return nullptr;
+                }
+
+                if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
+                {
+                    std::cerr << "Expected a type name" << std::endl;
+                    return nullptr;
+                }
+
+                field->type = findType((iterator - 1)->value, declarations);
+
+                if (!field->type)
+                {
+                    std::cerr << "Invalid type: " << (iterator - 1)->value << std::endl;
+                    return nullptr;
+                }
+
+                fieldDeclaration->field = field;
+
+                if (checkToken(Token::Type::LEFT_BRACKET, tokens, iterator)) // parse attributes
+                {
+                    bool firstAttribute = true;
+
+                    for (;;)
                     {
-                        std::cerr << "Expected an identifier" << std::endl;
-                        return nullptr;
-                    }
-
-                    Field* field = new Field();
-                    constructs.push_back(std::unique_ptr<Construct>(field));
-                    field->kind = Construct::Kind::FIELD;
-                    field->structType = type;
-                    field->name = (iterator - 1)->value;
-                    field->declaration = fieldDeclaration;
-
-                    if (!checkToken(Token::Type::COLON, tokens, iterator))
-                    {
-                        std::cerr << "Expected a colon" << std::endl;
-                        return nullptr;
-                    }
-
-                    if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
-                    {
-                        std::cerr << "Expected a type name" << std::endl;
-                        return nullptr;
-                    }
-
-                    field->type = findType((iterator - 1)->value, declarations);
-
-                    if (!field->type)
-                    {
-                        std::cerr << "Invalid type: " << (iterator - 1)->value << std::endl;
-                        return nullptr;
-                    }
-
-                    fieldDeclaration->field = field;
-
-                    if (checkToken(Token::Type::LEFT_BRACKET, tokens, iterator)) // parse attributes
-                    {
-                        bool firstAttribute = true;
-
-                        for (;;)
+                        if (checkToken(Token::Type::RIGHT_BRACKET, tokens, iterator))
                         {
-                            if (checkToken(Token::Type::RIGHT_BRACKET, tokens, iterator))
+                            break;
+                        }
+                        else if ((firstAttribute || checkToken(Token::Type::COMMA, tokens, iterator)) &&
+                                 checkToken(Token::Type::IDENTIFIER, tokens, iterator))
+                        {
+                            firstAttribute = false;
+
+                            std::string attribute = (iterator - 1)->value;
+
+                            if (!checkToken(Token::Type::OPERATOR_ASSIGNMENT, tokens, iterator))
                             {
-                                break;
+                                std::cerr << "Expected an equality sign" << std::endl;
+                                return nullptr;
                             }
-                            else if ((firstAttribute || checkToken(Token::Type::COMMA, tokens, iterator)) &&
-                                     checkToken(Token::Type::IDENTIFIER, tokens, iterator))
-                            {
-                                firstAttribute = false;
 
-                                std::string attribute = (iterator - 1)->value;
-
-                                if (!checkToken(Token::Type::OPERATOR_ASSIGNMENT, tokens, iterator))
-                                {
-                                    std::cerr << "Expected an equality sign" << std::endl;
-                                    return nullptr;
-                                }
-
-                                if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
-                                {
-                                    std::cerr << "Expected an identifier" << std::endl;
-                                    return nullptr;
-                                }
-
-                                if (attribute == "semantic")
-                                {
-                                    Semantic semantic = Semantic::NONE;
-
-                                    // TODO: find slot number
-                                    if ((iterator - 1)->value == "binormal") semantic = Semantic::BINORMAL;
-                                    else if ((iterator - 1)->value == "blend_indices") semantic = Semantic::BLEND_INDICES;
-                                    else if ((iterator - 1)->value == "blend_weight") semantic = Semantic::BLEND_WEIGHT;
-                                    else if ((iterator - 1)->value == "color") semantic = Semantic::COLOR;
-                                    else if ((iterator - 1)->value == "normal") semantic = Semantic::NORMAL;
-                                    else if ((iterator - 1)->value == "position") semantic = Semantic::POSITION;
-                                    else if ((iterator - 1)->value == "position_transformed") semantic = Semantic::POSITION_TRANSFORMED;
-                                    else if ((iterator - 1)->value == "point_size") semantic = Semantic::POINT_SIZE;
-                                    else if ((iterator - 1)->value == "tangent") semantic = Semantic::TANGENT;
-                                    else if ((iterator - 1)->value == "texture_coordinates") semantic = Semantic::TEXTURE_COORDINATES;
-                                    else
-                                    {
-                                        std::cerr << "Invalid semantic" << std::endl;
-                                        return nullptr;
-                                    }
-
-                                    field->semantic = semantic;
-                                }
-                                else
-                                {
-                                    std::cerr << "Invalid attribute" << std::endl;
-                                    return nullptr;
-                                }
-                            }
-                            else
+                            if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
                             {
                                 std::cerr << "Expected an identifier" << std::endl;
                                 return nullptr;
                             }
+
+                            if (attribute == "semantic")
+                            {
+                                Semantic semantic = Semantic::NONE;
+
+                                // TODO: find slot number
+                                if ((iterator - 1)->value == "binormal") semantic = Semantic::BINORMAL;
+                                else if ((iterator - 1)->value == "blend_indices") semantic = Semantic::BLEND_INDICES;
+                                else if ((iterator - 1)->value == "blend_weight") semantic = Semantic::BLEND_WEIGHT;
+                                else if ((iterator - 1)->value == "color") semantic = Semantic::COLOR;
+                                else if ((iterator - 1)->value == "normal") semantic = Semantic::NORMAL;
+                                else if ((iterator - 1)->value == "position") semantic = Semantic::POSITION;
+                                else if ((iterator - 1)->value == "position_transformed") semantic = Semantic::POSITION_TRANSFORMED;
+                                else if ((iterator - 1)->value == "point_size") semantic = Semantic::POINT_SIZE;
+                                else if ((iterator - 1)->value == "tangent") semantic = Semantic::TANGENT;
+                                else if ((iterator - 1)->value == "texture_coordinates") semantic = Semantic::TEXTURE_COORDINATES;
+                                else
+                                {
+                                    std::cerr << "Invalid semantic" << std::endl;
+                                    return nullptr;
+                                }
+
+                                field->semantic = semantic;
+                            }
+                            else
+                            {
+                                std::cerr << "Invalid attribute" << std::endl;
+                                return nullptr;
+                            }
+                        }
+                        else
+                        {
+                            std::cerr << "Expected an identifier" << std::endl;
+                            return nullptr;
                         }
                     }
-
-                    if (!checkToken(Token::Type::SEMICOLON, tokens, iterator))
-                    {
-                        std::cerr << "Expected a semicolon" << std::endl;
-                        return nullptr;
-                    }
-
-                    type->fields.push_back(field);
-                    result->fieldDeclarations.push_back(fieldDeclaration);
                 }
-                else
+
+                if (!checkToken(Token::Type::SEMICOLON, tokens, iterator))
                 {
-                    std::cerr << "Expected an attribute" << std::endl;
+                    std::cerr << "Expected a semicolon" << std::endl;
                     return nullptr;
                 }
+
+                type->fields.push_back(field);
+                result->fieldDeclarations.push_back(fieldDeclaration);
+            }
+            else
+            {
+                std::cerr << "Expected an attribute" << std::endl;
+                return nullptr;
             }
         }
-        else if (checkToken(Token::Type::SEMICOLON, tokens, iterator))
+
+        if (!checkToken(Token::Type::SEMICOLON, tokens, iterator))
         {
-            declarations.back().push_back(result);
-        }
-        else
-        {
-            std::cerr << "Expected a left brace or a semicolon" << std::endl;
+            std::cerr << "Expected a semicolon" << std::endl;
             return nullptr;
         }
+    }
+    else if (checkToken(Token::Type::SEMICOLON, tokens, iterator))
+    {
+        declarations.back().push_back(result);
+    }
+    else
+    {
+        std::cerr << "Expected a left brace or a semicolon" << std::endl;
+        return nullptr;
     }
 
     return result;
@@ -1085,7 +1093,7 @@ Expression* ASTContext::parseMultiplicationAssignment(const std::vector<Token>& 
     while (checkTokens({Token::Type::OPERATOR_MULTIPLY_ASSIGNMENT, Token::Type::OPERATOR_DIVIDE_ASSIGNMENT}, tokens, iterator))
     {
         BinaryOperatorExpression* expression = new BinaryOperatorExpression();
-        constructs.push_back(std::unique_ptr<Construct>(result));
+        constructs.push_back(std::unique_ptr<Construct>(expression));
         expression->kind = Construct::Kind::OPERATOR_BINARY;
         expression->value = (iterator - 1)->value;
         expression->leftExpression = result;
@@ -1115,7 +1123,7 @@ Expression* ASTContext::parseAdditionAssignment(const std::vector<Token>& tokens
     while (checkTokens({Token::Type::OPERATOR_PLUS_ASSIGNMENT, Token::Type::OPERATOR_MINUS_ASSIGNMENT}, tokens, iterator))
     {
         BinaryOperatorExpression* expression = new BinaryOperatorExpression();
-        constructs.push_back(std::unique_ptr<Construct>(result));
+        constructs.push_back(std::unique_ptr<Construct>(expression));
         expression->kind = Construct::Kind::OPERATOR_BINARY;
         expression->value = (iterator - 1)->value;
         expression->leftExpression = result;
@@ -1144,7 +1152,7 @@ Expression* ASTContext::parseAssignment(const std::vector<Token>& tokens,
     while (checkToken(Token::Type::OPERATOR_ASSIGNMENT, tokens, iterator))
     {
         BinaryOperatorExpression* expression = new BinaryOperatorExpression();
-        constructs.push_back(std::unique_ptr<Construct>(result));
+        constructs.push_back(std::unique_ptr<Construct>(expression));
         expression->kind = Construct::Kind::OPERATOR_BINARY;
         expression->value = (iterator - 1)->value;
         expression->leftExpression = result;
@@ -1173,7 +1181,7 @@ Expression* ASTContext::parseTernary(const std::vector<Token>& tokens,
     while (checkToken(Token::Type::OPERATOR_CONDITIONAL, tokens, iterator))
     {
         TernaryOperatorExpression* expression = new TernaryOperatorExpression();
-        constructs.push_back(std::unique_ptr<Construct>(result));
+        constructs.push_back(std::unique_ptr<Construct>(expression));
         expression->kind = Construct::Kind::OPERATOR_TERNARY;
         expression->value = (iterator - 1)->value;
         expression->condition = result;
@@ -1213,7 +1221,7 @@ Expression* ASTContext::parseEquality(const std::vector<Token>& tokens,
     while (checkTokens({Token::Type::OPERATOR_EQUAL, Token::Type::OPERATOR_NOT_EQUAL}, tokens, iterator))
     {
         BinaryOperatorExpression* expression = new BinaryOperatorExpression();
-        constructs.push_back(std::unique_ptr<Construct>(result));
+        constructs.push_back(std::unique_ptr<Construct>(expression));
         expression->kind = Construct::Kind::OPERATOR_BINARY;
         expression->value = (iterator - 1)->value;
         expression->leftExpression = result;
@@ -1242,7 +1250,7 @@ Expression* ASTContext::parseGreaterThan(const std::vector<Token>& tokens,
     while (checkTokens({Token::Type::OPERATOR_GREATER_THAN, Token::Type::OPERATOR_GREATER_THAN_EQUAL}, tokens, iterator))
     {
         BinaryOperatorExpression* expression = new BinaryOperatorExpression();
-        constructs.push_back(std::unique_ptr<Construct>(result));
+        constructs.push_back(std::unique_ptr<Construct>(expression));
         expression->kind = Construct::Kind::OPERATOR_BINARY;
         expression->value = (iterator - 1)->value;
         expression->leftExpression = result;
@@ -1271,7 +1279,7 @@ Expression* ASTContext::parseLessThan(const std::vector<Token>& tokens,
     while (checkTokens({Token::Type::OPERATOR_LESS_THAN, Token::Type::OPERATOR_LESS_THAN_EQUAL}, tokens, iterator))
     {
         BinaryOperatorExpression* expression = new BinaryOperatorExpression();
-        constructs.push_back(std::unique_ptr<Construct>(result));
+        constructs.push_back(std::unique_ptr<Construct>(expression));
         expression->kind = Construct::Kind::OPERATOR_BINARY;
         expression->value = (iterator - 1)->value;
         expression->leftExpression = result;
@@ -1300,7 +1308,7 @@ Expression* ASTContext::parseAddition(const std::vector<Token>& tokens,
     while (checkTokens({Token::Type::OPERATOR_PLUS, Token::Type::OPERATOR_MINUS}, tokens, iterator))
     {
         BinaryOperatorExpression* expression = new BinaryOperatorExpression();
-        constructs.push_back(std::unique_ptr<Construct>(result));
+        constructs.push_back(std::unique_ptr<Construct>(expression));
         expression->kind = Construct::Kind::OPERATOR_BINARY;
         expression->value = (iterator - 1)->value;
         expression->leftExpression = result;
@@ -1329,7 +1337,7 @@ Expression* ASTContext::parseMultiplication(const std::vector<Token>& tokens,
     while (checkTokens({Token::Type::OPERATOR_MULTIPLY, Token::Type::OPERATOR_DIVIDE}, tokens, iterator))
     {
         BinaryOperatorExpression* expression = new BinaryOperatorExpression();
-        constructs.push_back(std::unique_ptr<Construct>(result));
+        constructs.push_back(std::unique_ptr<Construct>(expression));
         expression->kind = Construct::Kind::OPERATOR_BINARY;
         expression->value = (iterator - 1)->value;
         expression->leftExpression = result;
@@ -1388,7 +1396,7 @@ Expression* ASTContext::parseMember(const std::vector<Token>& tokens,
     while (checkToken(Token::Type::OPERATOR_DOT, tokens, iterator))
     {
         MemberExpression* expression = new MemberExpression();
-        constructs.push_back(std::unique_ptr<Construct>(result));
+        constructs.push_back(std::unique_ptr<Construct>(expression));
         expression->kind = Construct::Kind::EXPRESSION_MEMBER;
         expression->expression = result;
 
