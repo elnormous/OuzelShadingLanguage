@@ -444,6 +444,25 @@ FunctionDeclaration* ASTContext::parseFunctionDeclaration(const std::vector<Toke
                 return nullptr;
             }
 
+            if (checkToken(Token::Type::LEFT_BRACKET, tokens, iterator))
+            {
+                parameter->isArray = true;
+
+                if (!checkToken(Token::Type::LITERAL_INT, tokens, iterator))
+                {
+                    std::cerr << "Expected an integer literal" << std::endl;
+                    return nullptr;
+                }
+
+                parameter->arraySize = std::stoi((iterator - 1)->value);
+
+                if (!checkToken(Token::Type::RIGHT_BRACKET, tokens, iterator))
+                {
+                    std::cerr << "Expected a right bracket" << std::endl;
+                    return nullptr;
+                }
+            }
+
             result->parameterDeclarations.push_back(parameter);
         }
         else

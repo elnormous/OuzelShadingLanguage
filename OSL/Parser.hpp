@@ -220,6 +220,8 @@ public:
     Type* type = nullptr;
     std::string name;
     bool isConst = false;
+    bool isArray = false;
+    uint32_t arraySize = 0;
 };
 
 class FunctionDeclaration: public Declaration
