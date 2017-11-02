@@ -1594,6 +1594,8 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
     }
     else if (checkToken(Token::Type::IDENTIFIER, tokens, iterator))
     {
+        std::string name = (iterator - 1)->value;
+
         if (checkToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
         {
             CallExpression* result = new CallExpression();
@@ -1603,11 +1605,11 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
             DeclarationReferenceExpression* declRefExpression = new DeclarationReferenceExpression();
             constructs.push_back(std::unique_ptr<Construct>(declRefExpression));
             declRefExpression->kind = Construct::Kind::EXPRESSION_DECLARATION_REFERENCE;
-            declRefExpression->declaration = findDeclaration((iterator - 2)->value, declarations);
+            declRefExpression->declaration = findDeclaration(name, declarations);
 
             if (!declRefExpression->declaration)
             {
-                std::cerr << "Invalid declaration reference: " << (iterator - 2)->value << std::endl;
+                std::cerr << "Invalid declaration reference: " << name << std::endl;
                 return nullptr;
             }
 
@@ -1615,7 +1617,7 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
 
             if (declRefExpression->declaration->kind != Construct::Kind::DECLARATION_FUNCTION)
             {
-                std::cerr << (iterator - 2)->value << " is not a function" << std::endl;
+                std::cerr << name << " is not a function" << std::endl;
                 return nullptr;
             }
 
@@ -1657,11 +1659,11 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
             DeclarationReferenceExpression* declRefExpression = new DeclarationReferenceExpression();
             constructs.push_back(std::unique_ptr<Construct>(declRefExpression));
             declRefExpression->kind = Construct::Kind::EXPRESSION_DECLARATION_REFERENCE;
-            declRefExpression->declaration = findDeclaration((iterator - 2)->value, declarations);
+            declRefExpression->declaration = findDeclaration(name, declarations);
 
             if (!declRefExpression->declaration)
             {
-                std::cerr << "Invalid declaration reference: " << (iterator - 2)->value << std::endl;
+                std::cerr << "Invalid declaration reference: " << name << std::endl;
                 return nullptr;
             }
 
