@@ -99,14 +99,14 @@ TranslationUnit* ASTContext::parseTopLevel(const std::vector<Token>& tokens,
         }
         /*else if (checkToken(Token::Type::KEYWORD_TYPEDEF, tokens, iterator))
         {
-            std::unique_ptr<Construct> decl;
-            if (!parseTypedefDeclaration(tokens, iterator, declarations, decl))
+            TypeDefinitionDeclaration* decl;
+            if (!(decl = parseTypeDefinitionDeclaration(tokens, iterator, declarations)))
             {
                 std::cerr << "Failed to parse a type definition declaration" << std::endl;
                 return nullptr;
             }
 
-            result->children.push_back(std::move(decl));
+            result->declarations.push_back(decl);
         }*/
         else if (checkToken(Token::Type::KEYWORD_FUNCTION, tokens, iterator))
         {
@@ -344,34 +344,34 @@ StructDeclaration* ASTContext::parseStructDeclaration(const std::vector<Token>& 
     return result;
 }
 
-/*bool ASTContext::parseTypedefDeclaration(const std::vector<Token>& tokens,
-                                  std::vector<Token>::const_iterator& iterator,
-                                  std::vector<std::vector<Declaration*>>& declarations,
-                                  std::unique_ptr<Construct>& result)
+/*TypeDefinitionDeclaration* ASTContext::parseTypeDefinitionDeclaration(const std::vector<Token>& tokens,
+                                                                      std::vector<Token>::const_iterator& iterator,
+                                                                      std::vector<std::vector<Declaration*>>& declarations)
 {
     std::cerr << "Typedef is not supported" << std::endl;
-    return false;
+    return nullptr;
 
     if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
     {
         std::cerr << "Expected a type name" << std::endl;
-        return false;
+        return nullptr;
     }
 
-    result.reset(new Construct());
+    TypeDefinitionDeclaration* result = new TypeDefinitionDeclaration();
+    constructs.push_back(std::unique_ptr<Construct>(result));
     result->kind = Construct::Kind::DECLARATION_TYPE_DEFINITION;
     result->type = findType((iterator - 1)->value, declarations);
 
     if (!result->type)
     {
         std::cerr << "Invalid type: " << (iterator - 1)->value << std::endl;
-        return false;
+        return nullptr;
     }
 
     if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
     {
         std::cerr << "Expected a type name" << std::endl;
-        return false;
+        return nullptr;
     }
 
     result->name = (iterator - 1)->value;
@@ -379,10 +379,10 @@ StructDeclaration* ASTContext::parseStructDeclaration(const std::vector<Token>& 
     if (!checkToken(Token::Type::SEMICOLON, tokens, iterator))
     {
         std::cerr << "Expected a semicolon" << std::endl;
-        return false;
+        return nullptr;
     }
 
-    return true;
+    return result;
 }*/
 
 FunctionDeclaration* ASTContext::parseFunctionDeclaration(const std::vector<Token>& tokens,

@@ -207,6 +207,13 @@ public:
     std::vector<FieldDeclaration*> fieldDeclarations;
 };
 
+/*class TypeDefinitionDeclaration: public TypeDeclaration
+{
+public:
+    Type* type;
+    std::string name;
+};*/
+
 class ParameterDeclaration: public Declaration
 {
 public:
@@ -493,10 +500,9 @@ private:
                                               std::vector<Token>::const_iterator& iterator,
                                               std::vector<std::vector<Declaration*>>& declarations);
 
-    /*bool parseTypedefDeclaration(const std::vector<Token>& tokens,
-                          std::vector<Token>::const_iterator& iterator,
-                          std::vector<std::vector<Declaration*>>& declarations,
-                          std::unique_ptr<Construct>& result);*/
+    /*TypeDefinitionDeclaration* parseTypeDefinitionDeclaration(const std::vector<Token>& tokens,
+                                                              std::vector<Token>::const_iterator& iterator,
+                                                              std::vector<std::vector<Declaration*>>& declarations);*/
 
     FunctionDeclaration* parseFunctionDeclaration(const std::vector<Token>& tokens,
                                                   std::vector<Token>::const_iterator& iterator,
