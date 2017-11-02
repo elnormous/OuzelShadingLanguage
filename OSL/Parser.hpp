@@ -136,6 +136,16 @@ public:
     TypeDeclaration* declaration = nullptr;
 };
 
+class QualifiedType
+{
+public:
+    Type* type = nullptr;
+    bool isStatic = false;
+    bool isConst = false;
+    bool isArray = false;
+    uint32_t arraySize = 0;
+};
+
 class Statement: public Construct
 {
 public:
@@ -145,7 +155,7 @@ class Expression: public Statement
 {
 public:
     std::string value;
-    Type* resultType = nullptr;
+    QualifiedType qualifiedType;
 };
 
 class StructType;
@@ -155,14 +165,10 @@ class Field: public Construct
 {
 public:
     StructType* structType = nullptr;
-    Type* type = nullptr;
+    QualifiedType qualifiedType;
     FieldDeclaration* declaration = nullptr;
     std::string name;
     Semantic semantic = Semantic::NONE;
-    bool isStatic = false;
-    bool isConst = false;
-    bool isArray = false;
-    uint32_t arraySize = 0;
 };
 
 class SimpleType: public Type
@@ -217,17 +223,14 @@ public:
 class ParameterDeclaration: public Declaration
 {
 public:
-    Type* type = nullptr;
+    QualifiedType qualifiedType;
     std::string name;
-    bool isConst = false;
-    bool isArray = false;
-    uint32_t arraySize = 0;
 };
 
 class FunctionDeclaration: public Declaration
 {
 public:
-    Type* resultType = nullptr;
+    QualifiedType qualifiedType;
     std::string name;
     std::vector<ParameterDeclaration*> parameterDeclarations;
     Statement* body = nullptr;
@@ -236,12 +239,8 @@ public:
 class VariableDeclaration: public Declaration
 {
 public:
-    Type* type = nullptr;
+    QualifiedType qualifiedType;
     std::string name;
-    bool isStatic = false;
-    bool isConst = false;
-    bool isArray = false;
-    uint32_t arraySize = 0;
     Statement* initialization = nullptr;
 };
 

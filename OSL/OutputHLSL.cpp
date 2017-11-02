@@ -106,7 +106,7 @@ bool OutputHLSL::printNode(const Construct* node, const std::string& prefix, std
         case Construct::Kind::DECLARATION_FIELD:
         {
             const FieldDeclaration* fieldDeclaration = static_cast<const FieldDeclaration*>(node);
-            code += prefix + fieldDeclaration->field->type->name + " " + fieldDeclaration->field->name + ";";
+            code += prefix + fieldDeclaration->field->qualifiedType.type->name + " " + fieldDeclaration->field->name + ";";
             break;
         }
 
@@ -114,7 +114,7 @@ bool OutputHLSL::printNode(const Construct* node, const std::string& prefix, std
         {
             const FunctionDeclaration* functionDeclaration = static_cast<const FunctionDeclaration*>(node);
 
-            code += prefix + functionDeclaration->resultType->name + " " + functionDeclaration->name + "(";
+            code += prefix + functionDeclaration->qualifiedType.type->name + " " + functionDeclaration->name + "(";
 
             bool firstParameter = true;
 
@@ -149,14 +149,14 @@ bool OutputHLSL::printNode(const Construct* node, const std::string& prefix, std
         case Construct::Kind::DECLARATION_VARIABLE:
         {
             const VariableDeclaration* variableDeclaration = static_cast<const VariableDeclaration*>(node);
-            code += prefix + variableDeclaration->type->name + " " + variableDeclaration->name + ";";
+            code += prefix + variableDeclaration->qualifiedType.type->name + " " + variableDeclaration->name + ";";
             break;
         }
 
         case Construct::Kind::DECLARATION_PARAMETER:
         {
             const ParameterDeclaration* parameterDeclaration = static_cast<const ParameterDeclaration*>(node);
-            code += prefix + parameterDeclaration->type->name + " " + parameterDeclaration->name;
+            code += prefix + parameterDeclaration->qualifiedType.type->name + " " + parameterDeclaration->name;
             break;
         }
 

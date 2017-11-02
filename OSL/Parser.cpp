@@ -214,9 +214,9 @@ StructDeclaration* ASTContext::parseStructDeclaration(const std::vector<Token>& 
                     return nullptr;
                 }
 
-                field->type = findType((iterator - 1)->value, declarations);
+                field->qualifiedType.type = findType((iterator - 1)->value, declarations);
 
-                if (!field->type)
+                if (!field->qualifiedType.type)
                 {
                     std::cerr << "Invalid type: " << (iterator - 1)->value << std::endl;
                     return nullptr;
@@ -292,7 +292,7 @@ StructDeclaration* ASTContext::parseStructDeclaration(const std::vector<Token>& 
 
                 if (checkToken(Token::Type::LEFT_BRACKET, tokens, iterator))
                 {
-                    field->isArray = true;
+                    field->qualifiedType.isArray = true;
 
                     if (!checkToken(Token::Type::LITERAL_INT, tokens, iterator))
                     {
@@ -300,7 +300,7 @@ StructDeclaration* ASTContext::parseStructDeclaration(const std::vector<Token>& 
                         return nullptr;
                     }
 
-                    field->arraySize = std::stoi((iterator - 1)->value);
+                    field->qualifiedType.arraySize = std::stoi((iterator - 1)->value);
 
                     if (!checkToken(Token::Type::RIGHT_BRACKET, tokens, iterator))
                     {
@@ -436,9 +436,9 @@ FunctionDeclaration* ASTContext::parseFunctionDeclaration(const std::vector<Toke
                 return nullptr;
             }
 
-            parameter->type = findType((iterator - 1)->value, declarations);
+            parameter->qualifiedType.type = findType((iterator - 1)->value, declarations);
 
-            if (!parameter->type)
+            if (!parameter->qualifiedType.type)
             {
                 std::cerr << "Invalid type: " << (iterator - 1)->value << std::endl;
                 return nullptr;
@@ -446,7 +446,7 @@ FunctionDeclaration* ASTContext::parseFunctionDeclaration(const std::vector<Toke
 
             if (checkToken(Token::Type::LEFT_BRACKET, tokens, iterator))
             {
-                parameter->isArray = true;
+                parameter->qualifiedType.isArray = true;
 
                 if (!checkToken(Token::Type::LITERAL_INT, tokens, iterator))
                 {
@@ -454,7 +454,7 @@ FunctionDeclaration* ASTContext::parseFunctionDeclaration(const std::vector<Toke
                     return nullptr;
                 }
 
-                parameter->arraySize = std::stoi((iterator - 1)->value);
+                parameter->qualifiedType.arraySize = std::stoi((iterator - 1)->value);
 
                 if (!checkToken(Token::Type::RIGHT_BRACKET, tokens, iterator))
                 {
@@ -484,9 +484,9 @@ FunctionDeclaration* ASTContext::parseFunctionDeclaration(const std::vector<Toke
         return nullptr;
     }
 
-    result->resultType = findType((iterator - 1)->value, declarations);
+    result->qualifiedType.type = findType((iterator - 1)->value, declarations);
 
-    if (!result->resultType)
+    if (!result->qualifiedType.type)
     {
         std::cerr << "Invalid type: " << (iterator - 1)->value << std::endl;
         return nullptr;
@@ -526,7 +526,7 @@ VariableDeclaration* ASTContext::parseVariableDeclaration(const std::vector<Toke
 
     if ((iterator - 1)->type == Token::Type::KEYWORD_STATIC)
     {
-        result->isStatic = true;
+        result->qualifiedType.isStatic = true;
     }
     else
     {
@@ -535,11 +535,11 @@ VariableDeclaration* ASTContext::parseVariableDeclaration(const std::vector<Toke
 
     if (checkToken(Token::Type::KEYWORD_CONST, tokens, iterator))
     {
-        result->isConst = true;
+        result->qualifiedType.isConst = true;
     }
     else if (checkToken(Token::Type::KEYWORD_VAR, tokens, iterator))
     {
-        result->isConst = false;
+        result->qualifiedType.isConst = false;
     }
     else
     {
@@ -567,9 +567,9 @@ VariableDeclaration* ASTContext::parseVariableDeclaration(const std::vector<Toke
         return nullptr;
     }
 
-    result->type = findType((iterator - 1)->value, declarations);
+    result->qualifiedType.type = findType((iterator - 1)->value, declarations);
 
-    if (!result->type)
+    if (!result->qualifiedType.type)
     {
         std::cerr << "Invalid type: " << (iterator - 1)->value << std::endl;
         return nullptr;
@@ -577,7 +577,7 @@ VariableDeclaration* ASTContext::parseVariableDeclaration(const std::vector<Toke
 
     if (checkToken(Token::Type::LEFT_BRACKET, tokens, iterator))
     {
-        result->isArray = true;
+        result->qualifiedType.isArray = true;
 
         if (!checkToken(Token::Type::LITERAL_INT, tokens, iterator))
         {
@@ -585,7 +585,7 @@ VariableDeclaration* ASTContext::parseVariableDeclaration(const std::vector<Toke
             return nullptr;
         }
 
-        result->arraySize = std::stoi((iterator - 1)->value);
+        result->qualifiedType.arraySize = std::stoi((iterator - 1)->value);
 
         if (!checkToken(Token::Type::RIGHT_BRACKET, tokens, iterator))
         {
@@ -1160,7 +1160,7 @@ Expression* ASTContext::parseMultiplicationAssignment(const std::vector<Token>& 
         }
 
         // TODO: fix this
-        expression->resultType = expression->leftExpression->resultType;
+        expression->qualifiedType.type = expression->leftExpression->qualifiedType.type;
 
         result = expression;
     }
@@ -1192,7 +1192,7 @@ Expression* ASTContext::parseAdditionAssignment(const std::vector<Token>& tokens
         }
 
         // TODO: fix this
-        expression->resultType = expression->leftExpression->resultType;
+        expression->qualifiedType.type = expression->leftExpression->qualifiedType.type;
 
         result = expression;
     }
@@ -1224,7 +1224,7 @@ Expression* ASTContext::parseAssignment(const std::vector<Token>& tokens,
         }
 
         // TODO: fix this
-        expression->resultType = expression->leftExpression->resultType;
+        expression->qualifiedType.type = expression->leftExpression->qualifiedType.type;
 
         result = expression;
     }
@@ -1267,7 +1267,7 @@ Expression* ASTContext::parseTernary(const std::vector<Token>& tokens,
         }
 
         // TODO: fix this
-        expression->resultType = expression->leftExpression->resultType;
+        expression->qualifiedType.type = expression->leftExpression->qualifiedType.type;
 
         result = expression;
     }
@@ -1299,7 +1299,7 @@ Expression* ASTContext::parseEquality(const std::vector<Token>& tokens,
         }
 
         // TODO: fix this
-        expression->resultType = expression->leftExpression->resultType;
+        expression->qualifiedType.type = expression->leftExpression->qualifiedType.type;
 
         result = expression;
     }
@@ -1331,7 +1331,7 @@ Expression* ASTContext::parseGreaterThan(const std::vector<Token>& tokens,
         }
 
         // TODO: fix this
-        expression->resultType = expression->leftExpression->resultType;
+        expression->qualifiedType.type = expression->leftExpression->qualifiedType.type;
 
         result = expression;
     }
@@ -1363,7 +1363,7 @@ Expression* ASTContext::parseLessThan(const std::vector<Token>& tokens,
         }
 
         // TODO: fix this
-        expression->resultType = expression->leftExpression->resultType;
+        expression->qualifiedType.type = expression->leftExpression->qualifiedType.type;
 
         result = expression;
     }
@@ -1395,7 +1395,7 @@ Expression* ASTContext::parseAddition(const std::vector<Token>& tokens,
         }
 
         // TODO: fix this
-        expression->resultType = expression->leftExpression->resultType;
+        expression->qualifiedType.type = expression->leftExpression->qualifiedType.type;
 
         result = expression;
     }
@@ -1427,7 +1427,7 @@ Expression* ASTContext::parseMultiplication(const std::vector<Token>& tokens,
         }
 
         // TODO: fix this
-        expression->resultType = expression->leftExpression->resultType;
+        expression->qualifiedType.type = expression->leftExpression->qualifiedType.type;
 
         result = expression;
     }
@@ -1451,7 +1451,7 @@ Expression* ASTContext::parseNot(const std::vector<Token>& tokens,
             return nullptr;
         }
 
-        result->resultType = findType("bool", declarations);
+        result->qualifiedType.type = findType("bool", declarations);
 
         return result;
     }
@@ -1483,7 +1483,7 @@ Expression* ASTContext::parseSign(const std::vector<Token>& tokens,
             return nullptr;
         }
 
-        result->resultType = result->expression->resultType;
+        result->qualifiedType.type = result->expression->qualifiedType.type;
 
         return result;
     }
@@ -1522,19 +1522,19 @@ Expression* ASTContext::parseMember(const std::vector<Token>& tokens,
             return nullptr;
         }
 
-        if (!result->resultType)
+        if (!result->qualifiedType.type)
         {
             std::cerr << "Expression has no result type" << std::endl;
             return nullptr;
         }
 
-        if (result->resultType->kind != Construct::Kind::TYPE_STRUCT)
+        if (result->qualifiedType.type->kind != Construct::Kind::TYPE_STRUCT)
         {
-            std::cerr << result->resultType->name << " is not a structure" << std::endl;
+            std::cerr << result->qualifiedType.type->name << " is not a structure" << std::endl;
             return nullptr;
         }
 
-        StructType* structType = static_cast<StructType*>(result->resultType);
+        StructType* structType = static_cast<StructType*>(result->qualifiedType.type);
 
         expression->field = findField((iterator - 1)->value, structType);
 
@@ -1544,7 +1544,7 @@ Expression* ASTContext::parseMember(const std::vector<Token>& tokens,
             return nullptr;
         }
 
-        expression->resultType = expression->field->type;
+        expression->qualifiedType.type = expression->field->qualifiedType.type;
 
         result = expression;
     }
@@ -1561,7 +1561,7 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
         Expression* result = new Expression();
         constructs.push_back(std::unique_ptr<Construct>(result));
         result->kind = Construct::Kind::EXPRESSION_LITERAL;
-        result->resultType = findType("int", declarations);
+        result->qualifiedType.type = findType("int", declarations);
         result->value = (iterator - 1)->value;
         return result;
     }
@@ -1570,7 +1570,7 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
         Expression* result = new Expression();
         constructs.push_back(std::unique_ptr<Construct>(result));
         result->kind = Construct::Kind::EXPRESSION_LITERAL;
-        result->resultType = findType("float", declarations);
+        result->qualifiedType.type = findType("float", declarations);
         result->value = (iterator - 1)->value;
         return result;
     }
@@ -1579,7 +1579,7 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
         Expression* result = new Expression();
         constructs.push_back(std::unique_ptr<Construct>(result));
         result->kind = Construct::Kind::EXPRESSION_LITERAL;
-        result->resultType = findType("string", declarations);
+        result->qualifiedType.type = findType("string", declarations);
         result->value = (iterator - 1)->value;
         return result;
     }
@@ -1588,7 +1588,7 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
         Expression* result = new Expression();
         constructs.push_back(std::unique_ptr<Construct>(result));
         result->kind = Construct::Kind::EXPRESSION_LITERAL;
-        result->resultType = findType("bool", declarations);
+        result->qualifiedType.type = findType("bool", declarations);
         result->value = (iterator - 1)->value;
         return result;
     }
@@ -1620,8 +1620,8 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
             }
 
             FunctionDeclaration* functionDeclaration = static_cast<FunctionDeclaration*>(declRefExpression->declaration);
-            declRefExpression->resultType = functionDeclaration->resultType;
-            result->resultType = functionDeclaration->resultType;
+            declRefExpression->qualifiedType.type = functionDeclaration->qualifiedType.type;
+            result->qualifiedType.type = functionDeclaration->qualifiedType.type;
 
             bool firstParameter = true;
             std::unique_ptr<Construct> parameter;
@@ -1698,13 +1698,13 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
                 case Construct::Kind::DECLARATION_STRUCT:
                 {
                     StructDeclaration* structDeclaration = static_cast<StructDeclaration*>(result->declaration);
-                    result->resultType = structDeclaration->type;
+                    result->qualifiedType.type = structDeclaration->type;
                     break;
                 }
                 case Construct::Kind::DECLARATION_VARIABLE:
                 {
                     VariableDeclaration* variableDeclaration = static_cast<VariableDeclaration*>(result->declaration);
-                    result->resultType = variableDeclaration->type;
+                    result->qualifiedType.type = variableDeclaration->qualifiedType.type;
                     break;
                 }
                 default:
@@ -1725,7 +1725,7 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
             return nullptr;
         }
 
-        result->resultType = result->expression->resultType;
+        result->qualifiedType.type = result->expression->qualifiedType.type;
 
         if (!checkToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
         {
@@ -1779,7 +1779,7 @@ void ASTContext::dumpNode(const Construct* node, std::string indent)
         case Construct::Kind::FIELD:
         {
             const Field* field = static_cast<const Field*>(node);
-            std::cout << ", name" << field->name << ", type: " << field->type->name << std::endl;
+            std::cout << ", name" << field->name << ", type: " << field->qualifiedType.type->name << std::endl;
             break;
         }
 
@@ -1832,9 +1832,9 @@ void ASTContext::dumpNode(const Construct* node, std::string indent)
 
             std::cout << ", name: " << functionDeclaration->name;
 
-            if (functionDeclaration->resultType)
+            if (functionDeclaration->qualifiedType.type)
             {
-                std::cout << ", result type: " << functionDeclaration->resultType->name;
+                std::cout << ", result type: " << functionDeclaration->qualifiedType.type->name;
             }
 
             std::cout << std::endl;
@@ -1854,14 +1854,14 @@ void ASTContext::dumpNode(const Construct* node, std::string indent)
         case Construct::Kind::DECLARATION_VARIABLE:
         {
             const VariableDeclaration* variableDeclaration = static_cast<const VariableDeclaration*>(node);
-            std::cout << ", name: " << variableDeclaration->name << ", type: " << variableDeclaration->type->name << std::endl;
+            std::cout << ", name: " << variableDeclaration->name << ", type: " << variableDeclaration->qualifiedType.type->name << std::endl;
             break;
         }
 
         case Construct::Kind::DECLARATION_PARAMETER:
         {
             const ParameterDeclaration* parameterDeclaration = static_cast<const ParameterDeclaration*>(node);
-            std::cout << ", name: " << parameterDeclaration->name << ", type: " << parameterDeclaration->type->name << std::endl;
+            std::cout << ", name: " << parameterDeclaration->name << ", type: " << parameterDeclaration->qualifiedType.type->name << std::endl;
             break;
         }
 
@@ -1884,7 +1884,7 @@ void ASTContext::dumpNode(const Construct* node, std::string indent)
         case Construct::Kind::EXPRESSION_LITERAL:
         {
             const Expression* expression = static_cast<const Expression*>(node);
-            std::cout << ", value: " << expression->value << ", type: " << expression->resultType->name << std::endl;
+            std::cout << ", value: " << expression->value << ", type: " << expression->qualifiedType.type->name << std::endl;
             break;
         }
 
