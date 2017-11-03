@@ -1667,7 +1667,17 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
                 return nullptr;
             }
 
+            if (declRefExpression->declaration->kind != Construct::Kind::DECLARATION_VARIABLE)
+            {
+                std::cerr << "Expected a variable" << std::endl;
+                return nullptr;
+            }
+
+            VariableDeclaration* variableDeclaration = static_cast<VariableDeclaration*>(declRefExpression->declaration);
+            declRefExpression->qualifiedType = variableDeclaration->qualifiedType;
+
             result->declarationReference = declRefExpression;
+            result->qualifiedType = declRefExpression->qualifiedType;
 
             if (!(result->expression = parseExpression(tokens, iterator, declarations)))
             {
