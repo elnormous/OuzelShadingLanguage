@@ -119,6 +119,8 @@ struct Token
     Kind kind = Kind::NONE;
     Type type = Type::NONE;
     std::string value;
+    uint32_t line = 0;
+    uint32_t column = 0;
 };
 
 inline std::string tokenKindToString(Token::Kind kind)

@@ -66,9 +66,14 @@ static const std::map<std::string, Token::Type> keywordMap = {
 
 bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
 {
+    uint32_t line = 1;
+    std::vector<char>::const_iterator lineStart = code.begin();
+
     for (std::vector<char>::const_iterator i = code.begin(); i != code.end();)
     {
         Token token;
+        token.line = line;
+        token.column = static_cast<uint32_t>(i - lineStart) + 1;
 
         if (*i == '(' || *i == ')' ||
             *i == '{' || *i == '}' ||
@@ -352,6 +357,8 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
                             if (*i == '\n') // reached newline
                             {
                                 ++i; // skip the newline
+                                ++line;
+                                lineStart = i;
                                 break;
                             }
                         }
@@ -365,6 +372,12 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
                         bool terminated = false;
                         for (; i != code.end(); ++i)
                         {
+                            if (*i == '\n') // reached newline
+                            {
+                                ++line;
+                                lineStart = i;
+                            }
+
                             if (*i == '*' && ++i != code.end() && *i == '/')
                             {
                                 terminated = true;
@@ -595,7 +608,14 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
                 ++i;
             }
         }
-        else if (*i == ' ' || *i == '\t' || *i == '\n' || *i == '\r') // whitespace
+        else if (*i == '\n')
+        {
+            ++i;
+            ++line;
+            lineStart = i;
+            continue;
+        }
+        else if (*i == ' ' || *i == '\t' || *i == '\r') // whitespace
         {
             ++i;
             continue;
@@ -605,7 +625,7 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
             std::cerr << "Unknown character" << std::endl;
             return false;
         }
-        
+
         tokens.push_back(token);
     }
     
