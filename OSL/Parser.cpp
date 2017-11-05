@@ -705,6 +705,14 @@ Statement* ASTContext::parseStatement(const std::vector<Token>& tokens,
 
         return declarationStatement;
     }
+    else if (checkToken(Token::Type::SEMICOLON, tokens, iterator))
+    {
+        Statement* statement = new Statement();
+        constructs.push_back(std::unique_ptr<Construct>(statement));
+        statement->kind = Construct::Kind::STATEMENT_EMPTY;
+
+        return statement;
+    }
     else
     {
         Expression* expression;
