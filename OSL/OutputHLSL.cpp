@@ -73,6 +73,7 @@ bool OutputHLSL::printNode(const Construct* node, const std::string& prefix, std
 
         case Construct::Kind::DECLARATION_EMPTY:
         {
+            code += prefix;
             break;
         }
 
@@ -261,6 +262,7 @@ bool OutputHLSL::printNode(const Construct* node, const std::string& prefix, std
 
         case Construct::Kind::STATEMENT_EMPTY:
         {
+            code += prefix;
             break;
         }
 
