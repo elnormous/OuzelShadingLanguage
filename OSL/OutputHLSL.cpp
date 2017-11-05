@@ -50,6 +50,8 @@ bool OutputHLSL::printNode(const Construct* node, const std::string& prefix, std
 
         case Construct::Kind::FIELD:
         {
+            const Field* field = static_cast<const Field*>(node);
+            code += prefix + field->qualifiedType.type->name + " " + field->name;
             break;
         }
 
@@ -64,7 +66,7 @@ bool OutputHLSL::printNode(const Construct* node, const std::string& prefix, std
                     return false;
                 }
 
-                code += "\n";
+                code += ";\n";
             }
             break;
         }
@@ -79,11 +81,7 @@ bool OutputHLSL::printNode(const Construct* node, const std::string& prefix, std
             const StructDeclaration* structDeclaration = static_cast<const StructDeclaration*>(node);
             code += prefix + "struct " + structDeclaration->type->name;
 
-            if (structDeclaration->fieldDeclarations.empty())
-            {
-                code += ";";
-            }
-            else
+            if (!structDeclaration->fieldDeclarations.empty())
             {
                 code += prefix + "\n{\n";
 
@@ -94,10 +92,10 @@ bool OutputHLSL::printNode(const Construct* node, const std::string& prefix, std
                         return false;
                     }
 
-                    code += "\n";
+                    code += ";\n";
                 }
 
-                code += prefix + "};";
+                code += prefix + "}";
             }
 
             break;
@@ -106,7 +104,7 @@ bool OutputHLSL::printNode(const Construct* node, const std::string& prefix, std
         case Construct::Kind::DECLARATION_FIELD:
         {
             const FieldDeclaration* fieldDeclaration = static_cast<const FieldDeclaration*>(node);
-            code += prefix + fieldDeclaration->field->qualifiedType.type->name + " " + fieldDeclaration->field->name + ";";
+            code += prefix + fieldDeclaration->field->qualifiedType.type->name + " " + fieldDeclaration->field->name;
             break;
         }
 
@@ -140,7 +138,7 @@ bool OutputHLSL::printNode(const Construct* node, const std::string& prefix, std
             }
             else
             {
-                code += ");"; // does not have a definition
+                code += ")"; // does not have a definition
             }
 
             break;
@@ -149,7 +147,7 @@ bool OutputHLSL::printNode(const Construct* node, const std::string& prefix, std
         case Construct::Kind::DECLARATION_VARIABLE:
         {
             const VariableDeclaration* variableDeclaration = static_cast<const VariableDeclaration*>(node);
-            code += prefix + variableDeclaration->qualifiedType.type->name + " " + variableDeclaration->name + ";";
+            code += prefix + variableDeclaration->qualifiedType.type->name + " " + variableDeclaration->name;
             break;
         }
 
@@ -244,14 +242,14 @@ bool OutputHLSL::printNode(const Construct* node, const std::string& prefix, std
         {
             const ArraySubscriptExpression* arraySubscriptExpression = static_cast<const ArraySubscriptExpression*>(node);
 
-            if (!printNode(arraySubscriptExpression->expression, "", code))
+            if (!printNode(arraySubscriptExpression->declarationReference, prefix, code))
             {
                 return false;
             }
 
             code += "[";
 
-            if (!printNode(arraySubscriptExpression->declarationReference, "", code))
+            if (!printNode(arraySubscriptExpression->expression, "", code))
             {
                 return false;
             }
@@ -502,6 +500,8 @@ bool OutputHLSL::printNode(const Construct* node, const std::string& prefix, std
                 {
                     return false;
                 }
+
+                code += "\n";
             }
             else
             {
@@ -527,13 +527,13 @@ bool OutputHLSL::printNode(const Construct* node, const std::string& prefix, std
 
         case Construct::Kind::STATEMENT_BREAK:
         {
-            code += prefix + "break;";
+            code += prefix + "break";
             break;
         }
 
         case Construct::Kind::STATEMENT_CONTINUE:
         {
-            code += prefix + "continue;";
+            code += prefix + "continue";
             break;
         }
 
@@ -553,7 +553,6 @@ bool OutputHLSL::printNode(const Construct* node, const std::string& prefix, std
                 }
             }
 
-            code += ";";
             break;
         }
 
