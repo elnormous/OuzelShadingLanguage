@@ -213,7 +213,7 @@ bool OutputHLSL::printNode(const Construct* node, const std::string& prefix, std
 
             code += prefix + "(";
 
-            if (!printNode(parenExpression, "", code))
+            if (!printNode(parenExpression->expression, "", code))
             {
                 return false;
             }
