@@ -122,6 +122,36 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
                     ++i;
                 }
             }
+
+            // parse exponent
+            if (i != code.end() &&
+                (*i == 'e' || *i == 'E'))
+            {
+                token.value.push_back(*i);
+                ++i;
+
+                if (i == code.end() || *i != '+' || *i != '-')
+                {
+                    std::cerr << "Invalid exponent" << std::endl;
+                    return false;
+                }
+
+                token.value.push_back(*i);
+                ++i;
+
+                if (i == code.end() || *i < '0' || *i > '9')
+                {
+                    std::cerr << "Invalid exponent" << std::endl;
+                    return false;
+                }
+
+                while (i != code.end() &&
+                       ((*i >= '0' && *i <= '9')))
+                {
+                    token.value.push_back(*i);
+                    ++i;
+                }
+            }
         }
         else if (*i == '"') // string literal
         {
