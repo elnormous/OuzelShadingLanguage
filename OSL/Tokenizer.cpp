@@ -101,27 +101,26 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
             token.kind = Token::Kind::LITERAL;
             token.type = Token::Type::LITERAL_INT;
 
-            bool dot = false;
-
             while (i != code.end() &&
-                   ((*i >= '0' && *i <= '9') || *i == '.'))
+                   ((*i >= '0' && *i <= '9')))
             {
-                if (*i == '.')
-                {
-                    if (dot)
-                    {
-                        std::cerr << "Invalid number" << std::endl;
-                        return false;
-                    }
-                    else
-                    {
-                        dot = true;
-                        token.type = Token::Type::LITERAL_FLOAT;
-                    }
-                }
+                token.value.push_back(*i);
+                ++i;
+            }
+
+            if (i != code.end() && *i == '.')
+            {
+                token.type = Token::Type::LITERAL_FLOAT;
 
                 token.value.push_back(*i);
                 ++i;
+
+                while (i != code.end() &&
+                       ((*i >= '0' && *i <= '9')))
+                {
+                    token.value.push_back(*i);
+                    ++i;
+                }
             }
         }
         else if (*i == '"') // string literal
