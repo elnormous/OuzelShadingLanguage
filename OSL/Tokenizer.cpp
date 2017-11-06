@@ -136,10 +136,11 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
                 {
                     if (++i == code.end())
                     {
-                        std::cerr << "Unterminated char" << std::endl;
+                        std::cerr << "Unterminated string literal" << std::endl;
                         return false;
                     }
-                    else if (*i == 'a') token.value.push_back('\a');
+
+                    if (*i == 'a') token.value.push_back('\a');
                     else if (*i == 'b') token.value.push_back('\b');
                     else if (*i == 't') token.value.push_back('\t');
                     else if (*i == 'n') token.value.push_back('\n');
@@ -151,6 +152,11 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
                     else if (*i == '\?') token.value.push_back('\?');
                     else if (*i == '\\') token.value.push_back('\\');
                     // TODO: handle numeric character references
+                }
+                else if (*i == '\n')
+                {
+                    std::cerr << "Unterminated string literal" << std::endl;
+                    return false;
                 }
                 else
                 {
@@ -164,7 +170,7 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
             }
             else
             {
-                std::cerr << "Unterminated string" << std::endl;
+                std::cerr << "Unterminated string literal" << std::endl;
                 return false;
             }
         }
@@ -175,53 +181,49 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
 
             if (++i == code.end()) // reached end of file
             {
-                std::cerr << "Unterminated char" << std::endl;
+                std::cerr << "Unterminated char literal" << std::endl;
                 return false;
             }
 
-            while (*i != '\'')
+            if (*i == '\\')
             {
-                if (*i == '\\')
+                if (++i == code.end())
                 {
-                    if (++i == code.end())
-                    {
-                        std::cerr << "Unterminated char" << std::endl;
-                        return false;
-                    }
-                    else if (*i == 'a') token.value.push_back('\a');
-                    else if (*i == 'b') token.value.push_back('\b');
-                    else if (*i == 't') token.value.push_back('\t');
-                    else if (*i == 'n') token.value.push_back('\n');
-                    else if (*i == 'v') token.value.push_back('\v');
-                    else if (*i == 'f') token.value.push_back('\f');
-                    else if (*i == 'r') token.value.push_back('\r');
-                    else if (*i == 'e') token.value.push_back('\e');
-                    else if (*i == '\'') token.value.push_back('\'');
-                    else if (*i == '\?') token.value.push_back('\?');
-                    else if (*i == '\\') token.value.push_back('\\');
-                    // TODO: handle numeric character references
-                }
-                else
-                {
-                    token.value.push_back(*i);
-                }
-
-                if (++i == code.end()) // reached end of file
-                {
-                    std::cerr << "Unterminated char" << std::endl;
+                    std::cerr << "Unterminated char literal" << std::endl;
                     return false;
                 }
-            }
 
-            if (token.value.length() == 1)
-            {
-                ++i;
+                if (*i == 'a') token.value.push_back('\a');
+                else if (*i == 'b') token.value.push_back('\b');
+                else if (*i == 't') token.value.push_back('\t');
+                else if (*i == 'n') token.value.push_back('\n');
+                else if (*i == 'v') token.value.push_back('\v');
+                else if (*i == 'f') token.value.push_back('\f');
+                else if (*i == 'r') token.value.push_back('\r');
+                else if (*i == 'e') token.value.push_back('\e');
+                else if (*i == '\'') token.value.push_back('\'');
+                else if (*i == '\?') token.value.push_back('\?');
+                else if (*i == '\\') token.value.push_back('\\');
+                // TODO: handle numeric character references
             }
             else
+            {
+                token.value.push_back(*i);
+            }
+
+            if (++i == code.end()) // reached end of file
+            {
+                std::cerr << "Unterminated char literal" << std::endl;
+                return false;
+            }
+
+            if (*i != '\'')
             {
                 std::cerr << "Invalid char literal" << std::endl;
                 return false;
             }
+
+            ++i;
         }
         else if ((*i >= 'a' && *i <= 'z') ||
                  (*i >= 'A' && *i <= 'Z') ||
