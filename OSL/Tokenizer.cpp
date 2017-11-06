@@ -147,10 +147,14 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
                     else if (*i == 'v') token.value.push_back('\v');
                     else if (*i == 'f') token.value.push_back('\f');
                     else if (*i == 'r') token.value.push_back('\r');
-                    else if (*i == 'e') token.value.push_back('\e');
                     else if (*i == '"') token.value.push_back('"');
                     else if (*i == '\?') token.value.push_back('\?');
                     else if (*i == '\\') token.value.push_back('\\');
+                    else
+                    {
+                        std::cerr << "Unrecognized escape character" << std::endl;
+                        return false;
+                    }
                     // TODO: handle numeric character references
                 }
                 else if (*i == '\n')
@@ -200,10 +204,14 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
                 else if (*i == 'v') token.value.push_back('\v');
                 else if (*i == 'f') token.value.push_back('\f');
                 else if (*i == 'r') token.value.push_back('\r');
-                else if (*i == 'e') token.value.push_back('\e');
                 else if (*i == '\'') token.value.push_back('\'');
                 else if (*i == '\?') token.value.push_back('\?');
                 else if (*i == '\\') token.value.push_back('\\');
+                else
+                {
+                    std::cerr << "Unrecognized escape character" << std::endl;
+                    return false;
+                }
                 // TODO: handle numeric character references
             }
             else
