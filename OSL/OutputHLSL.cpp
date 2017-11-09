@@ -289,7 +289,9 @@ bool OutputHLSL::printNode(const Construct* node, const std::string& prefix, std
                     return false;
                 }
 
-                code += ";\n";
+                if (statement->kind != Construct::Kind::STATEMENT_COMPOUND) code += ";";
+                
+                code += "\n";
             }
 
             code += prefix + "}";
@@ -323,11 +325,15 @@ bool OutputHLSL::printNode(const Construct* node, const std::string& prefix, std
                     return false;
                 }
 
-                code += ";\n";
+                code += ";";
             }
+            
+            code += "\n";
 
             if (ifStatement->elseBody)
             {
+                code += prefix + "else\n";
+                
                 if (ifStatement->elseBody->kind == Construct::Kind::STATEMENT_COMPOUND)
                 {
                     if (!printNode(ifStatement->elseBody, prefix, code))
@@ -342,8 +348,10 @@ bool OutputHLSL::printNode(const Construct* node, const std::string& prefix, std
                         return false;
                     }
 
-                    code += ";\n";
+                    code += ";";
                 }
+                
+                code += "\n";
             }
             break;
         }
@@ -388,8 +396,6 @@ bool OutputHLSL::printNode(const Construct* node, const std::string& prefix, std
                 {
                     return false;
                 }
-
-                code += ";\n";
             }
             break;
         }
@@ -420,9 +426,8 @@ bool OutputHLSL::printNode(const Construct* node, const std::string& prefix, std
                 {
                     return false;
                 }
-
-                code += ";\n";
             }
+            
             break;
         }
 
@@ -453,8 +458,9 @@ bool OutputHLSL::printNode(const Construct* node, const std::string& prefix, std
                     return false;
                 }
 
-                code += ";\n";
+                code += ";";
             }
+            
             break;
         }
 
@@ -484,8 +490,6 @@ bool OutputHLSL::printNode(const Construct* node, const std::string& prefix, std
                 {
                     return false;
                 }
-
-                code += ";\n";
             }
             break;
         }
@@ -502,8 +506,6 @@ bool OutputHLSL::printNode(const Construct* node, const std::string& prefix, std
                 {
                     return false;
                 }
-
-                code += "\n";
             }
             else
             {
@@ -512,8 +514,10 @@ bool OutputHLSL::printNode(const Construct* node, const std::string& prefix, std
                     return false;
                 }
 
-                code += ";\n";
+                code += ";";
             }
+            
+            code += "\n";
 
             code += prefix + "while (";
 
