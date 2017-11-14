@@ -186,7 +186,7 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
                     }
                     // TODO: handle numeric character references
                 }
-                else if (*i == '\n')
+                else if (*i == '\n' || *i == '\r')
                 {
                     std::cerr << "Unterminated string literal" << std::endl;
                     return false;
@@ -398,6 +398,11 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
                                 ++i; // skip the newline
                                 ++line;
                                 lineStart = i;
+                                break;
+                            }
+                            else if (*i == '\r') // end of the comment
+                            {
+                                ++i;
                                 break;
                             }
                         }
