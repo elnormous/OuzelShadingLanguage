@@ -12,5 +12,11 @@ public:
     virtual bool output(const ASTContext& context, const std::string& outputFile);
 
 private:
-    bool printNode(const Construct* node, const std::string& prefix, std::string& code);
+    struct Options
+    {
+        Options(uint32_t aIndentation): indentation(aIndentation) {}
+
+        uint32_t indentation = 0;
+    };
+    bool printNode(const Construct* node, Options options, std::string& code);
 };
