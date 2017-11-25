@@ -158,10 +158,20 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
             token.kind = Token::Kind::LITERAL;
             token.type = Token::Type::LITERAL_STRING;
 
-            while (++i != code.end() &&
-                   *i != '"')
+            for (;;)
             {
-                if (*i == '\\')
+                if (++i == code.end())
+                {
+                    std::cerr << "Unterminated string literal" << std::endl;
+                    return false;
+                }
+
+                if (*i == '"')
+                {
+                    ++i;
+                    break;
+                }
+                else if (*i == '\\')
                 {
                     if (++i == code.end())
                     {
@@ -195,16 +205,6 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
                 {
                     token.value.push_back(*i);
                 }
-            }
-
-            if (*i == '"')
-            {
-                ++i;
-            }
-            else
-            {
-                std::cerr << "Unterminated string literal" << std::endl;
-                return false;
             }
         }
         else if (*i == '\'') // char literal
