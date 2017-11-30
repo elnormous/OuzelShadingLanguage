@@ -29,9 +29,9 @@ bool OutputHLSL::output(const ASTContext& context, const std::string& outputFile
     return true;
 }
 
-bool OutputHLSL::printConstruct(const Construct* node, Options options, std::string& code)
+bool OutputHLSL::printConstruct(const Construct* construct, Options options, std::string& code)
 {
-    switch (node->kind)
+    switch (construct->kind)
     {
         case Construct::Kind::NONE:
         {
@@ -52,14 +52,14 @@ bool OutputHLSL::printConstruct(const Construct* node, Options options, std::str
         {
             code.append(options.indentation, ' ');
 
-            const Field* field = static_cast<const Field*>(node);
+            const Field* field = static_cast<const Field*>(construct);
             code += field->qualifiedType.type->name + " " + field->name;
             break;
         }
 
         case Construct::Kind::TRANSLATION_UNIT:
         {
-            const TranslationUnit* translationUnit = static_cast<const TranslationUnit*>(node);
+            const TranslationUnit* translationUnit = static_cast<const TranslationUnit*>(construct);
 
             for (Declaration* declaration : translationUnit->declarations)
             {
@@ -68,6 +68,7 @@ bool OutputHLSL::printConstruct(const Construct* node, Options options, std::str
                     return false;
                 }
 
+                // TODO: remove
                 code += "\n";
             }
             break;
@@ -83,7 +84,7 @@ bool OutputHLSL::printConstruct(const Construct* node, Options options, std::str
         {
             code.append(options.indentation, ' ');
 
-            const StructDeclaration* structDeclaration = static_cast<const StructDeclaration*>(node);
+            const StructDeclaration* structDeclaration = static_cast<const StructDeclaration*>(construct);
             code += "struct " + structDeclaration->type->name;
 
             if (!structDeclaration->fieldDeclarations.empty())
@@ -112,7 +113,7 @@ bool OutputHLSL::printConstruct(const Construct* node, Options options, std::str
         {
             code.append(options.indentation, ' ');
 
-            const FieldDeclaration* fieldDeclaration = static_cast<const FieldDeclaration*>(node);
+            const FieldDeclaration* fieldDeclaration = static_cast<const FieldDeclaration*>(construct);
             code += fieldDeclaration->field->qualifiedType.type->name + " " + fieldDeclaration->field->name;
             break;
         }
@@ -121,7 +122,7 @@ bool OutputHLSL::printConstruct(const Construct* node, Options options, std::str
         {
             code.append(options.indentation, ' ');
 
-            const FunctionDeclaration* functionDeclaration = static_cast<const FunctionDeclaration*>(node);
+            const FunctionDeclaration* functionDeclaration = static_cast<const FunctionDeclaration*>(construct);
 
             code += functionDeclaration->qualifiedType.type->name + " " + functionDeclaration->name + "(";
 
@@ -159,7 +160,7 @@ bool OutputHLSL::printConstruct(const Construct* node, Options options, std::str
         {
             code.append(options.indentation, ' ');
 
-            const VariableDeclaration* variableDeclaration = static_cast<const VariableDeclaration*>(node);
+            const VariableDeclaration* variableDeclaration = static_cast<const VariableDeclaration*>(construct);
             code += variableDeclaration->qualifiedType.type->name + " " + variableDeclaration->name;
 
             if (variableDeclaration->initialization)
@@ -178,7 +179,7 @@ bool OutputHLSL::printConstruct(const Construct* node, Options options, std::str
         {
             code.append(options.indentation, ' ');
 
-            const ParameterDeclaration* parameterDeclaration = static_cast<const ParameterDeclaration*>(node);
+            const ParameterDeclaration* parameterDeclaration = static_cast<const ParameterDeclaration*>(construct);
             code += parameterDeclaration->qualifiedType.type->name + " " + parameterDeclaration->name;
             break;
         }
@@ -187,7 +188,7 @@ bool OutputHLSL::printConstruct(const Construct* node, Options options, std::str
         {
             code.append(options.indentation, ' ');
 
-            const CallExpression* callExpression = static_cast<const CallExpression*>(node);
+            const CallExpression* callExpression = static_cast<const CallExpression*>(construct);
 
             if (!printConstruct(callExpression->declarationReference, Options(0), code))
             {
@@ -217,7 +218,7 @@ bool OutputHLSL::printConstruct(const Construct* node, Options options, std::str
         {
             code.append(options.indentation, ' ');
 
-            const Expression* expression = static_cast<const Expression*>(node);
+            const Expression* expression = static_cast<const Expression*>(construct);
             code += expression->value;
             break;
         }
@@ -226,7 +227,7 @@ bool OutputHLSL::printConstruct(const Construct* node, Options options, std::str
         {
             code.append(options.indentation, ' ');
 
-            const DeclarationReferenceExpression* declarationReferenceExpression = static_cast<const DeclarationReferenceExpression*>(node);
+            const DeclarationReferenceExpression* declarationReferenceExpression = static_cast<const DeclarationReferenceExpression*>(construct);
             Declaration* declaration = declarationReferenceExpression->declaration;
 
             switch (declaration->kind)
@@ -254,7 +255,7 @@ bool OutputHLSL::printConstruct(const Construct* node, Options options, std::str
         {
             code.append(options.indentation, ' ');
 
-            const ParenExpression* parenExpression = static_cast<const ParenExpression*>(node);
+            const ParenExpression* parenExpression = static_cast<const ParenExpression*>(construct);
             code += "(";
 
             if (!printConstruct(parenExpression->expression, Options(0), code))
@@ -270,7 +271,7 @@ bool OutputHLSL::printConstruct(const Construct* node, Options options, std::str
         {
             code.append(options.indentation, ' ');
 
-            const MemberExpression* memberExpression = static_cast<const MemberExpression*>(node);
+            const MemberExpression* memberExpression = static_cast<const MemberExpression*>(construct);
 
             if (!printConstruct(memberExpression->expression, Options(0), code))
             {
@@ -290,7 +291,7 @@ bool OutputHLSL::printConstruct(const Construct* node, Options options, std::str
         {
             code.append(options.indentation, ' ');
 
-            const ArraySubscriptExpression* arraySubscriptExpression = static_cast<const ArraySubscriptExpression*>(node);
+            const ArraySubscriptExpression* arraySubscriptExpression = static_cast<const ArraySubscriptExpression*>(construct);
 
             if (!printConstruct(arraySubscriptExpression->declarationReference, Options(0), code))
             {
@@ -320,7 +321,7 @@ bool OutputHLSL::printConstruct(const Construct* node, Options options, std::str
         {
             code.append(options.indentation, ' ');
 
-            const ExpressionStatement* expressionStatement = static_cast<const ExpressionStatement*>(node);
+            const ExpressionStatement* expressionStatement = static_cast<const ExpressionStatement*>(construct);
             if (!printConstruct(expressionStatement->expression, Options(0), code))
             {
                 return false;
@@ -333,7 +334,7 @@ bool OutputHLSL::printConstruct(const Construct* node, Options options, std::str
         {
             code.append(options.indentation, ' ');
 
-            const DeclarationStatement* declarationStatement = static_cast<const DeclarationStatement*>(node);
+            const DeclarationStatement* declarationStatement = static_cast<const DeclarationStatement*>(construct);
             if (!printConstruct(declarationStatement->declaration, Options(0), code))
             {
                 return false;
@@ -344,7 +345,7 @@ bool OutputHLSL::printConstruct(const Construct* node, Options options, std::str
 
         case Construct::Kind::STATEMENT_COMPOUND:
         {
-            const CompoundStatement* compoundStatement = static_cast<const CompoundStatement*>(node);
+            const CompoundStatement* compoundStatement = static_cast<const CompoundStatement*>(construct);
 
             code.append(options.indentation, ' ');
             code += "{\n";
@@ -366,7 +367,7 @@ bool OutputHLSL::printConstruct(const Construct* node, Options options, std::str
         {
             code.append(options.indentation, ' ');
 
-            const IfStatement* ifStatement = static_cast<const IfStatement*>(node);
+            const IfStatement* ifStatement = static_cast<const IfStatement*>(construct);
             code += "if (";
 
             if (!printConstruct(ifStatement->condition, Options(0), code))
@@ -418,7 +419,7 @@ bool OutputHLSL::printConstruct(const Construct* node, Options options, std::str
         {
             code.append(options.indentation, ' ');
 
-            const ForStatement* forStatement = static_cast<const ForStatement*>(node);
+            const ForStatement* forStatement = static_cast<const ForStatement*>(construct);
             code += "for (";
 
             if (!printConstruct(forStatement->initialization, Options(0), code))
@@ -463,7 +464,7 @@ bool OutputHLSL::printConstruct(const Construct* node, Options options, std::str
         {
             code.append(options.indentation, ' ');
 
-            const SwitchStatement* switchStatement = static_cast<const SwitchStatement*>(node);
+            const SwitchStatement* switchStatement = static_cast<const SwitchStatement*>(construct);
             code += "switch (";
 
             if (!printConstruct(switchStatement->condition, Options(0), code))
@@ -495,7 +496,7 @@ bool OutputHLSL::printConstruct(const Construct* node, Options options, std::str
         {
             code.append(options.indentation, ' ');
 
-            const CaseStatement* caseStatement = static_cast<const CaseStatement*>(node);
+            const CaseStatement* caseStatement = static_cast<const CaseStatement*>(construct);
             code += "case ";
 
             if (!printConstruct(caseStatement->condition, Options(0), code))
@@ -529,7 +530,7 @@ bool OutputHLSL::printConstruct(const Construct* node, Options options, std::str
         {
             code.append(options.indentation, ' ');
 
-            const WhileStatement* whileStatement = static_cast<const WhileStatement*>(node);
+            const WhileStatement* whileStatement = static_cast<const WhileStatement*>(construct);
             code += "while (";
 
             if (!printConstruct(whileStatement->condition, Options(0), code))
@@ -560,7 +561,7 @@ bool OutputHLSL::printConstruct(const Construct* node, Options options, std::str
         {
             code.append(options.indentation, ' ');
 
-            const DoStatement* doStatement = static_cast<const DoStatement*>(node);
+            const DoStatement* doStatement = static_cast<const DoStatement*>(construct);
             code += "do\n";
 
             if (doStatement->body->kind == Construct::Kind::STATEMENT_COMPOUND)
@@ -611,7 +612,7 @@ bool OutputHLSL::printConstruct(const Construct* node, Options options, std::str
         {
             code.append(options.indentation, ' ');
 
-            const ReturnStatement* returnStatement = static_cast<const ReturnStatement*>(node);
+            const ReturnStatement* returnStatement = static_cast<const ReturnStatement*>(construct);
             code += "return";
 
             if (returnStatement->result)
@@ -633,7 +634,7 @@ bool OutputHLSL::printConstruct(const Construct* node, Options options, std::str
         {
             code.append(options.indentation, ' ');
 
-            const UnaryOperatorExpression* unaryOperatorExpression = static_cast<const UnaryOperatorExpression*>(node);
+            const UnaryOperatorExpression* unaryOperatorExpression = static_cast<const UnaryOperatorExpression*>(construct);
             code += unaryOperatorExpression->value;
 
             if (!printConstruct(unaryOperatorExpression->expression, Options(0), code))
@@ -647,7 +648,7 @@ bool OutputHLSL::printConstruct(const Construct* node, Options options, std::str
         {
             code.append(options.indentation, ' ');
 
-            const BinaryOperatorExpression* binaryOperatorExpression = static_cast<const BinaryOperatorExpression*>(node);
+            const BinaryOperatorExpression* binaryOperatorExpression = static_cast<const BinaryOperatorExpression*>(construct);
             if (!printConstruct(binaryOperatorExpression->leftExpression, Options(0), code))
             {
                 return false;
@@ -666,7 +667,7 @@ bool OutputHLSL::printConstruct(const Construct* node, Options options, std::str
         {
             code.append(options.indentation, ' ');
 
-            const TernaryOperatorExpression* ternaryOperatorExpression = static_cast<const TernaryOperatorExpression*>(node);
+            const TernaryOperatorExpression* ternaryOperatorExpression = static_cast<const TernaryOperatorExpression*>(construct);
 
             if (!printConstruct(ternaryOperatorExpression->condition, Options(0), code))
             {
