@@ -715,8 +715,11 @@ Statement* ASTContext::parseStatement(const std::vector<Token>& tokens,
     }
     else
     {
-        Expression* expression;
-        if (!(expression = parseExpression(tokens, iterator, declarations)))
+        ExpressionStatement* expressionStatement = new ExpressionStatement();
+        constructs.push_back(std::unique_ptr<Construct>(expressionStatement));
+        expressionStatement->kind = Construct::Kind::STATEMENT_EXPRESSION;
+
+        if (!(expressionStatement->expression = parseExpression(tokens, iterator, declarations)))
         {
             return nullptr;
         }
@@ -727,7 +730,7 @@ Statement* ASTContext::parseStatement(const std::vector<Token>& tokens,
             return nullptr;
         }
 
-        return expression;
+        return expressionStatement;
     }
 
     return nullptr;
@@ -1137,8 +1140,8 @@ ReturnStatement* ASTContext::parseReturnStatement(const std::vector<Token>& toke
 }
 
 Expression* ASTContext::parseExpression(const std::vector<Token>& tokens,
-                                 std::vector<Token>::const_iterator& iterator,
-                                 std::vector<std::vector<Declaration*>>& declarations)
+                                        std::vector<Token>::const_iterator& iterator,
+                                        std::vector<std::vector<Declaration*>>& declarations)
 {
     return parseMultiplicationAssignment(tokens, iterator, declarations);
 }
@@ -1953,6 +1956,16 @@ void ASTContext::dumpNode(const Construct* node, std::string indent)
         case Construct::Kind::STATEMENT_EMPTY:
         {
             std::cout << std::endl;
+            break;
+        }
+
+        case Construct::Kind::STATEMENT_EXPRESSION:
+        {
+            const ExpressionStatement* expressionStatement = static_cast<const ExpressionStatement*>(node);
+
+            std::cout << std::endl;
+
+            dumpNode(expressionStatement->expression, indent + "  ");
             break;
         }
 

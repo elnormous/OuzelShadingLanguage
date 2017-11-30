@@ -18,5 +18,5 @@ private:
 
         uint32_t indentation = 0;
     };
-    bool printNode(const Construct* node, Options options, std::string& code);
+    bool printConstruct(const Construct* node, Options options, std::string& code);
 };

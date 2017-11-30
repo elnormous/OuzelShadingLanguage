@@ -47,6 +47,7 @@ public:
         EXPRESSION_MEMBER,
         EXPRESSION_ARRAY_SUBSCRIPT,
         STATEMENT_EMPTY,
+        STATEMENT_EXPRESSION,
         STATEMENT_DECLARATION,
         STATEMENT_COMPOUND,
         STATEMENT_IF,
@@ -83,6 +84,7 @@ inline std::string nodeKindToString(Construct::Kind type)
         case Construct::Kind::DECLARATION_VARIABLE: return "DECLARATION_VARIABLE";
         case Construct::Kind::DECLARATION_PARAMETER: return "DECLARATION_PARAMETER";
         case Construct::Kind::STATEMENT_EMPTY: return "STATEMENT_EMPTY";
+        case Construct::Kind::STATEMENT_EXPRESSION: return "STATEMENT_EXPRESSION";
         case Construct::Kind::STATEMENT_DECLARATION: return "STATEMENT_DECLARATION";
         case Construct::Kind::STATEMENT_COMPOUND: return "STATEMENT_COMPOUND";
         case Construct::Kind::STATEMENT_IF: return "STATEMENT_IF";
@@ -242,6 +244,12 @@ public:
     QualifiedType qualifiedType;
     std::string name;
     Statement* initialization = nullptr;
+};
+
+class ExpressionStatement: public Statement
+{
+public:
+    Expression* expression = nullptr;
 };
 
 class DeclarationStatement: public Statement

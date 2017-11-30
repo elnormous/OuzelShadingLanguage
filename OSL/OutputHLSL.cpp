@@ -18,7 +18,7 @@ bool OutputHLSL::output(const ASTContext& context, const std::string& outputFile
         return EXIT_FAILURE;
     }
 
-    if (!printNode(context.getTranslationUnit(), Options(0), code))
+    if (!printConstruct(context.getTranslationUnit(), Options(0), code))
     {
         std::cerr << "Failed to print code" << std::endl;
         return EXIT_FAILURE;
@@ -29,7 +29,7 @@ bool OutputHLSL::output(const ASTContext& context, const std::string& outputFile
     return true;
 }
 
-bool OutputHLSL::printNode(const Construct* node, Options options, std::string& code)
+bool OutputHLSL::printConstruct(const Construct* node, Options options, std::string& code)
 {
     switch (node->kind)
     {
@@ -62,7 +62,7 @@ bool OutputHLSL::printNode(const Construct* node, Options options, std::string& 
 
             for (Declaration* declaration : translationUnit->declarations)
             {
-                if (!printNode(declaration, options, code))
+                if (!printConstruct(declaration, options, code))
                 {
                     return false;
                 }
@@ -91,7 +91,7 @@ bool OutputHLSL::printNode(const Construct* node, Options options, std::string& 
 
                 for (const FieldDeclaration* fieldDeclaration : structDeclaration->fieldDeclarations)
                 {
-                    if (!printNode(fieldDeclaration, Options(options.indentation + 4), code))
+                    if (!printConstruct(fieldDeclaration, Options(options.indentation + 4), code))
                     {
                         return false;
                     }
@@ -128,7 +128,7 @@ bool OutputHLSL::printNode(const Construct* node, Options options, std::string& 
                 if (!firstParameter) code += ", ";
                 firstParameter = false;
 
-                if (!printNode(parameter, Options(0), code))
+                if (!printConstruct(parameter, Options(0), code))
                 {
                     return false;
                 }
@@ -138,7 +138,7 @@ bool OutputHLSL::printNode(const Construct* node, Options options, std::string& 
             {
                 code += ")\n";
 
-                if (!printNode(functionDeclaration->body, options, code))
+                if (!printConstruct(functionDeclaration->body, options, code))
                 {
                     return false;
                 }
@@ -171,7 +171,7 @@ bool OutputHLSL::printNode(const Construct* node, Options options, std::string& 
         {
             const CallExpression* callExpression = static_cast<const CallExpression*>(node);
 
-            if (!printNode(callExpression->declarationReference, options, code))
+            if (!printConstruct(callExpression->declarationReference, options, code))
             {
                 return false;
             }
@@ -185,7 +185,7 @@ bool OutputHLSL::printNode(const Construct* node, Options options, std::string& 
                 if (!firstParameter) code += ", ";
                 firstParameter = false;
 
-                if (!printNode(parameter, Options(0), code))
+                if (!printConstruct(parameter, Options(0), code))
                 {
                     return false;
                 }
@@ -208,7 +208,7 @@ bool OutputHLSL::printNode(const Construct* node, Options options, std::string& 
             const DeclarationReferenceExpression* declarationReferenceExpression = static_cast<const DeclarationReferenceExpression*>(node);
             Declaration* declaration = declarationReferenceExpression->declaration;
 
-            if (!printNode(declaration, options, code))
+            if (!printConstruct(declaration, options, code))
             {
                 return false;
             }
@@ -222,7 +222,7 @@ bool OutputHLSL::printNode(const Construct* node, Options options, std::string& 
             code.append(options.indentation, ' ');
             code += "(";
 
-            if (!printNode(parenExpression->expression, Options(0), code))
+            if (!printConstruct(parenExpression->expression, Options(0), code))
             {
                 return false;
             }
@@ -235,14 +235,14 @@ bool OutputHLSL::printNode(const Construct* node, Options options, std::string& 
         {
             const MemberExpression* memberExpression = static_cast<const MemberExpression*>(node);
 
-            if (!printNode(memberExpression->expression, options, code))
+            if (!printConstruct(memberExpression->expression, options, code))
             {
                 return false;
             }
 
             code += ".";
 
-            if (!printNode(memberExpression->field, Options(0), code))
+            if (!printConstruct(memberExpression->field, Options(0), code))
             {
                 return false;
             }
@@ -253,14 +253,14 @@ bool OutputHLSL::printNode(const Construct* node, Options options, std::string& 
         {
             const ArraySubscriptExpression* arraySubscriptExpression = static_cast<const ArraySubscriptExpression*>(node);
 
-            if (!printNode(arraySubscriptExpression->declarationReference, options, code))
+            if (!printConstruct(arraySubscriptExpression->declarationReference, options, code))
             {
                 return false;
             }
 
             code += "[";
 
-            if (!printNode(arraySubscriptExpression->expression, Options(0), code))
+            if (!printConstruct(arraySubscriptExpression->expression, Options(0), code))
             {
                 return false;
             }
@@ -273,16 +273,29 @@ bool OutputHLSL::printNode(const Construct* node, Options options, std::string& 
         case Construct::Kind::STATEMENT_EMPTY:
         {
             code.append(options.indentation, ' ');
+            code += ";\n";
+            break;
+        }
+
+        case Construct::Kind::STATEMENT_EXPRESSION:
+        {
+            const ExpressionStatement* expressionStatement = static_cast<const ExpressionStatement*>(node);
+            if (!printConstruct(expressionStatement->expression, options, code))
+            {
+                return false;
+            }
+            code += ";\n";
             break;
         }
 
         case Construct::Kind::STATEMENT_DECLARATION:
         {
             const DeclarationStatement* declarationStatement = static_cast<const DeclarationStatement*>(node);
-            if (!printNode(declarationStatement->declaration, options, code))
+            if (!printConstruct(declarationStatement->declaration, options, code))
             {
                 return false;
             }
+            code += ";\n";
             break;
         }
 
@@ -295,18 +308,14 @@ bool OutputHLSL::printNode(const Construct* node, Options options, std::string& 
 
             for (Statement* statement : compoundStatement->statements)
             {
-                if (!printNode(statement, Options(options.indentation + 4), code))
+                if (!printConstruct(statement, Options(options.indentation + 4), code))
                 {
                     return false;
                 }
-
-                if (statement->kind != Construct::Kind::STATEMENT_COMPOUND) code += ";";
-                
-                code += "\n";
             }
 
             code.append(options.indentation, ' ');
-            code += "}";
+            code += "}\n";
             break;
         }
 
@@ -317,7 +326,7 @@ bool OutputHLSL::printNode(const Construct* node, Options options, std::string& 
             code.append(options.indentation, ' ');
             code += "if (";
 
-            if (!printNode(ifStatement->condition, Options(0), code))
+            if (!printConstruct(ifStatement->condition, Options(0), code))
             {
                 return false;
             }
@@ -326,22 +335,18 @@ bool OutputHLSL::printNode(const Construct* node, Options options, std::string& 
 
             if (ifStatement->body->kind == Construct::Kind::STATEMENT_COMPOUND)
             {
-                if (!printNode(ifStatement->body, options, code))
+                if (!printConstruct(ifStatement->body, options, code))
                 {
                     return false;
                 }
             }
             else
             {
-                if (!printNode(ifStatement->body, Options(options.indentation + 4), code))
+                if (!printConstruct(ifStatement->body, Options(options.indentation + 4), code))
                 {
                     return false;
                 }
-
-                code += ";";
             }
-            
-            code += "\n";
 
             if (ifStatement->elseBody)
             {
@@ -350,22 +355,18 @@ bool OutputHLSL::printNode(const Construct* node, Options options, std::string& 
                 
                 if (ifStatement->elseBody->kind == Construct::Kind::STATEMENT_COMPOUND)
                 {
-                    if (!printNode(ifStatement->elseBody, options, code))
+                    if (!printConstruct(ifStatement->elseBody, options, code))
                     {
                         return false;
                     }
                 }
                 else
                 {
-                    if (!printNode(ifStatement->elseBody, Options(options.indentation + 4), code))
+                    if (!printConstruct(ifStatement->elseBody, Options(options.indentation + 4), code))
                     {
                         return false;
                     }
-
-                    code += ";";
                 }
-                
-                code += "\n";
             }
             break;
         }
@@ -377,21 +378,21 @@ bool OutputHLSL::printNode(const Construct* node, Options options, std::string& 
             code.append(options.indentation, ' ');
             code += "for (";
 
-            if (!printNode(forStatement->initialization, Options(0), code))
+            if (!printConstruct(forStatement->initialization, Options(0), code))
             {
                 return false;
             }
 
             code += "; ";
 
-            if (!printNode(forStatement->condition, Options(0), code))
+            if (!printConstruct(forStatement->condition, Options(0), code))
             {
                 return false;
             }
 
             code += "; ";
 
-            if (!printNode(forStatement->increment, Options(0), code))
+            if (!printConstruct(forStatement->increment, Options(0), code))
             {
                 return false;
             }
@@ -400,14 +401,14 @@ bool OutputHLSL::printNode(const Construct* node, Options options, std::string& 
 
             if (forStatement->body->kind == Construct::Kind::STATEMENT_COMPOUND)
             {
-                if (!printNode(forStatement->body, options, code))
+                if (!printConstruct(forStatement->body, options, code))
                 {
                     return false;
                 }
             }
             else
             {
-                if (!printNode(forStatement->body, Options(options.indentation + 4), code))
+                if (!printConstruct(forStatement->body, Options(options.indentation + 4), code))
                 {
                     return false;
                 }
@@ -422,7 +423,7 @@ bool OutputHLSL::printNode(const Construct* node, Options options, std::string& 
             code.append(options.indentation, ' ');
             code += "switch (";
 
-            if (!printNode(switchStatement->condition, Options(0), code))
+            if (!printConstruct(switchStatement->condition, Options(0), code))
             {
                 return false;
             }
@@ -431,14 +432,14 @@ bool OutputHLSL::printNode(const Construct* node, Options options, std::string& 
 
             if (switchStatement->body->kind == Construct::Kind::STATEMENT_COMPOUND)
             {
-                if (!printNode(switchStatement->body, options, code))
+                if (!printConstruct(switchStatement->body, options, code))
                 {
                     return false;
                 }
             }
             else
             {
-                if (!printNode(switchStatement->body, Options(options.indentation + 4), code))
+                if (!printConstruct(switchStatement->body, Options(options.indentation + 4), code))
                 {
                     return false;
                 }
@@ -454,7 +455,7 @@ bool OutputHLSL::printNode(const Construct* node, Options options, std::string& 
             code.append(options.indentation, ' ');
             code += "case ";
 
-            if (!printNode(caseStatement->condition, Options(0), code))
+            if (!printConstruct(caseStatement->condition, Options(0), code))
             {
                 return false;
             }
@@ -463,19 +464,19 @@ bool OutputHLSL::printNode(const Construct* node, Options options, std::string& 
 
             if (caseStatement->body->kind == Construct::Kind::STATEMENT_COMPOUND)
             {
-                if (!printNode(caseStatement->body, options, code))
+                if (!printConstruct(caseStatement->body, options, code))
                 {
                     return false;
                 }
             }
             else
             {
-                if (!printNode(caseStatement->body, Options(options.indentation + 4), code))
+                if (!printConstruct(caseStatement->body, Options(options.indentation + 4), code))
                 {
                     return false;
                 }
 
-                code += ";";
+                code += ";\n";
             }
             
             break;
@@ -488,7 +489,7 @@ bool OutputHLSL::printNode(const Construct* node, Options options, std::string& 
             code.append(options.indentation, ' ');
             code += "while (";
 
-            if (!printNode(whileStatement->condition, Options(0), code))
+            if (!printConstruct(whileStatement->condition, Options(0), code))
             {
                 return false;
             }
@@ -497,14 +498,14 @@ bool OutputHLSL::printNode(const Construct* node, Options options, std::string& 
 
             if (whileStatement->body->kind == Construct::Kind::STATEMENT_COMPOUND)
             {
-                if (!printNode(whileStatement->body, options, code))
+                if (!printConstruct(whileStatement->body, options, code))
                 {
                     return false;
                 }
             }
             else
             {
-                if (!printNode(whileStatement->body, Options(options.indentation + 4), code))
+                if (!printConstruct(whileStatement->body, Options(options.indentation + 4), code))
                 {
                     return false;
                 }
@@ -521,32 +522,30 @@ bool OutputHLSL::printNode(const Construct* node, Options options, std::string& 
 
             if (doStatement->body->kind == Construct::Kind::STATEMENT_COMPOUND)
             {
-                if (!printNode(doStatement->body, options, code))
+                if (!printConstruct(doStatement->body, options, code))
                 {
                     return false;
                 }
             }
             else
             {
-                if (!printNode(doStatement->body, Options(options.indentation + 4), code))
+                if (!printConstruct(doStatement->body, Options(options.indentation + 4), code))
                 {
                     return false;
                 }
 
                 code += ";";
             }
-            
-            code += "\n";
 
             code.append(options.indentation, ' ');
             code += "while (";
 
-            if (!printNode(doStatement->condition, Options(0), code))
+            if (!printConstruct(doStatement->condition, Options(0), code))
             {
                 return false;
             }
 
-            code += ")";
+            code += ");\n";
 
             break;
         }
@@ -554,14 +553,14 @@ bool OutputHLSL::printNode(const Construct* node, Options options, std::string& 
         case Construct::Kind::STATEMENT_BREAK:
         {
             code.append(options.indentation, ' ');
-            code += "break";
+            code += "break;\n";
             break;
         }
 
         case Construct::Kind::STATEMENT_CONTINUE:
         {
             code.append(options.indentation, ' ');
-            code += "continue";
+            code += "continue;\n";
             break;
         }
 
@@ -576,10 +575,12 @@ bool OutputHLSL::printNode(const Construct* node, Options options, std::string& 
             {
                 code += " ";
 
-                if (!printNode(returnStatement->result, Options(0), code))
+                if (!printConstruct(returnStatement->result, Options(0), code))
                 {
                     return false;
                 }
+
+                code += ";\n";
             }
 
             break;
@@ -592,7 +593,7 @@ bool OutputHLSL::printNode(const Construct* node, Options options, std::string& 
             code.append(options.indentation, ' ');
             code += unaryOperatorExpression->value;
 
-            if (!printNode(unaryOperatorExpression->expression, Options(0), code))
+            if (!printConstruct(unaryOperatorExpression->expression, Options(0), code))
             {
                 return false;
             }
@@ -603,14 +604,14 @@ bool OutputHLSL::printNode(const Construct* node, Options options, std::string& 
         {
             const BinaryOperatorExpression* binaryOperatorExpression = static_cast<const BinaryOperatorExpression*>(node);
 
-            if (!printNode(binaryOperatorExpression->leftExpression, options, code))
+            if (!printConstruct(binaryOperatorExpression->leftExpression, options, code))
             {
                 return false;
             }
 
             code += " " + binaryOperatorExpression->value + " ";
 
-            if (!printNode(binaryOperatorExpression->rightExpression, Options(0), code))
+            if (!printConstruct(binaryOperatorExpression->rightExpression, Options(0), code))
             {
                 return false;
             }
@@ -621,21 +622,21 @@ bool OutputHLSL::printNode(const Construct* node, Options options, std::string& 
         {
             const TernaryOperatorExpression* ternaryOperatorExpression = static_cast<const TernaryOperatorExpression*>(node);
 
-            if (!printNode(ternaryOperatorExpression->condition, options, code))
+            if (!printConstruct(ternaryOperatorExpression->condition, options, code))
             {
                 return false;
             }
 
             code += " ? ";
 
-            if (!printNode(ternaryOperatorExpression->leftExpression, Options(0), code))
+            if (!printConstruct(ternaryOperatorExpression->leftExpression, Options(0), code))
             {
                 return false;
             }
 
             code += " : ";
 
-            if (!printNode(ternaryOperatorExpression->rightExpression, Options(0), code))
+            if (!printConstruct(ternaryOperatorExpression->rightExpression, Options(0), code))
             {
                 return false;
             }
