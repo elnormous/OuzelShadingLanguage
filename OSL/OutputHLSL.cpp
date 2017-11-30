@@ -421,38 +421,16 @@ bool OutputHLSL::printConstruct(const Construct* node, Options options, std::str
             const ForStatement* forStatement = static_cast<const ForStatement*>(node);
             code += "for (";
 
-            if (forStatement->initialization->kind == Construct::Kind::STATEMENT_DECLARATION)
+            if (!printConstruct(forStatement->initialization, Options(0), code))
             {
-                const DeclarationStatement* declarationStatement = static_cast<const DeclarationStatement*>(forStatement->initialization);
-                if (!printConstruct(declarationStatement->declaration, Options(0), code))
-                {
-                    return false;
-                }
-            }
-            else
-            {
-                if (!printConstruct(forStatement->initialization, Options(0), code))
-                {
-                    return false;
-                }
+                return false;
             }
 
             code += "; ";
 
-            if (forStatement->condition->kind == Construct::Kind::STATEMENT_DECLARATION)
+            if (!printConstruct(forStatement->condition, Options(0), code))
             {
-                const DeclarationStatement* declarationStatement = static_cast<const DeclarationStatement*>(forStatement->condition);
-                if (!printConstruct(declarationStatement->declaration, Options(0), code))
-                {
-                    return false;
-                }
-            }
-            else
-            {
-                if (!printConstruct(forStatement->condition, Options(0), code))
-                {
-                    return false;
-                }
+                return false;
             }
 
             code += "; ";
@@ -488,20 +466,9 @@ bool OutputHLSL::printConstruct(const Construct* node, Options options, std::str
             const SwitchStatement* switchStatement = static_cast<const SwitchStatement*>(node);
             code += "switch (";
 
-            if (switchStatement->condition->kind == Construct::Kind::STATEMENT_DECLARATION)
+            if (!printConstruct(switchStatement->condition, Options(0), code))
             {
-                const DeclarationStatement* declarationStatement = static_cast<const DeclarationStatement*>(switchStatement->condition);
-                if (!printConstruct(declarationStatement->declaration, Options(0), code))
-                {
-                    return false;
-                }
-            }
-            else
-            {
-                if (!printConstruct(switchStatement->condition, Options(0), code))
-                {
-                    return false;
-                }
+                return false;
             }
 
             code += ")\n";
@@ -565,20 +532,9 @@ bool OutputHLSL::printConstruct(const Construct* node, Options options, std::str
             const WhileStatement* whileStatement = static_cast<const WhileStatement*>(node);
             code += "while (";
 
-            if (whileStatement->condition->kind == Construct::Kind::STATEMENT_DECLARATION)
+            if (!printConstruct(whileStatement->condition, Options(0), code))
             {
-                const DeclarationStatement* declarationStatement = static_cast<const DeclarationStatement*>(whileStatement->condition);
-                if (!printConstruct(declarationStatement->declaration, Options(0), code))
-                {
-                    return false;
-                }
-            }
-            else
-            {
-                if (!printConstruct(whileStatement->condition, Options(0), code))
-                {
-                    return false;
-                }
+                return false;
             }
 
             code += ")\n";

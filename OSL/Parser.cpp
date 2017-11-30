@@ -803,7 +803,7 @@ IfStatement* ASTContext::parseIfStatement(const std::vector<Token>& tokens,
 
     if (checkToken(Token::Type::KEYWORD_VAR, tokens, iterator))
     {
-        if (!(result->condition = parseVariableDeclStatement(tokens, iterator, declarations)))
+        if (!(result->condition = parseVariableDeclaration(tokens, iterator, declarations)))
         {
             return nullptr;
         }
@@ -861,7 +861,7 @@ ForStatement* ASTContext::parseForStatement(const std::vector<Token>& tokens,
 
     if (checkToken(Token::Type::KEYWORD_VAR, tokens, iterator))
     {
-        if (!(result->initialization = parseVariableDeclStatement(tokens, iterator, declarations)))
+        if (!(result->initialization = parseVariableDeclaration(tokens, iterator, declarations)))
         {
             return nullptr;
         }
@@ -895,7 +895,7 @@ ForStatement* ASTContext::parseForStatement(const std::vector<Token>& tokens,
 
     if (checkToken(Token::Type::KEYWORD_VAR, tokens, iterator))
     {
-        if (!(result->condition = parseVariableDeclStatement(tokens, iterator, declarations)))
+        if (!(result->condition = parseVariableDeclaration(tokens, iterator, declarations)))
         {
             return nullptr;
         }
@@ -972,7 +972,7 @@ SwitchStatement* ASTContext::parseSwitchStatement(const std::vector<Token>& toke
 
     if (checkToken(Token::Type::KEYWORD_VAR, tokens, iterator))
     {
-        if (!(result->condition = parseVariableDeclStatement(tokens, iterator, declarations)))
+        if (!(result->condition = parseVariableDeclaration(tokens, iterator, declarations)))
         {
             return nullptr;
         }
@@ -1043,7 +1043,7 @@ WhileStatement* ASTContext::parseWhileStatement(const std::vector<Token>& tokens
 
     if (checkToken(Token::Type::KEYWORD_VAR, tokens, iterator))
     {
-        if (!(result->condition = parseVariableDeclStatement(tokens, iterator, declarations)))
+        if (!(result->condition = parseVariableDeclaration(tokens, iterator, declarations)))
         {
             return nullptr;
         }
