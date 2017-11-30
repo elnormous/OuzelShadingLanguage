@@ -86,65 +86,79 @@ TranslationUnit* ASTContext::parseTopLevel(const std::vector<Token>& tokens,
 
     while (iterator != tokens.end())
     {
-        if (checkToken(Token::Type::KEYWORD_STRUCT, tokens, iterator))
+        Declaration* declaration;
+        if (!(declaration = parseDeclaration(tokens, iterator, declarations)))
         {
-            StructDeclaration* decl;
-            if (!(decl = parseStructDeclaration(tokens, iterator, declarations)))
-            {
-                std::cerr << "Failed to parse a structure declaration" << std::endl;
-                return nullptr;
-            }
-
-            result->declarations.push_back(decl);
-        }
-        /*else if (checkToken(Token::Type::KEYWORD_TYPEDEF, tokens, iterator))
-        {
-            TypeDefinitionDeclaration* decl;
-            if (!(decl = parseTypeDefinitionDeclaration(tokens, iterator, declarations)))
-            {
-                std::cerr << "Failed to parse a type definition declaration" << std::endl;
-                return nullptr;
-            }
-
-            result->declarations.push_back(decl);
-        }*/
-        else if (checkToken(Token::Type::KEYWORD_FUNCTION, tokens, iterator))
-        {
-            FunctionDeclaration* decl;
-            if (!(decl = parseFunctionDeclaration(tokens, iterator, declarations)))
-            {
-                std::cerr << "Failed to parse a function declaration" << std::endl;
-                return nullptr;
-            }
-
-            result->declarations.push_back(decl);
-        }
-        else if (checkTokens({Token::Type::KEYWORD_STATIC, Token::Type::KEYWORD_CONST, Token::Type::KEYWORD_VAR}, tokens, iterator))
-        {
-            VariableDeclaration* decl;
-            if (!(decl = parseVariableDeclaration(tokens, iterator, declarations)))
-            {
-                std::cerr << "Failed to parse a variable declaration" << std::endl;
-                return nullptr;
-            }
-
-            result->declarations.push_back(decl);
-        }
-        else if (checkToken(Token::Type::SEMICOLON, tokens, iterator))
-        {
-            Declaration* decl = new Declaration();
-            constructs.push_back(std::unique_ptr<Construct>(decl));
-            decl->kind = Construct::Kind::DECLARATION_EMPTY;
-            result->declarations.push_back(decl);
-        }
-        else
-        {
-            std::cerr << "Expected a keyword" << std::endl;
             return nullptr;
         }
+
+        result->declarations.push_back(declaration);
     }
 
     return result;
+}
+
+Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
+                                          std::vector<Token>::const_iterator& iterator,
+                                          std::vector<std::vector<Declaration*>>& declarations)
+{
+    if (checkToken(Token::Type::KEYWORD_STRUCT, tokens, iterator))
+    {
+        StructDeclaration* declaration;
+        if (!(declaration = parseStructDeclaration(tokens, iterator, declarations)))
+        {
+            std::cerr << "Failed to parse a structure declaration" << std::endl;
+            return nullptr;
+        }
+
+        return declaration;
+    }
+    /*else if (checkToken(Token::Type::KEYWORD_TYPEDEF, tokens, iterator))
+    {
+        TypeDefinitionDeclaration* declaration;
+        if (!(declaration = parseTypeDefinitionDeclaration(tokens, iterator, declarations)))
+        {
+            std::cerr << "Failed to parse a type definition declaration" << std::endl;
+            return nullptr;
+        }
+
+        return declaration;
+    }*/
+    else if (checkToken(Token::Type::KEYWORD_FUNCTION, tokens, iterator))
+    {
+        FunctionDeclaration* declaration;
+        if (!(declaration = parseFunctionDeclaration(tokens, iterator, declarations)))
+        {
+            std::cerr << "Failed to parse a function declaration" << std::endl;
+            return nullptr;
+        }
+
+        return declaration;
+    }
+    else if (checkTokens({Token::Type::KEYWORD_STATIC, Token::Type::KEYWORD_CONST, Token::Type::KEYWORD_VAR}, tokens, iterator))
+    {
+        VariableDeclaration* declaration;
+        if (!(declaration = parseVariableDeclaration(tokens, iterator, declarations)))
+        {
+            std::cerr << "Failed to parse a variable declaration" << std::endl;
+            return nullptr;
+        }
+
+        return declaration;
+    }
+    else if (checkToken(Token::Type::SEMICOLON, tokens, iterator))
+    {
+        Declaration* declaration = new Declaration();
+        constructs.push_back(std::unique_ptr<Construct>(declaration));
+        declaration->kind = Construct::Kind::DECLARATION_EMPTY;
+
+        return declaration;
+    }
+    else
+    {
+        std::cerr << "Expected a keyword" << std::endl;
+        return nullptr;
+    }
 }
 
 StructDeclaration* ASTContext::parseStructDeclaration(const std::vector<Token>& tokens,
