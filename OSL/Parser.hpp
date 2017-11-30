@@ -153,7 +153,7 @@ class Statement: public Construct
 public:
 };
 
-class Expression: public Statement
+class Expression: public Construct
 {
 public:
     std::string value;
@@ -243,7 +243,7 @@ class VariableDeclaration: public Declaration
 public:
     QualifiedType qualifiedType;
     std::string name;
-    Statement* initialization = nullptr;
+    Expression* initialization = nullptr;
 };
 
 class ExpressionStatement: public Statement
@@ -267,7 +267,7 @@ public:
 class IfStatement: public Statement
 {
 public:
-    Statement* condition = nullptr;
+    Construct* condition = nullptr;
     Statement* body = nullptr;
     Statement* elseBody = nullptr;
 };
@@ -275,8 +275,8 @@ public:
 class ForStatement: public Statement
 {
 public:
-    Statement* initialization = nullptr;
-    Statement* condition = nullptr;
+    Construct* initialization = nullptr;
+    Construct* condition = nullptr;
     Expression* increment = nullptr;
     Statement* body = nullptr;
 };
@@ -284,7 +284,7 @@ public:
 class SwitchStatement: public Statement
 {
 public:
-    Statement* condition = nullptr;
+    Construct* condition = nullptr;
     Statement* body = nullptr;
 };
 
@@ -298,7 +298,7 @@ public:
 class WhileStatement: public Statement
 {
 public:
-    Statement* condition = nullptr;
+    Construct* condition = nullptr;
     Statement* body = nullptr;
 };
 
@@ -322,7 +322,7 @@ public:
 class ReturnStatement: public Statement
 {
 public:
-    Statement* result = nullptr;
+    Expression* result = nullptr;
 };
 
 class LiteralExpression: public Expression
