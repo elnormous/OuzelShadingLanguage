@@ -769,24 +769,6 @@ CompoundStatement* ASTContext::parseCompoundStatement(const std::vector<Token>& 
     return result;
 }
 
-DeclarationStatement* ASTContext::parseVariableDeclStatement(const std::vector<Token>& tokens,
-                                                             std::vector<Token>::const_iterator& iterator,
-                                                             std::vector<std::vector<Declaration*>>& declarations)
-{
-    VariableDeclaration* declaration;
-    if (!(declaration = parseVariableDeclaration(tokens, iterator, declarations)))
-    {
-        return nullptr;
-    }
-
-    DeclarationStatement* result = new DeclarationStatement();
-    constructs.push_back(std::unique_ptr<Construct>(result));
-    result->kind = Construct::Kind::STATEMENT_DECLARATION;
-    result->declaration = declaration;
-
-    return result;
-}
-
 IfStatement* ASTContext::parseIfStatement(const std::vector<Token>& tokens,
                                           std::vector<Token>::const_iterator& iterator,
                                           std::vector<std::vector<Declaration*>>& declarations)
@@ -2090,7 +2072,7 @@ void ASTContext::dumpNode(const Construct* node, std::string indent)
         {
             const UnaryOperatorExpression* unaryOperatorExpression = static_cast<const UnaryOperatorExpression*>(node);
 
-            std::cout << std::endl;
+            std::cout <<", operator: " << unaryOperatorExpression->value << std::endl;
 
             dumpNode(unaryOperatorExpression->expression, indent + "  ");
             break;
@@ -2100,7 +2082,7 @@ void ASTContext::dumpNode(const Construct* node, std::string indent)
         {
             const BinaryOperatorExpression* binaryOperatorExpression = static_cast<const BinaryOperatorExpression*>(node);
             
-            std::cout << std::endl;
+            std::cout <<", operator: " << binaryOperatorExpression->value << std::endl;
 
             dumpNode(binaryOperatorExpression->leftExpression, indent + "  ");
             dumpNode(binaryOperatorExpression->rightExpression, indent + "  ");

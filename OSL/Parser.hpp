@@ -529,10 +529,6 @@ private:
                                               std::vector<Token>::const_iterator& iterator,
                                               std::vector<std::vector<Declaration*>>& declarations);
 
-    DeclarationStatement* parseVariableDeclStatement(const std::vector<Token>& tokens,
-                                                     std::vector<Token>::const_iterator& iterator,
-                                                     std::vector<std::vector<Declaration*>>& declarations);
-
     IfStatement* parseIfStatement(const std::vector<Token>& tokens,
                                   std::vector<Token>::const_iterator& iterator,
                                   std::vector<std::vector<Declaration*>>& declarations);
