@@ -428,7 +428,7 @@ private:
         return false;
     }
 
-    Declaration* findDeclaration(const std::string& name, std::vector<std::vector<Declaration*>>& declarations)
+    Declaration* findDeclaration(const std::string& name, std::vector<std::vector<Declaration*>>& declarations) const
     {
         for (auto i = declarations.crbegin(); i != declarations.crend(); ++i)
         {
@@ -469,7 +469,7 @@ private:
         return nullptr;
     }
 
-    Type* findType(const std::string& name, std::vector<std::vector<Declaration*>>& declarations)
+    Type* findType(const std::string& name, std::vector<std::vector<Declaration*>>& declarations) const
     {
         for (auto i = declarations.crbegin(); i != declarations.crend(); ++i)
         {
@@ -491,7 +491,7 @@ private:
         return nullptr;
     }
 
-    Field* findField(const std::string& name, StructType* structType)
+    Field* findField(const std::string& name, StructType* structType) const
     {
         for (Field* field : structType->fields)
         {
