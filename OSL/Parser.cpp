@@ -98,6 +98,31 @@ TranslationUnit* ASTContext::parseTopLevel(const std::vector<Token>& tokens,
     return result;
 }
 
+bool ASTContext::isDeclaration(const std::vector<Token>& tokens,
+                               std::vector<Token>::const_iterator& iterator,
+                               std::vector<std::vector<Declaration*>>& declarations) const
+{
+    if (iterator == tokens.end()) return false;
+
+    if (iterator->type == Token::Type::KEYWORD_CONST ||
+        iterator->type == Token::Type::KEYWORD_STATIC ||
+        iterator->type == Token::Type::KEYWORD_STRUCT)
+    {
+        return true;
+    }
+    else if (iterator->type == Token::Type::IDENTIFIER)
+    {
+        Type* type = findType(iterator->value, declarations);
+
+        if (type)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
                                           std::vector<Token>::const_iterator& iterator,
                                           std::vector<std::vector<Declaration*>>& declarations)
@@ -124,23 +149,12 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
 
         return declaration;
     }*/
-    else if (checkToken(Token::Type::KEYWORD_FUNCTION, tokens, iterator))
+    else if (isDeclaration(tokens, iterator, declarations))
     {
-        FunctionDeclaration* declaration;
-        if (!(declaration = parseFunctionDeclaration(tokens, iterator, declarations)))
+        Declaration* declaration;
+        if (!(declaration = parseDeclaration(tokens, iterator, declarations)))
         {
             std::cerr << "Failed to parse a function declaration" << std::endl;
-            return nullptr;
-        }
-
-        return declaration;
-    }
-    else if (checkTokens({Token::Type::KEYWORD_STATIC, Token::Type::KEYWORD_CONST, Token::Type::KEYWORD_VAR}, tokens, iterator))
-    {
-        VariableDeclaration* declaration;
-        if (!(declaration = parseVariableDeclaration(tokens, iterator, declarations)))
-        {
-            std::cerr << "Failed to parse a variable declaration" << std::endl;
             return nullptr;
         }
 
@@ -197,7 +211,7 @@ StructDeclaration* ASTContext::parseStructDeclaration(const std::vector<Token>& 
                 declarations.back().push_back(result);
                 break;
             }
-            else if (checkToken(Token::Type::KEYWORD_VAR, tokens, iterator))
+            else if (isDeclaration(tokens, iterator, declarations))
             {
                 FieldDeclaration* fieldDeclaration = new FieldDeclaration();
                 constructs.push_back(std::unique_ptr<Construct>(fieldDeclaration));
@@ -215,12 +229,6 @@ StructDeclaration* ASTContext::parseStructDeclaration(const std::vector<Token>& 
                 field->structType = type;
                 field->name = (iterator - 1)->value;
                 field->declaration = fieldDeclaration;
-
-                if (!checkToken(Token::Type::COLON, tokens, iterator))
-                {
-                    std::cerr << "Expected a colon" << std::endl;
-                    return nullptr;
-                }
 
                 if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
                 {
@@ -438,12 +446,6 @@ FunctionDeclaration* ASTContext::parseFunctionDeclaration(const std::vector<Toke
             parameter->kind = Construct::Kind::DECLARATION_PARAMETER;
             parameter->name = (iterator - 1)->value;
 
-            if (!checkToken(Token::Type::COLON, tokens, iterator))
-            {
-                std::cerr << "Expected a colon" << std::endl;
-                return nullptr;
-            }
-
             if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
             {
                 std::cerr << "Expected a type name" << std::endl;
@@ -538,27 +540,14 @@ VariableDeclaration* ASTContext::parseVariableDeclaration(const std::vector<Toke
     constructs.push_back(std::unique_ptr<VariableDeclaration>(result));
     result->kind = Construct::Kind::DECLARATION_VARIABLE;
 
-    if ((iterator - 1)->type == Token::Type::KEYWORD_STATIC)
+    if (iterator->type == Token::Type::KEYWORD_STATIC)
     {
         result->qualifiedType.isStatic = true;
-    }
-    else
-    {
-        --iterator;
     }
 
     if (checkToken(Token::Type::KEYWORD_CONST, tokens, iterator))
     {
         result->qualifiedType.isConst = true;
-    }
-    else if (checkToken(Token::Type::KEYWORD_VAR, tokens, iterator))
-    {
-        result->qualifiedType.isConst = false;
-    }
-    else
-    {
-        std::cerr << "Expected const or var" << std::endl;
-        return nullptr;
     }
 
     if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
@@ -568,12 +557,6 @@ VariableDeclaration* ASTContext::parseVariableDeclaration(const std::vector<Toke
     }
 
     result->name = (iterator - 1)->value;
-
-    if (!checkToken(Token::Type::COLON, tokens, iterator))
-    {
-        std::cerr << "Expected a colon" << std::endl;
-        return nullptr;
-    }
 
     if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
     {
@@ -698,7 +681,7 @@ Statement* ASTContext::parseStatement(const std::vector<Token>& tokens,
     {
         return parseReturnStatement(tokens, iterator, declarations);
     }
-    else if (checkTokens({Token::Type::KEYWORD_STATIC, Token::Type::KEYWORD_CONST, Token::Type::KEYWORD_VAR}, tokens, iterator))
+    else if (isDeclaration(tokens, iterator, declarations))
     {
         VariableDeclaration* declaration;
         if (!(declaration = parseVariableDeclaration(tokens, iterator, declarations)))
@@ -797,7 +780,7 @@ IfStatement* ASTContext::parseIfStatement(const std::vector<Token>& tokens,
         return nullptr;
     }
 
-    if (checkToken(Token::Type::KEYWORD_VAR, tokens, iterator))
+    if (isDeclaration(tokens, iterator, declarations))
     {
         if (!(result->condition = parseVariableDeclaration(tokens, iterator, declarations)))
         {
@@ -855,7 +838,7 @@ ForStatement* ASTContext::parseForStatement(const std::vector<Token>& tokens,
         return nullptr;
     }
 
-    if (checkToken(Token::Type::KEYWORD_VAR, tokens, iterator))
+    if (isDeclaration(tokens, iterator, declarations))
     {
         if (!(result->initialization = parseVariableDeclaration(tokens, iterator, declarations)))
         {
@@ -889,7 +872,7 @@ ForStatement* ASTContext::parseForStatement(const std::vector<Token>& tokens,
         }
     }
 
-    if (checkToken(Token::Type::KEYWORD_VAR, tokens, iterator))
+    if (isDeclaration(tokens, iterator, declarations))
     {
         if (!(result->condition = parseVariableDeclaration(tokens, iterator, declarations)))
         {
@@ -966,7 +949,7 @@ SwitchStatement* ASTContext::parseSwitchStatement(const std::vector<Token>& toke
         return nullptr;
     }
 
-    if (checkToken(Token::Type::KEYWORD_VAR, tokens, iterator))
+    if (isDeclaration(tokens, iterator, declarations))
     {
         if (!(result->condition = parseVariableDeclaration(tokens, iterator, declarations)))
         {
@@ -1037,7 +1020,7 @@ WhileStatement* ASTContext::parseWhileStatement(const std::vector<Token>& tokens
         return nullptr;
     }
 
-    if (checkToken(Token::Type::KEYWORD_VAR, tokens, iterator))
+    if (isDeclaration(tokens, iterator, declarations))
     {
         if (!(result->condition = parseVariableDeclaration(tokens, iterator, declarations)))
         {

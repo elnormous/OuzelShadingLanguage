@@ -65,8 +65,6 @@ struct Token
         KEYWORD_CATCH, // catch
         KEYWORD_THROW, // throw
         KEYWORD_NOEXCEPT, // noexcept
-        KEYWORD_VAR, // var
-        KEYWORD_FUNCTION, // function
         LEFT_PARENTHESIS, // (
         RIGHT_PARENTHESIS, // )
         LEFT_BRACE, // {
@@ -185,8 +183,6 @@ inline std::string tokenTypeToString(Token::Type type)
         case Token::Type::KEYWORD_CATCH: return "KEYWORD_CATCH";
         case Token::Type::KEYWORD_THROW: return "KEYWORD_THROW";
         case Token::Type::KEYWORD_NOEXCEPT: return "KEYWORD_NOEXCEPT";
-        case Token::Type::KEYWORD_VAR: return "KEYWORD_VAR";
-        case Token::Type::KEYWORD_FUNCTION: return "KEYWORD_FUNCTION";
         case Token::Type::LEFT_PARENTHESIS: return "LEFT_PARENTHESIS";
         case Token::Type::RIGHT_PARENTHESIS: return "RIGHT_PARENTHESIS";
         case Token::Type::LEFT_BRACE: return "LEFT_BRACE";

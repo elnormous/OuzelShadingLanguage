@@ -505,6 +505,10 @@ private:
                                    std::vector<Token>::const_iterator& iterator,
                                    std::vector<std::vector<Declaration*>>& declarations);
 
+    bool isDeclaration(const std::vector<Token>& tokens,
+                       std::vector<Token>::const_iterator& iterator,
+                       std::vector<std::vector<Declaration*>>& declarations) const;
+
     Declaration* parseDeclaration(const std::vector<Token>& tokens,
                                   std::vector<Token>::const_iterator& iterator,
                                   std::vector<std::vector<Declaration*>>& declarations);

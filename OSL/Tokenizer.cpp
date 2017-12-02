@@ -59,9 +59,7 @@ static const std::map<std::string, Token::Type> keywordMap = {
     {"try", Token::Type::KEYWORD_TRY},
     {"catch", Token::Type::KEYWORD_CATCH},
     {"throw", Token::Type::KEYWORD_THROW},
-    {"noexcept", Token::Type::KEYWORD_NOEXCEPT},
-    {"var", Token::Type::KEYWORD_VAR},
-    {"function", Token::Type::KEYWORD_FUNCTION}
+    {"noexcept", Token::Type::KEYWORD_NOEXCEPT}
 };
 
 bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
