@@ -63,7 +63,7 @@ public:
     Kind kind = Kind::NONE;
 };
 
-inline std::string nodeKindToString(Construct::Kind type)
+inline std::string constructKindToString(Construct::Kind type)
 {
     switch (type)
     {
@@ -607,7 +607,7 @@ private:
 
     void dumpType(const Type* type, std::string indent = std::string()) const;
     void dumpField(const Field* field, std::string indent = std::string()) const;
-    void dumpConstruct(const Construct* node, std::string indent = std::string()) const;
+    void dumpConstruct(const Construct* construct, std::string indent = std::string()) const;
 
     std::vector<std::unique_ptr<Construct>> constructs;
     std::vector<std::unique_ptr<Type>> types;

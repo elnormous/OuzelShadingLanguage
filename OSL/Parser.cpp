@@ -1757,11 +1757,11 @@ void ASTContext::dumpField(const Field* field, std::string indent) const
     std::cout << ", name" << field->name << ", type: " << field->qualifiedType.type->name << std::endl;
 }
 
-void ASTContext::dumpConstruct(const Construct* node, std::string indent) const
+void ASTContext::dumpConstruct(const Construct* construct, std::string indent) const
 {
-    std::cout << indent << node << " " << nodeKindToString(node->kind);
+    std::cout << indent << construct << " " << constructKindToString(construct->kind);
 
-    switch (node->kind)
+    switch (construct->kind)
     {
         case Construct::Kind::NONE:
         {
@@ -1777,7 +1777,7 @@ void ASTContext::dumpConstruct(const Construct* node, std::string indent) const
 
         case Construct::Kind::DECLARATION_STRUCT:
         {
-            const StructDeclaration* structDeclaration = static_cast<const StructDeclaration*>(node);
+            const StructDeclaration* structDeclaration = static_cast<const StructDeclaration*>(construct);
 
             std::cout << ", name: " << structDeclaration->type->name << std::endl;
 
@@ -1791,7 +1791,7 @@ void ASTContext::dumpConstruct(const Construct* node, std::string indent) const
 
         case Construct::Kind::DECLARATION_FIELD:
         {
-            const FieldDeclaration* fieldDeclaration = static_cast<const FieldDeclaration*>(node);
+            const FieldDeclaration* fieldDeclaration = static_cast<const FieldDeclaration*>(construct);
 
             std::cout << ", name: " << fieldDeclaration->field->name << std::endl;
 
@@ -1801,7 +1801,7 @@ void ASTContext::dumpConstruct(const Construct* node, std::string indent) const
 
         case Construct::Kind::DECLARATION_FUNCTION:
         {
-            const FunctionDeclaration* functionDeclaration = static_cast<const FunctionDeclaration*>(node);
+            const FunctionDeclaration* functionDeclaration = static_cast<const FunctionDeclaration*>(construct);
 
             std::cout << ", name: " << functionDeclaration->name;
 
@@ -1826,21 +1826,21 @@ void ASTContext::dumpConstruct(const Construct* node, std::string indent) const
 
         case Construct::Kind::DECLARATION_VARIABLE:
         {
-            const VariableDeclaration* variableDeclaration = static_cast<const VariableDeclaration*>(node);
+            const VariableDeclaration* variableDeclaration = static_cast<const VariableDeclaration*>(construct);
             std::cout << ", name: " << variableDeclaration->name << ", type: " << variableDeclaration->qualifiedType.type->name << std::endl;
             break;
         }
 
         case Construct::Kind::DECLARATION_PARAMETER:
         {
-            const ParameterDeclaration* parameterDeclaration = static_cast<const ParameterDeclaration*>(node);
+            const ParameterDeclaration* parameterDeclaration = static_cast<const ParameterDeclaration*>(construct);
             std::cout << ", name: " << parameterDeclaration->name << ", type: " << parameterDeclaration->qualifiedType.type->name << std::endl;
             break;
         }
 
         case Construct::Kind::EXPRESSION_CALL:
         {
-            const CallExpression* callExpression = static_cast<const CallExpression*>(node);
+            const CallExpression* callExpression = static_cast<const CallExpression*>(construct);
 
             std::cout << std::endl;
 
@@ -1856,14 +1856,14 @@ void ASTContext::dumpConstruct(const Construct* node, std::string indent) const
 
         case Construct::Kind::EXPRESSION_LITERAL:
         {
-            const Expression* expression = static_cast<const Expression*>(node);
+            const Expression* expression = static_cast<const Expression*>(construct);
             std::cout << ", value: " << expression->value << ", type: " << expression->qualifiedType.type->name << std::endl;
             break;
         }
 
         case Construct::Kind::EXPRESSION_DECLARATION_REFERENCE:
         {
-            const DeclarationReferenceExpression* declarationReferenceExpression = static_cast<const DeclarationReferenceExpression*>(node);
+            const DeclarationReferenceExpression* declarationReferenceExpression = static_cast<const DeclarationReferenceExpression*>(construct);
 
             std::cout << std::endl;
 
@@ -1873,7 +1873,7 @@ void ASTContext::dumpConstruct(const Construct* node, std::string indent) const
 
         case Construct::Kind::EXPRESSION_PAREN:
         {
-            const ParenExpression* parenExpression = static_cast<const ParenExpression*>(node);
+            const ParenExpression* parenExpression = static_cast<const ParenExpression*>(construct);
 
             std::cout << std::endl;
 
@@ -1883,7 +1883,7 @@ void ASTContext::dumpConstruct(const Construct* node, std::string indent) const
 
         case Construct::Kind::EXPRESSION_MEMBER:
         {
-            const MemberExpression* memberExpression = static_cast<const MemberExpression*>(node);
+            const MemberExpression* memberExpression = static_cast<const MemberExpression*>(construct);
 
             std::cout << std::endl;
 
@@ -1894,7 +1894,7 @@ void ASTContext::dumpConstruct(const Construct* node, std::string indent) const
 
         case Construct::Kind::EXPRESSION_ARRAY_SUBSCRIPT:
         {
-            const ArraySubscriptExpression* arraySubscriptExpression = static_cast<const ArraySubscriptExpression*>(node);
+            const ArraySubscriptExpression* arraySubscriptExpression = static_cast<const ArraySubscriptExpression*>(construct);
 
             std::cout << std::endl;
 
@@ -1911,7 +1911,7 @@ void ASTContext::dumpConstruct(const Construct* node, std::string indent) const
 
         case Construct::Kind::STATEMENT_EXPRESSION:
         {
-            const ExpressionStatement* expressionStatement = static_cast<const ExpressionStatement*>(node);
+            const ExpressionStatement* expressionStatement = static_cast<const ExpressionStatement*>(construct);
 
             std::cout << std::endl;
 
@@ -1921,7 +1921,7 @@ void ASTContext::dumpConstruct(const Construct* node, std::string indent) const
 
         case Construct::Kind::STATEMENT_DECLARATION:
         {
-            const DeclarationStatement* declarationStatement = static_cast<const DeclarationStatement*>(node);
+            const DeclarationStatement* declarationStatement = static_cast<const DeclarationStatement*>(construct);
 
             std::cout << std::endl;
 
@@ -1931,7 +1931,7 @@ void ASTContext::dumpConstruct(const Construct* node, std::string indent) const
 
         case Construct::Kind::STATEMENT_COMPOUND:
         {
-            const CompoundStatement* compoundStatement = static_cast<const CompoundStatement*>(node);
+            const CompoundStatement* compoundStatement = static_cast<const CompoundStatement*>(construct);
 
             std::cout << std::endl;
 
@@ -1944,7 +1944,7 @@ void ASTContext::dumpConstruct(const Construct* node, std::string indent) const
 
         case Construct::Kind::STATEMENT_IF:
         {
-            const IfStatement* ifStatement = static_cast<const IfStatement*>(node);
+            const IfStatement* ifStatement = static_cast<const IfStatement*>(construct);
 
             std::cout << std::endl;
 
@@ -1956,7 +1956,7 @@ void ASTContext::dumpConstruct(const Construct* node, std::string indent) const
 
         case Construct::Kind::STATEMENT_FOR:
         {
-            const ForStatement* forStatement = static_cast<const ForStatement*>(node);
+            const ForStatement* forStatement = static_cast<const ForStatement*>(construct);
 
             std::cout << std::endl;
 
@@ -1969,7 +1969,7 @@ void ASTContext::dumpConstruct(const Construct* node, std::string indent) const
 
         case Construct::Kind::STATEMENT_SWITCH:
         {
-            const SwitchStatement* switchStatement = static_cast<const SwitchStatement*>(node);
+            const SwitchStatement* switchStatement = static_cast<const SwitchStatement*>(construct);
 
             std::cout << std::endl;
 
@@ -1980,7 +1980,7 @@ void ASTContext::dumpConstruct(const Construct* node, std::string indent) const
 
         case Construct::Kind::STATEMENT_CASE:
         {
-            const CaseStatement* caseStatement = static_cast<const CaseStatement*>(node);
+            const CaseStatement* caseStatement = static_cast<const CaseStatement*>(construct);
 
             std::cout << std::endl;
 
@@ -1991,7 +1991,7 @@ void ASTContext::dumpConstruct(const Construct* node, std::string indent) const
 
         case Construct::Kind::STATEMENT_WHILE:
         {
-            const WhileStatement* whileStatement = static_cast<const WhileStatement*>(node);
+            const WhileStatement* whileStatement = static_cast<const WhileStatement*>(construct);
 
             std::cout << std::endl;
 
@@ -2002,7 +2002,7 @@ void ASTContext::dumpConstruct(const Construct* node, std::string indent) const
 
         case Construct::Kind::STATEMENT_DO:
         {
-            const DoStatement* doStatement = static_cast<const DoStatement*>(node);
+            const DoStatement* doStatement = static_cast<const DoStatement*>(construct);
 
             std::cout << std::endl;
 
@@ -2025,7 +2025,7 @@ void ASTContext::dumpConstruct(const Construct* node, std::string indent) const
 
         case Construct::Kind::STATEMENT_RETURN:
         {
-            const ReturnStatement* returnStatement = static_cast<const ReturnStatement*>(node);
+            const ReturnStatement* returnStatement = static_cast<const ReturnStatement*>(construct);
 
             std::cout << std::endl;
 
@@ -2038,7 +2038,7 @@ void ASTContext::dumpConstruct(const Construct* node, std::string indent) const
 
         case Construct::Kind::OPERATOR_UNARY:
         {
-            const UnaryOperatorExpression* unaryOperatorExpression = static_cast<const UnaryOperatorExpression*>(node);
+            const UnaryOperatorExpression* unaryOperatorExpression = static_cast<const UnaryOperatorExpression*>(construct);
 
             std::cout <<", operator: " << unaryOperatorExpression->value << std::endl;
 
@@ -2048,7 +2048,7 @@ void ASTContext::dumpConstruct(const Construct* node, std::string indent) const
             
         case Construct::Kind::OPERATOR_BINARY:
         {
-            const BinaryOperatorExpression* binaryOperatorExpression = static_cast<const BinaryOperatorExpression*>(node);
+            const BinaryOperatorExpression* binaryOperatorExpression = static_cast<const BinaryOperatorExpression*>(construct);
             
             std::cout <<", operator: " << binaryOperatorExpression->value << std::endl;
 
@@ -2059,7 +2059,7 @@ void ASTContext::dumpConstruct(const Construct* node, std::string indent) const
             
         case Construct::Kind::OPERATOR_TERNARY:
         {
-            const TernaryOperatorExpression* ternaryOperatorExpression = static_cast<const TernaryOperatorExpression*>(node);
+            const TernaryOperatorExpression* ternaryOperatorExpression = static_cast<const TernaryOperatorExpression*>(construct);
             
             std::cout << std::endl;
 
