@@ -394,12 +394,12 @@ public:
 
     const TranslationUnit* getTranslationUnit() const { return translationUnit; }
 
-    void dump();
+    void dump() const;
 
 private:
     bool checkToken(Token::Type tokenType,
                     const std::vector<Token>& tokens,
-                    std::vector<Token>::const_iterator& iterator)
+                    std::vector<Token>::const_iterator& iterator) const
     {
         if (iterator != tokens.end() && iterator->type == tokenType)
         {
@@ -412,7 +412,7 @@ private:
 
     bool checkTokens(const std::vector<Token::Type>& tokenTypes,
                      const std::vector<Token>& tokens,
-                     std::vector<Token>::const_iterator& iterator)
+                     std::vector<Token>::const_iterator& iterator) const
     {
         if (iterator == tokens.end()) return false;
 
@@ -621,7 +621,7 @@ private:
                              std::vector<Token>::const_iterator& iterator,
                              std::vector<std::vector<Declaration*>>& declarations);
 
-    void dumpNode(const Construct* node, std::string indent = std::string());
+    void dumpNode(const Construct* node, std::string indent = std::string()) const;
     
     TranslationUnit* translationUnit = nullptr;
     std::vector<std::unique_ptr<Construct>> constructs;

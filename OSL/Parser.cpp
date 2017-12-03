@@ -1744,7 +1744,7 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
     }
 }
 
-void ASTContext::dump()
+void ASTContext::dump() const
 {
     if (translationUnit)
     {
@@ -1752,7 +1752,7 @@ void ASTContext::dump()
     }
 }
 
-void ASTContext::dumpNode(const Construct* node, std::string indent)
+void ASTContext::dumpNode(const Construct* node, std::string indent) const
 {
     std::cout << indent << node << " " << nodeKindToString(node->kind);
 
