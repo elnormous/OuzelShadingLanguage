@@ -472,7 +472,8 @@ private:
 
         for (auto i = types.cbegin(); i != types.cend(); ++i)
         {
-            if ((*i)->name == name) return (*i).get();
+            if (!(*i)->declaration && // built-in type
+                (*i)->name == name) return (*i).get();
         }
 
         return nullptr;
