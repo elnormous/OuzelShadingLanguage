@@ -18,10 +18,15 @@ bool OutputHLSL::output(const ASTContext& context, const std::string& outputFile
         return EXIT_FAILURE;
     }
 
-    if (!printConstruct(context.getTranslationUnit(), Options(0), code))
+    for (Declaration* declaration : context.declarations)
     {
-        std::cerr << "Failed to print code" << std::endl;
-        return EXIT_FAILURE;
+        if (!printConstruct(declaration, Options(0), code))
+        {
+            return false;
+        }
+
+        // TODO: remove
+        code += "\n";
     }
 
     file << code;
@@ -35,42 +40,6 @@ bool OutputHLSL::printConstruct(const Construct* construct, Options options, std
     {
         case Construct::Kind::NONE:
         {
-            break;
-        }
-
-        case Construct::Kind::TYPE_SIMPLE:
-        {
-            break;
-        }
-
-        case Construct::Kind::TYPE_STRUCT:
-        {
-            break;
-        }
-
-        case Construct::Kind::FIELD:
-        {
-            code.append(options.indentation, ' ');
-
-            const Field* field = static_cast<const Field*>(construct);
-            code += field->qualifiedType.type->name + " " + field->name;
-            break;
-        }
-
-        case Construct::Kind::TRANSLATION_UNIT:
-        {
-            const TranslationUnit* translationUnit = static_cast<const TranslationUnit*>(construct);
-
-            for (Declaration* declaration : translationUnit->declarations)
-            {
-                if (!printConstruct(declaration, options, code))
-                {
-                    return false;
-                }
-
-                // TODO: remove
-                code += "\n";
-            }
             break;
         }
 
@@ -280,10 +249,14 @@ bool OutputHLSL::printConstruct(const Construct* construct, Options options, std
 
             code += ".";
 
-            if (!printConstruct(memberExpression->field, Options(0), code))
+            if (!memberExpression->field)
             {
+                std::cerr << "Field does not exist";
                 return false;
             }
+
+            code += memberExpression->field->name;
+
             break;
         }
 

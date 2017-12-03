@@ -29,10 +29,6 @@ public:
     enum class Kind
     {
         NONE,
-        TYPE_SIMPLE,
-        TYPE_STRUCT,
-        FIELD,
-        TRANSLATION_UNIT,
         DECLARATION_EMPTY,
         DECLARATION_STRUCT,
         DECLARATION_FIELD,
@@ -72,10 +68,6 @@ inline std::string nodeKindToString(Construct::Kind type)
     switch (type)
     {
         case Construct::Kind::NONE: return "NONE";
-        case Construct::Kind::TYPE_SIMPLE: return "TYPE_SIMPLE";
-        case Construct::Kind::TYPE_STRUCT: return "TYPE_STRUCT";
-        case Construct::Kind::FIELD: return "FIELD";
-        case Construct::Kind::TRANSLATION_UNIT: return "TRANSLATION_UNIT";
         case Construct::Kind::DECLARATION_EMPTY: return "DECLARATION_EMPTY";
         case Construct::Kind::DECLARATION_STRUCT: return "DECLARATION_STRUCT";
         case Construct::Kind::DECLARATION_FIELD: return "DECLARATION_FIELD";
@@ -131,11 +123,12 @@ inline std::string semanticToString(Semantic semantic)
 
 class TypeDeclaration;
 
-class Type: public Construct
+class Type
 {
 public:
     std::string name;
     TypeDeclaration* declaration = nullptr;
+    bool record = false;
 };
 
 class QualifiedType
@@ -163,7 +156,7 @@ public:
 class StructType;
 class FieldDeclaration;
 
-class Field: public Construct
+class Field
 {
 public:
     StructType* structType = nullptr;
@@ -188,12 +181,6 @@ public:
 class Declaration: public Construct
 {
 public:
-};
-
-class TranslationUnit: public Construct
-{
-public:
-    std::vector<Declaration*> declarations;
 };
 
 class TypeDeclaration: public Declaration
@@ -392,9 +379,9 @@ public:
     ASTContext();
     bool parse(const std::vector<Token>& tokens);
 
-    const TranslationUnit* getTranslationUnit() const { return translationUnit; }
-
     void dump() const;
+
+    std::vector<Declaration*> declarations;
 
 private:
     bool checkToken(Token::Type tokenType,
@@ -428,9 +415,9 @@ private:
         return false;
     }
 
-    Declaration* findDeclaration(const std::string& name, std::vector<std::vector<Declaration*>>& declarations) const
+    Declaration* findDeclaration(const std::string& name, std::vector<std::vector<Declaration*>>& declarationScopes) const
     {
-        for (auto i = declarations.crbegin(); i != declarations.crend(); ++i)
+        for (auto i = declarationScopes.crbegin(); i != declarationScopes.crend(); ++i)
         {
             for (Declaration* declaration : *i)
             {
@@ -469,9 +456,9 @@ private:
         return nullptr;
     }
 
-    Type* findType(const std::string& name, std::vector<std::vector<Declaration*>>& declarations) const
+    Type* findType(const std::string& name, std::vector<std::vector<Declaration*>>& declarationScopes) const
     {
-        for (auto i = declarations.crbegin(); i != declarations.crend(); ++i)
+        for (auto i = declarationScopes.crbegin(); i != declarationScopes.crend(); ++i)
         {
             for (Declaration* declaration : *i)
             {
@@ -483,7 +470,7 @@ private:
             }
         }
 
-        for (auto i = builtinTypes.cbegin(); i != builtinTypes.cend(); ++i)
+        for (auto i = types.cbegin(); i != types.cend(); ++i)
         {
             if ((*i)->name == name) return (*i).get();
         }
@@ -501,129 +488,127 @@ private:
         return nullptr;
     }
 
-    TranslationUnit* parseTopLevel(const std::vector<Token>& tokens,
-                                   std::vector<Token>::const_iterator& iterator,
-                                   std::vector<std::vector<Declaration*>>& declarations);
-
     bool isDeclaration(const std::vector<Token>& tokens,
                        std::vector<Token>::const_iterator& iterator,
-                       std::vector<std::vector<Declaration*>>& declarations) const;
+                       std::vector<std::vector<Declaration*>>& declarationScopes) const;
 
     Declaration* parseDeclaration(const std::vector<Token>& tokens,
                                   std::vector<Token>::const_iterator& iterator,
-                                  std::vector<std::vector<Declaration*>>& declarations);
+                                  std::vector<std::vector<Declaration*>>& declarationScopes);
 
     StructDeclaration* parseStructDeclaration(const std::vector<Token>& tokens,
                                               std::vector<Token>::const_iterator& iterator,
-                                              std::vector<std::vector<Declaration*>>& declarations);
+                                              std::vector<std::vector<Declaration*>>& declarationScopes);
 
     /*TypeDefinitionDeclaration* parseTypeDefinitionDeclaration(const std::vector<Token>& tokens,
                                                               std::vector<Token>::const_iterator& iterator,
-                                                              std::vector<std::vector<Declaration*>>& declarations);*/
+                                                              std::vector<std::vector<Declaration*>>& declarationScopes);*/
 
     FunctionDeclaration* parseFunctionDeclaration(const std::vector<Token>& tokens,
                                                   std::vector<Token>::const_iterator& iterator,
-                                                  std::vector<std::vector<Declaration*>>& declarations);
+                                                  std::vector<std::vector<Declaration*>>& declarationScopes);
 
     VariableDeclaration* parseVariableDeclaration(const std::vector<Token>& tokens,
                                                   std::vector<Token>::const_iterator& iterator,
-                                                  std::vector<std::vector<Declaration*>>& declarations);
+                                                  std::vector<std::vector<Declaration*>>& declarationScopes);
 
     Statement* parseStatement(const std::vector<Token>& tokens,
                               std::vector<Token>::const_iterator& iterator,
-                              std::vector<std::vector<Declaration*>>& declarations);
+                              std::vector<std::vector<Declaration*>>& declarationScopes);
 
     CompoundStatement* parseCompoundStatement(const std::vector<Token>& tokens,
                                               std::vector<Token>::const_iterator& iterator,
-                                              std::vector<std::vector<Declaration*>>& declarations);
+                                              std::vector<std::vector<Declaration*>>& declarationScopes);
 
     IfStatement* parseIfStatement(const std::vector<Token>& tokens,
                                   std::vector<Token>::const_iterator& iterator,
-                                  std::vector<std::vector<Declaration*>>& declarations);
+                                  std::vector<std::vector<Declaration*>>& declarationScopes);
 
     ForStatement* parseForStatement(const std::vector<Token>& tokens,
                                     std::vector<Token>::const_iterator& iterator,
-                                    std::vector<std::vector<Declaration*>>& declarations);
+                                    std::vector<std::vector<Declaration*>>& declarationScopes);
 
     SwitchStatement* parseSwitchStatement(const std::vector<Token>& tokens,
                                           std::vector<Token>::const_iterator& iterator,
-                                          std::vector<std::vector<Declaration*>>& declarations);
+                                          std::vector<std::vector<Declaration*>>& declarationScopes);
 
     CaseStatement* parseCaseStatement(const std::vector<Token>& tokens,
                                       std::vector<Token>::const_iterator& iterator,
-                                      std::vector<std::vector<Declaration*>>& declarations);
+                                      std::vector<std::vector<Declaration*>>& declarationScopes);
 
     WhileStatement* parseWhileStatement(const std::vector<Token>& tokens,
                                         std::vector<Token>::const_iterator& iterator,
-                                        std::vector<std::vector<Declaration*>>& declarations);
+                                        std::vector<std::vector<Declaration*>>& declarationScopes);
 
     DoStatement* parseDoStatement(const std::vector<Token>& tokens,
                                   std::vector<Token>::const_iterator& iterator,
-                                  std::vector<std::vector<Declaration*>>& declarations);
+                                  std::vector<std::vector<Declaration*>>& declarationScopes);
 
     ReturnStatement* parseReturnStatement(const std::vector<Token>& tokens,
                                           std::vector<Token>::const_iterator& iterator,
-                                          std::vector<std::vector<Declaration*>>& declarations);
+                                          std::vector<std::vector<Declaration*>>& declarationScopes);
 
     Expression* parseExpression(const std::vector<Token>& tokens,
                                 std::vector<Token>::const_iterator& iterator,
-                                std::vector<std::vector<Declaration*>>& declarations);
+                                std::vector<std::vector<Declaration*>>& declarationScopes);
 
     Expression* parseMultiplicationAssignment(const std::vector<Token>& tokens,
                                               std::vector<Token>::const_iterator& iterator,
-                                              std::vector<std::vector<Declaration*>>& declarations);
+                                              std::vector<std::vector<Declaration*>>& declarationScopes);
 
     Expression* parseAdditionAssignment(const std::vector<Token>& tokens,
                                         std::vector<Token>::const_iterator& iterator,
-                                        std::vector<std::vector<Declaration*>>& declarations);
+                                        std::vector<std::vector<Declaration*>>& declarationScopes);
 
     Expression* parseAssignment(const std::vector<Token>& tokens,
                                 std::vector<Token>::const_iterator& iterator,
-                                std::vector<std::vector<Declaration*>>& declarations);
+                                std::vector<std::vector<Declaration*>>& declarationScopes);
 
     Expression* parseTernary(const std::vector<Token>& tokens,
                              std::vector<Token>::const_iterator& iterator,
-                             std::vector<std::vector<Declaration*>>& declarations);
+                             std::vector<std::vector<Declaration*>>& declarationScopes);
 
     Expression* parseEquality(const std::vector<Token>& tokens,
                               std::vector<Token>::const_iterator& iterator,
-                              std::vector<std::vector<Declaration*>>& declarations);
+                              std::vector<std::vector<Declaration*>>& declarationScopes);
 
     Expression* parseGreaterThan(const std::vector<Token>& tokens,
                                  std::vector<Token>::const_iterator& iterator,
-                                 std::vector<std::vector<Declaration*>>& declarations);
+                                 std::vector<std::vector<Declaration*>>& declarationScopes);
 
     Expression* parseLessThan(const std::vector<Token>& tokens,
                               std::vector<Token>::const_iterator& iterator,
-                              std::vector<std::vector<Declaration*>>& declarations);
+                              std::vector<std::vector<Declaration*>>& declarationScopes);
 
     Expression* parseAddition(const std::vector<Token>& tokens,
                               std::vector<Token>::const_iterator& iterator,
-                              std::vector<std::vector<Declaration*>>& declarations);
+                              std::vector<std::vector<Declaration*>>& declarationScopes);
 
     Expression* parseMultiplication(const std::vector<Token>& tokens,
                                     std::vector<Token>::const_iterator& iterator,
-                                    std::vector<std::vector<Declaration*>>& declarations);
+                                    std::vector<std::vector<Declaration*>>& declarationScopes);
 
     Expression* parseNot(const std::vector<Token>& tokens,
                          std::vector<Token>::const_iterator& iterator,
-                         std::vector<std::vector<Declaration*>>& declarations);
+                         std::vector<std::vector<Declaration*>>& declarationScopes);
 
     Expression* parseSign(const std::vector<Token>& tokens,
                           std::vector<Token>::const_iterator& iterator,
-                          std::vector<std::vector<Declaration*>>& declarations);
+                          std::vector<std::vector<Declaration*>>& declarationScopes);
 
     Expression* parseMember(const std::vector<Token>& tokens,
                             std::vector<Token>::const_iterator& iterator,
-                            std::vector<std::vector<Declaration*>>& declarations);
+                            std::vector<std::vector<Declaration*>>& declarationScopes);
 
     Expression* parsePrimary(const std::vector<Token>& tokens,
                              std::vector<Token>::const_iterator& iterator,
-                             std::vector<std::vector<Declaration*>>& declarations);
+                             std::vector<std::vector<Declaration*>>& declarationScopes);
 
-    void dumpNode(const Construct* node, std::string indent = std::string()) const;
-    
-    TranslationUnit* translationUnit = nullptr;
+    void dumpType(const Type* type, std::string indent = std::string()) const;
+    void dumpField(const Field* field, std::string indent = std::string()) const;
+    void dumpConstruct(const Construct* node, std::string indent = std::string()) const;
+
     std::vector<std::unique_ptr<Construct>> constructs;
-    std::vector<std::unique_ptr<Type>> builtinTypes;
+    std::vector<std::unique_ptr<Type>> types;
+    std::vector<std::unique_ptr<Field>> fields;
 };
