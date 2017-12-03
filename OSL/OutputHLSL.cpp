@@ -34,26 +34,26 @@ bool OutputHLSL::output(const ASTContext& context, const std::string& outputFile
     return true;
 }
 
-bool OutputHLSL::printConstruct(const Construct* construct, Options options, std::string& code)
+bool OutputHLSL::printDeclaration(const Declaration* declaration, Options options, std::string& code)
 {
-    switch (construct->kind)
+    switch (declaration->declarationKind)
     {
-        case Construct::Kind::NONE:
+        case Declaration::Kind::NONE:
         {
             break;
         }
 
-        case Construct::Kind::DECLARATION_EMPTY:
+        case Declaration::Kind::EMPTY:
         {
             code.append(options.indentation, ' ');
             break;
         }
 
-        case Construct::Kind::DECLARATION_STRUCT:
+        case Declaration::Kind::STRUCT:
         {
             code.append(options.indentation, ' ');
 
-            const StructDeclaration* structDeclaration = static_cast<const StructDeclaration*>(construct);
+            const StructDeclaration* structDeclaration = static_cast<const StructDeclaration*>(declaration);
             code += "struct " + structDeclaration->type->name;
 
             if (!structDeclaration->fieldDeclarations.empty())
@@ -78,20 +78,20 @@ bool OutputHLSL::printConstruct(const Construct* construct, Options options, std
             break;
         }
 
-        case Construct::Kind::DECLARATION_FIELD:
+        case Declaration::Kind::FIELD:
         {
             code.append(options.indentation, ' ');
 
-            const FieldDeclaration* fieldDeclaration = static_cast<const FieldDeclaration*>(construct);
+            const FieldDeclaration* fieldDeclaration = static_cast<const FieldDeclaration*>(declaration);
             code += fieldDeclaration->field->qualifiedType.type->name + " " + fieldDeclaration->field->name;
             break;
         }
 
-        case Construct::Kind::DECLARATION_FUNCTION:
+        case Declaration::Kind::FUNCTION:
         {
             code.append(options.indentation, ' ');
 
-            const FunctionDeclaration* functionDeclaration = static_cast<const FunctionDeclaration*>(construct);
+            const FunctionDeclaration* functionDeclaration = static_cast<const FunctionDeclaration*>(declaration);
 
             code += functionDeclaration->qualifiedType.type->name + " " + functionDeclaration->name + "(";
 
@@ -125,11 +125,11 @@ bool OutputHLSL::printConstruct(const Construct* construct, Options options, std
             break;
         }
 
-        case Construct::Kind::DECLARATION_VARIABLE:
+        case Declaration::Kind::VARIABLE:
         {
             code.append(options.indentation, ' ');
 
-            const VariableDeclaration* variableDeclaration = static_cast<const VariableDeclaration*>(construct);
+            const VariableDeclaration* variableDeclaration = static_cast<const VariableDeclaration*>(declaration);
             code += variableDeclaration->qualifiedType.type->name + " " + variableDeclaration->name;
 
             if (variableDeclaration->initialization)
@@ -144,157 +144,40 @@ bool OutputHLSL::printConstruct(const Construct* construct, Options options, std
             break;
         }
 
-        case Construct::Kind::DECLARATION_PARAMETER:
+        case Declaration::Kind::PARAMETER:
         {
             code.append(options.indentation, ' ');
-
-            const ParameterDeclaration* parameterDeclaration = static_cast<const ParameterDeclaration*>(construct);
+            
+            const ParameterDeclaration* parameterDeclaration = static_cast<const ParameterDeclaration*>(declaration);
             code += parameterDeclaration->qualifiedType.type->name + " " + parameterDeclaration->name;
             break;
         }
+    }
 
-        case Construct::Kind::EXPRESSION_CALL:
+    return true;
+}
+
+bool OutputHLSL::printStatement(const Statement* statement, Options options, std::string& code)
+{
+    switch (statement->statementKind)
+    {
+        case Statement::Kind::NONE:
         {
-            code.append(options.indentation, ' ');
-
-            const CallExpression* callExpression = static_cast<const CallExpression*>(construct);
-
-            if (!printConstruct(callExpression->declarationReference, Options(0), code))
-            {
-                return false;
-            }
-
-            code += "(";
-
-            bool firstParameter = true;
-
-            for (Expression* parameter : callExpression->parameters)
-            {
-                if (!firstParameter) code += ", ";
-                firstParameter = false;
-
-                if (!printConstruct(parameter, Options(0), code))
-                {
-                    return false;
-                }
-            }
-
-            code += ")";
             break;
         }
 
-        case Construct::Kind::EXPRESSION_LITERAL:
-        {
-            code.append(options.indentation, ' ');
-
-            const Expression* expression = static_cast<const Expression*>(construct);
-            code += expression->value;
-            break;
-        }
-
-        case Construct::Kind::EXPRESSION_DECLARATION_REFERENCE:
-        {
-            code.append(options.indentation, ' ');
-
-            const DeclarationReferenceExpression* declarationReferenceExpression = static_cast<const DeclarationReferenceExpression*>(construct);
-            Declaration* declaration = declarationReferenceExpression->declaration;
-
-            switch (declaration->kind)
-            {
-                case Construct::Kind::DECLARATION_FUNCTION:
-                {
-                    const FunctionDeclaration* functionDeclaration = static_cast<const FunctionDeclaration*>(declaration);
-                    code += functionDeclaration->name;
-                    break;
-                }
-                case Construct::Kind::DECLARATION_VARIABLE:
-                {
-                    const VariableDeclaration* variableDeclaration = static_cast<const VariableDeclaration*>(declaration);
-                    code += variableDeclaration->name;
-                    break;
-                }
-                default:
-                    return false;
-            }
-
-            break;
-        }
-
-        case Construct::Kind::EXPRESSION_PAREN:
-        {
-            code.append(options.indentation, ' ');
-
-            const ParenExpression* parenExpression = static_cast<const ParenExpression*>(construct);
-            code += "(";
-
-            if (!printConstruct(parenExpression->expression, Options(0), code))
-            {
-                return false;
-            }
-
-            code += ")";
-            break;
-        }
-
-        case Construct::Kind::EXPRESSION_MEMBER:
-        {
-            code.append(options.indentation, ' ');
-
-            const MemberExpression* memberExpression = static_cast<const MemberExpression*>(construct);
-
-            if (!printConstruct(memberExpression->expression, Options(0), code))
-            {
-                return false;
-            }
-
-            code += ".";
-
-            if (!memberExpression->field)
-            {
-                std::cerr << "Field does not exist";
-                return false;
-            }
-
-            code += memberExpression->field->name;
-
-            break;
-        }
-
-        case Construct::Kind::EXPRESSION_ARRAY_SUBSCRIPT:
-        {
-            code.append(options.indentation, ' ');
-
-            const ArraySubscriptExpression* arraySubscriptExpression = static_cast<const ArraySubscriptExpression*>(construct);
-
-            if (!printConstruct(arraySubscriptExpression->declarationReference, Options(0), code))
-            {
-                return false;
-            }
-
-            code += "[";
-
-            if (!printConstruct(arraySubscriptExpression->expression, Options(0), code))
-            {
-                return false;
-            }
-
-            code += "]";
-            
-            break;
-        }
-
-        case Construct::Kind::STATEMENT_EMPTY:
+        case Statement::Kind::EMPTY:
         {
             code.append(options.indentation, ' ');
             code += ";\n";
             break;
         }
 
-        case Construct::Kind::STATEMENT_EXPRESSION:
+        case Statement::Kind::EXPRESSION:
         {
             code.append(options.indentation, ' ');
 
-            const ExpressionStatement* expressionStatement = static_cast<const ExpressionStatement*>(construct);
+            const ExpressionStatement* expressionStatement = static_cast<const ExpressionStatement*>(statement);
             if (!printConstruct(expressionStatement->expression, Options(0), code))
             {
                 return false;
@@ -303,11 +186,11 @@ bool OutputHLSL::printConstruct(const Construct* construct, Options options, std
             break;
         }
 
-        case Construct::Kind::STATEMENT_DECLARATION:
+        case Statement::Kind::DECLARATION:
         {
             code.append(options.indentation, ' ');
 
-            const DeclarationStatement* declarationStatement = static_cast<const DeclarationStatement*>(construct);
+            const DeclarationStatement* declarationStatement = static_cast<const DeclarationStatement*>(statement);
             if (!printConstruct(declarationStatement->declaration, Options(0), code))
             {
                 return false;
@@ -316,9 +199,9 @@ bool OutputHLSL::printConstruct(const Construct* construct, Options options, std
             break;
         }
 
-        case Construct::Kind::STATEMENT_COMPOUND:
+        case Statement::Kind::COMPOUND:
         {
-            const CompoundStatement* compoundStatement = static_cast<const CompoundStatement*>(construct);
+            const CompoundStatement* compoundStatement = static_cast<const CompoundStatement*>(statement);
 
             code.append(options.indentation, ' ');
             code += "{\n";
@@ -336,11 +219,11 @@ bool OutputHLSL::printConstruct(const Construct* construct, Options options, std
             break;
         }
 
-        case Construct::Kind::STATEMENT_IF:
+        case Statement::Kind::IF:
         {
             code.append(options.indentation, ' ');
 
-            const IfStatement* ifStatement = static_cast<const IfStatement*>(construct);
+            const IfStatement* ifStatement = static_cast<const IfStatement*>(statement);
             code += "if (";
 
             if (!printConstruct(ifStatement->condition, Options(0), code))
@@ -350,7 +233,7 @@ bool OutputHLSL::printConstruct(const Construct* construct, Options options, std
 
             code += ")\n";
 
-            if (ifStatement->body->kind == Construct::Kind::STATEMENT_COMPOUND)
+            if (ifStatement->body->statementKind == Statement::Kind::COMPOUND)
             {
                 if (!printConstruct(ifStatement->body, options, code))
                 {
@@ -369,8 +252,8 @@ bool OutputHLSL::printConstruct(const Construct* construct, Options options, std
             {
                 code.append(options.indentation, ' ');
                 code += "else\n";
-                
-                if (ifStatement->elseBody->kind == Construct::Kind::STATEMENT_COMPOUND)
+
+                if (ifStatement->elseBody->statementKind == Statement::Kind::COMPOUND)
                 {
                     if (!printConstruct(ifStatement->elseBody, options, code))
                     {
@@ -388,11 +271,11 @@ bool OutputHLSL::printConstruct(const Construct* construct, Options options, std
             break;
         }
 
-        case Construct::Kind::STATEMENT_FOR:
+        case Statement::Kind::FOR:
         {
             code.append(options.indentation, ' ');
 
-            const ForStatement* forStatement = static_cast<const ForStatement*>(construct);
+            const ForStatement* forStatement = static_cast<const ForStatement*>(statement);
             code += "for (";
 
             if (!printConstruct(forStatement->initialization, Options(0), code))
@@ -416,7 +299,7 @@ bool OutputHLSL::printConstruct(const Construct* construct, Options options, std
 
             code += ")\n";
 
-            if (forStatement->body->kind == Construct::Kind::STATEMENT_COMPOUND)
+            if (forStatement->body->statementKind == Statement::Kind::COMPOUND)
             {
                 if (!printConstruct(forStatement->body, options, code))
                 {
@@ -433,11 +316,11 @@ bool OutputHLSL::printConstruct(const Construct* construct, Options options, std
             break;
         }
 
-        case Construct::Kind::STATEMENT_SWITCH:
+        case Statement::Kind::SWITCH:
         {
             code.append(options.indentation, ' ');
 
-            const SwitchStatement* switchStatement = static_cast<const SwitchStatement*>(construct);
+            const SwitchStatement* switchStatement = static_cast<const SwitchStatement*>(statement);
             code += "switch (";
 
             if (!printConstruct(switchStatement->condition, Options(0), code))
@@ -447,7 +330,7 @@ bool OutputHLSL::printConstruct(const Construct* construct, Options options, std
 
             code += ")\n";
 
-            if (switchStatement->body->kind == Construct::Kind::STATEMENT_COMPOUND)
+            if (switchStatement->body->statementKind == Statement::Kind::COMPOUND)
             {
                 if (!printConstruct(switchStatement->body, options, code))
                 {
@@ -461,15 +344,15 @@ bool OutputHLSL::printConstruct(const Construct* construct, Options options, std
                     return false;
                 }
             }
-            
+
             break;
         }
 
-        case Construct::Kind::STATEMENT_CASE:
+        case Statement::Kind::CASE:
         {
             code.append(options.indentation, ' ');
 
-            const CaseStatement* caseStatement = static_cast<const CaseStatement*>(construct);
+            const CaseStatement* caseStatement = static_cast<const CaseStatement*>(statement);
             code += "case ";
 
             if (!printConstruct(caseStatement->condition, Options(0), code))
@@ -479,7 +362,7 @@ bool OutputHLSL::printConstruct(const Construct* construct, Options options, std
 
             code += ":\n";
 
-            if (caseStatement->body->kind == Construct::Kind::STATEMENT_COMPOUND)
+            if (caseStatement->body->statementKind == Statement::Kind::COMPOUND)
             {
                 if (!printConstruct(caseStatement->body, options, code))
                 {
@@ -495,15 +378,15 @@ bool OutputHLSL::printConstruct(const Construct* construct, Options options, std
 
                 code += ";\n";
             }
-            
+
             break;
         }
 
-        case Construct::Kind::STATEMENT_WHILE:
+        case Statement::Kind::WHILE:
         {
             code.append(options.indentation, ' ');
 
-            const WhileStatement* whileStatement = static_cast<const WhileStatement*>(construct);
+            const WhileStatement* whileStatement = static_cast<const WhileStatement*>(statement);
             code += "while (";
 
             if (!printConstruct(whileStatement->condition, Options(0), code))
@@ -513,7 +396,7 @@ bool OutputHLSL::printConstruct(const Construct* construct, Options options, std
 
             code += ")\n";
 
-            if (whileStatement->body->kind == Construct::Kind::STATEMENT_COMPOUND)
+            if (whileStatement->body->statementKind == Statement::Kind::COMPOUND)
             {
                 if (!printConstruct(whileStatement->body, options, code))
                 {
@@ -530,14 +413,14 @@ bool OutputHLSL::printConstruct(const Construct* construct, Options options, std
             break;
         }
 
-        case Construct::Kind::STATEMENT_DO:
+        case Statement::Kind::DO:
         {
             code.append(options.indentation, ' ');
 
-            const DoStatement* doStatement = static_cast<const DoStatement*>(construct);
+            const DoStatement* doStatement = static_cast<const DoStatement*>(statement);
             code += "do\n";
 
-            if (doStatement->body->kind == Construct::Kind::STATEMENT_COMPOUND)
+            if (doStatement->body->statementKind == Statement::Kind::COMPOUND)
             {
                 if (!printConstruct(doStatement->body, options, code))
                 {
@@ -567,47 +450,189 @@ bool OutputHLSL::printConstruct(const Construct* construct, Options options, std
             break;
         }
 
-        case Construct::Kind::STATEMENT_BREAK:
+        case Statement::Kind::BREAK:
         {
             code.append(options.indentation, ' ');
             code += "break;\n";
             break;
         }
 
-        case Construct::Kind::STATEMENT_CONTINUE:
+        case Statement::Kind::CONTINUE:
         {
             code.append(options.indentation, ' ');
             code += "continue;\n";
             break;
         }
-
-        case Construct::Kind::STATEMENT_RETURN:
+            
+        case Statement::Kind::RETURN:
         {
             code.append(options.indentation, ' ');
-
-            const ReturnStatement* returnStatement = static_cast<const ReturnStatement*>(construct);
+            
+            const ReturnStatement* returnStatement = static_cast<const ReturnStatement*>(statement);
             code += "return";
-
+            
             if (returnStatement->result)
             {
                 code += " ";
-
+                
                 if (!printConstruct(returnStatement->result, Options(0), code))
                 {
                     return false;
                 }
-
+                
                 code += ";\n";
+            }
+            
+            break;
+        }
+    }
+
+    return true;
+}
+
+bool OutputHLSL::printExpression(const Expression* expression, Options options, std::string& code)
+{
+    switch (expression->expressionKind)
+    {
+        case Expression::Kind::NONE:
+        {
+            break;
+        }
+
+        case Expression::Kind::CALL:
+        {
+            code.append(options.indentation, ' ');
+
+            const CallExpression* callExpression = static_cast<const CallExpression*>(expression);
+
+            if (!printConstruct(callExpression->declarationReference, Options(0), code))
+            {
+                return false;
+            }
+
+            code += "(";
+
+            bool firstParameter = true;
+
+            for (Expression* parameter : callExpression->parameters)
+            {
+                if (!firstParameter) code += ", ";
+                firstParameter = false;
+
+                if (!printConstruct(parameter, Options(0), code))
+                {
+                    return false;
+                }
+            }
+
+            code += ")";
+            break;
+        }
+
+        case Expression::Kind::LITERAL:
+        {
+            code.append(options.indentation, ' ');
+
+            code += expression->value;
+            break;
+        }
+
+        case Expression::Kind::DECLARATION_REFERENCE:
+        {
+            code.append(options.indentation, ' ');
+
+            const DeclarationReferenceExpression* declarationReferenceExpression = static_cast<const DeclarationReferenceExpression*>(expression);
+            Declaration* declaration = declarationReferenceExpression->declaration;
+
+            switch (declaration->declarationKind)
+            {
+                case Declaration::Kind::FUNCTION:
+                {
+                    const FunctionDeclaration* functionDeclaration = static_cast<const FunctionDeclaration*>(declaration);
+                    code += functionDeclaration->name;
+                    break;
+                }
+                case Declaration::Kind::VARIABLE:
+                {
+                    const VariableDeclaration* variableDeclaration = static_cast<const VariableDeclaration*>(declaration);
+                    code += variableDeclaration->name;
+                    break;
+                }
+                default:
+                    return false;
             }
 
             break;
         }
 
-        case Construct::Kind::OPERATOR_UNARY:
+        case Expression::Kind::PAREN:
         {
             code.append(options.indentation, ' ');
 
-            const UnaryOperatorExpression* unaryOperatorExpression = static_cast<const UnaryOperatorExpression*>(construct);
+            const ParenExpression* parenExpression = static_cast<const ParenExpression*>(expression);
+            code += "(";
+
+            if (!printConstruct(parenExpression->expression, Options(0), code))
+            {
+                return false;
+            }
+
+            code += ")";
+            break;
+        }
+
+        case Expression::Kind::MEMBER:
+        {
+            code.append(options.indentation, ' ');
+
+            const MemberExpression* memberExpression = static_cast<const MemberExpression*>(expression);
+
+            if (!printConstruct(memberExpression->expression, Options(0), code))
+            {
+                return false;
+            }
+
+            code += ".";
+
+            if (!memberExpression->field)
+            {
+                std::cerr << "Field does not exist";
+                return false;
+            }
+
+            code += memberExpression->field->name;
+
+            break;
+        }
+
+        case Expression::Kind::ARRAY_SUBSCRIPT:
+        {
+            code.append(options.indentation, ' ');
+
+            const ArraySubscriptExpression* arraySubscriptExpression = static_cast<const ArraySubscriptExpression*>(expression);
+
+            if (!printConstruct(arraySubscriptExpression->declarationReference, Options(0), code))
+            {
+                return false;
+            }
+
+            code += "[";
+
+            if (!printConstruct(arraySubscriptExpression->expression, Options(0), code))
+            {
+                return false;
+            }
+
+            code += "]";
+
+            break;
+        }
+
+        case Expression::Kind::UNARY:
+        {
+            code.append(options.indentation, ' ');
+
+            const UnaryOperatorExpression* unaryOperatorExpression = static_cast<const UnaryOperatorExpression*>(expression);
             code += unaryOperatorExpression->value;
 
             if (!printConstruct(unaryOperatorExpression->expression, Options(0), code))
@@ -617,11 +642,11 @@ bool OutputHLSL::printConstruct(const Construct* construct, Options options, std
             break;
         }
 
-        case Construct::Kind::OPERATOR_BINARY:
+        case Expression::Kind::BINARY:
         {
             code.append(options.indentation, ' ');
 
-            const BinaryOperatorExpression* binaryOperatorExpression = static_cast<const BinaryOperatorExpression*>(construct);
+            const BinaryOperatorExpression* binaryOperatorExpression = static_cast<const BinaryOperatorExpression*>(expression);
             if (!printConstruct(binaryOperatorExpression->leftExpression, Options(0), code))
             {
                 return false;
@@ -636,30 +661,64 @@ bool OutputHLSL::printConstruct(const Construct* construct, Options options, std
             break;
         }
 
-        case Construct::Kind::OPERATOR_TERNARY:
+        case Expression::Kind::TERNARY:
         {
             code.append(options.indentation, ' ');
 
-            const TernaryOperatorExpression* ternaryOperatorExpression = static_cast<const TernaryOperatorExpression*>(construct);
+            const TernaryOperatorExpression* ternaryOperatorExpression = static_cast<const TernaryOperatorExpression*>(expression);
 
             if (!printConstruct(ternaryOperatorExpression->condition, Options(0), code))
             {
                 return false;
             }
-
+            
             code += " ? ";
-
+            
             if (!printConstruct(ternaryOperatorExpression->leftExpression, Options(0), code))
             {
                 return false;
             }
-
+            
             code += " : ";
-
+            
             if (!printConstruct(ternaryOperatorExpression->rightExpression, Options(0), code))
             {
                 return false;
             }
+            break;
+        }
+    }
+
+    return true;
+}
+
+bool OutputHLSL::printConstruct(const Construct* construct, Options options, std::string& code)
+{
+    switch (construct->kind)
+    {
+        case Construct::Kind::NONE:
+        {
+            break;
+        }
+
+        case Construct::Kind::DECLARATION:
+        {
+            const Declaration* declaration = static_cast<const Declaration*>(construct);
+            printDeclaration(declaration, options, code);
+            break;
+        }
+
+        case Construct::Kind::STATEMENT:
+        {
+            const Statement* statement = static_cast<const Statement*>(construct);
+            printStatement(statement, options, code);
+            break;
+        }
+
+        case Construct::Kind::EXPRESSION:
+        {
+            const Expression* expression = static_cast<const Expression*>(construct);
+            printExpression(expression, options, code);
             break;
         }
     }

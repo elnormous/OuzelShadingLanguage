@@ -18,5 +18,8 @@ private:
 
         uint32_t indentation = 0;
     };
+    bool printDeclaration(const Declaration* declaration, Options options, std::string& code);
+    bool printStatement(const Statement* statement, Options options, std::string& code);
+    bool printExpression(const Expression* expression, Options options, std::string& code);
     bool printConstruct(const Construct* construct, Options options, std::string& code);
 };

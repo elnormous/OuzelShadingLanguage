@@ -29,74 +29,22 @@ public:
     enum class Kind
     {
         NONE,
-        DECLARATION_EMPTY,
-        DECLARATION_STRUCT,
-        DECLARATION_FIELD,
-        // DECLARATION_TYPE_DEFINITION, // typedef is not supported in GLSL
-        DECLARATION_FUNCTION,
-        DECLARATION_VARIABLE,
-        DECLARATION_PARAMETER,
-        EXPRESSION_CALL,
-        EXPRESSION_LITERAL,
-        EXPRESSION_DECLARATION_REFERENCE,
-        EXPRESSION_PAREN,
-        EXPRESSION_MEMBER,
-        EXPRESSION_ARRAY_SUBSCRIPT,
-        STATEMENT_EMPTY,
-        STATEMENT_EXPRESSION,
-        STATEMENT_DECLARATION,
-        STATEMENT_COMPOUND,
-        STATEMENT_IF,
-        STATEMENT_FOR,
-        STATEMENT_SWITCH,
-        STATEMENT_CASE,
-        STATEMENT_WHILE,
-        STATEMENT_DO,
-        STATEMENT_BREAK,
-        STATEMENT_CONTINUE,
-        STATEMENT_RETURN,
-        OPERATOR_UNARY,
-        OPERATOR_BINARY,
-        OPERATOR_TERNARY,
+        DECLARATION,
+        STATEMENT,
+        EXPRESSION
     };
 
     Kind kind = Kind::NONE;
 };
 
-inline std::string constructKindToString(Construct::Kind type)
+inline std::string constructKindToString(Construct::Kind kind)
 {
-    switch (type)
+    switch (kind)
     {
         case Construct::Kind::NONE: return "NONE";
-        case Construct::Kind::DECLARATION_EMPTY: return "DECLARATION_EMPTY";
-        case Construct::Kind::DECLARATION_STRUCT: return "DECLARATION_STRUCT";
-        case Construct::Kind::DECLARATION_FIELD: return "DECLARATION_FIELD";
-        //case Construct::Kind::DECLARATION_TYPE_DEFINITION: return "DECLARATION_TYPE_DEFINITION";
-        case Construct::Kind::DECLARATION_FUNCTION: return "DECLARATION_FUNCTION";
-        case Construct::Kind::DECLARATION_VARIABLE: return "DECLARATION_VARIABLE";
-        case Construct::Kind::DECLARATION_PARAMETER: return "DECLARATION_PARAMETER";
-        case Construct::Kind::STATEMENT_EMPTY: return "STATEMENT_EMPTY";
-        case Construct::Kind::STATEMENT_EXPRESSION: return "STATEMENT_EXPRESSION";
-        case Construct::Kind::STATEMENT_DECLARATION: return "STATEMENT_DECLARATION";
-        case Construct::Kind::STATEMENT_COMPOUND: return "STATEMENT_COMPOUND";
-        case Construct::Kind::STATEMENT_IF: return "STATEMENT_IF";
-        case Construct::Kind::STATEMENT_FOR: return "STATEMENT_FOR";
-        case Construct::Kind::STATEMENT_SWITCH: return "STATEMENT_SWITCH";
-        case Construct::Kind::STATEMENT_CASE: return "STATEMENT_CASE";
-        case Construct::Kind::STATEMENT_WHILE: return "STATEMENT_WHILE";
-        case Construct::Kind::STATEMENT_DO: return "STATEMENT_DO";
-        case Construct::Kind::STATEMENT_BREAK: return "STATEMENT_BREAK";
-        case Construct::Kind::STATEMENT_CONTINUE: return "STATEMENT_CONTINUE";
-        case Construct::Kind::STATEMENT_RETURN: return "STATEMENT_RETURN";
-        case Construct::Kind::EXPRESSION_CALL: return "EXPRESSION_CALL";
-        case Construct::Kind::EXPRESSION_LITERAL: return "EXPRESSION_LITERAL";
-        case Construct::Kind::EXPRESSION_DECLARATION_REFERENCE: return "EXPRESSION_DECLARATION_REFERENCE";
-        case Construct::Kind::EXPRESSION_PAREN: return "EXPRESSION_PAREN";
-        case Construct::Kind::EXPRESSION_MEMBER: return "EXPRESSION_MEMBER";
-        case Construct::Kind::EXPRESSION_ARRAY_SUBSCRIPT: return "EXPRESSION_ARRAY_SUBSCRIPT";
-        case Construct::Kind::OPERATOR_UNARY: return "OPERATOR_UNARY";
-        case Construct::Kind::OPERATOR_BINARY: return "OPERATOR_BINARY";
-        case Construct::Kind::OPERATOR_TERNARY: return "OPERATOR_TERNARY";
+        case Construct::Kind::DECLARATION: return "DECLARATION";
+        case Construct::Kind::STATEMENT: return "STATEMENT";
+        case Construct::Kind::EXPRESSION: return "EXPRESSION";
     }
 
     return "unknown";
@@ -126,10 +74,30 @@ class TypeDeclaration;
 class Type
 {
 public:
+    enum class Kind
+    {
+        NONE,
+        BUILTIN,
+        STRUCT
+    };
+
+    Kind typeKind = Kind::NONE;
+
     std::string name;
     TypeDeclaration* declaration = nullptr;
-    bool record = false;
 };
+
+inline std::string typeKindToString(Type::Kind kind)
+{
+    switch (kind)
+    {
+        case Type::Kind::NONE: return "NONE";
+        case Type::Kind::BUILTIN: return "BUILTIN";
+        case Type::Kind::STRUCT: return "STRUCT";
+    }
+
+    return "unknown";
+}
 
 class QualifiedType
 {
@@ -144,14 +112,91 @@ public:
 class Statement: public Construct
 {
 public:
+    enum class Kind
+    {
+        NONE,
+        EMPTY,
+        EXPRESSION,
+        DECLARATION,
+        COMPOUND,
+        IF,
+        FOR,
+        SWITCH,
+        CASE,
+        WHILE,
+        DO,
+        BREAK,
+        CONTINUE,
+        RETURN,
+    };
+
+    Kind statementKind = Kind::NONE;
 };
+
+inline std::string statementKindToString(Statement::Kind kind)
+{
+    switch (kind)
+    {
+        case Statement::Kind::NONE: return "NONE";
+        case Statement::Kind::EMPTY: return "EMPTY";
+        case Statement::Kind::EXPRESSION: return "EXPRESSION";
+        case Statement::Kind::DECLARATION: return "DECLARATION";
+        case Statement::Kind::COMPOUND: return "COMPOUND";
+        case Statement::Kind::IF: return "IF";
+        case Statement::Kind::FOR: return "FOR";
+        case Statement::Kind::SWITCH: return "SWITCH";
+        case Statement::Kind::CASE: return "CASE";
+        case Statement::Kind::WHILE: return "WHILE";
+        case Statement::Kind::DO: return "DO";
+        case Statement::Kind::BREAK: return "BREAK";
+        case Statement::Kind::CONTINUE: return "CONTINUE";
+        case Statement::Kind::RETURN: return "RETURN";
+    }
+
+    return "unknown";
+}
 
 class Expression: public Construct
 {
 public:
+    enum class Kind
+    {
+        NONE,
+        CALL,
+        LITERAL,
+        DECLARATION_REFERENCE,
+        PAREN,
+        MEMBER,
+        ARRAY_SUBSCRIPT,
+        UNARY,
+        BINARY,
+        TERNARY,
+    };
+
+    Kind expressionKind = Kind::NONE;
+
     std::string value;
     QualifiedType qualifiedType;
 };
+
+inline std::string expressionKindToString(Expression::Kind kind)
+{
+    switch (kind)
+    {
+        case Expression::Kind::NONE: return "NONE";
+        case Expression::Kind::CALL: return "CALL";
+        case Expression::Kind::LITERAL: return "LITERAL";
+        case Expression::Kind::DECLARATION_REFERENCE: return "DECLARATION_REFERENCE";
+        case Expression::Kind::PAREN: return "PAREN";
+        case Expression::Kind::MEMBER: return "MEMBER";
+        case Expression::Kind::ARRAY_SUBSCRIPT: return "ARRAY_SUBSCRIPT";
+        case Expression::Kind::UNARY: return "UNARY";
+        case Expression::Kind::BINARY: return "BINARY";
+        case Expression::Kind::TERNARY: return "TERNARY";
+    }
+
+    return "unknown";
+}
 
 class StructType;
 class FieldDeclaration;
@@ -181,7 +226,37 @@ public:
 class Declaration: public Construct
 {
 public:
+    enum class Kind
+    {
+        NONE,
+        EMPTY,
+        STRUCT,
+        FIELD,
+        //TYPE_DEFINITION, // typedef is not supported in GLSL
+        FUNCTION,
+        VARIABLE,
+        PARAMETER
+    };
+
+    Kind declarationKind = Kind::NONE;
 };
+
+inline std::string declarationKindToString(Declaration::Kind kind)
+{
+    switch (kind)
+    {
+        case Declaration::Kind::NONE: return "NONE";
+        case Declaration::Kind::EMPTY: return "EMPTY";
+        case Declaration::Kind::STRUCT: return "STRUCT";
+        case Declaration::Kind::FIELD: return "FIELD";
+        //case Declaration::Kind::TYPE_DEFINITION: return "TYPE_DEFINITION";
+        case Declaration::Kind::FUNCTION: return "FUNCTION";
+        case Declaration::Kind::VARIABLE: return "VARIABLE";
+        case Declaration::Kind::PARAMETER: return "PARAMETER";
+    }
+
+    return "unknown";
+}
 
 class TypeDeclaration: public Declaration
 {
@@ -421,27 +496,27 @@ private:
         {
             for (Declaration* declaration : *i)
             {
-                switch (declaration->kind)
+                switch (declaration->declarationKind)
                 {
-                    case Construct::Kind::DECLARATION_STRUCT:
+                    case Declaration::Kind::STRUCT:
                     {
                         StructDeclaration* structDeclaration = static_cast<StructDeclaration*>(declaration);
                         if (structDeclaration->type->name == name) return declaration;
                         break;
                     }
-                    case Construct::Kind::DECLARATION_FUNCTION:
+                    case Declaration::Kind::FUNCTION:
                     {
                         FunctionDeclaration* functionDeclaration = static_cast<FunctionDeclaration*>(declaration);
                         if (functionDeclaration->name == name) return declaration;
                         break;
                     }
-                    case Construct::Kind::DECLARATION_VARIABLE:
+                    case Declaration::Kind::VARIABLE:
                     {
                         VariableDeclaration* variableDeclaration = static_cast<VariableDeclaration*>(declaration);
                         if (variableDeclaration->name == name) return declaration;
                         break;
                     }
-                    case Construct::Kind::DECLARATION_PARAMETER:
+                    case Declaration::Kind::PARAMETER:
                     {
                         ParameterDeclaration* parameterDeclaration = static_cast<ParameterDeclaration*>(declaration);
                         if (parameterDeclaration->name == name) return declaration;
@@ -462,7 +537,7 @@ private:
         {
             for (Declaration* declaration : *i)
             {
-                if (declaration->kind == Construct::Kind::DECLARATION_STRUCT)
+                if (declaration->declarationKind == Declaration::Kind::STRUCT)
                 {
                     StructDeclaration* structDeclaration = static_cast<StructDeclaration*>(declaration);
                     if (structDeclaration->type->name == name) return structDeclaration->type;
@@ -607,6 +682,9 @@ private:
 
     void dumpType(const Type* type, std::string indent = std::string()) const;
     void dumpField(const Field* field, std::string indent = std::string()) const;
+    void dumpDeclaration(const Declaration* declaration, std::string indent = std::string()) const;
+    void dumpStatement(const Statement* statement, std::string indent = std::string()) const;
+    void dumpExpression(const Expression* expression, std::string indent = std::string()) const;
     void dumpConstruct(const Construct* construct, std::string indent = std::string()) const;
 
     std::vector<std::unique_ptr<Construct>> constructs;

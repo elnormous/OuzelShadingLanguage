@@ -22,47 +22,50 @@ bool ASTContext::parse(const std::vector<Token>& tokens)
     declarations.clear();
 
     std::unique_ptr<SimpleType> boolType(new SimpleType());
+    boolType->typeKind = Type::Kind::BUILTIN;
     boolType->name = "bool";
     boolType->scalar = true;
     types.push_back(std::move(boolType));
 
     std::unique_ptr<SimpleType> intType(new SimpleType());
+    intType->typeKind = Type::Kind::BUILTIN;
     intType->name = "int";
     intType->scalar = true;
     types.push_back(std::move(intType));
 
     std::unique_ptr<SimpleType> floatType(new SimpleType());
+    floatType->typeKind = Type::Kind::BUILTIN;
     floatType->name = "float";
     floatType->scalar = true;
     types.push_back(std::move(floatType));
 
     std::unique_ptr<StructType> vec2Type(new StructType());
+    vec2Type->typeKind = Type::Kind::STRUCT;
     vec2Type->name = "vec2";
-    vec2Type->record = true;
     types.push_back(std::move(vec2Type));
 
     std::unique_ptr<StructType> vec3Type(new StructType());
+    vec3Type->typeKind = Type::Kind::STRUCT;
     vec3Type->name = "vec3";
-    vec3Type->record = true;
     types.push_back(std::move(vec3Type));
 
     std::unique_ptr<StructType> vec4Type(new StructType());
+    vec4Type->typeKind = Type::Kind::STRUCT;
     vec4Type->name = "vec4";
-    vec4Type->record = true;
     types.push_back(std::move(vec4Type));
 
     std::unique_ptr<StructType> stringType(new StructType());
-    stringType->record = true;
+    stringType->typeKind = Type::Kind::STRUCT;
     stringType->name = "string";
     types.push_back(std::move(stringType));
 
     std::unique_ptr<StructType> samplerStateType(new StructType());
-    samplerStateType->record = true;
+    samplerStateType->typeKind = Type::Kind::STRUCT;
     samplerStateType->name = "SamplerState";
     types.push_back(std::move(samplerStateType));
 
     std::unique_ptr<StructType> texture2DType(new StructType());
-    texture2DType->record = true;
+    texture2DType->typeKind = Type::Kind::STRUCT;
     texture2DType->name = "Texture2D";
     types.push_back(std::move(texture2DType));
 
@@ -151,7 +154,8 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
     {
         Declaration* declaration = new Declaration();
         constructs.push_back(std::unique_ptr<Construct>(declaration));
-        declaration->kind = Construct::Kind::DECLARATION_EMPTY;
+        declaration->kind = Construct::Kind::DECLARATION;
+        declaration->declarationKind = Declaration::Kind::EMPTY;
 
         return declaration;
     }
@@ -174,11 +178,12 @@ StructDeclaration* ASTContext::parseStructDeclaration(const std::vector<Token>& 
 
     StructDeclaration* result = new StructDeclaration();
     constructs.push_back(std::unique_ptr<Construct>(result));
-    result->kind = Construct::Kind::DECLARATION_STRUCT;
+    result->kind = Construct::Kind::DECLARATION;
+    result->declarationKind = Declaration::Kind::STRUCT;
 
     StructType* type = new StructType();
     types.push_back(std::unique_ptr<Type>(type));
-    type->record = true;
+    type->typeKind = Type::Kind::STRUCT;
     type->name = (iterator - 1)->value;
     type->declaration = result;
     result->type = type;
@@ -202,7 +207,8 @@ StructDeclaration* ASTContext::parseStructDeclaration(const std::vector<Token>& 
             {
                 FieldDeclaration* fieldDeclaration = new FieldDeclaration();
                 constructs.push_back(std::unique_ptr<Construct>(fieldDeclaration));
-                fieldDeclaration->kind = Construct::Kind::DECLARATION_FIELD;
+                fieldDeclaration->kind = Construct::Kind::DECLARATION;
+                fieldDeclaration->declarationKind = Declaration::Kind::FIELD;
 
                 if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
                 {
@@ -405,7 +411,8 @@ FunctionDeclaration* ASTContext::parseFunctionDeclaration(const std::vector<Toke
 
     FunctionDeclaration* result = new FunctionDeclaration();
     constructs.push_back(std::unique_ptr<Construct>(result));
-    result->kind = Construct::Kind::DECLARATION_FUNCTION;
+    result->kind = Construct::Kind::DECLARATION;
+    result->declarationKind = Declaration::Kind::FUNCTION;
     result->name = (iterator - 1)->value;
 
     if (!checkToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
@@ -429,7 +436,8 @@ FunctionDeclaration* ASTContext::parseFunctionDeclaration(const std::vector<Toke
 
             ParameterDeclaration* parameter = new ParameterDeclaration();
             constructs.push_back(std::unique_ptr<Construct>(parameter));
-            parameter->kind = Construct::Kind::DECLARATION_PARAMETER;
+            parameter->kind = Construct::Kind::DECLARATION;
+            parameter->declarationKind = Declaration::Kind::PARAMETER;
             parameter->name = (iterator - 1)->value;
 
             if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
@@ -524,7 +532,8 @@ VariableDeclaration* ASTContext::parseVariableDeclaration(const std::vector<Toke
 {
     VariableDeclaration* result = new VariableDeclaration();
     constructs.push_back(std::unique_ptr<VariableDeclaration>(result));
-    result->kind = Construct::Kind::DECLARATION_VARIABLE;
+    result->kind = Construct::Kind::DECLARATION;
+    result->declarationKind = Declaration::Kind::VARIABLE;
 
     if (iterator->type == Token::Type::KEYWORD_STATIC)
     {
@@ -639,7 +648,8 @@ Statement* ASTContext::parseStatement(const std::vector<Token>& tokens,
     {
         BreakStatement* result = new BreakStatement();
         constructs.push_back(std::unique_ptr<Construct>(result));
-        result->kind = Construct::Kind::STATEMENT_BREAK;
+        result->kind = Construct::Kind::STATEMENT;
+        result->statementKind = Statement::Kind::BREAK;
 
         if (!checkToken(Token::Type::SEMICOLON, tokens, iterator))
         {
@@ -653,7 +663,8 @@ Statement* ASTContext::parseStatement(const std::vector<Token>& tokens,
     {
         ContinueStatement* result = new ContinueStatement();
         constructs.push_back(std::unique_ptr<Construct>(result));
-        result->kind = Construct::Kind::STATEMENT_CONTINUE;
+        result->kind = Construct::Kind::STATEMENT;
+        result->statementKind = Statement::Kind::CONTINUE;
 
         if (!checkToken(Token::Type::SEMICOLON, tokens, iterator))
         {
@@ -683,7 +694,8 @@ Statement* ASTContext::parseStatement(const std::vector<Token>& tokens,
 
         DeclarationStatement* declarationStatement = new DeclarationStatement();
         constructs.push_back(std::unique_ptr<Construct>(declarationStatement));
-        declarationStatement->kind = Construct::Kind::STATEMENT_DECLARATION;
+        declarationStatement->kind = Construct::Kind::STATEMENT;
+        declarationStatement->statementKind = Statement::Kind::DECLARATION;
         declarationStatement->declaration = declaration;
 
         return declarationStatement;
@@ -692,7 +704,8 @@ Statement* ASTContext::parseStatement(const std::vector<Token>& tokens,
     {
         Statement* statement = new Statement();
         constructs.push_back(std::unique_ptr<Construct>(statement));
-        statement->kind = Construct::Kind::STATEMENT_EMPTY;
+        statement->kind = Construct::Kind::STATEMENT;
+        statement->statementKind = Statement::Kind::EMPTY;
 
         return statement;
     }
@@ -700,7 +713,8 @@ Statement* ASTContext::parseStatement(const std::vector<Token>& tokens,
     {
         ExpressionStatement* expressionStatement = new ExpressionStatement();
         constructs.push_back(std::unique_ptr<Construct>(expressionStatement));
-        expressionStatement->kind = Construct::Kind::STATEMENT_EXPRESSION;
+        expressionStatement->kind = Construct::Kind::STATEMENT;
+        expressionStatement->statementKind = Statement::Kind::EXPRESSION;
 
         if (!(expressionStatement->expression = parseExpression(tokens, iterator, declarationScopes)))
         {
@@ -727,7 +741,8 @@ CompoundStatement* ASTContext::parseCompoundStatement(const std::vector<Token>& 
 
     CompoundStatement* result = new CompoundStatement();
     constructs.push_back(std::unique_ptr<Construct>(result));
-    result->kind = Construct::Kind::STATEMENT_COMPOUND;
+    result->kind = Construct::Kind::STATEMENT;
+    result->statementKind = Statement::Kind::COMPOUND;
 
     for (;;)
     {
@@ -758,7 +773,8 @@ IfStatement* ASTContext::parseIfStatement(const std::vector<Token>& tokens,
 {
     IfStatement* result = new IfStatement();
     constructs.push_back(std::unique_ptr<Construct>(result));
-    result->kind = Construct::Kind::STATEMENT_IF;
+    result->kind = Construct::Kind::STATEMENT;
+    result->statementKind = Statement::Kind::IF;
 
     if (!checkToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
     {
@@ -816,7 +832,8 @@ ForStatement* ASTContext::parseForStatement(const std::vector<Token>& tokens,
 {
     ForStatement* result = new ForStatement();
     constructs.push_back(std::unique_ptr<Construct>(result));
-    result->kind = Construct::Kind::STATEMENT_FOR;
+    result->kind = Construct::Kind::STATEMENT;
+    result->statementKind = Statement::Kind::FOR;
 
     if (!checkToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
     {
@@ -841,7 +858,8 @@ ForStatement* ASTContext::parseForStatement(const std::vector<Token>& tokens,
     {
         Statement* emptyStatement = new Statement();
         constructs.push_back(std::unique_ptr<Construct>(emptyStatement));
-        result->kind = Construct::Kind::STATEMENT_EMPTY;
+        result->kind = Construct::Kind::STATEMENT;
+        result->statementKind = Statement::Kind::EMPTY;
         result->initialization = emptyStatement;
     }
     else
@@ -875,7 +893,8 @@ ForStatement* ASTContext::parseForStatement(const std::vector<Token>& tokens,
     {
         Statement* emptyStatement = new Statement();
         constructs.push_back(std::unique_ptr<Construct>(emptyStatement));
-        result->kind = Construct::Kind::STATEMENT_EMPTY;
+        result->kind = Construct::Kind::STATEMENT;
+        result->statementKind = Statement::Kind::EMPTY;
         result->initialization = emptyStatement;
     }
     else
@@ -896,7 +915,8 @@ ForStatement* ASTContext::parseForStatement(const std::vector<Token>& tokens,
     {
         Statement* emptyStatement = new Statement();
         constructs.push_back(std::unique_ptr<Construct>(emptyStatement));
-        result->kind = Construct::Kind::STATEMENT_EMPTY;
+        result->kind = Construct::Kind::STATEMENT;
+        result->statementKind = Statement::Kind::EMPTY;
         result->initialization = emptyStatement;
     }
     else
@@ -927,7 +947,8 @@ SwitchStatement* ASTContext::parseSwitchStatement(const std::vector<Token>& toke
 {
     SwitchStatement* result = new SwitchStatement();
     constructs.push_back(std::unique_ptr<Construct>(result));
-    result->kind = Construct::Kind::STATEMENT_SWITCH;
+    result->kind = Construct::Kind::STATEMENT;
+    result->statementKind = Statement::Kind::SWITCH;
 
     if (!checkToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
     {
@@ -970,7 +991,8 @@ CaseStatement* ASTContext::parseCaseStatement(const std::vector<Token>& tokens,
 {
     CaseStatement* result = new CaseStatement();
     constructs.push_back(std::unique_ptr<Construct>(result));
-    result->kind = Construct::Kind::STATEMENT_CASE;
+    result->kind = Construct::Kind::STATEMENT;
+    result->statementKind = Statement::Kind::CASE;
 
     if (!(result->condition = parseExpression(tokens, iterator, declarationScopes)))
     {
@@ -998,7 +1020,8 @@ WhileStatement* ASTContext::parseWhileStatement(const std::vector<Token>& tokens
 {
     WhileStatement* result = new WhileStatement();
     constructs.push_back(std::unique_ptr<Construct>(result));
-    result->kind = Construct::Kind::STATEMENT_WHILE;
+    result->kind = Construct::Kind::STATEMENT;
+    result->statementKind = Statement::Kind::WHILE;
 
     if (!checkToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
     {
@@ -1041,7 +1064,8 @@ DoStatement* ASTContext::parseDoStatement(const std::vector<Token>& tokens,
 {
     DoStatement* result = new DoStatement();
     constructs.push_back(std::unique_ptr<Construct>(result));
-    result->kind = Construct::Kind::STATEMENT_DO;
+    result->kind = Construct::Kind::STATEMENT;
+    result->statementKind = Statement::Kind::DO;
 
     if (!(result->body = parseStatement(tokens, iterator, declarationScopes)))
     {
@@ -1087,7 +1111,8 @@ ReturnStatement* ASTContext::parseReturnStatement(const std::vector<Token>& toke
 {
     ReturnStatement* result = new ReturnStatement();
     constructs.push_back(std::unique_ptr<Construct>(result));
-    result->kind = Construct::Kind::STATEMENT_RETURN;
+    result->kind = Construct::Kind::STATEMENT;
+    result->statementKind = Statement::Kind::RETURN;
 
     if (!(result->result = parseExpression(tokens, iterator, declarationScopes)))
     {
@@ -1125,7 +1150,8 @@ Expression* ASTContext::parseMultiplicationAssignment(const std::vector<Token>& 
     {
         BinaryOperatorExpression* expression = new BinaryOperatorExpression();
         constructs.push_back(std::unique_ptr<Construct>(expression));
-        expression->kind = Construct::Kind::OPERATOR_BINARY;
+        expression->kind = Construct::Kind::EXPRESSION;
+        expression->expressionKind = Expression::Kind::BINARY;
         expression->value = (iterator - 1)->value;
         expression->leftExpression = result;
 
@@ -1158,7 +1184,8 @@ Expression* ASTContext::parseAdditionAssignment(const std::vector<Token>& tokens
     {
         BinaryOperatorExpression* expression = new BinaryOperatorExpression();
         constructs.push_back(std::unique_ptr<Construct>(expression));
-        expression->kind = Construct::Kind::OPERATOR_BINARY;
+        expression->kind = Construct::Kind::EXPRESSION;
+        expression->expressionKind = Expression::Kind::BINARY;
         expression->value = (iterator - 1)->value;
         expression->leftExpression = result;
 
@@ -1190,7 +1217,8 @@ Expression* ASTContext::parseAssignment(const std::vector<Token>& tokens,
     {
         BinaryOperatorExpression* expression = new BinaryOperatorExpression();
         constructs.push_back(std::unique_ptr<Construct>(expression));
-        expression->kind = Construct::Kind::OPERATOR_BINARY;
+        expression->kind = Construct::Kind::EXPRESSION;
+        expression->expressionKind = Expression::Kind::BINARY;
         expression->value = (iterator - 1)->value;
         expression->leftExpression = result;
 
@@ -1222,7 +1250,8 @@ Expression* ASTContext::parseTernary(const std::vector<Token>& tokens,
     {
         TernaryOperatorExpression* expression = new TernaryOperatorExpression();
         constructs.push_back(std::unique_ptr<Construct>(expression));
-        expression->kind = Construct::Kind::OPERATOR_TERNARY;
+        expression->kind = Construct::Kind::EXPRESSION;
+        expression->expressionKind = Expression::Kind::TERNARY;
         expression->value = (iterator - 1)->value;
         expression->condition = result;
 
@@ -1265,7 +1294,8 @@ Expression* ASTContext::parseEquality(const std::vector<Token>& tokens,
     {
         BinaryOperatorExpression* expression = new BinaryOperatorExpression();
         constructs.push_back(std::unique_ptr<Construct>(expression));
-        expression->kind = Construct::Kind::OPERATOR_BINARY;
+        expression->kind = Construct::Kind::EXPRESSION;
+        expression->expressionKind = Expression::Kind::BINARY;
         expression->value = (iterator - 1)->value;
         expression->leftExpression = result;
 
@@ -1297,7 +1327,8 @@ Expression* ASTContext::parseGreaterThan(const std::vector<Token>& tokens,
     {
         BinaryOperatorExpression* expression = new BinaryOperatorExpression();
         constructs.push_back(std::unique_ptr<Construct>(expression));
-        expression->kind = Construct::Kind::OPERATOR_BINARY;
+        expression->kind = Construct::Kind::EXPRESSION;
+        expression->expressionKind = Expression::Kind::BINARY;
         expression->value = (iterator - 1)->value;
         expression->leftExpression = result;
 
@@ -1329,7 +1360,8 @@ Expression* ASTContext::parseLessThan(const std::vector<Token>& tokens,
     {
         BinaryOperatorExpression* expression = new BinaryOperatorExpression();
         constructs.push_back(std::unique_ptr<Construct>(expression));
-        expression->kind = Construct::Kind::OPERATOR_BINARY;
+        expression->kind = Construct::Kind::EXPRESSION;
+        expression->expressionKind = Expression::Kind::BINARY;
         expression->value = (iterator - 1)->value;
         expression->leftExpression = result;
 
@@ -1361,7 +1393,8 @@ Expression* ASTContext::parseAddition(const std::vector<Token>& tokens,
     {
         BinaryOperatorExpression* expression = new BinaryOperatorExpression();
         constructs.push_back(std::unique_ptr<Construct>(expression));
-        expression->kind = Construct::Kind::OPERATOR_BINARY;
+        expression->kind = Construct::Kind::EXPRESSION;
+        expression->expressionKind = Expression::Kind::BINARY;
         expression->value = (iterator - 1)->value;
         expression->leftExpression = result;
 
@@ -1393,7 +1426,8 @@ Expression* ASTContext::parseMultiplication(const std::vector<Token>& tokens,
     {
         BinaryOperatorExpression* expression = new BinaryOperatorExpression();
         constructs.push_back(std::unique_ptr<Construct>(expression));
-        expression->kind = Construct::Kind::OPERATOR_BINARY;
+        expression->kind = Construct::Kind::EXPRESSION;
+        expression->expressionKind = Expression::Kind::BINARY;
         expression->value = (iterator - 1)->value;
         expression->leftExpression = result;
 
@@ -1419,7 +1453,8 @@ Expression* ASTContext::parseNot(const std::vector<Token>& tokens,
     {
         UnaryOperatorExpression* result = new UnaryOperatorExpression();
         constructs.push_back(std::unique_ptr<Construct>(result));
-        result->kind = Construct::Kind::OPERATOR_UNARY;
+        result->kind = Construct::Kind::EXPRESSION;
+        result->expressionKind = Expression::Kind::UNARY;
         result->value = (iterator - 1)->value;
 
         if (!(result->expression = parseSign(tokens, iterator, declarationScopes)))
@@ -1451,7 +1486,8 @@ Expression* ASTContext::parseSign(const std::vector<Token>& tokens,
     {
         UnaryOperatorExpression* result = new UnaryOperatorExpression();
         constructs.push_back(std::unique_ptr<Construct>(result));
-        result->kind = Construct::Kind::OPERATOR_UNARY;
+        result->kind = Construct::Kind::EXPRESSION;
+        result->expressionKind = Expression::Kind::UNARY;
         result->value = (iterator - 1)->value;
 
         if (!(result->expression = parseMember(tokens, iterator, declarationScopes)))
@@ -1489,7 +1525,8 @@ Expression* ASTContext::parseMember(const std::vector<Token>& tokens,
     {
         MemberExpression* expression = new MemberExpression();
         constructs.push_back(std::unique_ptr<Construct>(expression));
-        expression->kind = Construct::Kind::EXPRESSION_MEMBER;
+        expression->kind = Construct::Kind::EXPRESSION;
+        expression->expressionKind = Expression::Kind::MEMBER;
         expression->expression = result;
 
         if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
@@ -1504,7 +1541,7 @@ Expression* ASTContext::parseMember(const std::vector<Token>& tokens,
             return nullptr;
         }
 
-        if (!result->qualifiedType.type->record)
+        if (result->qualifiedType.type->typeKind != Type::Kind::STRUCT)
         {
             std::cerr << result->qualifiedType.type->name << " is not a structure" << std::endl;
             return nullptr;
@@ -1536,7 +1573,8 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
     {
         Expression* result = new Expression();
         constructs.push_back(std::unique_ptr<Construct>(result));
-        result->kind = Construct::Kind::EXPRESSION_LITERAL;
+        result->kind = Construct::Kind::EXPRESSION;
+        result->expressionKind = Expression::Kind::LITERAL;
         result->qualifiedType.type = findType("int", declarationScopes);
         result->value = (iterator - 1)->value;
         return result;
@@ -1545,7 +1583,8 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
     {
         Expression* result = new Expression();
         constructs.push_back(std::unique_ptr<Construct>(result));
-        result->kind = Construct::Kind::EXPRESSION_LITERAL;
+        result->kind = Construct::Kind::EXPRESSION;
+        result->expressionKind = Expression::Kind::LITERAL;
         result->qualifiedType.type = findType("float", declarationScopes);
         result->value = (iterator - 1)->value;
         return result;
@@ -1554,7 +1593,8 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
     {
         Expression* result = new Expression();
         constructs.push_back(std::unique_ptr<Construct>(result));
-        result->kind = Construct::Kind::EXPRESSION_LITERAL;
+        result->kind = Construct::Kind::EXPRESSION;
+        result->expressionKind = Expression::Kind::LITERAL;
         result->qualifiedType.type = findType("string", declarationScopes);
         result->value = (iterator - 1)->value;
         return result;
@@ -1563,7 +1603,8 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
     {
         Expression* result = new Expression();
         constructs.push_back(std::unique_ptr<Construct>(result));
-        result->kind = Construct::Kind::EXPRESSION_LITERAL;
+        result->kind = Construct::Kind::EXPRESSION;
+        result->expressionKind = Expression::Kind::LITERAL;
         result->qualifiedType.type = findType("bool", declarationScopes);
         result->value = (iterator - 1)->value;
         return result;
@@ -1576,11 +1617,13 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
         {
             CallExpression* result = new CallExpression();
             constructs.push_back(std::unique_ptr<Construct>(result));
-            result->kind = Construct::Kind::EXPRESSION_CALL;
+            result->kind = Construct::Kind::EXPRESSION;
+            result->expressionKind = Expression::Kind::CALL;
 
             DeclarationReferenceExpression* declRefExpression = new DeclarationReferenceExpression();
             constructs.push_back(std::unique_ptr<Construct>(declRefExpression));
-            declRefExpression->kind = Construct::Kind::EXPRESSION_DECLARATION_REFERENCE;
+            declRefExpression->kind = Construct::Kind::EXPRESSION;
+            declRefExpression->expressionKind = Expression::Kind::DECLARATION_REFERENCE;
             declRefExpression->declaration = findDeclaration(name, declarationScopes);
 
             if (!declRefExpression->declaration)
@@ -1591,7 +1634,7 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
 
             result->declarationReference = declRefExpression;
 
-            if (declRefExpression->declaration->kind != Construct::Kind::DECLARATION_FUNCTION)
+            if (declRefExpression->declaration->declarationKind != Declaration::Kind::FUNCTION)
             {
                 std::cerr << name << " is not a function" << std::endl;
                 return nullptr;
@@ -1630,11 +1673,13 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
         {
             ArraySubscriptExpression* result = new ArraySubscriptExpression();
             constructs.push_back(std::unique_ptr<Construct>(result));
-            result->kind = Construct::Kind::EXPRESSION_ARRAY_SUBSCRIPT;
+            result->kind = Construct::Kind::EXPRESSION;
+            result->expressionKind = Expression::Kind::ARRAY_SUBSCRIPT;
 
             DeclarationReferenceExpression* declRefExpression = new DeclarationReferenceExpression();
             constructs.push_back(std::unique_ptr<Construct>(declRefExpression));
-            declRefExpression->kind = Construct::Kind::EXPRESSION_DECLARATION_REFERENCE;
+            declRefExpression->kind = Construct::Kind::EXPRESSION;
+            declRefExpression->expressionKind = Expression::Kind::DECLARATION_REFERENCE;
             declRefExpression->declaration = findDeclaration(name, declarationScopes);
 
             if (!declRefExpression->declaration)
@@ -1643,7 +1688,7 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
                 return nullptr;
             }
 
-            if (declRefExpression->declaration->kind != Construct::Kind::DECLARATION_VARIABLE)
+            if (declRefExpression->declaration->declarationKind != Declaration::Kind::VARIABLE)
             {
                 std::cerr << "Expected a variable" << std::endl;
                 return nullptr;
@@ -1672,7 +1717,8 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
         {
             DeclarationReferenceExpression* result = new DeclarationReferenceExpression();
             constructs.push_back(std::unique_ptr<Construct>(result));
-            result->kind = Construct::Kind::EXPRESSION_DECLARATION_REFERENCE;
+            result->kind = Construct::Kind::EXPRESSION;
+            result->expressionKind = Expression::Kind::DECLARATION_REFERENCE;
             result->declaration = findDeclaration((iterator - 1)->value, declarationScopes);
 
             if (!result->declaration)
@@ -1681,15 +1727,15 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
                 return nullptr;
             }
 
-            switch (result->declaration->kind)
+            switch (result->declaration->declarationKind)
             {
-                case Construct::Kind::DECLARATION_STRUCT:
+                case Declaration::Kind::STRUCT:
                 {
                     StructDeclaration* structDeclaration = static_cast<StructDeclaration*>(result->declaration);
                     result->qualifiedType.type = structDeclaration->type;
                     break;
                 }
-                case Construct::Kind::DECLARATION_VARIABLE:
+                case Declaration::Kind::VARIABLE:
                 {
                     VariableDeclaration* variableDeclaration = static_cast<VariableDeclaration*>(result->declaration);
                     result->qualifiedType.type = variableDeclaration->qualifiedType.type;
@@ -1706,7 +1752,8 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
     {
         ParenExpression* result = new ParenExpression();
         constructs.push_back(std::unique_ptr<Construct>(result));
-        result->kind = Construct::Kind::EXPRESSION_PAREN;
+        result->kind = Construct::Kind::EXPRESSION;
+        result->expressionKind = Expression::Kind::PAREN;
 
         if (!(result->expression = parseExpression(tokens, iterator, declarationScopes)))
         {
@@ -1740,15 +1787,28 @@ void ASTContext::dump() const
 
 void ASTContext::dumpType(const Type* type, std::string indent) const
 {
-    if (type->record)
+    std::cout << typeKindToString(type->typeKind);
+
+    switch (type->typeKind)
     {
-        const StructType* structType = static_cast<const StructType*>(type);
-        std::cout << ", name" << structType->name << std::endl;
-    }
-    else
-    {
-        const SimpleType* simpleType = static_cast<const SimpleType*>(type);
-        std::cout << ", name" << simpleType->name << ", scalar: " << simpleType->scalar << std::endl;
+        case Type::Kind::NONE:
+        {
+            break;
+        }
+
+        case Type::Kind::STRUCT:
+        {
+            const StructType* structType = static_cast<const StructType*>(type);
+            std::cout << ", name" << structType->name << std::endl;
+            break;
+        }
+
+        case Type::Kind::BUILTIN:
+        {
+            const SimpleType* simpleType = static_cast<const SimpleType*>(type);
+            std::cout << ", name" << simpleType->name << ", scalar: " << simpleType->scalar << std::endl;
+            break;
+        }
     }
 }
 
@@ -1757,27 +1817,26 @@ void ASTContext::dumpField(const Field* field, std::string indent) const
     std::cout << ", name" << field->name << ", type: " << field->qualifiedType.type->name << std::endl;
 }
 
-void ASTContext::dumpConstruct(const Construct* construct, std::string indent) const
+void ASTContext::dumpDeclaration(const Declaration* declaration, std::string indent) const
 {
-    std::cout << indent << construct << " " << constructKindToString(construct->kind);
+    std::cout << " " << declarationKindToString(declaration->declarationKind);
 
-    switch (construct->kind)
+    switch (declaration->declarationKind)
     {
-        case Construct::Kind::NONE:
+        case Declaration::Kind::NONE:
+        {
+            break;
+        }
+
+        case Declaration::Kind::EMPTY:
         {
             std::cout << std::endl;
             break;
         }
 
-        case Construct::Kind::DECLARATION_EMPTY:
+        case Declaration::Kind::STRUCT:
         {
-            std::cout << std::endl;
-            break;
-        }
-
-        case Construct::Kind::DECLARATION_STRUCT:
-        {
-            const StructDeclaration* structDeclaration = static_cast<const StructDeclaration*>(construct);
+            const StructDeclaration* structDeclaration = static_cast<const StructDeclaration*>(declaration);
 
             std::cout << ", name: " << structDeclaration->type->name << std::endl;
 
@@ -1789,9 +1848,9 @@ void ASTContext::dumpConstruct(const Construct* construct, std::string indent) c
             break;
         }
 
-        case Construct::Kind::DECLARATION_FIELD:
+        case Declaration::Kind::FIELD:
         {
-            const FieldDeclaration* fieldDeclaration = static_cast<const FieldDeclaration*>(construct);
+            const FieldDeclaration* fieldDeclaration = static_cast<const FieldDeclaration*>(declaration);
 
             std::cout << ", name: " << fieldDeclaration->field->name << std::endl;
 
@@ -1799,9 +1858,9 @@ void ASTContext::dumpConstruct(const Construct* construct, std::string indent) c
             break;
         }
 
-        case Construct::Kind::DECLARATION_FUNCTION:
+        case Declaration::Kind::FUNCTION:
         {
-            const FunctionDeclaration* functionDeclaration = static_cast<const FunctionDeclaration*>(construct);
+            const FunctionDeclaration* functionDeclaration = static_cast<const FunctionDeclaration*>(declaration);
 
             std::cout << ", name: " << functionDeclaration->name;
 
@@ -1824,94 +1883,45 @@ void ASTContext::dumpConstruct(const Construct* construct, std::string indent) c
             break;
         }
 
-        case Construct::Kind::DECLARATION_VARIABLE:
+        case Declaration::Kind::VARIABLE:
         {
-            const VariableDeclaration* variableDeclaration = static_cast<const VariableDeclaration*>(construct);
+            const VariableDeclaration* variableDeclaration = static_cast<const VariableDeclaration*>(declaration);
             std::cout << ", name: " << variableDeclaration->name << ", type: " << variableDeclaration->qualifiedType.type->name << std::endl;
             break;
         }
 
-        case Construct::Kind::DECLARATION_PARAMETER:
+        case Declaration::Kind::PARAMETER:
         {
-            const ParameterDeclaration* parameterDeclaration = static_cast<const ParameterDeclaration*>(construct);
+            const ParameterDeclaration* parameterDeclaration = static_cast<const ParameterDeclaration*>(declaration);
             std::cout << ", name: " << parameterDeclaration->name << ", type: " << parameterDeclaration->qualifiedType.type->name << std::endl;
             break;
         }
 
-        case Construct::Kind::EXPRESSION_CALL:
+        default:
+            break;
+    }
+}
+
+void ASTContext::dumpStatement(const Statement* statement, std::string indent) const
+{
+    std::cout << " " << statementKindToString(statement->statementKind);
+
+    switch (statement->statementKind)
+    {
+        case Statement::Kind::NONE:
         {
-            const CallExpression* callExpression = static_cast<const CallExpression*>(construct);
-
-            std::cout << std::endl;
-
-            dumpConstruct(callExpression->declarationReference, indent + "  ");
-
-            for (Expression* parameter : callExpression->parameters)
-            {
-                dumpConstruct(parameter, indent + "  ");
-            }
-            
             break;
         }
 
-        case Construct::Kind::EXPRESSION_LITERAL:
-        {
-            const Expression* expression = static_cast<const Expression*>(construct);
-            std::cout << ", value: " << expression->value << ", type: " << expression->qualifiedType.type->name << std::endl;
-            break;
-        }
-
-        case Construct::Kind::EXPRESSION_DECLARATION_REFERENCE:
-        {
-            const DeclarationReferenceExpression* declarationReferenceExpression = static_cast<const DeclarationReferenceExpression*>(construct);
-
-            std::cout << std::endl;
-
-            dumpConstruct(declarationReferenceExpression->declaration, indent + "  ");
-            break;
-        }
-
-        case Construct::Kind::EXPRESSION_PAREN:
-        {
-            const ParenExpression* parenExpression = static_cast<const ParenExpression*>(construct);
-
-            std::cout << std::endl;
-
-            dumpConstruct(parenExpression->expression, indent + "  ");
-            break;
-        }
-
-        case Construct::Kind::EXPRESSION_MEMBER:
-        {
-            const MemberExpression* memberExpression = static_cast<const MemberExpression*>(construct);
-
-            std::cout << std::endl;
-
-            dumpConstruct(memberExpression->expression, indent + "  ");
-            dumpField(memberExpression->field, indent + "  ");
-            break;
-        }
-
-        case Construct::Kind::EXPRESSION_ARRAY_SUBSCRIPT:
-        {
-            const ArraySubscriptExpression* arraySubscriptExpression = static_cast<const ArraySubscriptExpression*>(construct);
-
-            std::cout << std::endl;
-
-            dumpConstruct(arraySubscriptExpression->declarationReference, indent + "  ");
-            dumpConstruct(arraySubscriptExpression->expression, indent + "  ");
-            break;
-        }
-
-        case Construct::Kind::STATEMENT_EMPTY:
+        case Statement::Kind::EMPTY:
         {
             std::cout << std::endl;
             break;
         }
 
-        case Construct::Kind::STATEMENT_EXPRESSION:
+        case Statement::Kind::EXPRESSION:
         {
-            const ExpressionStatement* expressionStatement = static_cast<const ExpressionStatement*>(construct);
+            const ExpressionStatement* expressionStatement = static_cast<const ExpressionStatement*>(statement);
 
             std::cout << std::endl;
 
@@ -1919,9 +1929,9 @@ void ASTContext::dumpConstruct(const Construct* construct, std::string indent) c
             break;
         }
 
-        case Construct::Kind::STATEMENT_DECLARATION:
+        case Statement::Kind::DECLARATION:
         {
-            const DeclarationStatement* declarationStatement = static_cast<const DeclarationStatement*>(construct);
+            const DeclarationStatement* declarationStatement = static_cast<const DeclarationStatement*>(statement);
 
             std::cout << std::endl;
 
@@ -1929,9 +1939,9 @@ void ASTContext::dumpConstruct(const Construct* construct, std::string indent) c
             break;
         }
 
-        case Construct::Kind::STATEMENT_COMPOUND:
+        case Statement::Kind::COMPOUND:
         {
-            const CompoundStatement* compoundStatement = static_cast<const CompoundStatement*>(construct);
+            const CompoundStatement* compoundStatement = static_cast<const CompoundStatement*>(statement);
 
             std::cout << std::endl;
 
@@ -1942,9 +1952,9 @@ void ASTContext::dumpConstruct(const Construct* construct, std::string indent) c
             break;
         }
 
-        case Construct::Kind::STATEMENT_IF:
+        case Statement::Kind::IF:
         {
-            const IfStatement* ifStatement = static_cast<const IfStatement*>(construct);
+            const IfStatement* ifStatement = static_cast<const IfStatement*>(statement);
 
             std::cout << std::endl;
 
@@ -1954,9 +1964,9 @@ void ASTContext::dumpConstruct(const Construct* construct, std::string indent) c
             break;
         }
 
-        case Construct::Kind::STATEMENT_FOR:
+        case Statement::Kind::FOR:
         {
-            const ForStatement* forStatement = static_cast<const ForStatement*>(construct);
+            const ForStatement* forStatement = static_cast<const ForStatement*>(statement);
 
             std::cout << std::endl;
 
@@ -1967,9 +1977,9 @@ void ASTContext::dumpConstruct(const Construct* construct, std::string indent) c
             break;
         }
 
-        case Construct::Kind::STATEMENT_SWITCH:
+        case Statement::Kind::SWITCH:
         {
-            const SwitchStatement* switchStatement = static_cast<const SwitchStatement*>(construct);
+            const SwitchStatement* switchStatement = static_cast<const SwitchStatement*>(statement);
 
             std::cout << std::endl;
 
@@ -1978,9 +1988,9 @@ void ASTContext::dumpConstruct(const Construct* construct, std::string indent) c
             break;
         }
 
-        case Construct::Kind::STATEMENT_CASE:
+        case Statement::Kind::CASE:
         {
-            const CaseStatement* caseStatement = static_cast<const CaseStatement*>(construct);
+            const CaseStatement* caseStatement = static_cast<const CaseStatement*>(statement);
 
             std::cout << std::endl;
 
@@ -1989,9 +1999,9 @@ void ASTContext::dumpConstruct(const Construct* construct, std::string indent) c
             break;
         }
 
-        case Construct::Kind::STATEMENT_WHILE:
+        case Statement::Kind::WHILE:
         {
-            const WhileStatement* whileStatement = static_cast<const WhileStatement*>(construct);
+            const WhileStatement* whileStatement = static_cast<const WhileStatement*>(statement);
 
             std::cout << std::endl;
 
@@ -2000,9 +2010,9 @@ void ASTContext::dumpConstruct(const Construct* construct, std::string indent) c
             break;
         }
 
-        case Construct::Kind::STATEMENT_DO:
+        case Statement::Kind::DO:
         {
-            const DoStatement* doStatement = static_cast<const DoStatement*>(construct);
+            const DoStatement* doStatement = static_cast<const DoStatement*>(statement);
 
             std::cout << std::endl;
 
@@ -2011,24 +2021,24 @@ void ASTContext::dumpConstruct(const Construct* construct, std::string indent) c
             break;
         }
 
-        case Construct::Kind::STATEMENT_BREAK:
+        case Statement::Kind::BREAK:
         {
             std::cout << std::endl;
             break;
         }
 
-        case Construct::Kind::STATEMENT_CONTINUE:
+        case Statement::Kind::CONTINUE:
         {
             std::cout << std::endl;
             break;
         }
 
-        case Construct::Kind::STATEMENT_RETURN:
+        case Statement::Kind::RETURN:
         {
-            const ReturnStatement* returnStatement = static_cast<const ReturnStatement*>(construct);
-
+            const ReturnStatement* returnStatement = static_cast<const ReturnStatement*>(statement);
+            
             std::cout << std::endl;
-
+            
             if (returnStatement->result)
             {
                 dumpConstruct(returnStatement->result, indent + "  ");
@@ -2036,36 +2046,151 @@ void ASTContext::dumpConstruct(const Construct* construct, std::string indent) c
             break;
         }
 
-        case Construct::Kind::OPERATOR_UNARY:
+        default:
+            break;
+    }
+}
+
+void ASTContext::dumpExpression(const Expression* expression, std::string indent) const
+{
+    std::cout << " " << expressionKindToString(expression->expressionKind);
+
+    switch (expression->expressionKind)
+    {
+        case Expression::Kind::NONE:
         {
-            const UnaryOperatorExpression* unaryOperatorExpression = static_cast<const UnaryOperatorExpression*>(construct);
+            break;
+        }
+
+        case Expression::Kind::CALL:
+        {
+            const CallExpression* callExpression = static_cast<const CallExpression*>(expression);
+
+            std::cout << std::endl;
+
+            dumpConstruct(callExpression->declarationReference, indent + "  ");
+
+            for (Expression* parameter : callExpression->parameters)
+            {
+                dumpConstruct(parameter, indent + "  ");
+            }
+
+            break;
+        }
+
+        case Expression::Kind::LITERAL:
+        {
+            std::cout << ", value: " << expression->value << ", type: " << expression->qualifiedType.type->name << std::endl;
+            break;
+        }
+
+        case Expression::Kind::DECLARATION_REFERENCE:
+        {
+            const DeclarationReferenceExpression* declarationReferenceExpression = static_cast<const DeclarationReferenceExpression*>(expression);
+
+            std::cout << std::endl;
+
+            dumpConstruct(declarationReferenceExpression->declaration, indent + "  ");
+            break;
+        }
+
+        case Expression::Kind::PAREN:
+        {
+            const ParenExpression* parenExpression = static_cast<const ParenExpression*>(expression);
+
+            std::cout << std::endl;
+
+            dumpConstruct(parenExpression->expression, indent + "  ");
+            break;
+        }
+
+        case Expression::Kind::MEMBER:
+        {
+            const MemberExpression* memberExpression = static_cast<const MemberExpression*>(expression);
+
+            std::cout << std::endl;
+
+            dumpConstruct(memberExpression->expression, indent + "  ");
+            dumpField(memberExpression->field, indent + "  ");
+            break;
+        }
+
+        case Expression::Kind::ARRAY_SUBSCRIPT:
+        {
+            const ArraySubscriptExpression* arraySubscriptExpression = static_cast<const ArraySubscriptExpression*>(expression);
+
+            std::cout << std::endl;
+
+            dumpConstruct(arraySubscriptExpression->declarationReference, indent + "  ");
+            dumpConstruct(arraySubscriptExpression->expression, indent + "  ");
+            break;
+        }
+
+        case Expression::Kind::UNARY:
+        {
+            const UnaryOperatorExpression* unaryOperatorExpression = static_cast<const UnaryOperatorExpression*>(expression);
 
             std::cout <<", operator: " << unaryOperatorExpression->value << std::endl;
 
             dumpConstruct(unaryOperatorExpression->expression, indent + "  ");
             break;
         }
-            
-        case Construct::Kind::OPERATOR_BINARY:
+
+        case Expression::Kind::BINARY:
         {
-            const BinaryOperatorExpression* binaryOperatorExpression = static_cast<const BinaryOperatorExpression*>(construct);
-            
+            const BinaryOperatorExpression* binaryOperatorExpression = static_cast<const BinaryOperatorExpression*>(expression);
+
             std::cout <<", operator: " << binaryOperatorExpression->value << std::endl;
 
             dumpConstruct(binaryOperatorExpression->leftExpression, indent + "  ");
             dumpConstruct(binaryOperatorExpression->rightExpression, indent + "  ");
             break;
         }
-            
-        case Construct::Kind::OPERATOR_TERNARY:
+
+        case Expression::Kind::TERNARY:
         {
-            const TernaryOperatorExpression* ternaryOperatorExpression = static_cast<const TernaryOperatorExpression*>(construct);
-            
+            const TernaryOperatorExpression* ternaryOperatorExpression = static_cast<const TernaryOperatorExpression*>(expression);
+
             std::cout << std::endl;
 
             dumpConstruct(ternaryOperatorExpression->condition, indent + "  ");
             dumpConstruct(ternaryOperatorExpression->leftExpression, indent + "  ");
             dumpConstruct(ternaryOperatorExpression->rightExpression, indent + "  ");
+            break;
+        }
+    }
+}
+
+void ASTContext::dumpConstruct(const Construct* construct, std::string indent) const
+{
+    std::cout << indent << construct << " " << constructKindToString(construct->kind);
+
+    switch (construct->kind)
+    {
+        case Construct::Kind::NONE:
+        {
+            std::cout << std::endl;
+            break;
+        }
+
+        case Construct::Kind::DECLARATION:
+        {
+            const Declaration* declaration = static_cast<const Declaration*>(construct);
+            dumpDeclaration(declaration);
+            break;
+        }
+
+        case Construct::Kind::STATEMENT:
+        {
+            const Statement* statement = static_cast<const Statement*>(construct);
+            dumpStatement(statement);
+            break;
+        }
+
+        case Construct::Kind::EXPRESSION:
+        {
+            const Expression* expression = static_cast<const Expression*>(construct);
+            dumpExpression(expression);
             break;
         }
     }
