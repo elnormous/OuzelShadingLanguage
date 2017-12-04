@@ -568,6 +568,10 @@ private:
                        std::vector<Token>::const_iterator& iterator,
                        std::vector<std::vector<Declaration*>>& declarationScopes) const;
 
+    Declaration* parseTopLevelDeclaration(const std::vector<Token>& tokens,
+                                          std::vector<Token>::const_iterator& iterator,
+                                          std::vector<std::vector<Declaration*>>& declarationScopes);
+
     Declaration* parseDeclaration(const std::vector<Token>& tokens,
                                   std::vector<Token>::const_iterator& iterator,
                                   std::vector<std::vector<Declaration*>>& declarationScopes);
@@ -575,6 +579,10 @@ private:
     StructDeclaration* parseStructDeclaration(const std::vector<Token>& tokens,
                                               std::vector<Token>::const_iterator& iterator,
                                               std::vector<std::vector<Declaration*>>& declarationScopes);
+
+    FieldDeclaration* parseFieldDeclaration(const std::vector<Token>& tokens,
+                                            std::vector<Token>::const_iterator& iterator,
+                                            std::vector<std::vector<Declaration*>>& declarationScopes);
 
     /*TypeDefinitionDeclaration* parseTypeDefinitionDeclaration(const std::vector<Token>& tokens,
                                                               std::vector<Token>::const_iterator& iterator,

@@ -77,7 +77,7 @@ bool ASTContext::parse(const std::vector<Token>& tokens)
     while (iterator != tokens.end())
     {
         Declaration* declaration;
-        if (!(declaration = parseDeclaration(tokens, iterator, declarationScopes)))
+        if (!(declaration = parseTopLevelDeclaration(tokens, iterator, declarationScopes)))
         {
             return false;
         }
@@ -113,9 +113,9 @@ bool ASTContext::isDeclaration(const std::vector<Token>& tokens,
     return false;
 }
 
-Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
-                                          std::vector<Token>::const_iterator& iterator,
-                                          std::vector<std::vector<Declaration*>>& declarationScopes)
+Declaration* ASTContext::parseTopLevelDeclaration(const std::vector<Token>& tokens,
+                                                  std::vector<Token>::const_iterator& iterator,
+                                                  std::vector<std::vector<Declaration*>>& declarationScopes)
 {
     if (checkToken(Token::Type::KEYWORD_STRUCT, tokens, iterator))
     {
@@ -161,9 +161,16 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
     }
     else
     {
-        std::cerr << "Expected a keyword" << std::endl;
+        std::cerr << "Expected a declaration" << std::endl;
         return nullptr;
     }
+}
+
+Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
+                                          std::vector<Token>::const_iterator& iterator,
+                                          std::vector<std::vector<Declaration*>>& declarationScopes)
+{
+    return nullptr;
 }
 
 StructDeclaration* ASTContext::parseStructDeclaration(const std::vector<Token>& tokens,
@@ -203,139 +210,18 @@ StructDeclaration* ASTContext::parseStructDeclaration(const std::vector<Token>& 
                 declarationScopes.back().push_back(result);
                 break;
             }
-            else if (isDeclaration(tokens, iterator, declarationScopes))
-            {
-                FieldDeclaration* fieldDeclaration = new FieldDeclaration();
-                constructs.push_back(std::unique_ptr<Construct>(fieldDeclaration));
-                fieldDeclaration->kind = Construct::Kind::DECLARATION;
-                fieldDeclaration->declarationKind = Declaration::Kind::FIELD;
-
-                if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
-                {
-                    std::cerr << "Expected an identifier" << std::endl;
-                    return nullptr;
-                }
-
-                Field* field = new Field();
-                fields.push_back(std::unique_ptr<Field>(field));
-                field->structType = type;
-                field->name = (iterator - 1)->value;
-                field->declaration = fieldDeclaration;
-
-                if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
-                {
-                    std::cerr << "Expected a type name" << std::endl;
-                    return nullptr;
-                }
-
-                field->qualifiedType.type = findType((iterator - 1)->value, declarationScopes);
-
-                if (!field->qualifiedType.type)
-                {
-                    std::cerr << "Invalid type: " << (iterator - 1)->value << std::endl;
-                    return nullptr;
-                }
-
-                fieldDeclaration->field = field;
-
-                if (checkToken(Token::Type::LEFT_BRACKET, tokens, iterator)) // parse attributes
-                {
-                    bool firstAttribute = true;
-
-                    for (;;)
-                    {
-                        if (checkToken(Token::Type::RIGHT_BRACKET, tokens, iterator))
-                        {
-                            break;
-                        }
-                        else if ((firstAttribute || checkToken(Token::Type::COMMA, tokens, iterator)) &&
-                                 checkToken(Token::Type::IDENTIFIER, tokens, iterator))
-                        {
-                            firstAttribute = false;
-
-                            std::string attribute = (iterator - 1)->value;
-
-                            if (!checkToken(Token::Type::OPERATOR_ASSIGNMENT, tokens, iterator))
-                            {
-                                std::cerr << "Expected an equality sign" << std::endl;
-                                return nullptr;
-                            }
-
-                            if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
-                            {
-                                std::cerr << "Expected an identifier" << std::endl;
-                                return nullptr;
-                            }
-
-                            if (attribute == "semantic")
-                            {
-                                Semantic semantic = Semantic::NONE;
-
-                                // TODO: find slot number
-                                if ((iterator - 1)->value == "binormal") semantic = Semantic::BINORMAL;
-                                else if ((iterator - 1)->value == "blend_indices") semantic = Semantic::BLEND_INDICES;
-                                else if ((iterator - 1)->value == "blend_weight") semantic = Semantic::BLEND_WEIGHT;
-                                else if ((iterator - 1)->value == "color") semantic = Semantic::COLOR;
-                                else if ((iterator - 1)->value == "normal") semantic = Semantic::NORMAL;
-                                else if ((iterator - 1)->value == "position") semantic = Semantic::POSITION;
-                                else if ((iterator - 1)->value == "position_transformed") semantic = Semantic::POSITION_TRANSFORMED;
-                                else if ((iterator - 1)->value == "point_size") semantic = Semantic::POINT_SIZE;
-                                else if ((iterator - 1)->value == "tangent") semantic = Semantic::TANGENT;
-                                else if ((iterator - 1)->value == "texture_coordinates") semantic = Semantic::TEXTURE_COORDINATES;
-                                else
-                                {
-                                    std::cerr << "Invalid semantic" << std::endl;
-                                    return nullptr;
-                                }
-
-                                field->semantic = semantic;
-                            }
-                            else
-                            {
-                                std::cerr << "Invalid attribute" << std::endl;
-                                return nullptr;
-                            }
-                        }
-                        else
-                        {
-                            std::cerr << "Expected an identifier" << std::endl;
-                            return nullptr;
-                        }
-                    }
-                }
-
-                if (checkToken(Token::Type::LEFT_BRACKET, tokens, iterator))
-                {
-                    field->qualifiedType.isArray = true;
-
-                    if (!checkToken(Token::Type::LITERAL_INT, tokens, iterator))
-                    {
-                        std::cerr << "Expected an integer literal" << std::endl;
-                        return nullptr;
-                    }
-
-                    field->qualifiedType.arraySize = std::stoi((iterator - 1)->value);
-
-                    if (!checkToken(Token::Type::RIGHT_BRACKET, tokens, iterator))
-                    {
-                        std::cerr << "Expected a right bracket" << std::endl;
-                        return nullptr;
-                    }
-                }
-
-                if (!checkToken(Token::Type::SEMICOLON, tokens, iterator))
-                {
-                    std::cerr << "Expected a semicolon" << std::endl;
-                    return nullptr;
-                }
-
-                type->fields.push_back(field);
-                result->fieldDeclarations.push_back(fieldDeclaration);
-            }
             else
             {
-                std::cerr << "Expected an attribute" << std::endl;
-                return nullptr;
+                FieldDeclaration* fieldDeclaration;
+                if (!(fieldDeclaration = parseFieldDeclaration(tokens, iterator, declarationScopes)))
+                {
+                    return nullptr;
+                }
+
+                fieldDeclaration->field->structType = type;
+                type->fields.push_back(fieldDeclaration->field);
+
+                result->fieldDeclarations.push_back(fieldDeclaration);
             }
         }
 
@@ -356,6 +242,147 @@ StructDeclaration* ASTContext::parseStructDeclaration(const std::vector<Token>& 
     }
 
     return result;
+}
+
+FieldDeclaration* ASTContext::parseFieldDeclaration(const std::vector<Token>& tokens,
+                                                    std::vector<Token>::const_iterator& iterator,
+                                                    std::vector<std::vector<Declaration*>>& declarationScopes)
+{
+    FieldDeclaration* fieldDeclaration = new FieldDeclaration();
+    constructs.push_back(std::unique_ptr<Construct>(fieldDeclaration));
+    fieldDeclaration->kind = Construct::Kind::DECLARATION;
+    fieldDeclaration->declarationKind = Declaration::Kind::FIELD;
+
+    Field* field = new Field();
+    fields.push_back(std::unique_ptr<Field>(field));
+    field->declaration = fieldDeclaration;
+
+    fieldDeclaration->field = field;
+
+    for (;;)
+    {
+        if (checkToken(Token::Type::KEYWORD_CONST, tokens, iterator)) field->qualifiedType.isConst = true;
+        else if (checkToken(Token::Type::KEYWORD_STATIC, tokens, iterator)) field->qualifiedType.isStatic = true;
+        else break;
+    }
+
+    if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
+    {
+        std::cerr << "Expected a type name" << std::endl;
+        return nullptr;
+    }
+
+    field->qualifiedType.type = findType((iterator - 1)->value, declarationScopes);
+
+    if (!field->qualifiedType.type)
+    {
+        std::cerr << "Invalid type: " << (iterator - 1)->value << std::endl;
+        return nullptr;
+    }
+
+    if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
+    {
+        std::cerr << "Expected an identifier" << std::endl;
+        return nullptr;
+    }
+
+    field->name = (iterator - 1)->value;
+
+    if (checkToken(Token::Type::LEFT_BRACKET, tokens, iterator)) // parse attributes
+    {
+        bool firstAttribute = true;
+
+        for (;;)
+        {
+            if (checkToken(Token::Type::RIGHT_BRACKET, tokens, iterator))
+            {
+                break;
+            }
+            else if (firstAttribute || checkToken(Token::Type::COMMA, tokens, iterator))
+            {
+                firstAttribute = false;
+
+
+            }
+            else
+            {
+                std::cerr << "Expected a comma" << std::endl;
+                return nullptr;
+            }
+        }
+    }
+
+    if (checkToken(Token::Type::LEFT_BRACKET, tokens, iterator))
+    {
+        field->qualifiedType.isArray = true;
+
+        if (!checkToken(Token::Type::LITERAL_INT, tokens, iterator))
+        {
+            std::cerr << "Expected an integer literal" << std::endl;
+            return nullptr;
+        }
+
+        field->qualifiedType.arraySize = std::stoi((iterator - 1)->value);
+
+        if (!checkToken(Token::Type::RIGHT_BRACKET, tokens, iterator))
+        {
+            std::cerr << "Expected a right bracket" << std::endl;
+            return nullptr;
+        }
+    }
+
+    /*checkToken(Token::Type::IDENTIFIER, tokens, iterator);
+
+    std::string attribute = (iterator - 1)->value;
+
+    if (!checkToken(Token::Type::OPERATOR_ASSIGNMENT, tokens, iterator))
+    {
+        std::cerr << "Expected an equality sign" << std::endl;
+        return nullptr;
+    }
+
+    if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
+    {
+        std::cerr << "Expected an identifier" << std::endl;
+        return nullptr;
+    }
+
+    if (attribute == "semantic")
+    {
+        Semantic semantic = Semantic::NONE;
+
+        // TODO: find slot number
+        if ((iterator - 1)->value == "binormal") semantic = Semantic::BINORMAL;
+        else if ((iterator - 1)->value == "blend_indices") semantic = Semantic::BLEND_INDICES;
+        else if ((iterator - 1)->value == "blend_weight") semantic = Semantic::BLEND_WEIGHT;
+        else if ((iterator - 1)->value == "color") semantic = Semantic::COLOR;
+        else if ((iterator - 1)->value == "normal") semantic = Semantic::NORMAL;
+        else if ((iterator - 1)->value == "position") semantic = Semantic::POSITION;
+        else if ((iterator - 1)->value == "position_transformed") semantic = Semantic::POSITION_TRANSFORMED;
+        else if ((iterator - 1)->value == "point_size") semantic = Semantic::POINT_SIZE;
+        else if ((iterator - 1)->value == "tangent") semantic = Semantic::TANGENT;
+        else if ((iterator - 1)->value == "texture_coordinates") semantic = Semantic::TEXTURE_COORDINATES;
+        else
+        {
+            std::cerr << "Invalid semantic" << std::endl;
+            return nullptr;
+        }
+
+        field->semantic = semantic;
+    }
+    else
+    {
+        std::cerr << "Invalid attribute" << std::endl;
+        return nullptr;
+    }*/
+
+    if (!checkToken(Token::Type::SEMICOLON, tokens, iterator))
+    {
+        std::cerr << "Expected a semicolon" << std::endl;
+        return nullptr;
+    }
+
+    return fieldDeclaration;
 }
 
 /*TypeDefinitionDeclaration* ASTContext::parseTypeDefinitionDeclaration(const std::vector<Token>& tokens,
@@ -429,10 +456,15 @@ FunctionDeclaration* ASTContext::parseFunctionDeclaration(const std::vector<Toke
         {
             break;
         }
-        else if ((firstParameter || checkToken(Token::Type::COMMA, tokens, iterator)) &&
-                 checkToken(Token::Type::IDENTIFIER, tokens, iterator))
+        else if (firstParameter || checkToken(Token::Type::COMMA, tokens, iterator))
         {
             firstParameter = false;
+
+            if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
+            {
+                std::cerr << "Expected a keyword" << std::endl;
+                return nullptr;
+            }
 
             ParameterDeclaration* parameter = new ParameterDeclaration();
             constructs.push_back(std::unique_ptr<Construct>(parameter));
@@ -477,7 +509,7 @@ FunctionDeclaration* ASTContext::parseFunctionDeclaration(const std::vector<Toke
         }
         else
         {
-            std::cerr << "Expected a comma, keyword or a right parenthesis" << std::endl;
+            std::cerr << "Expected a comma" << std::endl;
             return nullptr;
         }
     }
@@ -1649,20 +1681,26 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
 
             for (;;)
             {
-                Expression* parameter;
                 if (checkToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
                 {
                     break;
                 }
-                else if ((firstParameter || checkToken(Token::Type::COMMA, tokens, iterator)) &&
-                         (parameter = parseExpression(tokens, iterator, declarationScopes)))
+                else if (firstParameter || checkToken(Token::Type::COMMA, tokens, iterator))
                 {
                     firstParameter = false;
+
+                    Expression* parameter;
+
+                    if (!(parameter = parseExpression(tokens, iterator, declarationScopes)))
+                    {
+                        return nullptr;
+                    }
+
                     result->parameters.push_back(parameter);
                 }
                 else
                 {
-                    std::cerr << "Expected a comma, keyword or a right parenthesis" << std::endl;
+                    std::cerr << "Expected a comma" << std::endl;
                     return nullptr;
                 }
             }
@@ -1787,7 +1825,7 @@ void ASTContext::dump() const
 
 void ASTContext::dumpType(const Type* type, std::string indent) const
 {
-    std::cout << typeKindToString(type->typeKind);
+    std::cout << indent << typeKindToString(type->typeKind);
 
     switch (type->typeKind)
     {
@@ -1799,14 +1837,14 @@ void ASTContext::dumpType(const Type* type, std::string indent) const
         case Type::Kind::STRUCT:
         {
             const StructType* structType = static_cast<const StructType*>(type);
-            std::cout << ", name" << structType->name << std::endl;
+            std::cout << ", name: " << structType->name << std::endl;
             break;
         }
 
         case Type::Kind::BUILTIN:
         {
             const SimpleType* simpleType = static_cast<const SimpleType*>(type);
-            std::cout << ", name" << simpleType->name << ", scalar: " << simpleType->scalar << std::endl;
+            std::cout << ", name: " << simpleType->name << ", scalar: " << simpleType->scalar << std::endl;
             break;
         }
     }
@@ -1814,12 +1852,12 @@ void ASTContext::dumpType(const Type* type, std::string indent) const
 
 void ASTContext::dumpField(const Field* field, std::string indent) const
 {
-    std::cout << ", name" << field->name << ", type: " << field->qualifiedType.type->name << std::endl;
+    std::cout << indent << ", name: " << field->name << ", type: " << field->qualifiedType.type->name << std::endl;
 }
 
 void ASTContext::dumpDeclaration(const Declaration* declaration, std::string indent) const
 {
-    std::cout << " " << declarationKindToString(declaration->declarationKind);
+    std::cout << indent << declarationKindToString(declaration->declarationKind);
 
     switch (declaration->declarationKind)
     {
@@ -1842,7 +1880,7 @@ void ASTContext::dumpDeclaration(const Declaration* declaration, std::string ind
 
             for (const FieldDeclaration* fieldDeclaration : structDeclaration->fieldDeclarations)
             {
-                dumpConstruct(fieldDeclaration, indent + "  ");
+                dumpConstruct(fieldDeclaration, " ");
             }
 
             break;
@@ -1852,9 +1890,7 @@ void ASTContext::dumpDeclaration(const Declaration* declaration, std::string ind
         {
             const FieldDeclaration* fieldDeclaration = static_cast<const FieldDeclaration*>(declaration);
 
-            std::cout << ", name: " << fieldDeclaration->field->name << std::endl;
-
-            dumpField(fieldDeclaration->field, indent + "  ");
+            dumpField(fieldDeclaration->field);
             break;
         }
 
@@ -1904,7 +1940,7 @@ void ASTContext::dumpDeclaration(const Declaration* declaration, std::string ind
 
 void ASTContext::dumpStatement(const Statement* statement, std::string indent) const
 {
-    std::cout << " " << statementKindToString(statement->statementKind);
+    std::cout << indent << statementKindToString(statement->statementKind);
 
     switch (statement->statementKind)
     {
@@ -2053,7 +2089,7 @@ void ASTContext::dumpStatement(const Statement* statement, std::string indent) c
 
 void ASTContext::dumpExpression(const Expression* expression, std::string indent) const
 {
-    std::cout << " " << expressionKindToString(expression->expressionKind);
+    std::cout << indent << expressionKindToString(expression->expressionKind);
 
     switch (expression->expressionKind)
     {
@@ -2176,21 +2212,21 @@ void ASTContext::dumpConstruct(const Construct* construct, std::string indent) c
         case Construct::Kind::DECLARATION:
         {
             const Declaration* declaration = static_cast<const Declaration*>(construct);
-            dumpDeclaration(declaration);
+            dumpDeclaration(declaration, " ");
             break;
         }
 
         case Construct::Kind::STATEMENT:
         {
             const Statement* statement = static_cast<const Statement*>(construct);
-            dumpStatement(statement);
+            dumpStatement(statement, " ");
             break;
         }
 
         case Construct::Kind::EXPRESSION:
         {
             const Expression* expression = static_cast<const Expression*>(construct);
-            dumpExpression(expression);
+            dumpExpression(expression, " ");
             break;
         }
     }
