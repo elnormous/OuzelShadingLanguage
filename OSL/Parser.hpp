@@ -409,7 +409,7 @@ public:
 class ParenExpression: public Expression
 {
 public:
-    std::vector<Expression*> expressions;
+    Expression* expression = nullptr;
 };
 
 class MemberExpression: public Expression
@@ -631,9 +631,9 @@ private:
                                           std::vector<Token>::const_iterator& iterator,
                                           std::vector<std::vector<Declaration*>>& declarationScopes);
 
-    Expression* parseExpression(const std::vector<Token>& tokens,
-                                std::vector<Token>::const_iterator& iterator,
-                                std::vector<std::vector<Declaration*>>& declarationScopes);
+    Expression* parseComma(const std::vector<Token>& tokens,
+                           std::vector<Token>::const_iterator& iterator,
+                           std::vector<std::vector<Declaration*>>& declarationScopes);
 
     Expression* parseMultiplicationAssignment(const std::vector<Token>& tokens,
                                               std::vector<Token>::const_iterator& iterator,
