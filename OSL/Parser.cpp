@@ -1815,37 +1815,25 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
         result->kind = Construct::Kind::EXPRESSION;
         result->expressionKind = Expression::Kind::PAREN;
 
-        bool firstExpression = true;
-
         for (;;)
         {
-            if (checkToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
+            Expression* expression;
+            if (!(expression = parseExpression(tokens, iterator, declarationScopes)))
+            {
+                return nullptr;
+            }
+
+            result->expressions.push_back(expression);
+
+            if (!checkToken(Token::Type::COMMA, tokens, iterator))
             {
                 break;
             }
-            else if (firstExpression || checkToken(Token::Type::COMMA, tokens, iterator))
-            {
-                firstExpression = false;
-
-                Expression* expression;
-                if (!(expression = parseExpression(tokens, iterator, declarationScopes)))
-                {
-                    return nullptr;
-                }
-
-                result->expressions.push_back(expression);
-
-            }
-            else
-            {
-                std::cerr << "Expected a comma" << std::endl;
-                return nullptr;
-            }
         }
 
-        if (result->expressions.empty())
+        if (!checkToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
         {
-            std::cerr << "Expected an expression" << std::endl;
+            std::cerr << "Expected a right parenthesis" << std::endl;
             return nullptr;
         }
 
