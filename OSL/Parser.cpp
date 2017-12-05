@@ -642,14 +642,14 @@ VariableDeclaration* ASTContext::parseVariableDeclaration(const std::vector<Toke
 
     if (checkToken(Token::Type::OPERATOR_ASSIGNMENT, tokens, iterator))
     {
-        if (!(result->initialization = parseComma(tokens, iterator, declarationScopes)))
+        if (!(result->initialization = parseMultiplicationAssignment(tokens, iterator, declarationScopes)))
         {
             return nullptr;
         }
     }
     else if (checkToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
     {
-        if (!(result->initialization = parseComma(tokens, iterator, declarationScopes)))
+        if (!(result->initialization = parseMultiplicationAssignment(tokens, iterator, declarationScopes)))
         {
             return nullptr;
         }
