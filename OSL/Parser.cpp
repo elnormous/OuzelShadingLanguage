@@ -1815,18 +1815,41 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
         result->kind = Construct::Kind::EXPRESSION;
         result->expressionKind = Expression::Kind::PAREN;
 
-        if (!(result->expression = parseExpression(tokens, iterator, declarationScopes)))
+        bool firstExpression = true;
+
+        for (;;)
         {
+            if (checkToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
+            {
+                break;
+            }
+            else if (firstExpression || checkToken(Token::Type::COMMA, tokens, iterator))
+            {
+                firstExpression = false;
+
+                Expression* expression;
+                if (!(expression = parseExpression(tokens, iterator, declarationScopes)))
+                {
+                    return nullptr;
+                }
+
+                result->expressions.push_back(expression);
+
+            }
+            else
+            {
+                std::cerr << "Expected a comma" << std::endl;
+                return nullptr;
+            }
+        }
+
+        if (result->expressions.empty())
+        {
+            std::cerr << "Expected an expression" << std::endl;
             return nullptr;
         }
 
-        result->qualifiedType.type = result->expression->qualifiedType.type;
-
-        if (!checkToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
-        {
-            std::cerr << "Expected a right parenthesis" << std::endl;
-            return nullptr;
-        }
+        result->qualifiedType.type = result->expressions.back()->qualifiedType.type;
 
         return result;
     }
@@ -2158,7 +2181,10 @@ void ASTContext::dumpExpression(const Expression* expression, std::string indent
 
             std::cout << std::endl;
 
-            dumpConstruct(parenExpression->expression, indent + "  ");
+            for (Expression* expression : parenExpression->expressions)
+            {
+                dumpConstruct(expression, indent + "  ");
+            }
             break;
         }
 

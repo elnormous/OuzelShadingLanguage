@@ -572,9 +572,17 @@ bool OutputHLSL::printExpression(const Expression* expression, Options options, 
             const ParenExpression* parenExpression = static_cast<const ParenExpression*>(expression);
             code += "(";
 
-            if (!printConstruct(parenExpression->expression, Options(0), code))
+            bool first = true;
+
+            for (Expression* childExpression : parenExpression->expressions)
             {
-                return false;
+                if (!first) code += ", ";
+                first = false;
+
+                if (!printConstruct(childExpression, Options(0), code))
+                {
+                    return false;
+                }
             }
 
             code += ")";

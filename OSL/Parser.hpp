@@ -409,7 +409,7 @@ public:
 class ParenExpression: public Expression
 {
 public:
-    Expression* expression = nullptr;
+    std::vector<Expression*> expressions;
 };
 
 class MemberExpression: public Expression
