@@ -1739,7 +1739,7 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
 
                     Expression* parameter;
 
-                    if (!(parameter = parseComma(tokens, iterator, declarationScopes)))
+                    if (!(parameter = parseMultiplicationAssignment(tokens, iterator, declarationScopes)))
                     {
                         return nullptr;
                     }
