@@ -314,67 +314,77 @@ FieldDeclaration* ASTContext::parseFieldDeclaration(const std::vector<Token>& to
 
     if (checkToken(Token::Type::LEFT_BRACKET, tokens, iterator))
     {
-        field->qualifiedType.isArray = true;
+        if (checkToken(Token::Type::LEFT_BRACKET, tokens, iterator))
+        {
+            /*checkToken(Token::Type::IDENTIFIER, tokens, iterator);
 
-        if (!checkToken(Token::Type::LITERAL_INT, tokens, iterator))
+            std::string attribute = (iterator - 1)->value;
+
+            if (!checkToken(Token::Type::OPERATOR_ASSIGNMENT, tokens, iterator))
+            {
+                std::cerr << "Expected an equality sign" << std::endl;
+                return nullptr;
+            }
+
+            if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
+            {
+                std::cerr << "Expected an identifier" << std::endl;
+                return nullptr;
+            }
+
+            if (attribute == "semantic")
+            {
+                Semantic semantic = Semantic::NONE;
+
+                // TODO: find slot number
+                if ((iterator - 1)->value == "binormal") semantic = Semantic::BINORMAL;
+                else if ((iterator - 1)->value == "blend_indices") semantic = Semantic::BLEND_INDICES;
+                else if ((iterator - 1)->value == "blend_weight") semantic = Semantic::BLEND_WEIGHT;
+                else if ((iterator - 1)->value == "color") semantic = Semantic::COLOR;
+                else if ((iterator - 1)->value == "normal") semantic = Semantic::NORMAL;
+                else if ((iterator - 1)->value == "position") semantic = Semantic::POSITION;
+                else if ((iterator - 1)->value == "position_transformed") semantic = Semantic::POSITION_TRANSFORMED;
+                else if ((iterator - 1)->value == "point_size") semantic = Semantic::POINT_SIZE;
+                else if ((iterator - 1)->value == "tangent") semantic = Semantic::TANGENT;
+                else if ((iterator - 1)->value == "texture_coordinates") semantic = Semantic::TEXTURE_COORDINATES;
+                else
+                {
+                    std::cerr << "Invalid semantic" << std::endl;
+                    return nullptr;
+                }
+                
+                field->semantic = semantic;
+            }
+            else
+            {
+                std::cerr << "Invalid attribute" << std::endl;
+                return nullptr;
+            }*/
+        }
+        else if (checkToken(Token::Type::LITERAL_INT, tokens, iterator))
+        {
+            int size = std::stoi((iterator - 1)->value);
+
+            if (size <= 0)
+            {
+                std::cerr << "Array size must be greater than zero" << std::endl;
+                return nullptr;
+            }
+
+            field->qualifiedType.dimensions.push_back(static_cast<uint32_t>(size));
+
+            if (!checkToken(Token::Type::RIGHT_BRACKET, tokens, iterator))
+            {
+                std::cerr << "Expected a right bracket" << std::endl;
+                return nullptr;
+            }
+        }
+        else
         {
             std::cerr << "Expected an integer literal" << std::endl;
             return nullptr;
         }
-
-        field->qualifiedType.arraySize = std::stoi((iterator - 1)->value);
-
-        if (!checkToken(Token::Type::RIGHT_BRACKET, tokens, iterator))
-        {
-            std::cerr << "Expected a right bracket" << std::endl;
-            return nullptr;
-        }
     }
-
-    /*checkToken(Token::Type::IDENTIFIER, tokens, iterator);
-
-    std::string attribute = (iterator - 1)->value;
-
-    if (!checkToken(Token::Type::OPERATOR_ASSIGNMENT, tokens, iterator))
-    {
-        std::cerr << "Expected an equality sign" << std::endl;
-        return nullptr;
-    }
-
-    if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
-    {
-        std::cerr << "Expected an identifier" << std::endl;
-        return nullptr;
-    }
-
-    if (attribute == "semantic")
-    {
-        Semantic semantic = Semantic::NONE;
-
-        // TODO: find slot number
-        if ((iterator - 1)->value == "binormal") semantic = Semantic::BINORMAL;
-        else if ((iterator - 1)->value == "blend_indices") semantic = Semantic::BLEND_INDICES;
-        else if ((iterator - 1)->value == "blend_weight") semantic = Semantic::BLEND_WEIGHT;
-        else if ((iterator - 1)->value == "color") semantic = Semantic::COLOR;
-        else if ((iterator - 1)->value == "normal") semantic = Semantic::NORMAL;
-        else if ((iterator - 1)->value == "position") semantic = Semantic::POSITION;
-        else if ((iterator - 1)->value == "position_transformed") semantic = Semantic::POSITION_TRANSFORMED;
-        else if ((iterator - 1)->value == "point_size") semantic = Semantic::POINT_SIZE;
-        else if ((iterator - 1)->value == "tangent") semantic = Semantic::TANGENT;
-        else if ((iterator - 1)->value == "texture_coordinates") semantic = Semantic::TEXTURE_COORDINATES;
-        else
-        {
-            std::cerr << "Invalid semantic" << std::endl;
-            return nullptr;
-        }
-
-        field->semantic = semantic;
-    }
-    else
-    {
-        std::cerr << "Invalid attribute" << std::endl;
-        return nullptr;
-    }*/
 
     if (!checkToken(Token::Type::SEMICOLON, tokens, iterator))
     {
@@ -488,15 +498,21 @@ FunctionDeclaration* ASTContext::parseFunctionDeclaration(const std::vector<Toke
 
             if (checkToken(Token::Type::LEFT_BRACKET, tokens, iterator))
             {
-                parameter->qualifiedType.isArray = true;
-
                 if (!checkToken(Token::Type::LITERAL_INT, tokens, iterator))
                 {
                     std::cerr << "Expected an integer literal" << std::endl;
                     return nullptr;
                 }
 
-                parameter->qualifiedType.arraySize = std::stoi((iterator - 1)->value);
+                int size = std::stoi((iterator - 1)->value);
+
+                if (size <= 0)
+                {
+                    std::cerr << "Array size must be greater than zero" << std::endl;
+                    return nullptr;
+                }
+
+                parameter->qualifiedType.dimensions.push_back(static_cast<uint32_t>(size));
 
                 if (!checkToken(Token::Type::RIGHT_BRACKET, tokens, iterator))
                 {
@@ -601,15 +617,21 @@ VariableDeclaration* ASTContext::parseVariableDeclaration(const std::vector<Toke
 
     if (checkToken(Token::Type::LEFT_BRACKET, tokens, iterator))
     {
-        result->qualifiedType.isArray = true;
-
         if (!checkToken(Token::Type::LITERAL_INT, tokens, iterator))
         {
             std::cerr << "Expected an integer literal" << std::endl;
             return nullptr;
         }
 
-        result->qualifiedType.arraySize = std::stoi((iterator - 1)->value);
+        int size = std::stoi((iterator - 1)->value);
+
+        if (size <= 0)
+        {
+            std::cerr << "Array size must be greater than zero" << std::endl;
+            return nullptr;
+        }
+
+        result->qualifiedType.dimensions.push_back(static_cast<uint32_t>(size));
 
         if (!checkToken(Token::Type::RIGHT_BRACKET, tokens, iterator))
         {

@@ -105,8 +105,7 @@ public:
     Type* type = nullptr;
     bool isStatic = false;
     bool isConst = false;
-    bool isArray = false;
-    uint32_t arraySize = 0;
+    std::vector<uint32_t> dimensions;
 };
 
 class Statement: public Construct
