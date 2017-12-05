@@ -631,27 +631,31 @@ private:
                                           std::vector<Token>::const_iterator& iterator,
                                           std::vector<std::vector<Declaration*>>& declarationScopes);
 
-    Expression* parseComma(const std::vector<Token>& tokens,
-                           std::vector<Token>::const_iterator& iterator,
-                           std::vector<std::vector<Declaration*>>& declarationScopes);
-
-    Expression* parseMultiplicationAssignment(const std::vector<Token>& tokens,
-                                              std::vector<Token>::const_iterator& iterator,
-                                              std::vector<std::vector<Declaration*>>& declarationScopes);
-
-    Expression* parseAdditionAssignment(const std::vector<Token>& tokens,
-                                        std::vector<Token>::const_iterator& iterator,
-                                        std::vector<std::vector<Declaration*>>& declarationScopes);
-
-    Expression* parseAssignment(const std::vector<Token>& tokens,
-                                std::vector<Token>::const_iterator& iterator,
-                                std::vector<std::vector<Declaration*>>& declarationScopes);
-
-    Expression* parseTernary(const std::vector<Token>& tokens,
+    Expression* parsePrimary(const std::vector<Token>& tokens,
                              std::vector<Token>::const_iterator& iterator,
                              std::vector<std::vector<Declaration*>>& declarationScopes);
 
-    Expression* parseEquality(const std::vector<Token>& tokens,
+    Expression* parseMember(const std::vector<Token>& tokens,
+                            std::vector<Token>::const_iterator& iterator,
+                            std::vector<std::vector<Declaration*>>& declarationScopes);
+
+    Expression* parseSign(const std::vector<Token>& tokens,
+                          std::vector<Token>::const_iterator& iterator,
+                          std::vector<std::vector<Declaration*>>& declarationScopes);
+
+    Expression* parseNot(const std::vector<Token>& tokens,
+                         std::vector<Token>::const_iterator& iterator,
+                         std::vector<std::vector<Declaration*>>& declarationScopes);
+
+    Expression* parseMultiplication(const std::vector<Token>& tokens,
+                                    std::vector<Token>::const_iterator& iterator,
+                                    std::vector<std::vector<Declaration*>>& declarationScopes);
+
+    Expression* parseAddition(const std::vector<Token>& tokens,
+                              std::vector<Token>::const_iterator& iterator,
+                              std::vector<std::vector<Declaration*>>& declarationScopes);
+
+    Expression* parseLessThan(const std::vector<Token>& tokens,
                               std::vector<Token>::const_iterator& iterator,
                               std::vector<std::vector<Declaration*>>& declarationScopes);
 
@@ -659,33 +663,29 @@ private:
                                  std::vector<Token>::const_iterator& iterator,
                                  std::vector<std::vector<Declaration*>>& declarationScopes);
 
-    Expression* parseLessThan(const std::vector<Token>& tokens,
+    Expression* parseEquality(const std::vector<Token>& tokens,
                               std::vector<Token>::const_iterator& iterator,
                               std::vector<std::vector<Declaration*>>& declarationScopes);
 
-    Expression* parseAddition(const std::vector<Token>& tokens,
-                              std::vector<Token>::const_iterator& iterator,
-                              std::vector<std::vector<Declaration*>>& declarationScopes);
-
-    Expression* parseMultiplication(const std::vector<Token>& tokens,
-                                    std::vector<Token>::const_iterator& iterator,
-                                    std::vector<std::vector<Declaration*>>& declarationScopes);
-
-    Expression* parseNot(const std::vector<Token>& tokens,
-                         std::vector<Token>::const_iterator& iterator,
-                         std::vector<std::vector<Declaration*>>& declarationScopes);
-
-    Expression* parseSign(const std::vector<Token>& tokens,
-                          std::vector<Token>::const_iterator& iterator,
-                          std::vector<std::vector<Declaration*>>& declarationScopes);
-
-    Expression* parseMember(const std::vector<Token>& tokens,
-                            std::vector<Token>::const_iterator& iterator,
-                            std::vector<std::vector<Declaration*>>& declarationScopes);
-
-    Expression* parsePrimary(const std::vector<Token>& tokens,
+    Expression* parseTernary(const std::vector<Token>& tokens,
                              std::vector<Token>::const_iterator& iterator,
                              std::vector<std::vector<Declaration*>>& declarationScopes);
+
+    Expression* parseAssignment(const std::vector<Token>& tokens,
+                                std::vector<Token>::const_iterator& iterator,
+                                std::vector<std::vector<Declaration*>>& declarationScopes);
+
+    Expression* parseAdditionAssignment(const std::vector<Token>& tokens,
+                                        std::vector<Token>::const_iterator& iterator,
+                                        std::vector<std::vector<Declaration*>>& declarationScopes);
+
+    Expression* parseMultiplicationAssignment(const std::vector<Token>& tokens,
+                                              std::vector<Token>::const_iterator& iterator,
+                                              std::vector<std::vector<Declaration*>>& declarationScopes);
+
+    Expression* parseComma(const std::vector<Token>& tokens,
+                           std::vector<Token>::const_iterator& iterator,
+                           std::vector<std::vector<Declaration*>>& declarationScopes);
 
     void dumpType(const Type* type, std::string indent = std::string()) const;
     void dumpField(const Field* field, std::string indent = std::string()) const;

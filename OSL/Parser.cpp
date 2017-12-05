@@ -1183,468 +1183,6 @@ ReturnStatement* ASTContext::parseReturnStatement(const std::vector<Token>& toke
     return result;
 }
 
-Expression* ASTContext::parseComma(const std::vector<Token>& tokens,
-                                   std::vector<Token>::const_iterator& iterator,
-                                   std::vector<std::vector<Declaration*>>& declarationScopes)
-{
-    Expression* result;
-    if (!(result = parseMultiplicationAssignment(tokens, iterator, declarationScopes)))
-    {
-        return nullptr;
-    }
-
-    while (checkToken(Token::Type::COMMA, tokens, iterator))
-    {
-        BinaryOperatorExpression* expression = new BinaryOperatorExpression();
-        constructs.push_back(std::unique_ptr<Construct>(expression));
-        expression->kind = Construct::Kind::EXPRESSION;
-        expression->expressionKind = Expression::Kind::BINARY;
-        expression->value = (iterator - 1)->value;
-        expression->leftExpression = result;
-
-        std::unique_ptr<Construct> right;
-        if (!(expression->rightExpression = parseAdditionAssignment(tokens, iterator, declarationScopes)))
-        {
-            return nullptr;
-        }
-
-        expression->qualifiedType.type = expression->rightExpression->qualifiedType.type;
-
-        result = expression;
-    }
-    
-    return result;
-}
-
-Expression* ASTContext::parseMultiplicationAssignment(const std::vector<Token>& tokens,
-                                                      std::vector<Token>::const_iterator& iterator,
-                                                      std::vector<std::vector<Declaration*>>& declarationScopes)
-{
-    Expression* result;
-    if (!(result = parseAdditionAssignment(tokens, iterator, declarationScopes)))
-    {
-        return nullptr;
-    }
-
-    while (checkTokens({Token::Type::OPERATOR_MULTIPLY_ASSIGNMENT, Token::Type::OPERATOR_DIVIDE_ASSIGNMENT}, tokens, iterator))
-    {
-        BinaryOperatorExpression* expression = new BinaryOperatorExpression();
-        constructs.push_back(std::unique_ptr<Construct>(expression));
-        expression->kind = Construct::Kind::EXPRESSION;
-        expression->expressionKind = Expression::Kind::BINARY;
-        expression->value = (iterator - 1)->value;
-        expression->leftExpression = result;
-
-        std::unique_ptr<Construct> right;
-        if (!(expression->rightExpression = parseAdditionAssignment(tokens, iterator, declarationScopes)))
-        {
-            return nullptr;
-        }
-
-        // TODO: fix this
-        expression->qualifiedType.type = expression->leftExpression->qualifiedType.type;
-
-        result = expression;
-    }
-
-    return result;
-}
-
-Expression* ASTContext::parseAdditionAssignment(const std::vector<Token>& tokens,
-                                                std::vector<Token>::const_iterator& iterator,
-                                                std::vector<std::vector<Declaration*>>& declarationScopes)
-{
-    Expression* result;
-    if (!(result = parseAssignment(tokens, iterator, declarationScopes)))
-    {
-        return nullptr;
-    }
-
-    while (checkTokens({Token::Type::OPERATOR_PLUS_ASSIGNMENT, Token::Type::OPERATOR_MINUS_ASSIGNMENT}, tokens, iterator))
-    {
-        BinaryOperatorExpression* expression = new BinaryOperatorExpression();
-        constructs.push_back(std::unique_ptr<Construct>(expression));
-        expression->kind = Construct::Kind::EXPRESSION;
-        expression->expressionKind = Expression::Kind::BINARY;
-        expression->value = (iterator - 1)->value;
-        expression->leftExpression = result;
-
-        if (!(expression->rightExpression = parseAssignment(tokens, iterator, declarationScopes)))
-        {
-            return nullptr;
-        }
-
-        // TODO: fix this
-        expression->qualifiedType.type = expression->leftExpression->qualifiedType.type;
-
-        result = expression;
-    }
-
-    return result;
-}
-
-Expression* ASTContext::parseAssignment(const std::vector<Token>& tokens,
-                                        std::vector<Token>::const_iterator& iterator,
-                                        std::vector<std::vector<Declaration*>>& declarationScopes)
-{
-    Expression* result;
-    if (!(result = parseTernary(tokens, iterator, declarationScopes)))
-    {
-        return nullptr;
-    }
-
-    while (checkToken(Token::Type::OPERATOR_ASSIGNMENT, tokens, iterator))
-    {
-        BinaryOperatorExpression* expression = new BinaryOperatorExpression();
-        constructs.push_back(std::unique_ptr<Construct>(expression));
-        expression->kind = Construct::Kind::EXPRESSION;
-        expression->expressionKind = Expression::Kind::BINARY;
-        expression->value = (iterator - 1)->value;
-        expression->leftExpression = result;
-
-        if (!(expression->rightExpression = parseTernary(tokens, iterator, declarationScopes)))
-        {
-            return nullptr;
-        }
-
-        // TODO: fix this
-        expression->qualifiedType.type = expression->leftExpression->qualifiedType.type;
-
-        result = expression;
-    }
-
-    return result;
-}
-
-Expression* ASTContext::parseTernary(const std::vector<Token>& tokens,
-                                     std::vector<Token>::const_iterator& iterator,
-                                     std::vector<std::vector<Declaration*>>& declarationScopes)
-{
-    Expression* result;
-    if (!(result = parseEquality(tokens, iterator, declarationScopes)))
-    {
-        return nullptr;
-    }
-
-    while (checkToken(Token::Type::OPERATOR_CONDITIONAL, tokens, iterator))
-    {
-        TernaryOperatorExpression* expression = new TernaryOperatorExpression();
-        constructs.push_back(std::unique_ptr<Construct>(expression));
-        expression->kind = Construct::Kind::EXPRESSION;
-        expression->expressionKind = Expression::Kind::TERNARY;
-        expression->value = (iterator - 1)->value;
-        expression->condition = result;
-
-        if (!(expression->leftExpression = parseTernary(tokens, iterator, declarationScopes)))
-        {
-            return nullptr;
-        }
-
-        if (!checkToken(Token::Type::COLON, tokens, iterator))
-        {
-            std::cerr << "Expected a colon" << std::endl;
-            return nullptr;
-        }
-
-        if (!(expression->rightExpression = parseTernary(tokens, iterator, declarationScopes)))
-        {
-            return nullptr;
-        }
-
-        // TODO: fix this
-        expression->qualifiedType.type = expression->leftExpression->qualifiedType.type;
-
-        result = expression;
-    }
-
-    return result;
-}
-
-Expression* ASTContext::parseEquality(const std::vector<Token>& tokens,
-                                      std::vector<Token>::const_iterator& iterator,
-                                      std::vector<std::vector<Declaration*>>& declarationScopes)
-{
-    Expression* result;
-    if (!(result = parseGreaterThan(tokens, iterator, declarationScopes)))
-    {
-        return nullptr;
-    }
-
-    while (checkTokens({Token::Type::OPERATOR_EQUAL, Token::Type::OPERATOR_NOT_EQUAL}, tokens, iterator))
-    {
-        BinaryOperatorExpression* expression = new BinaryOperatorExpression();
-        constructs.push_back(std::unique_ptr<Construct>(expression));
-        expression->kind = Construct::Kind::EXPRESSION;
-        expression->expressionKind = Expression::Kind::BINARY;
-        expression->value = (iterator - 1)->value;
-        expression->leftExpression = result;
-
-        if (!(expression->rightExpression = parseGreaterThan(tokens, iterator, declarationScopes)))
-        {
-            return nullptr;
-        }
-
-        // TODO: fix this
-        expression->qualifiedType.type = expression->leftExpression->qualifiedType.type;
-
-        result = expression;
-    }
-    
-    return result;
-}
-
-Expression* ASTContext::parseGreaterThan(const std::vector<Token>& tokens,
-                                         std::vector<Token>::const_iterator& iterator,
-                                         std::vector<std::vector<Declaration*>>& declarationScopes)
-{
-    Expression* result;
-    if (!(result = parseLessThan(tokens, iterator, declarationScopes)))
-    {
-        return nullptr;
-    }
-
-    while (checkTokens({Token::Type::OPERATOR_GREATER_THAN, Token::Type::OPERATOR_GREATER_THAN_EQUAL}, tokens, iterator))
-    {
-        BinaryOperatorExpression* expression = new BinaryOperatorExpression();
-        constructs.push_back(std::unique_ptr<Construct>(expression));
-        expression->kind = Construct::Kind::EXPRESSION;
-        expression->expressionKind = Expression::Kind::BINARY;
-        expression->value = (iterator - 1)->value;
-        expression->leftExpression = result;
-
-        if (!(expression->rightExpression = parseLessThan(tokens, iterator, declarationScopes)))
-        {
-            return nullptr;
-        }
-
-        // TODO: fix this
-        expression->qualifiedType.type = expression->leftExpression->qualifiedType.type;
-
-        result = expression;
-    }
-    
-    return result;
-}
-
-Expression* ASTContext::parseLessThan(const std::vector<Token>& tokens,
-                                      std::vector<Token>::const_iterator& iterator,
-                                      std::vector<std::vector<Declaration*>>& declarationScopes)
-{
-    Expression* result;
-    if (!(result = parseAddition(tokens, iterator, declarationScopes)))
-    {
-        return nullptr;
-    }
-
-    while (checkTokens({Token::Type::OPERATOR_LESS_THAN, Token::Type::OPERATOR_LESS_THAN_EQUAL}, tokens, iterator))
-    {
-        BinaryOperatorExpression* expression = new BinaryOperatorExpression();
-        constructs.push_back(std::unique_ptr<Construct>(expression));
-        expression->kind = Construct::Kind::EXPRESSION;
-        expression->expressionKind = Expression::Kind::BINARY;
-        expression->value = (iterator - 1)->value;
-        expression->leftExpression = result;
-
-        if (!(expression->rightExpression = parseAddition(tokens, iterator, declarationScopes)))
-        {
-            return nullptr;
-        }
-
-        // TODO: fix this
-        expression->qualifiedType.type = expression->leftExpression->qualifiedType.type;
-
-        result = expression;
-    }
-    
-    return result;
-}
-
-Expression* ASTContext::parseAddition(const std::vector<Token>& tokens,
-                                      std::vector<Token>::const_iterator& iterator,
-                                      std::vector<std::vector<Declaration*>>& declarationScopes)
-{
-    Expression* result;
-    if (!(result = parseMultiplication(tokens, iterator, declarationScopes)))
-    {
-        return nullptr;
-    }
-
-    while (checkTokens({Token::Type::OPERATOR_PLUS, Token::Type::OPERATOR_MINUS}, tokens, iterator))
-    {
-        BinaryOperatorExpression* expression = new BinaryOperatorExpression();
-        constructs.push_back(std::unique_ptr<Construct>(expression));
-        expression->kind = Construct::Kind::EXPRESSION;
-        expression->expressionKind = Expression::Kind::BINARY;
-        expression->value = (iterator - 1)->value;
-        expression->leftExpression = result;
-
-        if (!(expression->rightExpression = parseMultiplication(tokens, iterator, declarationScopes)))
-        {
-            return nullptr;
-        }
-
-        // TODO: fix this
-        expression->qualifiedType.type = expression->leftExpression->qualifiedType.type;
-
-        result = expression;
-    }
-    
-    return result;
-}
-
-Expression* ASTContext::parseMultiplication(const std::vector<Token>& tokens,
-                                            std::vector<Token>::const_iterator& iterator,
-                                            std::vector<std::vector<Declaration*>>& declarationScopes)
-{
-    Expression* result;
-    if (!(result = parseNot(tokens, iterator, declarationScopes)))
-    {
-        return nullptr;
-    }
-
-    while (checkTokens({Token::Type::OPERATOR_MULTIPLY, Token::Type::OPERATOR_DIVIDE}, tokens, iterator))
-    {
-        BinaryOperatorExpression* expression = new BinaryOperatorExpression();
-        constructs.push_back(std::unique_ptr<Construct>(expression));
-        expression->kind = Construct::Kind::EXPRESSION;
-        expression->expressionKind = Expression::Kind::BINARY;
-        expression->value = (iterator - 1)->value;
-        expression->leftExpression = result;
-
-        if (!(expression->rightExpression = parseNot(tokens, iterator, declarationScopes)))
-        {
-            return nullptr;
-        }
-
-        // TODO: fix this
-        expression->qualifiedType.type = expression->leftExpression->qualifiedType.type;
-
-        result = expression;
-    }
-
-    return result;
-}
-
-Expression* ASTContext::parseNot(const std::vector<Token>& tokens,
-                                 std::vector<Token>::const_iterator& iterator,
-                                 std::vector<std::vector<Declaration*>>& declarationScopes)
-{
-    if (checkToken(Token::Type::OPERATOR_NOT, tokens, iterator))
-    {
-        UnaryOperatorExpression* result = new UnaryOperatorExpression();
-        constructs.push_back(std::unique_ptr<Construct>(result));
-        result->kind = Construct::Kind::EXPRESSION;
-        result->expressionKind = Expression::Kind::UNARY;
-        result->value = (iterator - 1)->value;
-
-        if (!(result->expression = parseSign(tokens, iterator, declarationScopes)))
-        {
-            return nullptr;
-        }
-
-        result->qualifiedType.type = findType("bool", declarationScopes);
-
-        return result;
-    }
-    else
-    {
-        Expression* result;
-        if (!(result = parseSign(tokens, iterator, declarationScopes)))
-        {
-            return nullptr;
-        }
-
-        return result;
-    }
-}
-
-Expression* ASTContext::parseSign(const std::vector<Token>& tokens,
-                                  std::vector<Token>::const_iterator& iterator,
-                                  std::vector<std::vector<Declaration*>>& declarationScopes)
-{
-    if (checkTokens({Token::Type::OPERATOR_PLUS, Token::Type::OPERATOR_MINUS}, tokens, iterator))
-    {
-        UnaryOperatorExpression* result = new UnaryOperatorExpression();
-        constructs.push_back(std::unique_ptr<Construct>(result));
-        result->kind = Construct::Kind::EXPRESSION;
-        result->expressionKind = Expression::Kind::UNARY;
-        result->value = (iterator - 1)->value;
-
-        if (!(result->expression = parseMember(tokens, iterator, declarationScopes)))
-        {
-            return nullptr;
-        }
-
-        result->qualifiedType.type = result->expression->qualifiedType.type;
-
-        return result;
-    }
-    else
-    {
-        Expression* result;
-        if (!(result = parseMember(tokens, iterator, declarationScopes)))
-        {
-            return nullptr;
-        }
-
-        return result;
-    }
-}
-
-Expression* ASTContext::parseMember(const std::vector<Token>& tokens,
-                                    std::vector<Token>::const_iterator& iterator,
-                                    std::vector<std::vector<Declaration*>>& declarationScopes)
-{
-    Expression* result;
-    if (!(result = parsePrimary(tokens, iterator, declarationScopes)))
-    {
-        return nullptr;
-    }
-
-    while (checkToken(Token::Type::OPERATOR_DOT, tokens, iterator))
-    {
-        MemberExpression* expression = new MemberExpression();
-        constructs.push_back(std::unique_ptr<Construct>(expression));
-        expression->kind = Construct::Kind::EXPRESSION;
-        expression->expressionKind = Expression::Kind::MEMBER;
-        expression->expression = result;
-
-        if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
-        {
-            std::cerr << "Expected an identifier" << std::endl;
-            return nullptr;
-        }
-
-        if (!result->qualifiedType.type)
-        {
-            std::cerr << "Expression has no result type" << std::endl;
-            return nullptr;
-        }
-
-        if (result->qualifiedType.type->typeKind != Type::Kind::STRUCT)
-        {
-            std::cerr << result->qualifiedType.type->name << " is not a structure" << std::endl;
-            return nullptr;
-        }
-
-        StructType* structType = static_cast<StructType*>(result->qualifiedType.type);
-
-        expression->field = findField((iterator - 1)->value, structType);
-
-        if (!expression->field)
-        {
-            std::cerr << "Structure " << structType->name <<  " has no member " << (iterator - 1)->value << std::endl;
-            return nullptr;
-        }
-
-        expression->qualifiedType.type = expression->field->qualifiedType.type;
-
-        result = expression;
-    }
-    
-    return result;
-}
-
 Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
                                      std::vector<Token>::const_iterator& iterator,
                                      std::vector<std::vector<Declaration*>>& declarationScopes)
@@ -1861,6 +1399,468 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
         std::cerr << "Expected an expression" << std::endl;
         return nullptr;
     }
+}
+
+Expression* ASTContext::parseMember(const std::vector<Token>& tokens,
+                                    std::vector<Token>::const_iterator& iterator,
+                                    std::vector<std::vector<Declaration*>>& declarationScopes)
+{
+    Expression* result;
+    if (!(result = parsePrimary(tokens, iterator, declarationScopes)))
+    {
+        return nullptr;
+    }
+
+    while (checkToken(Token::Type::OPERATOR_DOT, tokens, iterator))
+    {
+        MemberExpression* expression = new MemberExpression();
+        constructs.push_back(std::unique_ptr<Construct>(expression));
+        expression->kind = Construct::Kind::EXPRESSION;
+        expression->expressionKind = Expression::Kind::MEMBER;
+        expression->expression = result;
+
+        if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
+        {
+            std::cerr << "Expected an identifier" << std::endl;
+            return nullptr;
+        }
+
+        if (!result->qualifiedType.type)
+        {
+            std::cerr << "Expression has no result type" << std::endl;
+            return nullptr;
+        }
+
+        if (result->qualifiedType.type->typeKind != Type::Kind::STRUCT)
+        {
+            std::cerr << result->qualifiedType.type->name << " is not a structure" << std::endl;
+            return nullptr;
+        }
+
+        StructType* structType = static_cast<StructType*>(result->qualifiedType.type);
+
+        expression->field = findField((iterator - 1)->value, structType);
+
+        if (!expression->field)
+        {
+            std::cerr << "Structure " << structType->name <<  " has no member " << (iterator - 1)->value << std::endl;
+            return nullptr;
+        }
+
+        expression->qualifiedType.type = expression->field->qualifiedType.type;
+
+        result = expression;
+    }
+    
+    return result;
+}
+
+Expression* ASTContext::parseSign(const std::vector<Token>& tokens,
+                                  std::vector<Token>::const_iterator& iterator,
+                                  std::vector<std::vector<Declaration*>>& declarationScopes)
+{
+    if (checkTokens({Token::Type::OPERATOR_PLUS, Token::Type::OPERATOR_MINUS}, tokens, iterator))
+    {
+        UnaryOperatorExpression* result = new UnaryOperatorExpression();
+        constructs.push_back(std::unique_ptr<Construct>(result));
+        result->kind = Construct::Kind::EXPRESSION;
+        result->expressionKind = Expression::Kind::UNARY;
+        result->value = (iterator - 1)->value;
+
+        if (!(result->expression = parseMember(tokens, iterator, declarationScopes)))
+        {
+            return nullptr;
+        }
+
+        result->qualifiedType.type = result->expression->qualifiedType.type;
+
+        return result;
+    }
+    else
+    {
+        Expression* result;
+        if (!(result = parseMember(tokens, iterator, declarationScopes)))
+        {
+            return nullptr;
+        }
+
+        return result;
+    }
+}
+
+Expression* ASTContext::parseNot(const std::vector<Token>& tokens,
+                                 std::vector<Token>::const_iterator& iterator,
+                                 std::vector<std::vector<Declaration*>>& declarationScopes)
+{
+    if (checkToken(Token::Type::OPERATOR_NOT, tokens, iterator))
+    {
+        UnaryOperatorExpression* result = new UnaryOperatorExpression();
+        constructs.push_back(std::unique_ptr<Construct>(result));
+        result->kind = Construct::Kind::EXPRESSION;
+        result->expressionKind = Expression::Kind::UNARY;
+        result->value = (iterator - 1)->value;
+
+        if (!(result->expression = parseSign(tokens, iterator, declarationScopes)))
+        {
+            return nullptr;
+        }
+
+        result->qualifiedType.type = findType("bool", declarationScopes);
+
+        return result;
+    }
+    else
+    {
+        Expression* result;
+        if (!(result = parseSign(tokens, iterator, declarationScopes)))
+        {
+            return nullptr;
+        }
+
+        return result;
+    }
+}
+
+Expression* ASTContext::parseMultiplication(const std::vector<Token>& tokens,
+                                            std::vector<Token>::const_iterator& iterator,
+                                            std::vector<std::vector<Declaration*>>& declarationScopes)
+{
+    Expression* result;
+    if (!(result = parseNot(tokens, iterator, declarationScopes)))
+    {
+        return nullptr;
+    }
+
+    while (checkTokens({Token::Type::OPERATOR_MULTIPLY, Token::Type::OPERATOR_DIVIDE}, tokens, iterator))
+    {
+        BinaryOperatorExpression* expression = new BinaryOperatorExpression();
+        constructs.push_back(std::unique_ptr<Construct>(expression));
+        expression->kind = Construct::Kind::EXPRESSION;
+        expression->expressionKind = Expression::Kind::BINARY;
+        expression->value = (iterator - 1)->value;
+        expression->leftExpression = result;
+
+        if (!(expression->rightExpression = parseNot(tokens, iterator, declarationScopes)))
+        {
+            return nullptr;
+        }
+
+        // TODO: fix this
+        expression->qualifiedType.type = expression->leftExpression->qualifiedType.type;
+
+        result = expression;
+    }
+    
+    return result;
+}
+
+Expression* ASTContext::parseAddition(const std::vector<Token>& tokens,
+                                      std::vector<Token>::const_iterator& iterator,
+                                      std::vector<std::vector<Declaration*>>& declarationScopes)
+{
+    Expression* result;
+    if (!(result = parseMultiplication(tokens, iterator, declarationScopes)))
+    {
+        return nullptr;
+    }
+
+    while (checkTokens({Token::Type::OPERATOR_PLUS, Token::Type::OPERATOR_MINUS}, tokens, iterator))
+    {
+        BinaryOperatorExpression* expression = new BinaryOperatorExpression();
+        constructs.push_back(std::unique_ptr<Construct>(expression));
+        expression->kind = Construct::Kind::EXPRESSION;
+        expression->expressionKind = Expression::Kind::BINARY;
+        expression->value = (iterator - 1)->value;
+        expression->leftExpression = result;
+
+        if (!(expression->rightExpression = parseMultiplication(tokens, iterator, declarationScopes)))
+        {
+            return nullptr;
+        }
+
+        // TODO: fix this
+        expression->qualifiedType.type = expression->leftExpression->qualifiedType.type;
+
+        result = expression;
+    }
+    
+    return result;
+}
+
+Expression* ASTContext::parseLessThan(const std::vector<Token>& tokens,
+                                      std::vector<Token>::const_iterator& iterator,
+                                      std::vector<std::vector<Declaration*>>& declarationScopes)
+{
+    Expression* result;
+    if (!(result = parseAddition(tokens, iterator, declarationScopes)))
+    {
+        return nullptr;
+    }
+
+    while (checkTokens({Token::Type::OPERATOR_LESS_THAN, Token::Type::OPERATOR_LESS_THAN_EQUAL}, tokens, iterator))
+    {
+        BinaryOperatorExpression* expression = new BinaryOperatorExpression();
+        constructs.push_back(std::unique_ptr<Construct>(expression));
+        expression->kind = Construct::Kind::EXPRESSION;
+        expression->expressionKind = Expression::Kind::BINARY;
+        expression->value = (iterator - 1)->value;
+        expression->leftExpression = result;
+
+        if (!(expression->rightExpression = parseAddition(tokens, iterator, declarationScopes)))
+        {
+            return nullptr;
+        }
+
+        // TODO: fix this
+        expression->qualifiedType.type = expression->leftExpression->qualifiedType.type;
+
+        result = expression;
+    }
+    
+    return result;
+}
+
+Expression* ASTContext::parseGreaterThan(const std::vector<Token>& tokens,
+                                         std::vector<Token>::const_iterator& iterator,
+                                         std::vector<std::vector<Declaration*>>& declarationScopes)
+{
+    Expression* result;
+    if (!(result = parseLessThan(tokens, iterator, declarationScopes)))
+    {
+        return nullptr;
+    }
+
+    while (checkTokens({Token::Type::OPERATOR_GREATER_THAN, Token::Type::OPERATOR_GREATER_THAN_EQUAL}, tokens, iterator))
+    {
+        BinaryOperatorExpression* expression = new BinaryOperatorExpression();
+        constructs.push_back(std::unique_ptr<Construct>(expression));
+        expression->kind = Construct::Kind::EXPRESSION;
+        expression->expressionKind = Expression::Kind::BINARY;
+        expression->value = (iterator - 1)->value;
+        expression->leftExpression = result;
+
+        if (!(expression->rightExpression = parseLessThan(tokens, iterator, declarationScopes)))
+        {
+            return nullptr;
+        }
+
+        // TODO: fix this
+        expression->qualifiedType.type = expression->leftExpression->qualifiedType.type;
+
+        result = expression;
+    }
+    
+    return result;
+}
+
+Expression* ASTContext::parseEquality(const std::vector<Token>& tokens,
+                                      std::vector<Token>::const_iterator& iterator,
+                                      std::vector<std::vector<Declaration*>>& declarationScopes)
+{
+    Expression* result;
+    if (!(result = parseGreaterThan(tokens, iterator, declarationScopes)))
+    {
+        return nullptr;
+    }
+
+    while (checkTokens({Token::Type::OPERATOR_EQUAL, Token::Type::OPERATOR_NOT_EQUAL}, tokens, iterator))
+    {
+        BinaryOperatorExpression* expression = new BinaryOperatorExpression();
+        constructs.push_back(std::unique_ptr<Construct>(expression));
+        expression->kind = Construct::Kind::EXPRESSION;
+        expression->expressionKind = Expression::Kind::BINARY;
+        expression->value = (iterator - 1)->value;
+        expression->leftExpression = result;
+
+        if (!(expression->rightExpression = parseGreaterThan(tokens, iterator, declarationScopes)))
+        {
+            return nullptr;
+        }
+
+        // TODO: fix this
+        expression->qualifiedType.type = expression->leftExpression->qualifiedType.type;
+
+        result = expression;
+    }
+    
+    return result;
+}
+
+Expression* ASTContext::parseTernary(const std::vector<Token>& tokens,
+                                     std::vector<Token>::const_iterator& iterator,
+                                     std::vector<std::vector<Declaration*>>& declarationScopes)
+{
+    Expression* result;
+    if (!(result = parseEquality(tokens, iterator, declarationScopes)))
+    {
+        return nullptr;
+    }
+
+    while (checkToken(Token::Type::OPERATOR_CONDITIONAL, tokens, iterator))
+    {
+        TernaryOperatorExpression* expression = new TernaryOperatorExpression();
+        constructs.push_back(std::unique_ptr<Construct>(expression));
+        expression->kind = Construct::Kind::EXPRESSION;
+        expression->expressionKind = Expression::Kind::TERNARY;
+        expression->value = (iterator - 1)->value;
+        expression->condition = result;
+
+        if (!(expression->leftExpression = parseTernary(tokens, iterator, declarationScopes)))
+        {
+            return nullptr;
+        }
+
+        if (!checkToken(Token::Type::COLON, tokens, iterator))
+        {
+            std::cerr << "Expected a colon" << std::endl;
+            return nullptr;
+        }
+
+        if (!(expression->rightExpression = parseTernary(tokens, iterator, declarationScopes)))
+        {
+            return nullptr;
+        }
+
+        // TODO: fix this
+        expression->qualifiedType.type = expression->leftExpression->qualifiedType.type;
+
+        result = expression;
+    }
+    
+    return result;
+}
+
+Expression* ASTContext::parseAssignment(const std::vector<Token>& tokens,
+                                        std::vector<Token>::const_iterator& iterator,
+                                        std::vector<std::vector<Declaration*>>& declarationScopes)
+{
+    Expression* result;
+    if (!(result = parseTernary(tokens, iterator, declarationScopes)))
+    {
+        return nullptr;
+    }
+
+    while (checkToken(Token::Type::OPERATOR_ASSIGNMENT, tokens, iterator))
+    {
+        BinaryOperatorExpression* expression = new BinaryOperatorExpression();
+        constructs.push_back(std::unique_ptr<Construct>(expression));
+        expression->kind = Construct::Kind::EXPRESSION;
+        expression->expressionKind = Expression::Kind::BINARY;
+        expression->value = (iterator - 1)->value;
+        expression->leftExpression = result;
+
+        if (!(expression->rightExpression = parseTernary(tokens, iterator, declarationScopes)))
+        {
+            return nullptr;
+        }
+
+        // TODO: fix this
+        expression->qualifiedType.type = expression->leftExpression->qualifiedType.type;
+
+        result = expression;
+    }
+    
+    return result;
+}
+
+Expression* ASTContext::parseAdditionAssignment(const std::vector<Token>& tokens,
+                                                std::vector<Token>::const_iterator& iterator,
+                                                std::vector<std::vector<Declaration*>>& declarationScopes)
+{
+    Expression* result;
+    if (!(result = parseAssignment(tokens, iterator, declarationScopes)))
+    {
+        return nullptr;
+    }
+
+    while (checkTokens({Token::Type::OPERATOR_PLUS_ASSIGNMENT, Token::Type::OPERATOR_MINUS_ASSIGNMENT}, tokens, iterator))
+    {
+        BinaryOperatorExpression* expression = new BinaryOperatorExpression();
+        constructs.push_back(std::unique_ptr<Construct>(expression));
+        expression->kind = Construct::Kind::EXPRESSION;
+        expression->expressionKind = Expression::Kind::BINARY;
+        expression->value = (iterator - 1)->value;
+        expression->leftExpression = result;
+
+        if (!(expression->rightExpression = parseAssignment(tokens, iterator, declarationScopes)))
+        {
+            return nullptr;
+        }
+
+        // TODO: fix this
+        expression->qualifiedType.type = expression->leftExpression->qualifiedType.type;
+
+        result = expression;
+    }
+    
+    return result;
+}
+
+Expression* ASTContext::parseMultiplicationAssignment(const std::vector<Token>& tokens,
+                                                      std::vector<Token>::const_iterator& iterator,
+                                                      std::vector<std::vector<Declaration*>>& declarationScopes)
+{
+    Expression* result;
+    if (!(result = parseAdditionAssignment(tokens, iterator, declarationScopes)))
+    {
+        return nullptr;
+    }
+
+    while (checkTokens({Token::Type::OPERATOR_MULTIPLY_ASSIGNMENT, Token::Type::OPERATOR_DIVIDE_ASSIGNMENT}, tokens, iterator))
+    {
+        BinaryOperatorExpression* expression = new BinaryOperatorExpression();
+        constructs.push_back(std::unique_ptr<Construct>(expression));
+        expression->kind = Construct::Kind::EXPRESSION;
+        expression->expressionKind = Expression::Kind::BINARY;
+        expression->value = (iterator - 1)->value;
+        expression->leftExpression = result;
+
+        std::unique_ptr<Construct> right;
+        if (!(expression->rightExpression = parseAdditionAssignment(tokens, iterator, declarationScopes)))
+        {
+            return nullptr;
+        }
+
+        // TODO: fix this
+        expression->qualifiedType.type = expression->leftExpression->qualifiedType.type;
+
+        result = expression;
+    }
+    
+    return result;
+}
+
+Expression* ASTContext::parseComma(const std::vector<Token>& tokens,
+                                   std::vector<Token>::const_iterator& iterator,
+                                   std::vector<std::vector<Declaration*>>& declarationScopes)
+{
+    Expression* result;
+    if (!(result = parseMultiplicationAssignment(tokens, iterator, declarationScopes)))
+    {
+        return nullptr;
+    }
+
+    while (checkToken(Token::Type::COMMA, tokens, iterator))
+    {
+        BinaryOperatorExpression* expression = new BinaryOperatorExpression();
+        constructs.push_back(std::unique_ptr<Construct>(expression));
+        expression->kind = Construct::Kind::EXPRESSION;
+        expression->expressionKind = Expression::Kind::BINARY;
+        expression->value = (iterator - 1)->value;
+        expression->leftExpression = result;
+
+        std::unique_ptr<Construct> right;
+        if (!(expression->rightExpression = parseAdditionAssignment(tokens, iterator, declarationScopes)))
+        {
+            return nullptr;
+        }
+
+        expression->qualifiedType.type = expression->rightExpression->qualifiedType.type;
+
+        result = expression;
+    }
+
+    return result;
 }
 
 void ASTContext::dump() const
