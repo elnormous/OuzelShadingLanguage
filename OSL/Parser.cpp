@@ -853,6 +853,8 @@ Statement* ASTContext::parseStatement(const std::vector<Token>& tokens,
             return nullptr;
         }
 
+        ++iterator;
+
         return result;
     }
     else if (checkToken(Token::Type::KEYWORD_CONTINUE, tokens, iterator))
@@ -869,6 +871,8 @@ Statement* ASTContext::parseStatement(const std::vector<Token>& tokens,
             std::cerr << "Expected a semicolon" << std::endl;
             return nullptr;
         }
+
+        ++iterator;
 
         return result;
     }
@@ -916,6 +920,8 @@ Statement* ASTContext::parseStatement(const std::vector<Token>& tokens,
             std::cerr << "Expected a semicolon" << std::endl;
             return nullptr;
         }
+
+        ++iterator;
 
         DeclarationStatement* declarationStatement = new DeclarationStatement();
         constructs.push_back(std::unique_ptr<Construct>(declarationStatement));

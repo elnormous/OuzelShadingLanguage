@@ -25,7 +25,12 @@ bool OutputHLSL::output(const ASTContext& context, const std::string& outputFile
             return false;
         }
 
-        // TODO: remove
+        if (declaration->declarationKind != Declaration::Kind::FUNCTION ||
+            !static_cast<const FunctionDeclaration*>(declaration)->body) // function doesn't have a body
+        {
+            code += ";";
+        }
+
         code += "\n";
     }
 
@@ -113,18 +118,16 @@ bool OutputHLSL::printDeclaration(const Declaration* declaration, Options option
                 }
             }
 
+            code += ")";
+
             if (functionDeclaration->body)
             {
-                code += ")\n";
+                code += "\n";
 
                 if (!printConstruct(functionDeclaration->body, options, code))
                 {
                     return false;
                 }
-            }
-            else
-            {
-                code += ");"; // does not have a definition
             }
 
             break;
@@ -174,7 +177,6 @@ bool OutputHLSL::printStatement(const Statement* statement, Options options, std
         case Statement::Kind::EMPTY:
         {
             code.append(options.indentation, ' ');
-            code += ";\n";
             break;
         }
 
@@ -187,7 +189,6 @@ bool OutputHLSL::printStatement(const Statement* statement, Options options, std
             {
                 return false;
             }
-            code += ";\n";
             break;
         }
 
@@ -200,7 +201,6 @@ bool OutputHLSL::printStatement(const Statement* statement, Options options, std
             {
                 return false;
             }
-            code += ";\n";
             break;
         }
 
@@ -217,10 +217,23 @@ bool OutputHLSL::printStatement(const Statement* statement, Options options, std
                 {
                     return false;
                 }
+
+                if (statement->statementKind == Statement::Kind::DECLARATION ||
+                    statement->statementKind == Statement::Kind::EXPRESSION ||
+                    statement->statementKind == Statement::Kind::EMPTY ||
+                    statement->statementKind == Statement::Kind::BREAK ||
+                    statement->statementKind == Statement::Kind::CONTINUE ||
+                    statement->statementKind == Statement::Kind::RETURN ||
+                    statement->statementKind == Statement::Kind::DO)
+                {
+                    code += ";";
+                }
+
+                code += "\n";
             }
 
             code.append(options.indentation, ' ');
-            code += "}\n";
+            code += "}";
             break;
         }
 
@@ -253,8 +266,20 @@ bool OutputHLSL::printStatement(const Statement* statement, Options options, std
                 }
             }
 
+            if (ifStatement->body->statementKind == Statement::Kind::DECLARATION ||
+                ifStatement->body->statementKind == Statement::Kind::EXPRESSION ||
+                ifStatement->body->statementKind == Statement::Kind::EMPTY ||
+                ifStatement->body->statementKind == Statement::Kind::BREAK ||
+                ifStatement->body->statementKind == Statement::Kind::CONTINUE ||
+                ifStatement->body->statementKind == Statement::Kind::RETURN ||
+                ifStatement->body->statementKind == Statement::Kind::DO)
+            {
+                code += ";";
+            }
+
             if (ifStatement->elseBody)
             {
+                code += "\n";
                 code.append(options.indentation, ' ');
                 code += "else\n";
 
@@ -271,6 +296,17 @@ bool OutputHLSL::printStatement(const Statement* statement, Options options, std
                     {
                         return false;
                     }
+                }
+
+                if (ifStatement->elseBody->statementKind == Statement::Kind::DECLARATION ||
+                    ifStatement->elseBody->statementKind == Statement::Kind::EXPRESSION ||
+                    ifStatement->elseBody->statementKind == Statement::Kind::EMPTY ||
+                    ifStatement->elseBody->statementKind == Statement::Kind::BREAK ||
+                    ifStatement->elseBody->statementKind == Statement::Kind::CONTINUE ||
+                    ifStatement->elseBody->statementKind == Statement::Kind::RETURN ||
+                    ifStatement->elseBody->statementKind == Statement::Kind::DO)
+                {
+                    code += ";";
                 }
             }
             break;
@@ -390,7 +426,16 @@ bool OutputHLSL::printStatement(const Statement* statement, Options options, std
                     return false;
                 }
 
-                code += ";\n";
+                if (caseStatement->body->statementKind == Statement::Kind::DECLARATION ||
+                    caseStatement->body->statementKind == Statement::Kind::EXPRESSION ||
+                    caseStatement->body->statementKind == Statement::Kind::EMPTY ||
+                    caseStatement->body->statementKind == Statement::Kind::BREAK ||
+                    caseStatement->body->statementKind == Statement::Kind::CONTINUE ||
+                    caseStatement->body->statementKind == Statement::Kind::RETURN ||
+                    caseStatement->body->statementKind == Statement::Kind::DO)
+                {
+                    code += ";";
+                }
             }
 
             break;
@@ -424,6 +469,18 @@ bool OutputHLSL::printStatement(const Statement* statement, Options options, std
                     return false;
                 }
             }
+
+            if (whileStatement->body->statementKind == Statement::Kind::DECLARATION ||
+                whileStatement->body->statementKind == Statement::Kind::EXPRESSION ||
+                whileStatement->body->statementKind == Statement::Kind::EMPTY ||
+                whileStatement->body->statementKind == Statement::Kind::BREAK ||
+                whileStatement->body->statementKind == Statement::Kind::CONTINUE ||
+                whileStatement->body->statementKind == Statement::Kind::RETURN ||
+                whileStatement->body->statementKind == Statement::Kind::DO)
+            {
+                code += ";";
+            }
+
             break;
         }
 
@@ -447,9 +504,20 @@ bool OutputHLSL::printStatement(const Statement* statement, Options options, std
                 {
                     return false;
                 }
+            }
 
+            if (doStatement->body->statementKind == Statement::Kind::DECLARATION ||
+                doStatement->body->statementKind == Statement::Kind::EXPRESSION ||
+                doStatement->body->statementKind == Statement::Kind::EMPTY ||
+                doStatement->body->statementKind == Statement::Kind::BREAK ||
+                doStatement->body->statementKind == Statement::Kind::CONTINUE ||
+                doStatement->body->statementKind == Statement::Kind::RETURN ||
+                doStatement->body->statementKind == Statement::Kind::DO)
+            {
                 code += ";";
             }
+
+            code += "\n";
 
             code.append(options.indentation, ' ');
             code += "while (";
@@ -459,7 +527,7 @@ bool OutputHLSL::printStatement(const Statement* statement, Options options, std
                 return false;
             }
 
-            code += ");\n";
+            code += ")";
 
             break;
         }
@@ -467,14 +535,14 @@ bool OutputHLSL::printStatement(const Statement* statement, Options options, std
         case Statement::Kind::BREAK:
         {
             code.append(options.indentation, ' ');
-            code += "break;\n";
+            code += "break";
             break;
         }
 
         case Statement::Kind::CONTINUE:
         {
             code.append(options.indentation, ' ');
-            code += "continue;\n";
+            code += "continue";
             break;
         }
             
@@ -493,10 +561,8 @@ bool OutputHLSL::printStatement(const Statement* statement, Options options, std
                 {
                     return false;
                 }
-                
-                code += ";\n";
             }
-            
+
             break;
         }
     }
