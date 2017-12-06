@@ -83,7 +83,7 @@ bool OutputHLSL::printDeclaration(const Declaration* declaration, Options option
             code.append(options.indentation, ' ');
 
             const FieldDeclaration* fieldDeclaration = static_cast<const FieldDeclaration*>(declaration);
-            code += fieldDeclaration->field->qualifiedType.type->name + " " + fieldDeclaration->field->name;
+            code += fieldDeclaration->qualifiedType.type->name + " " + fieldDeclaration->name;
             break;
         }
 
@@ -603,13 +603,13 @@ bool OutputHLSL::printExpression(const Expression* expression, Options options, 
 
             code += ".";
 
-            if (!memberExpression->field)
+            if (!memberExpression->fieldDeclaration)
             {
                 std::cerr << "Field does not exist";
                 return false;
             }
 
-            code += memberExpression->field->name;
+            code += memberExpression->fieldDeclaration->name;
 
             break;
         }

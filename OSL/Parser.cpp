@@ -18,7 +18,6 @@ bool ASTContext::parse(const std::vector<Token>& tokens)
 {
     constructs.clear();
     types.clear();
-    fields.clear();
     declarations.clear();
 
     std::unique_ptr<SimpleType> boolType(new SimpleType());
@@ -230,8 +229,7 @@ StructDeclaration* ASTContext::parseStructDeclaration(const std::vector<Token>& 
                     return nullptr;
                 }
 
-                fieldDeclaration->field->structType = type;
-                type->fields.push_back(fieldDeclaration->field);
+                fieldDeclaration->structType = type;
 
                 result->fieldDeclarations.push_back(fieldDeclaration);
             }
@@ -268,23 +266,17 @@ FieldDeclaration* ASTContext::parseFieldDeclaration(const std::vector<Token>& to
     fieldDeclaration->kind = Construct::Kind::DECLARATION;
     fieldDeclaration->declarationKind = Declaration::Kind::FIELD;
 
-    Field* field = new Field();
-    fields.push_back(std::unique_ptr<Field>(field));
-    field->declaration = fieldDeclaration;
-
-    fieldDeclaration->field = field;
-
     for (;;)
     {
         if (checkToken(Token::Type::KEYWORD_CONST, tokens, iterator))
         {
             ++iterator;
-            field->qualifiedType.isConst = true;
+            fieldDeclaration->qualifiedType.isConst = true;
         }
         else if (checkToken(Token::Type::KEYWORD_STATIC, tokens, iterator))
         {
             ++iterator;
-            field->qualifiedType.isStatic = true;
+            fieldDeclaration->qualifiedType.isStatic = true;
         }
         else break;
     }
@@ -295,9 +287,9 @@ FieldDeclaration* ASTContext::parseFieldDeclaration(const std::vector<Token>& to
         return nullptr;
     }
 
-    field->qualifiedType.type = findType(iterator->value, declarationScopes);
+    fieldDeclaration->qualifiedType.type = findType(iterator->value, declarationScopes);
 
-    if (!field->qualifiedType.type)
+    if (!fieldDeclaration->qualifiedType.type)
     {
         std::cerr << "Invalid type: " << iterator->value << std::endl;
         return nullptr;
@@ -311,7 +303,7 @@ FieldDeclaration* ASTContext::parseFieldDeclaration(const std::vector<Token>& to
         return nullptr;
     }
 
-    field->name = iterator->value;
+    fieldDeclaration->name = iterator->value;
 
     ++iterator;
 
@@ -377,7 +369,7 @@ FieldDeclaration* ASTContext::parseFieldDeclaration(const std::vector<Token>& to
                             return nullptr;
                         }
 
-                        field->semantic = semantic;
+                        fieldDeclaration->semantic = semantic;
                     }
 
                     ++iterator;
@@ -412,7 +404,7 @@ FieldDeclaration* ASTContext::parseFieldDeclaration(const std::vector<Token>& to
                 return nullptr;
             }
 
-            field->qualifiedType.dimensions.push_back(static_cast<uint32_t>(size));
+            fieldDeclaration->qualifiedType.dimensions.push_back(static_cast<uint32_t>(size));
         }
         else
         {
@@ -1628,9 +1620,9 @@ Expression* ASTContext::parseMember(const std::vector<Token>& tokens,
             return nullptr;
         }
 
-        expression->field = findField(iterator->value, structType);
+        expression->fieldDeclaration = findField(iterator->value, structType);
 
-        if (!expression->field)
+        if (!expression->fieldDeclaration)
         {
             std::cerr << "Structure " << structType->name <<  " has no member " << iterator->value << std::endl;
             return nullptr;
@@ -1638,7 +1630,7 @@ Expression* ASTContext::parseMember(const std::vector<Token>& tokens,
 
         ++iterator;
 
-        expression->qualifiedType.type = expression->field->qualifiedType.type;
+        expression->qualifiedType.type = expression->fieldDeclaration->qualifiedType.type;
 
         result = expression;
     }
@@ -2115,18 +2107,6 @@ void ASTContext::dumpType(const Type* type, std::string indent) const
     }
 }
 
-void ASTContext::dumpField(const Field* field, std::string indent) const
-{
-    std::cout << indent << ", name: " << field->name << ", type: " << field->qualifiedType.type->name;
-
-    if (field->semantic != Semantic::NONE)
-    {
-        std::cout << ", semantic: " << semanticToString(field->semantic);
-    }
-
-    std::cout << std::endl;
-}
-
 void ASTContext::dumpDeclaration(const Declaration* declaration, std::string indent) const
 {
     std::cout << indent << declarationKindToString(declaration->declarationKind);
@@ -2162,7 +2142,14 @@ void ASTContext::dumpDeclaration(const Declaration* declaration, std::string ind
         {
             const FieldDeclaration* fieldDeclaration = static_cast<const FieldDeclaration*>(declaration);
 
-            dumpField(fieldDeclaration->field);
+            std::cout << indent << ", name: " << fieldDeclaration->name << ", type: " << fieldDeclaration->qualifiedType.type->name;
+
+            if (fieldDeclaration->semantic != Semantic::NONE)
+            {
+                std::cout << ", semantic: " << semanticToString(fieldDeclaration->semantic);
+            }
+            
+            std::cout << std::endl;
             break;
         }
 
@@ -2419,7 +2406,7 @@ void ASTContext::dumpExpression(const Expression* expression, std::string indent
             std::cout << std::endl;
 
             dumpConstruct(memberExpression->expression, indent + "  ");
-            dumpField(memberExpression->field, indent + "  ");
+            dumpDeclaration(memberExpression->fieldDeclaration, indent + "  ");
             break;
         }
 

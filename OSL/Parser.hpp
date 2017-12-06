@@ -197,29 +197,18 @@ inline std::string expressionKindToString(Expression::Kind kind)
     return "unknown";
 }
 
-class StructType;
-class FieldDeclaration;
-
-class Field
-{
-public:
-    StructType* structType = nullptr;
-    QualifiedType qualifiedType;
-    FieldDeclaration* declaration = nullptr;
-    std::string name;
-    Semantic semantic = Semantic::NONE;
-};
-
 class SimpleType: public Type
 {
 public:
     bool scalar = false;
 };
 
+class FieldDeclaration;
+
 class StructType: public Type
 {
 public:
-    std::vector<Field*> fields;
+    std::vector<FieldDeclaration*> fieldDeclarations;
 };
 
 class Declaration: public Construct
@@ -266,7 +255,11 @@ public:
 class FieldDeclaration: public Declaration
 {
 public:
-    Field* field = nullptr;
+    StructType* structType = nullptr;
+    QualifiedType qualifiedType;
+    FieldDeclaration* declaration = nullptr;
+    std::string name;
+    Semantic semantic = Semantic::NONE;
 };
 
 class StructDeclaration: public TypeDeclaration
@@ -416,7 +409,7 @@ class MemberExpression: public Expression
 {
 public:
     Expression* expression = nullptr;
-    Field* field = nullptr;
+    FieldDeclaration* fieldDeclaration = nullptr;
 };
 
 class ArraySubscriptExpression: public Expression
@@ -547,11 +540,11 @@ private:
         return nullptr;
     }
 
-    Field* findField(const std::string& name, StructType* structType) const
+    FieldDeclaration* findField(const std::string& name, StructType* structType) const
     {
-        for (Field* field : structType->fields)
+        for (FieldDeclaration* fieldDeclaration : structType->fieldDeclarations)
         {
-            if (field->name == name) return field;
+            if (fieldDeclaration->name == name) return fieldDeclaration;
         }
 
         return nullptr;
@@ -678,7 +671,6 @@ private:
                            std::vector<std::vector<Declaration*>>& declarationScopes);
 
     void dumpType(const Type* type, std::string indent = std::string()) const;
-    void dumpField(const Field* field, std::string indent = std::string()) const;
     void dumpDeclaration(const Declaration* declaration, std::string indent = std::string()) const;
     void dumpStatement(const Statement* statement, std::string indent = std::string()) const;
     void dumpExpression(const Expression* expression, std::string indent = std::string()) const;
@@ -686,5 +678,4 @@ private:
 
     std::vector<std::unique_ptr<Construct>> constructs;
     std::vector<std::unique_ptr<Type>> types;
-    std::vector<std::unique_ptr<Field>> fields;
 };
