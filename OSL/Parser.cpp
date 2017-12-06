@@ -2117,7 +2117,14 @@ void ASTContext::dumpType(const Type* type, std::string indent) const
 
 void ASTContext::dumpField(const Field* field, std::string indent) const
 {
-    std::cout << indent << ", name: " << field->name << ", type: " << field->qualifiedType.type->name << std::endl;
+    std::cout << indent << ", name: " << field->name << ", type: " << field->qualifiedType.type->name;
+
+    if (field->semantic != Semantic::NONE)
+    {
+        std::cout << ", semantic: " << semanticToString(field->semantic);
+    }
+
+    std::cout << std::endl;
 }
 
 void ASTContext::dumpDeclaration(const Declaration* declaration, std::string indent) const
