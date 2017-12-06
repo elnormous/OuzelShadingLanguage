@@ -94,6 +94,47 @@ bool OutputHLSL::printDeclaration(const Declaration* declaration, Options option
 
             const FieldDeclaration* fieldDeclaration = static_cast<const FieldDeclaration*>(declaration);
             code += fieldDeclaration->qualifiedType.typeDeclaration->name + " " + fieldDeclaration->name;
+
+            if (fieldDeclaration->semantic != Semantic::NONE)
+            {
+                code += ":";
+
+                switch (fieldDeclaration->semantic)
+                {
+                    case Semantic::NONE: break;
+                    case Semantic::BINORMAL:
+                        code += "BINORMAL";
+                        break;
+                    case Semantic::BLEND_INDICES:
+                        code += "BLEND_INDICES";
+                        break;
+                    case Semantic::BLEND_WEIGHT:
+                        code += "BLEND_WEIGHT";
+                        break;
+                    case Semantic::COLOR:
+                        code += "COLOR";
+                        break;
+                    case Semantic::NORMAL:
+                        code += "NORMAL";
+                        break;
+                    case Semantic::POSITION:
+                        code += "POSITION";
+                        break;
+                    case Semantic::POSITION_TRANSFORMED:
+                        code += "POSITION_TRANSFORMED";
+                        break;
+                    case Semantic::POINT_SIZE:
+                        code += "POINT_SIZE";
+                        break;
+                    case Semantic::TANGENT:
+                        code += "TANGENT";
+                        break;
+                    case Semantic::TEXTURE_COORDINATES:
+                        code += "TEXTURE_COORDINATES";
+                        break;
+                }
+            }
+
             break;
         }
 
