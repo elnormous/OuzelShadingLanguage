@@ -315,7 +315,7 @@ FieldDeclaration* ASTContext::parseFieldDeclaration(const std::vector<Token>& to
 
     ++iterator;
 
-    if (checkToken(Token::Type::LEFT_BRACKET, tokens, iterator))
+    while (checkToken(Token::Type::LEFT_BRACKET, tokens, iterator))
     {
         ++iterator;
 
@@ -323,7 +323,7 @@ FieldDeclaration* ASTContext::parseFieldDeclaration(const std::vector<Token>& to
         {
             ++iterator;
 
-            /*if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
+            if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
             {
                 std::cerr << "Expected an identifier" << std::endl;
                 return nullptr;
@@ -333,51 +333,72 @@ FieldDeclaration* ASTContext::parseFieldDeclaration(const std::vector<Token>& to
 
             ++iterator;
 
-            if (!checkToken(Token::Type::OPERATOR_ASSIGNMENT, tokens, iterator))
+            if (checkToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
             {
-                std::cerr << "Expected an equality sign" << std::endl;
-                return nullptr;
-            }
+                ++iterator;
 
-            ++iterator;
-
-            if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
-            {
-                std::cerr << "Expected an identifier" << std::endl;
-                return nullptr;
-            }
-
-            if (attribute == "semantic")
-            {
-                Semantic semantic = Semantic::NONE;
-
-                // TODO: find slot number
-                if (iterator->value == "binormal") semantic = Semantic::BINORMAL;
-                else if (iterator->value == "blend_indices") semantic = Semantic::BLEND_INDICES;
-                else if (iterator->value == "blend_weight") semantic = Semantic::BLEND_WEIGHT;
-                else if (iterator->value == "color") semantic = Semantic::COLOR;
-                else if (iterator->value == "normal") semantic = Semantic::NORMAL;
-                else if (iterator->value == "position") semantic = Semantic::POSITION;
-                else if (iterator->value == "position_transformed") semantic = Semantic::POSITION_TRANSFORMED;
-                else if (iterator->value == "point_size") semantic = Semantic::POINT_SIZE;
-                else if (iterator->value == "tangent") semantic = Semantic::TANGENT;
-                else if (iterator->value == "texture_coordinates") semantic = Semantic::TEXTURE_COORDINATES;
-                else
+                if (attribute != "semantic")
                 {
-                    std::cerr << "Invalid semantic" << std::endl;
+                    std::cerr << "Invalid attribute " << attribute << std::endl;
+                }
+
+                if (checkToken(Token::Type::LITERAL_INT, tokens, iterator))
+                {
+                    ++iterator;
+                }
+                else if (checkToken(Token::Type::LITERAL_FLOAT, tokens, iterator))
+                {
+                    ++iterator;
+                }
+                else if (checkToken(Token::Type::LITERAL_CHAR, tokens, iterator))
+                {
+                    ++iterator;
+                }
+                else if (checkToken(Token::Type::LITERAL_STRING, tokens, iterator))
+                {
+                    if (attribute == "semantic")
+                    {
+                        Semantic semantic = Semantic::NONE;
+
+                        // TODO: find slot number
+                        if (iterator->value == "binormal") semantic = Semantic::BINORMAL;
+                        else if (iterator->value == "blend_indices") semantic = Semantic::BLEND_INDICES;
+                        else if (iterator->value == "blend_weight") semantic = Semantic::BLEND_WEIGHT;
+                        else if (iterator->value == "color") semantic = Semantic::COLOR;
+                        else if (iterator->value == "normal") semantic = Semantic::NORMAL;
+                        else if (iterator->value == "position") semantic = Semantic::POSITION;
+                        else if (iterator->value == "position_transformed") semantic = Semantic::POSITION_TRANSFORMED;
+                        else if (iterator->value == "point_size") semantic = Semantic::POINT_SIZE;
+                        else if (iterator->value == "tangent") semantic = Semantic::TANGENT;
+                        else if (iterator->value == "texture_coordinates") semantic = Semantic::TEXTURE_COORDINATES;
+                        else
+                        {
+                            std::cerr << "Invalid semantic" << std::endl;
+                            return nullptr;
+                        }
+
+                        field->semantic = semantic;
+                    }
+
+                    ++iterator;
+                }
+
+                if (!checkToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
+                {
+                    std::cerr << "Expected a right parenthesis" << std::endl;
                     return nullptr;
                 }
-                
-                field->semantic = semantic;
+
+                ++iterator;
             }
-            else
+
+            if (!checkToken(Token::Type::RIGHT_BRACKET, tokens, iterator))
             {
-                std::cerr << "Invalid attribute" << std::endl;
+                std::cerr << "Expected a right bracket" << std::endl;
                 return nullptr;
             }
 
             ++iterator;
-            */
         }
         else if (checkToken(Token::Type::LITERAL_INT, tokens, iterator))
         {
@@ -392,20 +413,20 @@ FieldDeclaration* ASTContext::parseFieldDeclaration(const std::vector<Token>& to
             }
 
             field->qualifiedType.dimensions.push_back(static_cast<uint32_t>(size));
-
-            if (!checkToken(Token::Type::RIGHT_BRACKET, tokens, iterator))
-            {
-                std::cerr << "Expected a right bracket" << std::endl;
-                return nullptr;
-            }
-
-            ++iterator;
         }
         else
         {
             std::cerr << "Expected an integer literal" << std::endl;
             return nullptr;
         }
+
+        if (!checkToken(Token::Type::RIGHT_BRACKET, tokens, iterator))
+        {
+            std::cerr << "Expected a right bracket" << std::endl;
+            return nullptr;
+        }
+
+        ++iterator;
     }
 
     if (!checkToken(Token::Type::SEMICOLON, tokens, iterator))
