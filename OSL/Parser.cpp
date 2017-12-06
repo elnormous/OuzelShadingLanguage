@@ -118,6 +118,7 @@ bool ASTContext::parse(const std::vector<Token>& tokens)
         }
 
         declarations.push_back(declaration);
+        declarationScopes.back().push_back(declaration);
     }
 
     return true;
@@ -152,6 +153,63 @@ Declaration* ASTContext::parseTopLevelDeclaration(const std::vector<Token>& toke
                                                   std::vector<Token>::const_iterator& iterator,
                                                   std::vector<std::vector<Declaration*>>& declarationScopes)
 {
+    if (checkToken(Token::Type::SEMICOLON, tokens, iterator))
+    {
+        ++iterator;
+
+        Declaration* declaration = new Declaration();
+        constructs.push_back(std::unique_ptr<Construct>(declaration));
+        declaration->kind = Construct::Kind::DECLARATION;
+        declaration->declarationKind = Declaration::Kind::EMPTY;
+
+        return declaration;
+    }
+    else
+    {
+        Declaration* declaration;
+        if (!(declaration = parseDeclaration(tokens, iterator, declarationScopes)))
+        {
+            std::cerr << "Failed to parse a declaration" << std::endl;
+            return nullptr;
+        }
+
+        if (declaration->declarationKind == Declaration::Kind::FUNCTION)
+        {
+            FunctionDeclaration* functionDeclaration = static_cast<FunctionDeclaration*>(declaration);
+
+            // semicolon is not needed after a function definition
+            if (!functionDeclaration->body)
+            {
+                if (!checkToken(Token::Type::SEMICOLON, tokens, iterator))
+                {
+                    std::cerr << "Expected a semicolon" << std::endl;
+                    return nullptr;
+                }
+                
+                ++iterator;
+            }
+        }
+        else
+        {
+            if (!checkToken(Token::Type::SEMICOLON, tokens, iterator))
+            {
+                std::cerr << "Expected a semicolon" << std::endl;
+                return nullptr;
+            }
+
+            ++iterator;
+        }
+
+        return declaration;
+    }
+
+    return nullptr;
+}
+
+Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
+                                          std::vector<Token>::const_iterator& iterator,
+                                          std::vector<std::vector<Declaration*>>& declarationScopes)
+{
     if (checkToken(Token::Type::KEYWORD_STRUCT, tokens, iterator))
     {
         ++iterator;
@@ -166,7 +224,7 @@ Declaration* ASTContext::parseTopLevelDeclaration(const std::vector<Token>& toke
         return declaration;
     }
     /*else if (checkToken(Token::Type::KEYWORD_TYPEDEF, tokens, iterator))
-     {
+    {
         ++iterator;
 
         TypeDefinitionDeclaration* declaration;
@@ -178,39 +236,88 @@ Declaration* ASTContext::parseTopLevelDeclaration(const std::vector<Token>& toke
 
         return declaration;
     }*/
-    else if (isDeclaration(tokens, iterator, declarationScopes))
+    else
     {
-        Declaration* declaration;
-        if (!(declaration = parseDeclaration(tokens, iterator, declarationScopes)))
+        QualifiedType qualifiedType;
+
+        for (;;)
         {
-            std::cerr << "Failed to parse a function declaration" << std::endl;
+            if (checkToken(Token::Type::KEYWORD_CONST, tokens, iterator))
+            {
+                ++iterator;
+                qualifiedType.isConst = true;
+            }
+            else if (checkToken(Token::Type::KEYWORD_STATIC, tokens, iterator))
+            {
+                ++iterator;
+                qualifiedType.isStatic = true;
+            }
+            else break;
+        }
+
+        if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
+        {
+            std::cerr << "Expected a type name" << std::endl;
             return nullptr;
         }
 
-        return declaration;
-    }
-    else if (checkToken(Token::Type::SEMICOLON, tokens, iterator))
-    {
+        qualifiedType.typeDeclaration = findTypeDeclaration(iterator->value, declarationScopes);
+
+        if (!qualifiedType.typeDeclaration)
+        {
+            std::cerr << "Invalid type: " << iterator->value << std::endl;
+            return nullptr;
+        }
+
         ++iterator;
 
-        Declaration* declaration = new Declaration();
-        constructs.push_back(std::unique_ptr<Construct>(declaration));
-        declaration->kind = Construct::Kind::DECLARATION;
-        declaration->declarationKind = Declaration::Kind::EMPTY;
+        if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
+        {
+            std::cerr << "Expected an identifier" << std::endl;
+            return nullptr;
+        }
 
-        return declaration;
-    }
-    else
-    {
-        std::cerr << "Expected a declaration" << std::endl;
-        return nullptr;
-    }
-}
+        std::string name = iterator->value;
+        
+        ++iterator;
 
-Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
-                                          std::vector<Token>::const_iterator& iterator,
-                                          std::vector<std::vector<Declaration*>>& declarationScopes)
-{
+        if (checkToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
+        {
+            ++iterator;
+
+            // function or function type initialization
+        }
+        else if (checkToken(Token::Type::OPERATOR_ASSIGNMENT, tokens, iterator))
+        {
+            ++iterator;
+
+            VariableDeclaration* result = new VariableDeclaration();
+            constructs.push_back(std::unique_ptr<VariableDeclaration>(result));
+            result->kind = Construct::Kind::DECLARATION;
+            result->declarationKind = Declaration::Kind::VARIABLE;
+            result->qualifiedType = qualifiedType;
+            result->name = name;
+
+            if (!(result->initialization = parseMultiplicationAssignment(tokens, iterator, declarationScopes)))
+            {
+                return nullptr;
+            }
+
+            return result;
+        }
+        else
+        {
+            VariableDeclaration* result = new VariableDeclaration();
+            constructs.push_back(std::unique_ptr<VariableDeclaration>(result));
+            result->kind = Construct::Kind::DECLARATION;
+            result->declarationKind = Declaration::Kind::VARIABLE;
+            result->qualifiedType = qualifiedType;
+            result->name = name;
+
+            return result;
+        }
+    }
+
     return nullptr;
 }
 
@@ -265,24 +372,6 @@ StructDeclaration* ASTContext::parseStructDeclaration(const std::vector<Token>& 
                 result->fieldDeclarations.push_back(fieldDeclaration);
             }
         }
-
-        if (!checkToken(Token::Type::SEMICOLON, tokens, iterator))
-        {
-            std::cerr << "Expected a semicolon" << std::endl;
-            return nullptr;
-        }
-
-        ++iterator;
-    }
-    else if (checkToken(Token::Type::SEMICOLON, tokens, iterator))
-    {
-        ++iterator;
-        declarationScopes.back().push_back(result);
-    }
-    else
-    {
-        std::cerr << "Expected a left brace or a semicolon" << std::endl;
-        return nullptr;
     }
 
     return result;
@@ -512,258 +601,6 @@ FieldDeclaration* ASTContext::parseFieldDeclaration(const std::vector<Token>& to
     return result;
 }*/
 
-FunctionDeclaration* ASTContext::parseFunctionDeclaration(const std::vector<Token>& tokens,
-                                                          std::vector<Token>::const_iterator& iterator,
-                                                          std::vector<std::vector<Declaration*>>& declarationScopes)
-{
-    if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
-    {
-        std::cerr << "Expected a function name" << std::endl;
-        return nullptr;
-    }
-
-    FunctionDeclaration* result = new FunctionDeclaration();
-    constructs.push_back(std::unique_ptr<Construct>(result));
-    result->kind = Construct::Kind::DECLARATION;
-    result->declarationKind = Declaration::Kind::FUNCTION;
-    result->name = iterator->value;
-
-    ++iterator;
-
-    if (!checkToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
-    {
-        std::cerr << "Unexpected end of function declaration" << std::endl;
-        return nullptr;
-    }
-
-    ++iterator;
-
-    if (checkToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator)) // no parameters
-    {
-        ++iterator;
-    }
-    else
-    {
-        for (;;)
-        {
-            if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
-            {
-                std::cerr << "Expected a keyword" << std::endl;
-                return nullptr;
-            }
-
-            ParameterDeclaration* parameter = new ParameterDeclaration();
-            constructs.push_back(std::unique_ptr<Construct>(parameter));
-            parameter->kind = Construct::Kind::DECLARATION;
-            parameter->declarationKind = Declaration::Kind::PARAMETER;
-            parameter->name = iterator->value;
-
-            ++iterator;
-
-            if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
-            {
-                std::cerr << "Expected a type name" << std::endl;
-                return nullptr;
-            }
-
-            parameter->qualifiedType.typeDeclaration = findTypeDeclaration(iterator->value, declarationScopes);
-
-            if (!parameter->qualifiedType.typeDeclaration)
-            {
-                std::cerr << "Invalid type: " << iterator->value << std::endl;
-                return nullptr;
-            }
-
-            ++iterator;
-
-            if (checkToken(Token::Type::LEFT_BRACKET, tokens, iterator))
-            {
-                ++iterator;
-
-                if (!checkToken(Token::Type::LITERAL_INT, tokens, iterator))
-                {
-                    std::cerr << "Expected an integer literal" << std::endl;
-                    return nullptr;
-                }
-
-                int size = std::stoi(iterator->value);
-
-                ++iterator;
-
-                if (size <= 0)
-                {
-                    std::cerr << "Array size must be greater than zero" << std::endl;
-                    return nullptr;
-                }
-
-                parameter->qualifiedType.dimensions.push_back(static_cast<uint32_t>(size));
-
-                if (!checkToken(Token::Type::RIGHT_BRACKET, tokens, iterator))
-                {
-                    std::cerr << "Expected a right bracket" << std::endl;
-                    return nullptr;
-                }
-            }
-            
-            result->parameterDeclarations.push_back(parameter);
-
-            if (checkToken(Token::Type::COMMA, tokens, iterator))
-                ++iterator;
-            else
-                break;
-        }
-
-        if (!checkToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
-        {
-            std::cerr << "Expected a right parenthesis" << std::endl;
-            return nullptr;
-        }
-
-        ++iterator;
-    }
-
-    if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
-    {
-        std::cerr << "Expected a type name" << std::endl;
-        return nullptr;
-    }
-
-    result->qualifiedType.typeDeclaration = findTypeDeclaration(iterator->value, declarationScopes);
-
-    if (!result->qualifiedType.typeDeclaration)
-    {
-        std::cerr << "Invalid type: " << iterator->value << std::endl;
-        return nullptr;
-    }
-
-    ++iterator;
-
-    if (checkToken(Token::Type::LEFT_BRACE, tokens, iterator))
-    {
-        ++iterator;
-
-        declarationScopes.back().push_back(result);
-
-        // parse body
-        if (!(result->body = parseCompoundStatement(tokens, iterator, declarationScopes)))
-        {
-            std::cerr << "Failed to parse a compound statement" << std::endl;
-            return nullptr;
-        }
-    }
-    else if (checkToken(Token::Type::SEMICOLON, tokens, iterator))
-    {
-        ++iterator;
-
-        declarationScopes.back().push_back(result);
-    }
-    else
-    {
-        std::cerr << "Expected a left brace or a semicolon" << std::endl;
-        return nullptr;
-    }
-
-    return result;
-}
-
-VariableDeclaration* ASTContext::parseVariableDeclaration(const std::vector<Token>& tokens,
-                                                          std::vector<Token>::const_iterator& iterator,
-                                                          std::vector<std::vector<Declaration*>>& declarationScopes)
-{
-    VariableDeclaration* result = new VariableDeclaration();
-    constructs.push_back(std::unique_ptr<VariableDeclaration>(result));
-    result->kind = Construct::Kind::DECLARATION;
-    result->declarationKind = Declaration::Kind::VARIABLE;
-
-    if (iterator->type == Token::Type::KEYWORD_STATIC)
-    {
-        result->qualifiedType.isStatic = true;
-    }
-
-    if (checkToken(Token::Type::KEYWORD_CONST, tokens, iterator))
-    {
-        result->qualifiedType.isConst = true;
-    }
-
-    if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
-    {
-        std::cerr << "Unexpected end of variable declaration" << std::endl;
-        return nullptr;
-    }
-
-    result->name = iterator->value;
-
-    ++iterator;
-
-    if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
-    {
-        std::cerr << "Expected a type name" << std::endl;
-        return nullptr;
-    }
-
-    result->qualifiedType.typeDeclaration = findTypeDeclaration(iterator->value, declarationScopes);
-
-    if (!result->qualifiedType.typeDeclaration)
-    {
-        std::cerr << "Invalid type: " << iterator->value << std::endl;
-        return nullptr;
-    }
-
-    ++iterator;
-
-    if (checkToken(Token::Type::LEFT_BRACKET, tokens, iterator))
-    {
-        if (!checkToken(Token::Type::LITERAL_INT, tokens, iterator))
-        {
-            std::cerr << "Expected an integer literal" << std::endl;
-            return nullptr;
-        }
-
-        int size = std::stoi(iterator->value);
-
-        ++iterator;
-
-        if (size <= 0)
-        {
-            std::cerr << "Array size must be greater than zero" << std::endl;
-            return nullptr;
-        }
-
-        result->qualifiedType.dimensions.push_back(static_cast<uint32_t>(size));
-
-        if (!checkToken(Token::Type::RIGHT_BRACKET, tokens, iterator))
-        {
-            std::cerr << "Expected a right bracket" << std::endl;
-            return nullptr;
-        }
-    }
-
-    if (checkToken(Token::Type::OPERATOR_ASSIGNMENT, tokens, iterator))
-    {
-        if (!(result->initialization = parseMultiplicationAssignment(tokens, iterator, declarationScopes)))
-        {
-            return nullptr;
-        }
-    }
-    else if (checkToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
-    {
-        if (!(result->initialization = parseMultiplicationAssignment(tokens, iterator, declarationScopes)))
-        {
-            return nullptr;
-        }
-
-        if (!checkToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
-        {
-            std::cerr << "Expected a right parenthesis" << std::endl;
-            return nullptr;
-        }
-    }
-
-    declarationScopes.back().push_back(result);
-
-    return result;
-}
-
 Statement* ASTContext::parseStatement(const std::vector<Token>& tokens,
                                       std::vector<Token>::const_iterator& iterator,
                                       std::vector<std::vector<Declaration*>>& declarationScopes)
@@ -851,9 +688,15 @@ Statement* ASTContext::parseStatement(const std::vector<Token>& tokens,
     }
     else if (isDeclaration(tokens, iterator, declarationScopes))
     {
-        VariableDeclaration* declaration;
-        if (!(declaration = parseVariableDeclaration(tokens, iterator, declarationScopes)))
+        Declaration* declaration;
+        if (!(declaration = parseDeclaration(tokens, iterator, declarationScopes)))
         {
+            return nullptr;
+        }
+
+        if (declaration->declarationKind != Declaration::Kind::VARIABLE)
+        {
+            std::cerr << "Expected a variable declaration" << std::endl;
             return nullptr;
         }
 
@@ -977,10 +820,19 @@ IfStatement* ASTContext::parseIfStatement(const std::vector<Token>& tokens,
 
     if (isDeclaration(tokens, iterator, declarationScopes))
     {
-        if (!(result->condition = parseVariableDeclaration(tokens, iterator, declarationScopes)))
+        Declaration* declaration;
+        if (!(declaration = parseDeclaration(tokens, iterator, declarationScopes)))
         {
             return nullptr;
         }
+
+        if (declaration->declarationKind != Declaration::Kind::VARIABLE)
+        {
+            std::cerr << "Expected a variable declaration" << std::endl;
+            return nullptr;
+        }
+
+        result->condition = declaration;
     }
     else
     {
@@ -1050,10 +902,19 @@ ForStatement* ASTContext::parseForStatement(const std::vector<Token>& tokens,
 
     if (isDeclaration(tokens, iterator, declarationScopes))
     {
-        if (!(result->initialization = parseVariableDeclaration(tokens, iterator, declarationScopes)))
+        Declaration* declaration;
+        if (!(declaration = parseDeclaration(tokens, iterator, declarationScopes)))
         {
             return nullptr;
         }
+
+        if (declaration->declarationKind != Declaration::Kind::VARIABLE)
+        {
+            std::cerr << "Expected a variable declaration" << std::endl;
+            return nullptr;
+        }
+
+        result->condition = declaration;
 
         if (!checkToken(Token::Type::SEMICOLON, tokens, iterator))
         {
@@ -1087,10 +948,19 @@ ForStatement* ASTContext::parseForStatement(const std::vector<Token>& tokens,
 
     if (isDeclaration(tokens, iterator, declarationScopes))
     {
-        if (!(result->condition = parseVariableDeclaration(tokens, iterator, declarationScopes)))
+        Declaration* declaration;
+        if (!(declaration = parseDeclaration(tokens, iterator, declarationScopes)))
         {
             return nullptr;
         }
+
+        if (declaration->declarationKind != Declaration::Kind::VARIABLE)
+        {
+            std::cerr << "Expected a variable declaration" << std::endl;
+            return nullptr;
+        }
+
+        result->condition = declaration;
 
         if (!checkToken(Token::Type::SEMICOLON, tokens, iterator))
         {
@@ -1179,10 +1049,19 @@ SwitchStatement* ASTContext::parseSwitchStatement(const std::vector<Token>& toke
 
     if (isDeclaration(tokens, iterator, declarationScopes))
     {
-        if (!(result->condition = parseVariableDeclaration(tokens, iterator, declarationScopes)))
+        Declaration* declaration;
+        if (!(declaration = parseDeclaration(tokens, iterator, declarationScopes)))
         {
             return nullptr;
         }
+
+        if (declaration->declarationKind != Declaration::Kind::VARIABLE)
+        {
+            std::cerr << "Expected a variable declaration" << std::endl;
+            return nullptr;
+        }
+
+        result->condition = declaration;
     }
     else
     {
@@ -1274,10 +1153,19 @@ WhileStatement* ASTContext::parseWhileStatement(const std::vector<Token>& tokens
 
     if (isDeclaration(tokens, iterator, declarationScopes))
     {
-        if (!(result->condition = parseVariableDeclaration(tokens, iterator, declarationScopes)))
+        Declaration* declaration;
+        if (!(declaration = parseDeclaration(tokens, iterator, declarationScopes)))
         {
             return nullptr;
         }
+
+        if (declaration->declarationKind != Declaration::Kind::VARIABLE)
+        {
+            std::cerr << "Expected a variable declaration" << std::endl;
+            return nullptr;
+        }
+
+        result->condition = declaration;
     }
     else
     {
@@ -2210,6 +2098,12 @@ void ASTContext::dumpDeclaration(const Declaration* declaration, std::string ind
         {
             const VariableDeclaration* variableDeclaration = static_cast<const VariableDeclaration*>(declaration);
             std::cout << ", name: " << variableDeclaration->name << ", type: " << variableDeclaration->qualifiedType.typeDeclaration->name << std::endl;
+
+            if (variableDeclaration->initialization)
+            {
+                dumpConstruct(variableDeclaration->initialization, indent + "  ");
+            }
+
             break;
         }
 

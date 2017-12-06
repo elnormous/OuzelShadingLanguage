@@ -554,14 +554,6 @@ private:
                                                               std::vector<Token>::const_iterator& iterator,
                                                               std::vector<std::vector<Declaration*>>& declarationScopes);*/
 
-    FunctionDeclaration* parseFunctionDeclaration(const std::vector<Token>& tokens,
-                                                  std::vector<Token>::const_iterator& iterator,
-                                                  std::vector<std::vector<Declaration*>>& declarationScopes);
-
-    VariableDeclaration* parseVariableDeclaration(const std::vector<Token>& tokens,
-                                                  std::vector<Token>::const_iterator& iterator,
-                                                  std::vector<std::vector<Declaration*>>& declarationScopes);
-
     Statement* parseStatement(const std::vector<Token>& tokens,
                               std::vector<Token>::const_iterator& iterator,
                               std::vector<std::vector<Declaration*>>& declarationScopes);
