@@ -49,12 +49,17 @@ bool OutputHLSL::printDeclaration(const Declaration* declaration, Options option
             break;
         }
 
-        case Declaration::Kind::STRUCT:
+        case Declaration::Kind::TYPE:
         {
             code.append(options.indentation, ' ');
 
+            const TypeDeclaration* typeDeclaration = static_cast<const TypeDeclaration*>(declaration);
+
+            if (typeDeclaration->typeKind != TypeDeclaration::Kind::STRUCT) return false;
+
+
             const StructDeclaration* structDeclaration = static_cast<const StructDeclaration*>(declaration);
-            code += "struct " + structDeclaration->type->name;
+            code += "struct " + structDeclaration->name;
 
             if (!structDeclaration->fieldDeclarations.empty())
             {
@@ -83,7 +88,7 @@ bool OutputHLSL::printDeclaration(const Declaration* declaration, Options option
             code.append(options.indentation, ' ');
 
             const FieldDeclaration* fieldDeclaration = static_cast<const FieldDeclaration*>(declaration);
-            code += fieldDeclaration->qualifiedType.type->name + " " + fieldDeclaration->name;
+            code += fieldDeclaration->qualifiedType.typeDeclaration->name + " " + fieldDeclaration->name;
             break;
         }
 
@@ -93,7 +98,7 @@ bool OutputHLSL::printDeclaration(const Declaration* declaration, Options option
 
             const FunctionDeclaration* functionDeclaration = static_cast<const FunctionDeclaration*>(declaration);
 
-            code += functionDeclaration->qualifiedType.type->name + " " + functionDeclaration->name + "(";
+            code += functionDeclaration->qualifiedType.typeDeclaration->name + " " + functionDeclaration->name + "(";
 
             bool firstParameter = true;
 
@@ -130,7 +135,7 @@ bool OutputHLSL::printDeclaration(const Declaration* declaration, Options option
             code.append(options.indentation, ' ');
 
             const VariableDeclaration* variableDeclaration = static_cast<const VariableDeclaration*>(declaration);
-            code += variableDeclaration->qualifiedType.type->name + " " + variableDeclaration->name;
+            code += variableDeclaration->qualifiedType.typeDeclaration->name + " " + variableDeclaration->name;
 
             if (variableDeclaration->initialization)
             {
@@ -149,7 +154,7 @@ bool OutputHLSL::printDeclaration(const Declaration* declaration, Options option
             code.append(options.indentation, ' ');
             
             const ParameterDeclaration* parameterDeclaration = static_cast<const ParameterDeclaration*>(declaration);
-            code += parameterDeclaration->qualifiedType.type->name + " " + parameterDeclaration->name;
+            code += parameterDeclaration->qualifiedType.typeDeclaration->name + " " + parameterDeclaration->name;
             break;
         }
     }

@@ -71,38 +71,10 @@ inline std::string semanticToString(Semantic semantic)
 
 class TypeDeclaration;
 
-class Type
-{
-public:
-    enum class Kind
-    {
-        NONE,
-        BUILTIN,
-        STRUCT
-    };
-
-    Kind typeKind = Kind::NONE;
-
-    std::string name;
-    TypeDeclaration* declaration = nullptr;
-};
-
-inline std::string typeKindToString(Type::Kind kind)
-{
-    switch (kind)
-    {
-        case Type::Kind::NONE: return "NONE";
-        case Type::Kind::BUILTIN: return "BUILTIN";
-        case Type::Kind::STRUCT: return "STRUCT";
-    }
-
-    return "unknown";
-}
-
 class QualifiedType
 {
 public:
-    Type* type = nullptr;
+    TypeDeclaration* typeDeclaration = nullptr;
     bool isStatic = false;
     bool isConst = false;
     std::vector<uint32_t> dimensions;
@@ -197,20 +169,6 @@ inline std::string expressionKindToString(Expression::Kind kind)
     return "unknown";
 }
 
-class SimpleType: public Type
-{
-public:
-    bool scalar = false;
-};
-
-class FieldDeclaration;
-
-class StructType: public Type
-{
-public:
-    std::vector<FieldDeclaration*> fieldDeclarations;
-};
-
 class Declaration: public Construct
 {
 public:
@@ -218,9 +176,8 @@ public:
     {
         NONE,
         EMPTY,
-        STRUCT,
+        TYPE,
         FIELD,
-        //TYPE_DEFINITION, // typedef is not supported in GLSL
         FUNCTION,
         VARIABLE,
         PARAMETER
@@ -229,15 +186,58 @@ public:
     Kind declarationKind = Kind::NONE;
 };
 
+class TypeDeclaration: public Declaration
+{
+public:
+    enum class Kind
+    {
+        NONE,
+        SIMPLE,
+        STRUCT,
+        //TYPE_DEFINITION, // typedef is not supported in GLSL
+    };
+
+    Kind typeKind = Kind::NONE;
+
+    std::string name;
+    bool isBuiltin = false;
+};
+
+inline std::string typeKindToString(TypeDeclaration::Kind kind)
+{
+    switch (kind)
+    {
+        case TypeDeclaration::Kind::NONE: return "NONE";
+        case TypeDeclaration::Kind::SIMPLE: return "SIMPLE";
+        case TypeDeclaration::Kind::STRUCT: return "STRUCT";
+        //case TypeDeclaration::Kind::TYPE_DEFINITION: return "TYPE_DEFINITION";
+    }
+
+    return "unknown";
+}
+
+class SimpleTypeDeclaration: public TypeDeclaration
+{
+public:
+    bool scalar = false;
+};
+
+class FieldDeclaration;
+
+class StructDeclaration: public TypeDeclaration
+{
+public:
+    std::vector<FieldDeclaration*> fieldDeclarations;
+};
+
 inline std::string declarationKindToString(Declaration::Kind kind)
 {
     switch (kind)
     {
         case Declaration::Kind::NONE: return "NONE";
         case Declaration::Kind::EMPTY: return "EMPTY";
-        case Declaration::Kind::STRUCT: return "STRUCT";
+        case Declaration::Kind::TYPE: return "TYPE";
         case Declaration::Kind::FIELD: return "FIELD";
-        //case Declaration::Kind::TYPE_DEFINITION: return "TYPE_DEFINITION";
         case Declaration::Kind::FUNCTION: return "FUNCTION";
         case Declaration::Kind::VARIABLE: return "VARIABLE";
         case Declaration::Kind::PARAMETER: return "PARAMETER";
@@ -246,34 +246,20 @@ inline std::string declarationKindToString(Declaration::Kind kind)
     return "unknown";
 }
 
-class TypeDeclaration: public Declaration
-{
-public:
-    Type* type = nullptr;
-};
-
 class FieldDeclaration: public Declaration
 {
 public:
-    StructType* structType = nullptr;
+    StructDeclaration* structTypeDeclaration = nullptr;
     QualifiedType qualifiedType;
     FieldDeclaration* declaration = nullptr;
     std::string name;
     Semantic semantic = Semantic::NONE;
 };
 
-class StructDeclaration: public TypeDeclaration
-{
-public:
-    Type* type;
-    std::vector<FieldDeclaration*> fieldDeclarations;
-};
-
 /*class TypeDefinitionDeclaration: public TypeDeclaration
 {
 public:
-    Type* type;
-    std::string name;
+    QualifiedType qualifiedType;
 };*/
 
 class ParameterDeclaration: public Declaration
@@ -382,7 +368,7 @@ public:
 class LiteralExpression: public Expression
 {
 public:
-    Type* type = nullptr;
+    TypeDeclaration* typeDeclaration = nullptr;
     std::string value;
 };
 
@@ -484,10 +470,10 @@ private:
             {
                 switch (declaration->declarationKind)
                 {
-                    case Declaration::Kind::STRUCT:
+                    case Declaration::Kind::TYPE:
                     {
-                        StructDeclaration* structDeclaration = static_cast<StructDeclaration*>(declaration);
-                        if (structDeclaration->type->name == name) return declaration;
+                        TypeDeclaration* typeDeclaration = static_cast<TypeDeclaration*>(declaration);
+                        if (typeDeclaration->name == name) return declaration;
                         break;
                     }
                     case Declaration::Kind::FUNCTION:
@@ -517,32 +503,26 @@ private:
         return nullptr;
     }
 
-    Type* findType(const std::string& name, std::vector<std::vector<Declaration*>>& declarationScopes) const
+    TypeDeclaration* findTypeDeclaration(const std::string& name, std::vector<std::vector<Declaration*>>& declarationScopes) const
     {
         for (auto i = declarationScopes.crbegin(); i != declarationScopes.crend(); ++i)
         {
             for (Declaration* declaration : *i)
             {
-                if (declaration->declarationKind == Declaration::Kind::STRUCT)
+                if (declaration->declarationKind == Declaration::Kind::TYPE)
                 {
-                    StructDeclaration* structDeclaration = static_cast<StructDeclaration*>(declaration);
-                    if (structDeclaration->type->name == name) return structDeclaration->type;
+                    TypeDeclaration* typeDeclaration = static_cast<TypeDeclaration*>(declaration);
+                    if (typeDeclaration->name == name) return typeDeclaration;
                 }
             }
-        }
-
-        for (auto i = types.cbegin(); i != types.cend(); ++i)
-        {
-            if (!(*i)->declaration && // built-in type
-                (*i)->name == name) return (*i).get();
         }
 
         return nullptr;
     }
 
-    FieldDeclaration* findField(const std::string& name, StructType* structType) const
+    FieldDeclaration* findFieldDeclaration(const std::string& name, StructDeclaration* structTypeDeclaration) const
     {
-        for (FieldDeclaration* fieldDeclaration : structType->fieldDeclarations)
+        for (FieldDeclaration* fieldDeclaration : structTypeDeclaration->fieldDeclarations)
         {
             if (fieldDeclaration->name == name) return fieldDeclaration;
         }
@@ -670,12 +650,10 @@ private:
                            std::vector<Token>::const_iterator& iterator,
                            std::vector<std::vector<Declaration*>>& declarationScopes);
 
-    void dumpType(const Type* type, std::string indent = std::string()) const;
     void dumpDeclaration(const Declaration* declaration, std::string indent = std::string()) const;
     void dumpStatement(const Statement* statement, std::string indent = std::string()) const;
     void dumpExpression(const Expression* expression, std::string indent = std::string()) const;
     void dumpConstruct(const Construct* construct, std::string indent = std::string()) const;
 
     std::vector<std::unique_ptr<Construct>> constructs;
-    std::vector<std::unique_ptr<Type>> types;
 };
