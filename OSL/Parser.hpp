@@ -452,11 +452,7 @@ private:
 
         for (Token::Type tokenType : tokenTypes)
         {
-            if (iterator->type == tokenType)
-            {
-                ++iterator;
-                return true;
-            }
+            if (iterator->type == tokenType) return true;
         }
 
         return false;
@@ -549,6 +545,10 @@ private:
     FieldDeclaration* parseFieldDeclaration(const std::vector<Token>& tokens,
                                             std::vector<Token>::const_iterator& iterator,
                                             std::vector<std::vector<Declaration*>>& declarationScopes);
+
+    ParameterDeclaration* parseParameterDeclaration(const std::vector<Token>& tokens,
+                                                    std::vector<Token>::const_iterator& iterator,
+                                                    std::vector<std::vector<Declaration*>>& declarationScopes);
 
     /*TypeDefinitionDeclaration* parseTypeDefinitionDeclaration(const std::vector<Token>& tokens,
                                                               std::vector<Token>::const_iterator& iterator,
