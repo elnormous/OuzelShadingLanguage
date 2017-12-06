@@ -6,7 +6,7 @@
 
 #include "Output.hpp"
 
-class OutputMetal: public Output
+class OutputMSL: public Output
 {
 public:
     virtual bool output(const ASTContext& context, const std::string& outputFile);

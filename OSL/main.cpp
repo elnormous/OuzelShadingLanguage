@@ -8,7 +8,7 @@
 #include "Parser.hpp"
 #include "OutputHLSL.hpp"
 #include "OutputGLSL.hpp"
-#include "OutputMetal.hpp"
+#include "OutputMSL.hpp"
 
 int main(int argc, const char * argv[])
 {
@@ -115,9 +115,9 @@ int main(int argc, const char * argv[])
         {
             output.reset(new OutputGLSL());
         }
-        else if (format == "metal")
+        else if (format == "msl")
         {
-            output.reset(new OutputMetal());
+            output.reset(new OutputMSL());
         }
         else
         {
