@@ -278,23 +278,32 @@ bool OutputHLSL::printStatement(const Statement* statement, Options options, std
             const ForStatement* forStatement = static_cast<const ForStatement*>(statement);
             code += "for (";
 
-            if (!printConstruct(forStatement->initialization, Options(0), code))
+            if (forStatement->initialization)
             {
-                return false;
+                if (!printConstruct(forStatement->initialization, Options(0), code))
+                {
+                    return false;
+                }
             }
 
             code += "; ";
 
-            if (!printConstruct(forStatement->condition, Options(0), code))
+            if (forStatement->condition)
             {
-                return false;
+                if (!printConstruct(forStatement->condition, Options(0), code))
+                {
+                    return false;
+                }
             }
 
             code += "; ";
 
-            if (!printConstruct(forStatement->increment, Options(0), code))
+            if (forStatement->increment)
             {
-                return false;
+                if (!printConstruct(forStatement->increment, Options(0), code))
+                {
+                    return false;
+                }
             }
 
             code += ")\n";

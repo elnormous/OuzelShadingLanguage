@@ -462,13 +462,7 @@ private:
                     const std::vector<Token>& tokens,
                     std::vector<Token>::const_iterator& iterator) const
     {
-        if (iterator != tokens.end() && iterator->type == tokenType)
-        {
-            ++iterator;
-            return true;
-        }
-
-        return false;
+        return (iterator != tokens.end() && iterator->type == tokenType);
     }
 
     bool checkTokens(const std::vector<Token::Type>& tokenTypes,
@@ -626,10 +620,6 @@ private:
     DoStatement* parseDoStatement(const std::vector<Token>& tokens,
                                   std::vector<Token>::const_iterator& iterator,
                                   std::vector<std::vector<Declaration*>>& declarationScopes);
-
-    ReturnStatement* parseReturnStatement(const std::vector<Token>& tokens,
-                                          std::vector<Token>::const_iterator& iterator,
-                                          std::vector<std::vector<Declaration*>>& declarationScopes);
 
     Expression* parsePrimary(const std::vector<Token>& tokens,
                              std::vector<Token>::const_iterator& iterator,
