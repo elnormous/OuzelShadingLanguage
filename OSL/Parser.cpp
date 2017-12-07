@@ -124,7 +124,7 @@ bool ASTContext::parse(const std::vector<Token>& tokens)
 }
 
 bool ASTContext::isDeclaration(const std::vector<Token>& tokens,
-                               std::vector<Token>::const_iterator& iterator,
+                               std::vector<Token>::const_iterator iterator,
                                std::vector<std::vector<Declaration*>>& declarationScopes) const
 {
     if (iterator == tokens.end()) return false;
@@ -280,109 +280,59 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
         
         ++iterator;
 
-        if (checkToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
+        if (checkToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator) &&
+            (checkToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator + 1) ||
+             isDeclaration(tokens, iterator + 1, declarationScopes)))
         {
             ++iterator;
 
-            if (checkToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator) ||
-                isDeclaration(tokens, iterator, declarationScopes))
-            {
-                FunctionDeclaration* result = new FunctionDeclaration();
-                constructs.push_back(std::unique_ptr<Construct>(result));
-                result->kind = Construct::Kind::DECLARATION;
-                result->declarationKind = Declaration::Kind::FUNCTION;
-                result->qualifiedType = qualifiedType;
-                result->name = name;
-
-                if (!checkToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
-                {
-                    for (;;)
-                    {
-                        ParameterDeclaration* parameterDeclaration;
-                        if (!(parameterDeclaration = parseParameterDeclaration(tokens, iterator, declarationScopes)))
-                        {
-                            return nullptr;
-                        }
-
-                        result->parameterDeclarations.push_back(parameterDeclaration);
-
-                        if (!checkToken(Token::Type::COMMA, tokens, iterator))
-                        {
-                            break;
-                        }
-
-                        ++iterator;
-                    }
-                }
-
-                if (!checkToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
-                {
-                    std::cerr << "Expected a right parenthesis" << std::endl;
-                    return nullptr;
-                }
-
-                ++iterator;
-
-                declarationScopes.back().push_back(result);
-
-                if (checkToken(Token::Type::LEFT_BRACE, tokens, iterator))
-                {
-                    // parse body
-                    if (!(result->body = parseCompoundStatement(tokens, iterator, declarationScopes)))
-                    {
-                        std::cerr << "Failed to parse a compound statement" << std::endl;
-                        return nullptr;
-                    }
-                }
-
-                return result;
-            }
-            else
-            {
-                VariableDeclaration* result = new VariableDeclaration();
-                constructs.push_back(std::unique_ptr<VariableDeclaration>(result));
-                result->kind = Construct::Kind::DECLARATION;
-                result->declarationKind = Declaration::Kind::VARIABLE;
-                result->qualifiedType = qualifiedType;
-                result->name = name;
-
-                if (!(result->initialization = parseMultiplicationAssignment(tokens, iterator, declarationScopes)))
-                {
-                    return nullptr;
-                }
-
-                // TODO: check for comma and parse multiple expressions
-
-                if (!checkToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
-                {
-                    std::cerr << "Expected a right parenthesis" << std::endl;
-                    return nullptr;
-                }
-
-                ++iterator;
-
-                declarationScopes.back().push_back(result);
-
-                return result;
-            }
-        }
-        else if (checkToken(Token::Type::OPERATOR_ASSIGNMENT, tokens, iterator))
-        {
-            ++iterator;
-
-            VariableDeclaration* result = new VariableDeclaration();
-            constructs.push_back(std::unique_ptr<VariableDeclaration>(result));
+            FunctionDeclaration* result = new FunctionDeclaration();
+            constructs.push_back(std::unique_ptr<Construct>(result));
             result->kind = Construct::Kind::DECLARATION;
-            result->declarationKind = Declaration::Kind::VARIABLE;
+            result->declarationKind = Declaration::Kind::FUNCTION;
             result->qualifiedType = qualifiedType;
             result->name = name;
 
-            if (!(result->initialization = parseMultiplicationAssignment(tokens, iterator, declarationScopes)))
+            if (!checkToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
             {
+                for (;;)
+                {
+                    ParameterDeclaration* parameterDeclaration;
+                    if (!(parameterDeclaration = parseParameterDeclaration(tokens, iterator, declarationScopes)))
+                    {
+                        return nullptr;
+                    }
+
+                    result->parameterDeclarations.push_back(parameterDeclaration);
+
+                    if (!checkToken(Token::Type::COMMA, tokens, iterator))
+                    {
+                        break;
+                    }
+
+                    ++iterator;
+                }
+            }
+
+            if (!checkToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
+            {
+                std::cerr << "Expected a right parenthesis" << std::endl;
                 return nullptr;
             }
 
+            ++iterator;
+
             declarationScopes.back().push_back(result);
+
+            if (checkToken(Token::Type::LEFT_BRACE, tokens, iterator))
+            {
+                // parse body
+                if (!(result->body = parseCompoundStatement(tokens, iterator, declarationScopes)))
+                {
+                    std::cerr << "Failed to parse a compound statement" << std::endl;
+                    return nullptr;
+                }
+            }
 
             return result;
         }
@@ -418,16 +368,44 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
                     std::cerr << "Expected an integer literal" << std::endl;
                     return nullptr;
                 }
-                
+
                 if (!checkToken(Token::Type::RIGHT_BRACKET, tokens, iterator))
                 {
                     std::cerr << "Expected a right bracket" << std::endl;
                     return nullptr;
                 }
-                
+
                 ++iterator;
             }
 
+            if (checkToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
+            {
+                ++iterator;
+
+                if (!(result->initialization = parseMultiplicationAssignment(tokens, iterator, declarationScopes)))
+                {
+                    return nullptr;
+                }
+
+                // TODO: check for comma and parse multiple expressions
+
+                if (!checkToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
+                {
+                    std::cerr << "Expected a right parenthesis" << std::endl;
+                    return nullptr;
+                }
+
+                ++iterator;
+            }
+            else if (checkToken(Token::Type::OPERATOR_ASSIGNMENT, tokens, iterator))
+            {
+                ++iterator;
+
+                if (!(result->initialization = parseMultiplicationAssignment(tokens, iterator, declarationScopes)))
+                {
+                    return nullptr;
+                }
+            }
 
             declarationScopes.back().push_back(result);
 

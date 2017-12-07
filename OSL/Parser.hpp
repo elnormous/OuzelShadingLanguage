@@ -439,14 +439,14 @@ public:
 private:
     bool checkToken(Token::Type tokenType,
                     const std::vector<Token>& tokens,
-                    std::vector<Token>::const_iterator& iterator) const
+                    std::vector<Token>::const_iterator iterator) const
     {
         return (iterator != tokens.end() && iterator->type == tokenType);
     }
 
     bool checkTokens(const std::vector<Token::Type>& tokenTypes,
                      const std::vector<Token>& tokens,
-                     std::vector<Token>::const_iterator& iterator) const
+                     std::vector<Token>::const_iterator iterator) const
     {
         if (iterator == tokens.end()) return false;
 
@@ -527,7 +527,7 @@ private:
     }
 
     bool isDeclaration(const std::vector<Token>& tokens,
-                       std::vector<Token>::const_iterator& iterator,
+                       std::vector<Token>::const_iterator iterator,
                        std::vector<std::vector<Declaration*>>& declarationScopes) const;
 
     Declaration* parseTopLevelDeclaration(const std::vector<Token>& tokens,
