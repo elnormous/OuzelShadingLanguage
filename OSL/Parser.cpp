@@ -322,6 +322,98 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
 
             ++iterator;
 
+            while (checkToken(Token::Type::LEFT_BRACKET, tokens, iterator))
+            {
+                ++iterator;
+
+                if (checkToken(Token::Type::LEFT_BRACKET, tokens, iterator))
+                {
+                    ++iterator;
+
+                    if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
+                    {
+                        std::cerr << "Expected an identifier" << std::endl;
+                        return nullptr;
+                    }
+
+                    std::string attribute = iterator->value;
+
+                    ++iterator;
+
+                    if (checkToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
+                    {
+                        ++iterator;
+
+                        if (attribute != "program")
+                        {
+                            std::cerr << "Invalid attribute " << attribute << std::endl;
+                        }
+
+                        if (checkToken(Token::Type::LITERAL_INT, tokens, iterator))
+                        {
+                            ++iterator;
+                        }
+                        else if (checkToken(Token::Type::LITERAL_FLOAT, tokens, iterator))
+                        {
+                            ++iterator;
+                        }
+                        else if (checkToken(Token::Type::LITERAL_CHAR, tokens, iterator))
+                        {
+                            ++iterator;
+                        }
+                        else if (checkToken(Token::Type::LITERAL_STRING, tokens, iterator))
+                        {
+                            if (attribute == "program")
+                            {
+                                FunctionDeclaration::Program program = FunctionDeclaration::Program::NONE;
+
+                                // TODO: find slot number
+                                if (iterator->value == "fragment") program = FunctionDeclaration::Program::FRAGMENT;
+                                else if (iterator->value == "vertex") program = FunctionDeclaration::Program::VERTEX;
+                                else
+                                {
+                                    std::cerr << "Invalid program" << std::endl;
+                                    return nullptr;
+                                }
+
+                                result->program = program;
+                            }
+
+                            ++iterator;
+                        }
+
+                        if (!checkToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
+                        {
+                            std::cerr << "Expected a right parenthesis" << std::endl;
+                            return nullptr;
+                        }
+
+                        ++iterator;
+                    }
+
+                    if (!checkToken(Token::Type::RIGHT_BRACKET, tokens, iterator))
+                    {
+                        std::cerr << "Expected a right bracket" << std::endl;
+                        return nullptr;
+                    }
+
+                    ++iterator;
+                }
+                else
+                {
+                    std::cerr << "Expected a right bracket" << std::endl;
+                    return nullptr;
+                }
+
+                if (!checkToken(Token::Type::RIGHT_BRACKET, tokens, iterator))
+                {
+                    std::cerr << "Expected a right bracket" << std::endl;
+                    return nullptr;
+                }
+
+                ++iterator;
+            }
+
             declarationScopes.back().push_back(result);
 
             if (checkToken(Token::Type::LEFT_BRACE, tokens, iterator))
@@ -2275,6 +2367,11 @@ void ASTContext::dumpDeclaration(const Declaration* declaration, std::string ind
             if (functionDeclaration->qualifiedType.typeDeclaration)
             {
                 std::cout << ", result type: " << functionDeclaration->qualifiedType.typeDeclaration->name;
+            }
+
+            if (functionDeclaration->program != FunctionDeclaration::Program::NONE)
+            {
+                std::cout << ", program: " << programToString(functionDeclaration->program);
             }
 
             std::cout << std::endl;

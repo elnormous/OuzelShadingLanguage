@@ -184,6 +184,8 @@ public:
     };
 
     Kind declarationKind = Kind::NONE;
+
+    std::string name;
 };
 
 class TypeDeclaration: public Declaration
@@ -199,7 +201,6 @@ public:
 
     Kind typeKind = Kind::NONE;
 
-    std::string name;
     bool isBuiltin = false;
 };
 
@@ -252,7 +253,6 @@ public:
     StructDeclaration* structTypeDeclaration = nullptr;
     QualifiedType qualifiedType;
     FieldDeclaration* declaration = nullptr;
-    std::string name;
     Semantic semantic = Semantic::NONE;
 };
 
@@ -272,17 +272,36 @@ public:
 class FunctionDeclaration: public Declaration
 {
 public:
+    enum class Program
+    {
+        NONE,
+        FRAGMENT,
+        VERTEX
+    };
+
     QualifiedType qualifiedType;
-    std::string name;
     std::vector<ParameterDeclaration*> parameterDeclarations;
     Statement* body = nullptr;
+
+    Program program = Program::NONE;
 };
+
+inline std::string programToString(FunctionDeclaration::Program program)
+{
+    switch (program)
+    {
+        case FunctionDeclaration::Program::NONE: return "NONE";
+        case FunctionDeclaration::Program::FRAGMENT: return "FRAGMENT";
+        case FunctionDeclaration::Program::VERTEX: return "VERTEX";
+    }
+
+    return "unknown";
+}
 
 class VariableDeclaration: public Declaration
 {
 public:
     QualifiedType qualifiedType;
-    std::string name;
     Expression* initialization = nullptr;
 };
 
@@ -464,35 +483,7 @@ private:
         {
             for (Declaration* declaration : *i)
             {
-                switch (declaration->declarationKind)
-                {
-                    case Declaration::Kind::TYPE:
-                    {
-                        TypeDeclaration* typeDeclaration = static_cast<TypeDeclaration*>(declaration);
-                        if (typeDeclaration->name == name) return declaration;
-                        break;
-                    }
-                    case Declaration::Kind::FUNCTION:
-                    {
-                        FunctionDeclaration* functionDeclaration = static_cast<FunctionDeclaration*>(declaration);
-                        if (functionDeclaration->name == name) return declaration;
-                        break;
-                    }
-                    case Declaration::Kind::VARIABLE:
-                    {
-                        VariableDeclaration* variableDeclaration = static_cast<VariableDeclaration*>(declaration);
-                        if (variableDeclaration->name == name) return declaration;
-                        break;
-                    }
-                    case Declaration::Kind::PARAMETER:
-                    {
-                        ParameterDeclaration* parameterDeclaration = static_cast<ParameterDeclaration*>(declaration);
-                        if (parameterDeclaration->name == name) return declaration;
-                        break;
-                    }
-                    default:
-                        break;
-                }
+                if (declaration->name == name) return declaration;
             }
         }
 
@@ -505,10 +496,10 @@ private:
         {
             for (Declaration* declaration : *i)
             {
-                if (declaration->declarationKind == Declaration::Kind::TYPE)
+                if (declaration->declarationKind == Declaration::Kind::TYPE &&
+                    declaration->name == name)
                 {
-                    TypeDeclaration* typeDeclaration = static_cast<TypeDeclaration*>(declaration);
-                    if (typeDeclaration->name == name) return typeDeclaration;
+                    return static_cast<TypeDeclaration*>(declaration);
                 }
             }
         }
