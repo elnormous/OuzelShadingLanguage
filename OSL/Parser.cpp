@@ -238,6 +238,7 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
     else
     {
         QualifiedType qualifiedType;
+        bool isStatic = false;
 
         for (;;)
         {
@@ -249,7 +250,7 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
             else if (checkToken(Token::Type::KEYWORD_STATIC, tokens, iterator))
             {
                 ++iterator;
-                qualifiedType.isStatic = true;
+                isStatic = true;
             }
             else break;
         }
@@ -291,6 +292,7 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
             result->kind = Construct::Kind::DECLARATION;
             result->declarationKind = Declaration::Kind::FUNCTION;
             result->qualifiedType = qualifiedType;
+            result->isStatic = isStatic;
             result->name = name;
 
             if (!checkToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
@@ -435,6 +437,7 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
             result->kind = Construct::Kind::DECLARATION;
             result->declarationKind = Declaration::Kind::VARIABLE;
             result->qualifiedType = qualifiedType;
+            result->isStatic = isStatic;
             result->name = name;
 
             while (checkToken(Token::Type::LEFT_BRACKET, tokens, iterator))
@@ -593,7 +596,7 @@ FieldDeclaration* ASTContext::parseFieldDeclaration(const std::vector<Token>& to
         else if (checkToken(Token::Type::KEYWORD_STATIC, tokens, iterator))
         {
             ++iterator;
-            fieldDeclaration->qualifiedType.isStatic = true;
+            fieldDeclaration->isStatic = true;
         }
         else break;
     }
@@ -756,11 +759,6 @@ ParameterDeclaration* ASTContext::parseParameterDeclaration(const std::vector<To
         {
             ++iterator;
             parameterDeclaration->qualifiedType.isConst = true;
-        }
-        else if (checkToken(Token::Type::KEYWORD_STATIC, tokens, iterator))
-        {
-            ++iterator;
-            parameterDeclaration->qualifiedType.isStatic = true;
         }
         else break;
     }

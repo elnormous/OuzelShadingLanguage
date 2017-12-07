@@ -75,7 +75,6 @@ class QualifiedType
 {
 public:
     TypeDeclaration* typeDeclaration = nullptr;
-    bool isStatic = false;
     bool isConst = false;
     std::vector<uint32_t> dimensions;
 };
@@ -253,6 +252,8 @@ public:
     StructDeclaration* structTypeDeclaration = nullptr;
     QualifiedType qualifiedType;
     FieldDeclaration* declaration = nullptr;
+
+    bool isStatic = false;
     Semantic semantic = Semantic::NONE;
 };
 
@@ -283,6 +284,7 @@ public:
     std::vector<ParameterDeclaration*> parameterDeclarations;
     Statement* body = nullptr;
 
+    bool isStatic = false;
     Program program = Program::NONE;
 };
 
@@ -303,6 +305,8 @@ class VariableDeclaration: public Declaration
 public:
     QualifiedType qualifiedType;
     Expression* initialization = nullptr;
+
+    bool isStatic = false;
 };
 
 class ExpressionStatement: public Statement
