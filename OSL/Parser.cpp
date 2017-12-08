@@ -283,7 +283,7 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
 
         if (checkToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator) &&
             (checkToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator + 1) ||
-             isDeclaration(tokens, iterator + 1, declarationScopes)))
+             isDeclaration(tokens, iterator + 1, declarationScopes)))  // function declaration
         {
             ++iterator;
 
@@ -430,8 +430,14 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
 
             return result;
         }
-        else
+        else // variable declaration
         {
+            if (findDeclaration(name, declarationScopes.back()))
+            {
+                std::cerr << "Redefinition of " << name << std::endl;
+                return nullptr;
+            }
+
             VariableDeclaration* result = new VariableDeclaration();
             constructs.push_back(std::unique_ptr<VariableDeclaration>(result));
             result->kind = Construct::Kind::DECLARATION;

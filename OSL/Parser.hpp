@@ -481,6 +481,16 @@ private:
         return false;
     }
 
+    Declaration* findDeclaration(const std::string& name, const std::vector<Declaration*>& declarationScope) const
+    {
+        for (Declaration* declaration : declarationScope)
+        {
+            if (declaration->name == name) return declaration;
+        }
+
+        return nullptr;
+    }
+
     Declaration* findDeclaration(const std::string& name, const std::vector<std::vector<Declaration*>>& declarationScopes) const
     {
         for (auto i = declarationScopes.crbegin(); i != declarationScopes.crend(); ++i)
