@@ -145,7 +145,6 @@ public:
 
     Kind expressionKind = Kind::NONE;
 
-    std::string value;
     QualifiedType qualifiedType;
 };
 
@@ -431,15 +430,87 @@ public:
 class UnaryOperatorExpression: public Expression
 {
 public:
+    enum class Kind
+    {
+        NONE,
+        NEGATION, // !
+        POSITIVE, // +
+        NEGATIVE // -
+    };
+
     Expression* expression = nullptr;
+
+    Kind operatorKind = Kind::NONE;
 };
+
+inline std::string unaryOperatorKindToString(UnaryOperatorExpression::Kind kind)
+{
+    switch (kind)
+    {
+        case UnaryOperatorExpression::Kind::NONE: return "NONE";
+        case UnaryOperatorExpression::Kind::NEGATION: return "NEGATION";
+        case UnaryOperatorExpression::Kind::POSITIVE: return "POSITIVE";
+        case UnaryOperatorExpression::Kind::NEGATIVE: return "NEGATIVE";
+    }
+
+    return "unknown";
+}
 
 class BinaryOperatorExpression: public Expression
 {
 public:
+    enum class Kind
+    {
+        NONE,
+        ADDITION, // +
+        SUBTRACTION, // -
+        MULTIPLICATION, // *
+        DIVISION, // /
+        ADDITION_ASSIGNMENT, // +=
+        SUBTRACTION_ASSIGNMENT, // -=
+        MULTIPLICATION_ASSIGNMENT, // *=
+        DIVISION_ASSIGNMENT, // /=
+        LESS_THAN, // <
+        LESS_THAN_EQUAL, // <=
+        GREATER_THAN, // >
+        GREATER_THAN_EQUAL, // >=
+        EQUALITY, // ==
+        INEQUALITY, // !=
+        ASSIGNMENT, // =
+        COMMA, // ,
+    };
+
     Expression* leftExpression = nullptr;
     Expression* rightExpression = nullptr;
+
+    Kind operatorKind = Kind::NONE;
 };
+
+inline std::string binaryOperatorKindToString(BinaryOperatorExpression::Kind kind)
+{
+    switch (kind)
+    {
+        case BinaryOperatorExpression::Kind::NONE: return "NONE";
+        case BinaryOperatorExpression::Kind::ADDITION: return "ADDITION";
+        case BinaryOperatorExpression::Kind::SUBTRACTION: return "SUBTRACTION";
+        case BinaryOperatorExpression::Kind::MULTIPLICATION: return "MULTIPLICATION";
+        case BinaryOperatorExpression::Kind::DIVISION: return "DIVISION";
+        case BinaryOperatorExpression::Kind::ADDITION_ASSIGNMENT: return "ADDITION_ASSIGNMENT";
+        case BinaryOperatorExpression::Kind::SUBTRACTION_ASSIGNMENT: return "SUBTRACTION_ASSIGNMENT";
+        case BinaryOperatorExpression::Kind::MULTIPLICATION_ASSIGNMENT: return "MULTIPLICATION_ASSIGNMENT";
+        case BinaryOperatorExpression::Kind::DIVISION_ASSIGNMENT: return "DIVISION_ASSIGNMENT";
+        case BinaryOperatorExpression::Kind::LESS_THAN: return "LESS_THAN";
+        case BinaryOperatorExpression::Kind::LESS_THAN_EQUAL: return "LESS_THAN_EQUAL";
+        case BinaryOperatorExpression::Kind::GREATER_THAN: return "GREATER_THAN";
+        case BinaryOperatorExpression::Kind::GREATER_THAN_EQUAL: return "GREATER_THAN_EQUAL";
+        case BinaryOperatorExpression::Kind::EQUALITY: return "EQUALITY";
+        case BinaryOperatorExpression::Kind::INEQUALITY: return "INEQUALITY";
+        case BinaryOperatorExpression::Kind::ASSIGNMENT: return "ASSIGNMENT";
+        case BinaryOperatorExpression::Kind::COMMA: return "COMMA";
+    }
+
+    return "unknown";
+}
 
 class TernaryOperatorExpression: public Expression
 {

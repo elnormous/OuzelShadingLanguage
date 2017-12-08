@@ -593,7 +593,9 @@ bool OutputHLSL::printExpression(const Expression* expression, Options options, 
         {
             code.append(options.indentation, ' ');
 
-            code += expression->value;
+            const LiteralExpression* literalExpression = static_cast<const LiteralExpression*>(expression);
+
+            code += literalExpression->value;
             break;
         }
 
@@ -693,7 +695,16 @@ bool OutputHLSL::printExpression(const Expression* expression, Options options, 
             code.append(options.indentation, ' ');
 
             const UnaryOperatorExpression* unaryOperatorExpression = static_cast<const UnaryOperatorExpression*>(expression);
-            code += unaryOperatorExpression->value;
+
+            switch (unaryOperatorExpression->operatorKind)
+            {
+                case UnaryOperatorExpression::Kind::NEGATION: code += "!"; break;
+                case UnaryOperatorExpression::Kind::POSITIVE: code += "+"; break;
+                case UnaryOperatorExpression::Kind::NEGATIVE: code += "-"; break;
+                default:
+                    std::cerr << "Unknown operator";
+                    return false;
+            }
 
             if (!printConstruct(unaryOperatorExpression->expression, Options(0), code))
             {
@@ -712,7 +723,28 @@ bool OutputHLSL::printExpression(const Expression* expression, Options options, 
                 return false;
             }
 
-            code += " " + binaryOperatorExpression->value + " ";
+            switch (binaryOperatorExpression->operatorKind)
+            {
+                case BinaryOperatorExpression::Kind::ADDITION: code += " + "; break;
+                case BinaryOperatorExpression::Kind::SUBTRACTION: code += " - "; break;
+                case BinaryOperatorExpression::Kind::MULTIPLICATION: code += " * "; break;
+                case BinaryOperatorExpression::Kind::DIVISION: code += " / "; break;
+                case BinaryOperatorExpression::Kind::ADDITION_ASSIGNMENT: code += " += "; break;
+                case BinaryOperatorExpression::Kind::SUBTRACTION_ASSIGNMENT: code += " -= "; break;
+                case BinaryOperatorExpression::Kind::MULTIPLICATION_ASSIGNMENT: code += " *= "; break;
+                case BinaryOperatorExpression::Kind::DIVISION_ASSIGNMENT: code += " /= "; break;
+                case BinaryOperatorExpression::Kind::LESS_THAN: code += " < "; break;
+                case BinaryOperatorExpression::Kind::LESS_THAN_EQUAL: code += " <= "; break;
+                case BinaryOperatorExpression::Kind::GREATER_THAN: code += " > "; break;
+                case BinaryOperatorExpression::Kind::GREATER_THAN_EQUAL: code += " >= "; break;
+                case BinaryOperatorExpression::Kind::EQUALITY: code += " == "; break;
+                case BinaryOperatorExpression::Kind::INEQUALITY: code += " != "; break;
+                case BinaryOperatorExpression::Kind::ASSIGNMENT: code += " = "; break;
+                case BinaryOperatorExpression::Kind::COMMA: code += ", "; break;
+                default:
+                    std::cerr << "Unknown operator";
+                    return false;
+            }
 
             if (!printConstruct(binaryOperatorExpression->rightExpression, Options(0), code))
             {
