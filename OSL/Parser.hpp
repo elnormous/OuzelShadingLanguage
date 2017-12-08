@@ -481,7 +481,7 @@ private:
         return false;
     }
 
-    Declaration* findDeclaration(const std::string& name, std::vector<std::vector<Declaration*>>& declarationScopes) const
+    Declaration* findDeclaration(const std::string& name, const std::vector<std::vector<Declaration*>>& declarationScopes) const
     {
         for (auto i = declarationScopes.crbegin(); i != declarationScopes.crend(); ++i)
         {
@@ -494,7 +494,7 @@ private:
         return nullptr;
     }
 
-    TypeDeclaration* findTypeDeclaration(const std::string& name, std::vector<std::vector<Declaration*>>& declarationScopes) const
+    TypeDeclaration* findTypeDeclaration(const std::string& name, const std::vector<std::vector<Declaration*>>& declarationScopes) const
     {
         for (auto i = declarationScopes.crbegin(); i != declarationScopes.crend(); ++i)
         {
