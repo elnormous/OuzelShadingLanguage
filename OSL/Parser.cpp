@@ -1553,12 +1553,13 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
 {
     if (checkToken(Token::Type::LITERAL_INT, tokens, iterator))
     {
-        LiteralExpression* result = new LiteralExpression();
+        IntegerLiteralExpression* result = new IntegerLiteralExpression();
         constructs.push_back(std::unique_ptr<Construct>(result));
         result->kind = Construct::Kind::EXPRESSION;
         result->expressionKind = Expression::Kind::LITERAL;
+        result->literalKind = LiteralExpression::Kind::INTEGER;
         result->qualifiedType.typeDeclaration = findTypeDeclaration("int", declarationScopes);
-        result->value = iterator->value;
+        result->value = strtoll(iterator->value.c_str(), nullptr, 0);
 
         ++iterator;
 
@@ -1566,12 +1567,13 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
     }
     else if (checkToken(Token::Type::LITERAL_FLOAT, tokens, iterator))
     {
-        LiteralExpression* result = new LiteralExpression();
+        FloatingPointLiteralExpression* result = new FloatingPointLiteralExpression();
         constructs.push_back(std::unique_ptr<Construct>(result));
         result->kind = Construct::Kind::EXPRESSION;
         result->expressionKind = Expression::Kind::LITERAL;
+        result->literalKind = LiteralExpression::Kind::FLOATING_POINT;
         result->qualifiedType.typeDeclaration = findTypeDeclaration("float", declarationScopes);
-        result->value = iterator->value;
+        result->value = strtod(iterator->value.c_str(), nullptr);
 
         ++iterator;
 
@@ -1579,10 +1581,11 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
     }
     else if (checkToken(Token::Type::LITERAL_STRING, tokens, iterator))
     {
-        LiteralExpression* result = new LiteralExpression();
+        StringLiteralExpression* result = new StringLiteralExpression();
         constructs.push_back(std::unique_ptr<Construct>(result));
         result->kind = Construct::Kind::EXPRESSION;
         result->expressionKind = Expression::Kind::LITERAL;
+        result->literalKind = LiteralExpression::Kind::STRING;
         result->qualifiedType.typeDeclaration = findTypeDeclaration("string", declarationScopes);
         result->value = iterator->value;
 
@@ -1592,12 +1595,13 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
     }
     else if (checkTokens({Token::Type::KEYWORD_TRUE, Token::Type::KEYWORD_FALSE}, tokens, iterator))
     {
-        LiteralExpression* result = new LiteralExpression();
+        BooleanLiteralExpression* result = new BooleanLiteralExpression();
         constructs.push_back(std::unique_ptr<Construct>(result));
         result->kind = Construct::Kind::EXPRESSION;
         result->expressionKind = Expression::Kind::LITERAL;
+        result->literalKind = LiteralExpression::Kind::BOOLEAN;
         result->qualifiedType.typeDeclaration = findTypeDeclaration("bool", declarationScopes);
-        result->value = iterator->value;
+        result->value = (iterator->type == Token::Type::KEYWORD_TRUE);
 
         ++iterator;
 
@@ -2619,7 +2623,38 @@ void ASTContext::dumpExpression(const Expression* expression, std::string indent
         {
             const LiteralExpression* literalExpression = static_cast<const LiteralExpression*>(expression);
 
-            std::cout << ", value: " << literalExpression->value << ", type: " << expression->qualifiedType.typeDeclaration->name << std::endl;
+            std::cout << ", literal kind: " << literalKindToString(literalExpression->literalKind) << ", value: ";
+
+            switch (literalExpression->literalKind)
+            {
+                case LiteralExpression::Kind::NONE: break;
+                case LiteralExpression::Kind::BOOLEAN:
+                {
+                    const BooleanLiteralExpression* booleanLiteralExpression = static_cast<const BooleanLiteralExpression*>(literalExpression);
+                    std::cout << (booleanLiteralExpression->value ? "true" : "false");
+                    break;
+                }
+                case LiteralExpression::Kind::INTEGER:
+                {
+                    const IntegerLiteralExpression* integerLiteralExpression = static_cast<const IntegerLiteralExpression*>(literalExpression);
+                    std::cout << integerLiteralExpression->value;
+                    break;
+                }
+                case LiteralExpression::Kind::FLOATING_POINT:
+                {
+                    const FloatingPointLiteralExpression* floatingPointLiteralExpression = static_cast<const FloatingPointLiteralExpression*>(literalExpression);
+                    std::cout << floatingPointLiteralExpression->value;
+                    break;
+                }
+                case LiteralExpression::Kind::STRING:
+                {
+                    const StringLiteralExpression* stringLiteralExpression = static_cast<const StringLiteralExpression*>(literalExpression);
+                    std::cout << stringLiteralExpression->value;
+                    break;
+                }
+            }
+
+            std::cout << std::endl;
             break;
         }
 

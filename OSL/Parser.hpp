@@ -390,7 +390,55 @@ public:
 class LiteralExpression: public Expression
 {
 public:
+    enum class Kind
+    {
+        NONE,
+        BOOLEAN,
+        INTEGER,
+        FLOATING_POINT,
+        STRING
+    };
+
     TypeDeclaration* typeDeclaration = nullptr;
+
+    Kind literalKind = Kind::NONE;
+};
+
+inline std::string literalKindToString(LiteralExpression::Kind kind)
+{
+    switch (kind)
+    {
+        case LiteralExpression::Kind::NONE: return "NONE";
+        case LiteralExpression::Kind::BOOLEAN: return "BOOLEAN";
+        case LiteralExpression::Kind::INTEGER: return "INTEGER";
+        case LiteralExpression::Kind::FLOATING_POINT: return "FLOATING_POINT";
+        case LiteralExpression::Kind::STRING: return "STRING";
+    }
+
+    return "unknown";
+}
+
+class BooleanLiteralExpression: public LiteralExpression
+{
+public:
+    bool value;
+};
+
+class IntegerLiteralExpression: public LiteralExpression
+{
+public:
+    int64_t value;
+};
+
+class FloatingPointLiteralExpression: public LiteralExpression
+{
+public:
+    double value;
+};
+
+class StringLiteralExpression: public LiteralExpression
+{
+public:
     std::string value;
 };
 
@@ -477,7 +525,7 @@ public:
         EQUALITY, // ==
         INEQUALITY, // !=
         ASSIGNMENT, // =
-        COMMA, // ,
+        COMMA // ,
     };
 
     Expression* leftExpression = nullptr;

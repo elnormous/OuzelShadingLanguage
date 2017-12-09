@@ -595,7 +595,34 @@ bool OutputHLSL::printExpression(const Expression* expression, Options options, 
 
             const LiteralExpression* literalExpression = static_cast<const LiteralExpression*>(expression);
 
-            code += literalExpression->value;
+            switch (literalExpression->literalKind)
+            {
+                case LiteralExpression::Kind::NONE: break;
+                case LiteralExpression::Kind::BOOLEAN:
+                {
+                    const BooleanLiteralExpression* booleanLiteralExpression = static_cast<const BooleanLiteralExpression*>(literalExpression);
+                    code += (booleanLiteralExpression->value ? "true" : "false");
+                    break;
+                }
+                case LiteralExpression::Kind::INTEGER:
+                {
+                    const IntegerLiteralExpression* integerLiteralExpression = static_cast<const IntegerLiteralExpression*>(literalExpression);
+                    code += std::to_string(integerLiteralExpression->value);
+                    break;
+                }
+                case LiteralExpression::Kind::FLOATING_POINT:
+                {
+                    const FloatingPointLiteralExpression* floatingPointLiteralExpression = static_cast<const FloatingPointLiteralExpression*>(literalExpression);
+                    code += std::to_string(floatingPointLiteralExpression->value);
+                    break;
+                }
+                case LiteralExpression::Kind::STRING:
+                {
+                    const StringLiteralExpression* stringLiteralExpression = static_cast<const StringLiteralExpression*>(literalExpression);
+                    code += stringLiteralExpression->value;
+                    break;
+                }
+            }
             break;
         }
 
