@@ -2662,9 +2662,9 @@ void ASTContext::dumpExpression(const Expression* expression, std::string indent
         {
             const DeclarationReferenceExpression* declarationReferenceExpression = static_cast<const DeclarationReferenceExpression*>(expression);
 
-            std::cout << std::endl;
+            std::cout << " " << declarationReferenceExpression->declaration->name << " " << declarationReferenceExpression->declaration;
 
-            dumpConstruct(declarationReferenceExpression->declaration, indent + "  ");
+            std::cout << std::endl;
             break;
         }
 
