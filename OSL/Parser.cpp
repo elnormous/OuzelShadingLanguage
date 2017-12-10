@@ -2341,7 +2341,7 @@ void ASTContext::dumpDeclaration(const Declaration* declaration, std::string ind
         {
             const TypeDeclaration* typeDeclaration = static_cast<const TypeDeclaration*>(declaration);
 
-            std::cout << indent << typeKindToString(typeDeclaration->typeKind);
+            std::cout << " " << typeKindToString(typeDeclaration->typeKind);
 
             switch (typeDeclaration->typeKind)
             {
