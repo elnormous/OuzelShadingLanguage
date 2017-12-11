@@ -647,6 +647,12 @@ bool OutputHLSL::printExpression(const Expression* expression, Options options, 
                     code += variableDeclaration->name;
                     break;
                 }
+                case Declaration::Kind::PARAMETER:
+                {
+                    const ParameterDeclaration* parameterDeclaration = static_cast<const ParameterDeclaration*>(declaration);
+                    code += parameterDeclaration->name;
+                    break;
+                }
                 default:
                     return false;
             }
