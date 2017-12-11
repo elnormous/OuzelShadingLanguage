@@ -70,6 +70,22 @@ bool ASTContext::parse(const std::vector<Token>& tokens)
     vec4Type->name = "vec4";
     vec4Type->isBuiltin = true;
 
+    StructDeclaration* mat3Type = new StructDeclaration();
+    constructs.push_back(std::unique_ptr<Construct>(mat3Type));
+    mat3Type->kind = Construct::Kind::DECLARATION;
+    mat3Type->declarationKind = Declaration::Kind::TYPE;
+    mat3Type->typeKind = TypeDeclaration::Kind::STRUCT;
+    mat3Type->name = "mat3";
+    mat3Type->isBuiltin = true;
+
+    StructDeclaration* mat4Type = new StructDeclaration();
+    constructs.push_back(std::unique_ptr<Construct>(mat4Type));
+    mat4Type->kind = Construct::Kind::DECLARATION;
+    mat4Type->declarationKind = Declaration::Kind::TYPE;
+    mat4Type->typeKind = TypeDeclaration::Kind::STRUCT;
+    mat4Type->name = "mat4";
+    mat4Type->isBuiltin = true;
+
     StructDeclaration* stringType = new StructDeclaration();
     constructs.push_back(std::unique_ptr<Construct>(stringType));
     stringType->kind = Construct::Kind::DECLARATION;
@@ -105,6 +121,8 @@ bool ASTContext::parse(const std::vector<Token>& tokens)
     declarationScopes.back().push_back(vec2Type);
     declarationScopes.back().push_back(vec3Type);
     declarationScopes.back().push_back(vec4Type);
+    declarationScopes.back().push_back(mat3Type);
+    declarationScopes.back().push_back(mat4Type);
     declarationScopes.back().push_back(stringType);
     declarationScopes.back().push_back(samplerStateType);
     declarationScopes.back().push_back(texture2DType);
@@ -268,6 +286,23 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
             std::cerr << "Invalid type: " << iterator->value << std::endl;
             return nullptr;
         }
+
+        // TODO: uncomment this
+        /*if (qualifiedType.typeDeclaration->declarationKind == Declaration::Kind::TYPE)
+        {
+            TypeDeclaration* typeDeclaration = static_cast<TypeDeclaration*>(qualifiedType.typeDeclaration);
+
+            if (typeDeclaration->typeKind == TypeDeclaration::Kind::STRUCT)
+            {
+                StructDeclaration* structDeclaration = static_cast<StructDeclaration*>(typeDeclaration);
+
+                if (structDeclaration->fieldDeclarations.empty())
+                {
+                    std::cerr << "Incomplete type " << iterator->value << std::endl;
+                    return nullptr;
+                }
+            }
+        }*/
 
         ++iterator;
 
@@ -566,6 +601,12 @@ StructDeclaration* ASTContext::parseStructDeclaration(const std::vector<Token>& 
                 if (!checkToken(Token::Type::SEMICOLON, tokens, iterator))
                 {
                     std::cerr << "Expected a semicolon" << std::endl;
+                    return nullptr;
+                }
+
+                if (findFieldDeclaration(fieldDeclaration->name, result))
+                {
+                    std::cerr << "Redefinition of field " << fieldDeclaration->name << std::endl;
                     return nullptr;
                 }
 
@@ -1643,8 +1684,8 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
             }
 
             FunctionDeclaration* functionDeclaration = static_cast<FunctionDeclaration*>(declRefExpression->declaration);
-            declRefExpression->qualifiedType.typeDeclaration = functionDeclaration->qualifiedType.typeDeclaration;
-            result->qualifiedType.typeDeclaration = functionDeclaration->qualifiedType.typeDeclaration;
+            declRefExpression->qualifiedType = functionDeclaration->qualifiedType;
+            result->qualifiedType = functionDeclaration->qualifiedType;
 
             if (checkToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator)) // no arguments
             {

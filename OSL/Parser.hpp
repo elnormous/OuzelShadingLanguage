@@ -602,9 +602,9 @@ private:
 
     Declaration* findDeclaration(const std::string& name, const std::vector<Declaration*>& declarationScope) const
     {
-        for (Declaration* declaration : declarationScope)
+        for (auto declarationIterator = declarationScope.crbegin(); declarationIterator != declarationScope.crend(); ++declarationIterator)
         {
-            if (declaration->name == name) return declaration;
+            if ((*declarationIterator)->name == name) return *declarationIterator;
         }
 
         return nullptr;
@@ -612,11 +612,11 @@ private:
 
     Declaration* findDeclaration(const std::string& name, const std::vector<std::vector<Declaration*>>& declarationScopes) const
     {
-        for (auto i = declarationScopes.crbegin(); i != declarationScopes.crend(); ++i)
+        for (auto scopeIterator = declarationScopes.crbegin(); scopeIterator != declarationScopes.crend(); ++scopeIterator)
         {
-            for (Declaration* declaration : *i)
+            for (auto declarationIterator = scopeIterator->crbegin(); declarationIterator != scopeIterator->crend(); ++declarationIterator)
             {
-                if (declaration->name == name) return declaration;
+                if ((*declarationIterator)->name == name) return *declarationIterator;
             }
         }
 
@@ -625,14 +625,14 @@ private:
 
     TypeDeclaration* findTypeDeclaration(const std::string& name, const std::vector<std::vector<Declaration*>>& declarationScopes) const
     {
-        for (auto i = declarationScopes.crbegin(); i != declarationScopes.crend(); ++i)
+        for (auto scopeIterator = declarationScopes.crbegin(); scopeIterator != declarationScopes.crend(); ++scopeIterator)
         {
-            for (Declaration* declaration : *i)
+            for (auto declarationIterator = scopeIterator->crbegin(); declarationIterator != scopeIterator->crend(); ++declarationIterator)
             {
-                if (declaration->declarationKind == Declaration::Kind::TYPE &&
-                    declaration->name == name)
+                if ((*declarationIterator)->declarationKind == Declaration::Kind::TYPE &&
+                    (*declarationIterator)->name == name)
                 {
-                    return static_cast<TypeDeclaration*>(declaration);
+                    return static_cast<TypeDeclaration*>(*declarationIterator);
                 }
             }
         }
