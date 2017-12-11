@@ -266,7 +266,6 @@ class ParameterDeclaration: public Declaration
 {
 public:
     QualifiedType qualifiedType;
-    std::string name;
 };
 
 class FunctionDeclaration: public Declaration
@@ -770,6 +769,7 @@ private:
     void dumpStatement(const Statement* statement, std::string indent = std::string()) const;
     void dumpExpression(const Expression* expression, std::string indent = std::string()) const;
     void dumpConstruct(const Construct* construct, std::string indent = std::string()) const;
+    void dumpDeclarationScopes(const std::vector<std::vector<Declaration*>>& declarationScopes) const;
 
     std::vector<std::unique_ptr<Construct>> constructs;
 };

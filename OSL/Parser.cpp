@@ -330,6 +330,10 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
             result->isStatic = isStatic;
             result->name = name;
 
+            declarationScopes.back().push_back(result);
+
+            declarationScopes.push_back(std::vector<Declaration*>()); // add scope for parameters
+
             if (!checkToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
             {
                 for (;;)
@@ -341,6 +345,8 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
                     }
 
                     result->parameterDeclarations.push_back(parameterDeclaration);
+
+                    declarationScopes.back().push_back(parameterDeclaration);
 
                     if (!checkToken(Token::Type::COMMA, tokens, iterator))
                     {
@@ -451,8 +457,6 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
                 ++iterator;
             }
 
-            declarationScopes.back().push_back(result);
-
             if (checkToken(Token::Type::LEFT_BRACE, tokens, iterator))
             {
                 // parse body
@@ -462,6 +466,8 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
                     return nullptr;
                 }
             }
+
+            declarationScopes.pop_back();
 
             return result;
         }
@@ -1107,8 +1113,6 @@ CompoundStatement* ASTContext::parseCompoundStatement(const std::vector<Token>& 
         if (checkToken(Token::Type::RIGHT_BRACE, tokens, iterator))
         {
             ++iterator;
-
-            declarationScopes.pop_back();
             break;
         }
         else
@@ -1123,6 +1127,8 @@ CompoundStatement* ASTContext::parseCompoundStatement(const std::vector<Token>& 
             result->statements.push_back(statement);
         }
     }
+
+    declarationScopes.pop_back();
     
     return result;
 }
@@ -1160,7 +1166,8 @@ IfStatement* ASTContext::parseIfStatement(const std::vector<Token>& tokens,
             return nullptr;
         }
 
-        if (declaration->declarationKind != Declaration::Kind::VARIABLE)
+        if (declaration->declarationKind != Declaration::Kind::VARIABLE &&
+            declaration->declarationKind != Declaration::Kind::PARAMETER)
         {
             std::cerr << "Expected a variable declaration" << std::endl;
             return nullptr;
@@ -1242,7 +1249,8 @@ ForStatement* ASTContext::parseForStatement(const std::vector<Token>& tokens,
             return nullptr;
         }
 
-        if (declaration->declarationKind != Declaration::Kind::VARIABLE)
+        if (declaration->declarationKind != Declaration::Kind::VARIABLE &&
+            declaration->declarationKind != Declaration::Kind::PARAMETER)
         {
             std::cerr << "Expected a variable declaration" << std::endl;
             return nullptr;
@@ -1288,7 +1296,8 @@ ForStatement* ASTContext::parseForStatement(const std::vector<Token>& tokens,
             return nullptr;
         }
 
-        if (declaration->declarationKind != Declaration::Kind::VARIABLE)
+        if (declaration->declarationKind != Declaration::Kind::VARIABLE &&
+            declaration->declarationKind != Declaration::Kind::PARAMETER)
         {
             std::cerr << "Expected a variable declaration" << std::endl;
             return nullptr;
@@ -1389,7 +1398,8 @@ SwitchStatement* ASTContext::parseSwitchStatement(const std::vector<Token>& toke
             return nullptr;
         }
 
-        if (declaration->declarationKind != Declaration::Kind::VARIABLE)
+        if (declaration->declarationKind != Declaration::Kind::VARIABLE &&
+            declaration->declarationKind != Declaration::Kind::PARAMETER)
         {
             std::cerr << "Expected a variable declaration" << std::endl;
             return nullptr;
@@ -1493,7 +1503,8 @@ WhileStatement* ASTContext::parseWhileStatement(const std::vector<Token>& tokens
             return nullptr;
         }
 
-        if (declaration->declarationKind != Declaration::Kind::VARIABLE)
+        if (declaration->declarationKind != Declaration::Kind::VARIABLE &&
+            declaration->declarationKind != Declaration::Kind::PARAMETER)
         {
             std::cerr << "Expected a variable declaration" << std::endl;
             return nullptr;
@@ -1744,7 +1755,8 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
                 return nullptr;
             }
 
-            if (declRefExpression->declaration->declarationKind != Declaration::Kind::VARIABLE)
+            if (declRefExpression->declaration->declarationKind != Declaration::Kind::VARIABLE &&
+                declRefExpression->declaration->declarationKind != Declaration::Kind::PARAMETER)
             {
                 std::cerr << "Expected a variable" << std::endl;
                 return nullptr;
@@ -1797,6 +1809,12 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
                 {
                     VariableDeclaration* variableDeclaration = static_cast<VariableDeclaration*>(result->declaration);
                     result->qualifiedType.typeDeclaration = variableDeclaration->qualifiedType.typeDeclaration;
+                    break;
+                }
+                case Declaration::Kind::PARAMETER:
+                {
+                    ParameterDeclaration* parameterDeclaration = static_cast<ParameterDeclaration*>(result->declaration);
+                    result->qualifiedType.typeDeclaration = parameterDeclaration->qualifiedType.typeDeclaration;
                     break;
                 }
                 default:
@@ -2810,3 +2828,19 @@ void ASTContext::dumpConstruct(const Construct* construct, std::string indent) c
         }
     }
 }
+
+void ASTContext::dumpDeclarationScopes(const std::vector<std::vector<Declaration*>>& declarationScopes) const
+{
+    std::string indent;
+
+    for (auto& scope : declarationScopes)
+    {
+        for (auto& declaration : scope)
+        {
+            dumpDeclaration(declaration, indent);
+        }
+
+        indent += "  ";
+    }
+}
+
