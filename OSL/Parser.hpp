@@ -229,6 +229,8 @@ public:
     std::vector<FieldDeclaration*> fieldDeclarations;
 
     bool hasDefinition = false;
+
+    StructDeclaration* previousDeclaration = nullptr;
 };
 
 inline std::string declarationKindToString(Declaration::Kind kind)
@@ -286,6 +288,8 @@ public:
 
     bool isStatic = false;
     Program program = Program::NONE;
+
+    FunctionDeclaration* previousDeclaration = nullptr;
 };
 
 inline std::string programToString(FunctionDeclaration::Program program)
@@ -626,19 +630,36 @@ private:
 
     TypeDeclaration* findTypeDeclaration(const std::string& name, const std::vector<std::vector<Declaration*>>& declarationScopes) const
     {
-        for (auto scopeIterator = declarationScopes.crbegin(); scopeIterator != declarationScopes.crend(); ++scopeIterator)
+        Declaration* declaration = findDeclaration(name, declarationScopes);
+
+        if (declaration && declaration->declarationKind == Declaration::Kind::TYPE)
+            return static_cast<TypeDeclaration*>(declaration);
+        else
+            return nullptr;
+    }
+
+    StructDeclaration* findStructDeclaration(const std::string& name, const std::vector<std::vector<Declaration*>>& declarationScopes) const
+    {
+        Declaration* declaration = findDeclaration(name, declarationScopes);
+
+        if (declaration && declaration->declarationKind == Declaration::Kind::TYPE)
         {
-            for (auto declarationIterator = scopeIterator->crbegin(); declarationIterator != scopeIterator->crend(); ++declarationIterator)
-            {
-                if ((*declarationIterator)->declarationKind == Declaration::Kind::TYPE &&
-                    (*declarationIterator)->name == name)
-                {
-                    return static_cast<TypeDeclaration*>(*declarationIterator);
-                }
-            }
+            TypeDeclaration* typeDeclaration = static_cast<TypeDeclaration*>(declaration);
+
+            if (typeDeclaration->typeKind == TypeDeclaration::Kind::STRUCT) return static_cast<StructDeclaration*>(typeDeclaration);
         }
 
         return nullptr;
+    }
+
+    FunctionDeclaration* findFunctionDeclaration(const std::string& name, const std::vector<std::vector<Declaration*>>& declarationScopes) const
+    {
+        Declaration* declaration = findDeclaration(name, declarationScopes);
+
+        if (declaration && declaration->declarationKind == Declaration::Kind::FUNCTION)
+            return static_cast<FunctionDeclaration*>(declaration);
+        else
+            return nullptr;
     }
 
     FieldDeclaration* findFieldDeclaration(const std::string& name, StructDeclaration* structTypeDeclaration) const

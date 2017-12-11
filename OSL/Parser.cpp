@@ -165,10 +165,7 @@ bool ASTContext::isDeclaration(const std::vector<Token>& tokens,
     {
         TypeDeclaration* typeDeclaration = findTypeDeclaration(iterator->value, declarationScopes);
 
-        if (typeDeclaration)
-        {
-            return true;
-        }
+        if (typeDeclaration) return true;
     }
 
     return false;
@@ -295,19 +292,14 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
             return nullptr;
         }
 
-        if (qualifiedType.typeDeclaration->declarationKind == Declaration::Kind::TYPE)
+        if (qualifiedType.typeDeclaration->typeKind == TypeDeclaration::Kind::STRUCT)
         {
-            TypeDeclaration* typeDeclaration = static_cast<TypeDeclaration*>(qualifiedType.typeDeclaration);
+            StructDeclaration* structDeclaration = static_cast<StructDeclaration*>(qualifiedType.typeDeclaration);
 
-            if (typeDeclaration->typeKind == TypeDeclaration::Kind::STRUCT)
+            if (!structDeclaration->hasDefinition)
             {
-                StructDeclaration* structDeclaration = static_cast<StructDeclaration*>(typeDeclaration);
-
-                if (!structDeclaration->hasDefinition)
-                {
-                    std::cerr << "Incomplete type " << iterator->value << std::endl;
-                    return nullptr;
-                }
+                std::cerr << "Incomplete type " << iterator->value << std::endl;
+                return nullptr;
             }
         }
 
@@ -336,6 +328,9 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
             result->qualifiedType = qualifiedType;
             result->isStatic = isStatic;
             result->name = name;
+            result->previousDeclaration = findFunctionDeclaration(name, declarationScopes);
+
+            // TODO: check if only one definition exists
 
             declarationScopes.back().push_back(result);
 
@@ -581,6 +576,9 @@ StructDeclaration* ASTContext::parseStructDeclaration(const std::vector<Token>& 
     result->declarationKind = Declaration::Kind::TYPE;
     result->typeKind = TypeDeclaration::Kind::STRUCT;
     result->name = iterator->value;
+    result->previousDeclaration = findStructDeclaration(iterator->value, declarationScopes);
+
+    // TODO: check if only one definition exists
 
     ++iterator;
 
@@ -2421,7 +2419,14 @@ void ASTContext::dumpDeclaration(const Declaration* declaration, std::string ind
                 case TypeDeclaration::Kind::STRUCT:
                 {
                     const StructDeclaration* structDeclaration = static_cast<const StructDeclaration*>(typeDeclaration);
-                    std::cout << ", name: " << structDeclaration->name << std::endl;
+                    std::cout << ", name: " << structDeclaration->name;
+
+                    if (structDeclaration->previousDeclaration)
+                    {
+                        std::cout << ", previous declaration: " << structDeclaration->previousDeclaration;
+                    }
+
+                    std::cout << std::endl;
 
                     for (const FieldDeclaration* fieldDeclaration : structDeclaration->fieldDeclarations)
                     {
@@ -2470,6 +2475,11 @@ void ASTContext::dumpDeclaration(const Declaration* declaration, std::string ind
             if (functionDeclaration->program != FunctionDeclaration::Program::NONE)
             {
                 std::cout << ", program: " << programToString(functionDeclaration->program);
+            }
+
+            if (functionDeclaration->previousDeclaration)
+            {
+                std::cout << ", previous declarations: " << functionDeclaration->previousDeclaration;
             }
 
             std::cout << std::endl;
