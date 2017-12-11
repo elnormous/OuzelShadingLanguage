@@ -2479,7 +2479,7 @@ void ASTContext::dumpDeclaration(const Declaration* declaration, std::string ind
 
             if (functionDeclaration->previousDeclaration)
             {
-                std::cout << ", previous declarations: " << functionDeclaration->previousDeclaration;
+                std::cout << ", previous declaration: " << functionDeclaration->previousDeclaration;
             }
 
             std::cout << std::endl;
