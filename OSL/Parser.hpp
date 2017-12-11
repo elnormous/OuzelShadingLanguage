@@ -227,6 +227,8 @@ class StructDeclaration: public TypeDeclaration
 {
 public:
     std::vector<FieldDeclaration*> fieldDeclarations;
+
+    bool hasDefinition = false;
 };
 
 inline std::string declarationKindToString(Declaration::Kind kind)

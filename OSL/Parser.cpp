@@ -53,6 +53,7 @@ bool ASTContext::parse(const std::vector<Token>& tokens)
     vec2Type->typeKind = TypeDeclaration::Kind::STRUCT;
     vec2Type->name = "vec2";
     vec2Type->isBuiltin = true;
+    vec2Type->hasDefinition = true;
 
     StructDeclaration* vec3Type = new StructDeclaration();
     constructs.push_back(std::unique_ptr<Construct>(vec3Type));
@@ -61,6 +62,7 @@ bool ASTContext::parse(const std::vector<Token>& tokens)
     vec3Type->typeKind = TypeDeclaration::Kind::STRUCT;
     vec3Type->name = "vec3";
     vec3Type->isBuiltin = true;
+    vec3Type->hasDefinition = true;
 
     StructDeclaration* vec4Type = new StructDeclaration();
     constructs.push_back(std::unique_ptr<Construct>(vec4Type));
@@ -69,6 +71,7 @@ bool ASTContext::parse(const std::vector<Token>& tokens)
     vec4Type->typeKind = TypeDeclaration::Kind::STRUCT;
     vec4Type->name = "vec4";
     vec4Type->isBuiltin = true;
+    vec4Type->hasDefinition = true;
 
     StructDeclaration* mat3Type = new StructDeclaration();
     constructs.push_back(std::unique_ptr<Construct>(mat3Type));
@@ -77,6 +80,7 @@ bool ASTContext::parse(const std::vector<Token>& tokens)
     mat3Type->typeKind = TypeDeclaration::Kind::STRUCT;
     mat3Type->name = "mat3";
     mat3Type->isBuiltin = true;
+    mat3Type->hasDefinition = true;
 
     StructDeclaration* mat4Type = new StructDeclaration();
     constructs.push_back(std::unique_ptr<Construct>(mat4Type));
@@ -85,6 +89,7 @@ bool ASTContext::parse(const std::vector<Token>& tokens)
     mat4Type->typeKind = TypeDeclaration::Kind::STRUCT;
     mat4Type->name = "mat4";
     mat4Type->isBuiltin = true;
+    mat4Type->hasDefinition = true;
 
     StructDeclaration* stringType = new StructDeclaration();
     constructs.push_back(std::unique_ptr<Construct>(stringType));
@@ -93,6 +98,7 @@ bool ASTContext::parse(const std::vector<Token>& tokens)
     stringType->typeKind = TypeDeclaration::Kind::STRUCT;
     stringType->name = "string";
     stringType->isBuiltin = true;
+    stringType->hasDefinition = true;
 
     StructDeclaration* samplerStateType = new StructDeclaration();
     constructs.push_back(std::unique_ptr<Construct>(samplerStateType));
@@ -101,6 +107,7 @@ bool ASTContext::parse(const std::vector<Token>& tokens)
     samplerStateType->typeKind = TypeDeclaration::Kind::STRUCT;
     samplerStateType->name = "SamplerState";
     samplerStateType->isBuiltin = true;
+    samplerStateType->hasDefinition = true;
 
     StructDeclaration* texture2DType = new StructDeclaration();
     constructs.push_back(std::unique_ptr<Construct>(texture2DType));
@@ -109,6 +116,7 @@ bool ASTContext::parse(const std::vector<Token>& tokens)
     texture2DType->typeKind = TypeDeclaration::Kind::STRUCT;
     texture2DType->name = "Texture2D";
     texture2DType->isBuiltin = true;
+    texture2DType->hasDefinition = true;
 
     auto iterator = tokens.cbegin();
 
@@ -287,8 +295,7 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
             return nullptr;
         }
 
-        // TODO: uncomment this
-        /*if (qualifiedType.typeDeclaration->declarationKind == Declaration::Kind::TYPE)
+        if (qualifiedType.typeDeclaration->declarationKind == Declaration::Kind::TYPE)
         {
             TypeDeclaration* typeDeclaration = static_cast<TypeDeclaration*>(qualifiedType.typeDeclaration);
 
@@ -296,13 +303,13 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
             {
                 StructDeclaration* structDeclaration = static_cast<StructDeclaration*>(typeDeclaration);
 
-                if (structDeclaration->fieldDeclarations.empty())
+                if (!structDeclaration->hasDefinition)
                 {
                     std::cerr << "Incomplete type " << iterator->value << std::endl;
                     return nullptr;
                 }
             }
-        }*/
+        }
 
         ++iterator;
 
@@ -580,6 +587,8 @@ StructDeclaration* ASTContext::parseStructDeclaration(const std::vector<Token>& 
     if (checkToken(Token::Type::LEFT_BRACE, tokens, iterator))
     {
         ++iterator;
+
+        result->hasDefinition = true;
 
         for (;;)
         {
