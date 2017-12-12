@@ -795,4 +795,16 @@ private:
     void dumpDeclarationScopes(const std::vector<std::vector<Declaration*>>& declarationScopes) const;
 
     std::vector<std::unique_ptr<Construct>> constructs;
+
+    SimpleTypeDeclaration boolType;
+    SimpleTypeDeclaration intType;
+    SimpleTypeDeclaration floatType;
+    StructDeclaration vec2Type;
+    StructDeclaration vec3Type;
+    StructDeclaration vec4Type;
+    StructDeclaration mat3Type;
+    StructDeclaration mat4Type;
+    StructDeclaration stringType;
+    StructDeclaration samplerStateType;
+    StructDeclaration texture2DType;
 };

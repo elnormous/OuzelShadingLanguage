@@ -12,6 +12,82 @@ static const std::vector<std::string> builtinTypes = {
 
 ASTContext::ASTContext()
 {
+    boolType.kind = Construct::Kind::DECLARATION;
+    boolType.declarationKind = Declaration::Kind::TYPE;
+    boolType.typeKind = TypeDeclaration::Kind::SIMPLE;
+    boolType.name = "bool";
+    boolType.scalar = true;
+    boolType.isBuiltin = true;
+
+    intType.kind = Construct::Kind::DECLARATION;
+    intType.declarationKind = Declaration::Kind::TYPE;
+    intType.typeKind = TypeDeclaration::Kind::SIMPLE;
+    intType.name = "int";
+    intType.scalar = true;
+    intType.isBuiltin = true;
+
+    floatType.kind = Construct::Kind::DECLARATION;
+    floatType.declarationKind = Declaration::Kind::TYPE;
+    floatType.typeKind = TypeDeclaration::Kind::SIMPLE;
+    floatType.name = "float";
+    floatType.scalar = true;
+    floatType.isBuiltin = true;
+
+    vec2Type.kind = Construct::Kind::DECLARATION;
+    vec2Type.declarationKind = Declaration::Kind::TYPE;
+    vec2Type.typeKind = TypeDeclaration::Kind::STRUCT;
+    vec2Type.name = "vec2";
+    vec2Type.isBuiltin = true;
+    vec2Type.hasDefinition = true;
+
+    vec3Type.kind = Construct::Kind::DECLARATION;
+    vec3Type.declarationKind = Declaration::Kind::TYPE;
+    vec3Type.typeKind = TypeDeclaration::Kind::STRUCT;
+    vec3Type.name = "vec3";
+    vec3Type.isBuiltin = true;
+    vec3Type.hasDefinition = true;
+
+    vec4Type.kind = Construct::Kind::DECLARATION;
+    vec4Type.declarationKind = Declaration::Kind::TYPE;
+    vec4Type.typeKind = TypeDeclaration::Kind::STRUCT;
+    vec4Type.name = "vec4";
+    vec4Type.isBuiltin = true;
+    vec4Type.hasDefinition = true;
+
+    mat3Type.kind = Construct::Kind::DECLARATION;
+    mat3Type.declarationKind = Declaration::Kind::TYPE;
+    mat3Type.typeKind = TypeDeclaration::Kind::STRUCT;
+    mat3Type.name = "mat3";
+    mat3Type.isBuiltin = true;
+    mat3Type.hasDefinition = true;
+
+    mat4Type.kind = Construct::Kind::DECLARATION;
+    mat4Type.declarationKind = Declaration::Kind::TYPE;
+    mat4Type.typeKind = TypeDeclaration::Kind::STRUCT;
+    mat4Type.name = "mat4";
+    mat4Type.isBuiltin = true;
+    mat4Type.hasDefinition = true;
+
+    stringType.kind = Construct::Kind::DECLARATION;
+    stringType.declarationKind = Declaration::Kind::TYPE;
+    stringType.typeKind = TypeDeclaration::Kind::STRUCT;
+    stringType.name = "string";
+    stringType.isBuiltin = true;
+    stringType.hasDefinition = true;
+
+    samplerStateType.kind = Construct::Kind::DECLARATION;
+    samplerStateType.declarationKind = Declaration::Kind::TYPE;
+    samplerStateType.typeKind = TypeDeclaration::Kind::STRUCT;
+    samplerStateType.name = "SamplerState";
+    samplerStateType.isBuiltin = true;
+    samplerStateType.hasDefinition = true;
+
+    texture2DType.kind = Construct::Kind::DECLARATION;
+    texture2DType.declarationKind = Declaration::Kind::TYPE;
+    texture2DType.typeKind = TypeDeclaration::Kind::STRUCT;
+    texture2DType.name = "Texture2D";
+    texture2DType.isBuiltin = true;
+    texture2DType.hasDefinition = true;
 }
 
 bool ASTContext::parse(const std::vector<Token>& tokens)
@@ -19,121 +95,22 @@ bool ASTContext::parse(const std::vector<Token>& tokens)
     constructs.clear();
     declarations.clear();
 
-    SimpleTypeDeclaration* boolType = new SimpleTypeDeclaration();
-    constructs.push_back(std::unique_ptr<Construct>(boolType));
-    boolType->kind = Construct::Kind::DECLARATION;
-    boolType->declarationKind = Declaration::Kind::TYPE;
-    boolType->typeKind = TypeDeclaration::Kind::SIMPLE;
-    boolType->name = "bool";
-    boolType->scalar = true;
-    boolType->isBuiltin = true;
-
-    SimpleTypeDeclaration* intType = new SimpleTypeDeclaration();
-    constructs.push_back(std::unique_ptr<Construct>(intType));
-    intType->kind = Construct::Kind::DECLARATION;
-    intType->declarationKind = Declaration::Kind::TYPE;
-    intType->typeKind = TypeDeclaration::Kind::SIMPLE;
-    intType->name = "int";
-    intType->scalar = true;
-    intType->isBuiltin = true;
-
-    SimpleTypeDeclaration* floatType = new SimpleTypeDeclaration();
-    constructs.push_back(std::unique_ptr<Construct>(floatType));
-    floatType->kind = Construct::Kind::DECLARATION;
-    floatType->declarationKind = Declaration::Kind::TYPE;
-    floatType->typeKind = TypeDeclaration::Kind::SIMPLE;
-    floatType->name = "float";
-    floatType->scalar = true;
-    floatType->isBuiltin = true;
-
-    StructDeclaration* vec2Type = new StructDeclaration();
-    constructs.push_back(std::unique_ptr<Construct>(vec2Type));
-    vec2Type->kind = Construct::Kind::DECLARATION;
-    vec2Type->declarationKind = Declaration::Kind::TYPE;
-    vec2Type->typeKind = TypeDeclaration::Kind::STRUCT;
-    vec2Type->name = "vec2";
-    vec2Type->isBuiltin = true;
-    vec2Type->hasDefinition = true;
-
-    StructDeclaration* vec3Type = new StructDeclaration();
-    constructs.push_back(std::unique_ptr<Construct>(vec3Type));
-    vec3Type->kind = Construct::Kind::DECLARATION;
-    vec3Type->declarationKind = Declaration::Kind::TYPE;
-    vec3Type->typeKind = TypeDeclaration::Kind::STRUCT;
-    vec3Type->name = "vec3";
-    vec3Type->isBuiltin = true;
-    vec3Type->hasDefinition = true;
-
-    StructDeclaration* vec4Type = new StructDeclaration();
-    constructs.push_back(std::unique_ptr<Construct>(vec4Type));
-    vec4Type->kind = Construct::Kind::DECLARATION;
-    vec4Type->declarationKind = Declaration::Kind::TYPE;
-    vec4Type->typeKind = TypeDeclaration::Kind::STRUCT;
-    vec4Type->name = "vec4";
-    vec4Type->isBuiltin = true;
-    vec4Type->hasDefinition = true;
-
-    StructDeclaration* mat3Type = new StructDeclaration();
-    constructs.push_back(std::unique_ptr<Construct>(mat3Type));
-    mat3Type->kind = Construct::Kind::DECLARATION;
-    mat3Type->declarationKind = Declaration::Kind::TYPE;
-    mat3Type->typeKind = TypeDeclaration::Kind::STRUCT;
-    mat3Type->name = "mat3";
-    mat3Type->isBuiltin = true;
-    mat3Type->hasDefinition = true;
-
-    StructDeclaration* mat4Type = new StructDeclaration();
-    constructs.push_back(std::unique_ptr<Construct>(mat4Type));
-    mat4Type->kind = Construct::Kind::DECLARATION;
-    mat4Type->declarationKind = Declaration::Kind::TYPE;
-    mat4Type->typeKind = TypeDeclaration::Kind::STRUCT;
-    mat4Type->name = "mat4";
-    mat4Type->isBuiltin = true;
-    mat4Type->hasDefinition = true;
-
-    StructDeclaration* stringType = new StructDeclaration();
-    constructs.push_back(std::unique_ptr<Construct>(stringType));
-    stringType->kind = Construct::Kind::DECLARATION;
-    stringType->declarationKind = Declaration::Kind::TYPE;
-    stringType->typeKind = TypeDeclaration::Kind::STRUCT;
-    stringType->name = "string";
-    stringType->isBuiltin = true;
-    stringType->hasDefinition = true;
-
-    StructDeclaration* samplerStateType = new StructDeclaration();
-    constructs.push_back(std::unique_ptr<Construct>(samplerStateType));
-    samplerStateType->kind = Construct::Kind::DECLARATION;
-    samplerStateType->declarationKind = Declaration::Kind::TYPE;
-    samplerStateType->typeKind = TypeDeclaration::Kind::STRUCT;
-    samplerStateType->name = "SamplerState";
-    samplerStateType->isBuiltin = true;
-    samplerStateType->hasDefinition = true;
-
-    StructDeclaration* texture2DType = new StructDeclaration();
-    constructs.push_back(std::unique_ptr<Construct>(texture2DType));
-    texture2DType->kind = Construct::Kind::DECLARATION;
-    texture2DType->declarationKind = Declaration::Kind::TYPE;
-    texture2DType->typeKind = TypeDeclaration::Kind::STRUCT;
-    texture2DType->name = "Texture2D";
-    texture2DType->isBuiltin = true;
-    texture2DType->hasDefinition = true;
-
     auto iterator = tokens.cbegin();
 
     std::vector<std::vector<Declaration*>> declarationScopes;
     declarationScopes.push_back(std::vector<Declaration*>());
 
-    declarationScopes.back().push_back(boolType);
-    declarationScopes.back().push_back(intType);
-    declarationScopes.back().push_back(floatType);
-    declarationScopes.back().push_back(vec2Type);
-    declarationScopes.back().push_back(vec3Type);
-    declarationScopes.back().push_back(vec4Type);
-    declarationScopes.back().push_back(mat3Type);
-    declarationScopes.back().push_back(mat4Type);
-    declarationScopes.back().push_back(stringType);
-    declarationScopes.back().push_back(samplerStateType);
-    declarationScopes.back().push_back(texture2DType);
+    declarationScopes.back().push_back(&boolType);
+    declarationScopes.back().push_back(&intType);
+    declarationScopes.back().push_back(&floatType);
+    declarationScopes.back().push_back(&vec2Type);
+    declarationScopes.back().push_back(&vec3Type);
+    declarationScopes.back().push_back(&vec4Type);
+    declarationScopes.back().push_back(&mat3Type);
+    declarationScopes.back().push_back(&mat4Type);
+    declarationScopes.back().push_back(&stringType);
+    declarationScopes.back().push_back(&samplerStateType);
+    declarationScopes.back().push_back(&texture2DType);
 
     while (iterator != tokens.end())
     {
@@ -1617,7 +1594,7 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
         result->kind = Construct::Kind::EXPRESSION;
         result->expressionKind = Expression::Kind::LITERAL;
         result->literalKind = LiteralExpression::Kind::INTEGER;
-        result->qualifiedType.typeDeclaration = findTypeDeclaration("int", declarationScopes);
+        result->qualifiedType.typeDeclaration = &intType;
         result->value = strtoll(iterator->value.c_str(), nullptr, 0);
 
         ++iterator;
@@ -1631,7 +1608,7 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
         result->kind = Construct::Kind::EXPRESSION;
         result->expressionKind = Expression::Kind::LITERAL;
         result->literalKind = LiteralExpression::Kind::FLOATING_POINT;
-        result->qualifiedType.typeDeclaration = findTypeDeclaration("float", declarationScopes);
+        result->qualifiedType.typeDeclaration = &floatType;
         result->value = strtod(iterator->value.c_str(), nullptr);
 
         ++iterator;
@@ -1645,7 +1622,7 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
         result->kind = Construct::Kind::EXPRESSION;
         result->expressionKind = Expression::Kind::LITERAL;
         result->literalKind = LiteralExpression::Kind::STRING;
-        result->qualifiedType.typeDeclaration = findTypeDeclaration("string", declarationScopes);
+        result->qualifiedType.typeDeclaration = &stringType;
         result->value = iterator->value;
 
         ++iterator;
@@ -1659,7 +1636,7 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
         result->kind = Construct::Kind::EXPRESSION;
         result->expressionKind = Expression::Kind::LITERAL;
         result->literalKind = LiteralExpression::Kind::BOOLEAN;
-        result->qualifiedType.typeDeclaration = findTypeDeclaration("bool", declarationScopes);
+        result->qualifiedType.typeDeclaration = &boolType;
         result->value = (iterator->type == Token::Type::KEYWORD_TRUE);
 
         ++iterator;
