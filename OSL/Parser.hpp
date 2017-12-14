@@ -287,6 +287,7 @@ public:
     Statement* body = nullptr;
 
     bool isStatic = false;
+    bool isBuiltin = false;
     Program program = Program::NONE;
 
     FunctionDeclaration* previousDeclaration = nullptr;
@@ -807,4 +808,8 @@ private:
     StructDeclaration stringType;
     StructDeclaration samplerStateType;
     StructDeclaration texture2DType;
+
+    ParameterDeclaration vec4Parameter;
+    ParameterDeclaration mat4Parameter;
+    FunctionDeclaration mulFunction;
 };

@@ -88,6 +88,24 @@ ASTContext::ASTContext()
     texture2DType.name = "Texture2D";
     texture2DType.isBuiltin = true;
     texture2DType.hasDefinition = true;
+
+    vec4Parameter.kind = Construct::Kind::DECLARATION;
+    vec4Parameter.declarationKind = Declaration::Kind::PARAMETER;
+    vec4Parameter.name = "v";
+    vec4Parameter.qualifiedType.typeDeclaration = &vec4Type;
+
+    mat4Parameter.kind = Construct::Kind::DECLARATION;
+    mat4Parameter.declarationKind = Declaration::Kind::PARAMETER;
+    mat4Parameter.name = "m";
+    mat4Parameter.qualifiedType.typeDeclaration = &mat4Type;
+
+    mulFunction.kind = Construct::Kind::DECLARATION;
+    mulFunction.declarationKind = Declaration::Kind::FUNCTION;
+    mulFunction.name = "mul";
+    mulFunction.qualifiedType.typeDeclaration = &vec4Type;
+    mulFunction.parameterDeclarations.push_back(&vec4Parameter);
+    mulFunction.parameterDeclarations.push_back(&mat4Parameter);
+    mulFunction.isBuiltin = true;
 }
 
 bool ASTContext::parse(const std::vector<Token>& tokens)
@@ -111,6 +129,7 @@ bool ASTContext::parse(const std::vector<Token>& tokens)
     declarationScopes.back().push_back(&stringType);
     declarationScopes.back().push_back(&samplerStateType);
     declarationScopes.back().push_back(&texture2DType);
+    declarationScopes.back().push_back(&mulFunction);
 
     while (iterator != tokens.end())
     {
