@@ -1814,12 +1814,16 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
                 {
                     VariableDeclaration* variableDeclaration = static_cast<VariableDeclaration*>(result->declaration);
                     result->qualifiedType.typeDeclaration = variableDeclaration->qualifiedType.typeDeclaration;
+                    result->qualifiedType.isConst = variableDeclaration->qualifiedType.isConst;
+                    result->qualifiedType.dimensions = variableDeclaration->qualifiedType.dimensions;
                     break;
                 }
                 case Declaration::Kind::PARAMETER:
                 {
                     ParameterDeclaration* parameterDeclaration = static_cast<ParameterDeclaration*>(result->declaration);
                     result->qualifiedType.typeDeclaration = parameterDeclaration->qualifiedType.typeDeclaration;
+                    result->qualifiedType.isConst = parameterDeclaration->qualifiedType.isConst;
+                    result->qualifiedType.dimensions = parameterDeclaration->qualifiedType.dimensions;
                     break;
                 }
                 default:
