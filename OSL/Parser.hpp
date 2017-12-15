@@ -653,14 +653,38 @@ private:
         return nullptr;
     }
 
-    FunctionDeclaration* findFunctionDeclaration(const std::string& name, const std::vector<std::vector<Declaration*>>& declarationScopes) const
+    FunctionDeclaration* findFunctionDeclaration(const std::string& name,
+                                                 const std::vector<std::vector<Declaration*>>& declarationScopes,
+                                                 std::vector<QualifiedType> parameters) const
     {
-        Declaration* declaration = findDeclaration(name, declarationScopes);
+        for (auto scopeIterator = declarationScopes.crbegin(); scopeIterator != declarationScopes.crend(); ++scopeIterator)
+        {
+            for (auto declarationIterator = scopeIterator->crbegin(); declarationIterator != scopeIterator->crend(); ++declarationIterator)
+            {
+                if ((*declarationIterator)->name == name &&
+                    (*declarationIterator)->declarationKind == Declaration::Kind::FUNCTION)
+                {
+                    FunctionDeclaration* functionDeclaration = static_cast<FunctionDeclaration*>(*declarationIterator);
 
-        if (declaration && declaration->declarationKind == Declaration::Kind::FUNCTION)
-            return static_cast<FunctionDeclaration*>(declaration);
-        else
-            return nullptr;
+                    if (functionDeclaration->parameterDeclarations.size() == parameters.size())
+                    {
+                        if (std::equal(parameters.begin(), parameters.end(),
+                                       functionDeclaration->parameterDeclarations.begin(),
+                                       [](const QualifiedType& qualifiedType,
+                                          const ParameterDeclaration* parameterDeclaration) {
+                                           return qualifiedType.typeDeclaration == parameterDeclaration->qualifiedType.typeDeclaration && // TODO: check for forward declarations
+                                            (!qualifiedType.isConst || parameterDeclaration->qualifiedType.isConst) &&
+                                            qualifiedType.dimensions == parameterDeclaration->qualifiedType.dimensions;
+                                       }))
+                        {
+                            return functionDeclaration;
+                        }
+                    }
+                }
+            }
+        }
+
+        return nullptr;
     }
 
     FieldDeclaration* findFieldDeclaration(const std::string& name, StructDeclaration* structTypeDeclaration) const

@@ -93,18 +93,20 @@ ASTContext::ASTContext()
     vec4Parameter.declarationKind = Declaration::Kind::PARAMETER;
     vec4Parameter.name = "v";
     vec4Parameter.qualifiedType.typeDeclaration = &vec4Type;
+    vec4Parameter.qualifiedType.isConst = true;
 
     mat4Parameter.kind = Construct::Kind::DECLARATION;
     mat4Parameter.declarationKind = Declaration::Kind::PARAMETER;
     mat4Parameter.name = "m";
     mat4Parameter.qualifiedType.typeDeclaration = &mat4Type;
+    mat4Parameter.qualifiedType.isConst = true;
 
     mulFunction.kind = Construct::Kind::DECLARATION;
     mulFunction.declarationKind = Declaration::Kind::FUNCTION;
     mulFunction.name = "mul";
     mulFunction.qualifiedType.typeDeclaration = &vec4Type;
-    mulFunction.parameterDeclarations.push_back(&vec4Parameter);
     mulFunction.parameterDeclarations.push_back(&mat4Parameter);
+    mulFunction.parameterDeclarations.push_back(&vec4Parameter);
     mulFunction.isBuiltin = true;
 }
 
@@ -324,13 +326,10 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
             result->qualifiedType = qualifiedType;
             result->isStatic = isStatic;
             result->name = name;
-            result->previousDeclaration = findFunctionDeclaration(name, declarationScopes);
 
             // TODO: check if only one definition exists
 
-            declarationScopes.back().push_back(result);
-
-            declarationScopes.push_back(std::vector<Declaration*>()); // add scope for parameters
+            std::vector<QualifiedType> parameters;
 
             if (!checkToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
             {
@@ -343,8 +342,7 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
                     }
 
                     result->parameterDeclarations.push_back(parameterDeclaration);
-
-                    declarationScopes.back().push_back(parameterDeclaration);
+                    parameters.push_back(parameterDeclaration->qualifiedType);
 
                     if (!checkToken(Token::Type::COMMA, tokens, iterator))
                     {
@@ -362,6 +360,8 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
             }
 
             ++iterator;
+
+            result->previousDeclaration = findFunctionDeclaration(name, declarationScopes, parameters);
 
             while (checkToken(Token::Type::LEFT_BRACKET, tokens, iterator))
             {
@@ -455,17 +455,24 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
                 ++iterator;
             }
 
+            declarationScopes.back().push_back(result);
+
             if (checkToken(Token::Type::LEFT_BRACE, tokens, iterator))
             {
+                declarationScopes.push_back(std::vector<Declaration*>()); // add scope for parameters
+
+                for (ParameterDeclaration* parameterDeclaration : result->parameterDeclarations)
+                    declarationScopes.back().push_back(parameterDeclaration);
+
                 // parse body
                 if (!(result->body = parseCompoundStatement(tokens, iterator, declarationScopes)))
                 {
                     std::cerr << "Failed to parse a compound statement" << std::endl;
                     return nullptr;
                 }
-            }
 
-            declarationScopes.pop_back();
+                declarationScopes.pop_back();
+            }
 
             return result;
         }
@@ -1677,29 +1684,7 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
             result->kind = Construct::Kind::EXPRESSION;
             result->expressionKind = Expression::Kind::CALL;
 
-            DeclarationReferenceExpression* declRefExpression = new DeclarationReferenceExpression();
-            constructs.push_back(std::unique_ptr<Construct>(declRefExpression));
-            declRefExpression->kind = Construct::Kind::EXPRESSION;
-            declRefExpression->expressionKind = Expression::Kind::DECLARATION_REFERENCE;
-            declRefExpression->declaration = findDeclaration(name, declarationScopes);
-
-            if (!declRefExpression->declaration)
-            {
-                std::cerr << "Invalid declaration reference: " << name << std::endl;
-                return nullptr;
-            }
-
-            result->declarationReference = declRefExpression;
-
-            if (declRefExpression->declaration->declarationKind != Declaration::Kind::FUNCTION)
-            {
-                std::cerr << name << " is not a function" << std::endl;
-                return nullptr;
-            }
-
-            FunctionDeclaration* functionDeclaration = static_cast<FunctionDeclaration*>(declRefExpression->declaration);
-            declRefExpression->qualifiedType = functionDeclaration->qualifiedType;
-            result->qualifiedType = functionDeclaration->qualifiedType;
+            std::vector<QualifiedType> parameters;
 
             if (checkToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator)) // no arguments
             {
@@ -1707,8 +1692,6 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
             }
             else
             {
-                std::unique_ptr<Construct> parameter;
-
                 for (;;)
                 {
                     Expression* parameter;
@@ -1719,6 +1702,7 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
                     }
 
                     result->parameters.push_back(parameter);
+                    parameters.push_back(parameter->qualifiedType);
 
                     if (checkToken(Token::Type::COMMA, tokens, iterator))
                         ++iterator;
@@ -1734,6 +1718,24 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
 
                 ++iterator;
             }
+
+            DeclarationReferenceExpression* declRefExpression = new DeclarationReferenceExpression();
+            constructs.push_back(std::unique_ptr<Construct>(declRefExpression));
+            declRefExpression->kind = Construct::Kind::EXPRESSION;
+            declRefExpression->expressionKind = Expression::Kind::DECLARATION_REFERENCE;
+
+            FunctionDeclaration* functionDeclaration = findFunctionDeclaration(name, declarationScopes, parameters);
+
+            if (!functionDeclaration)
+            {
+                std::cerr << "Invalid function reference: " << name << std::endl;
+                return nullptr;
+            }
+
+            declRefExpression->declaration = functionDeclaration;
+            declRefExpression->qualifiedType = functionDeclaration->qualifiedType;
+            result->declarationReference = declRefExpression;
+            result->qualifiedType = functionDeclaration->qualifiedType;
 
             return result;
         }
@@ -1821,7 +1823,8 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
                     break;
                 }
                 default:
-                    break;
+                    std::cerr << "Invalid declaration reference " << name;
+                    return nullptr;
             }
 
             return result;
