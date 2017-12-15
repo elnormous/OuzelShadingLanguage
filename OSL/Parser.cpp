@@ -2865,4 +2865,3 @@ void ASTContext::dumpDeclarationScopes(const std::vector<std::vector<Declaration
         indent += "  ";
     }
 }
-
