@@ -819,7 +819,7 @@ bool OutputHLSL::printExpression(const Expression* expression, Options options, 
 
 bool OutputHLSL::printConstruct(const Construct* construct, Options options, std::string& code)
 {
-    switch (construct->kind)
+    switch (construct->getKind())
     {
         case Construct::Kind::NONE:
         {

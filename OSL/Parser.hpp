@@ -34,6 +34,11 @@ public:
         EXPRESSION
     };
 
+    Construct(Kind initKind): kind(initKind) {}
+
+    inline const Kind getKind() const { return kind; }
+
+protected:
     Kind kind = Kind::NONE;
 };
 
@@ -100,6 +105,8 @@ public:
         RETURN,
     };
 
+    Statement(): Construct(Construct::Kind::STATEMENT) {}
+
     Kind statementKind = Kind::NONE;
 };
 
@@ -143,6 +150,8 @@ public:
         TERNARY,
     };
 
+    Expression(): Construct(Construct::Kind::EXPRESSION) {}
+
     Kind expressionKind = Kind::NONE;
 
     QualifiedType qualifiedType;
@@ -180,6 +189,8 @@ public:
         VARIABLE,
         PARAMETER
     };
+
+    Declaration(): Construct(Construct::Kind::DECLARATION) {}
 
     Kind declarationKind = Kind::NONE;
 
@@ -827,6 +838,7 @@ private:
     StructDeclaration vec2Type;
     StructDeclaration vec3Type;
     StructDeclaration vec4Type;
+    std::vector<ParameterDeclaration> parameters;
     StructDeclaration mat3Type;
     StructDeclaration mat4Type;
     StructDeclaration stringType;
