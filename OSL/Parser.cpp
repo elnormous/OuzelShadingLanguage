@@ -89,24 +89,24 @@ ASTContext::ASTContext()
     texture2DType.isBuiltin = true;
     texture2DType.hasDefinition = true;
 
-    vec4Parameter.kind = Construct::Kind::DECLARATION;
-    vec4Parameter.declarationKind = Declaration::Kind::PARAMETER;
-    vec4Parameter.name = "v";
-    vec4Parameter.qualifiedType.typeDeclaration = &vec4Type;
-    vec4Parameter.qualifiedType.isConst = true;
+    samplerParameter.kind = Construct::Kind::DECLARATION;
+    samplerParameter.declarationKind = Declaration::Kind::PARAMETER;
+    samplerParameter.name = "sampler";
+    samplerParameter.qualifiedType.typeDeclaration = &samplerStateType;
+    samplerParameter.qualifiedType.isConst = true;
 
-    mat4Parameter.kind = Construct::Kind::DECLARATION;
-    mat4Parameter.declarationKind = Declaration::Kind::PARAMETER;
-    mat4Parameter.name = "m";
-    mat4Parameter.qualifiedType.typeDeclaration = &mat4Type;
-    mat4Parameter.qualifiedType.isConst = true;
+    vec2Parameter.kind = Construct::Kind::DECLARATION;
+    vec2Parameter.declarationKind = Declaration::Kind::PARAMETER;
+    vec2Parameter.name = "coord";
+    vec2Parameter.qualifiedType.typeDeclaration = &vec2Type;
+    vec2Parameter.qualifiedType.isConst = true;
 
     mulFunction.kind = Construct::Kind::DECLARATION;
     mulFunction.declarationKind = Declaration::Kind::FUNCTION;
-    mulFunction.name = "mul";
+    mulFunction.name = "texture2D";
     mulFunction.qualifiedType.typeDeclaration = &vec4Type;
-    mulFunction.parameterDeclarations.push_back(&mat4Parameter);
-    mulFunction.parameterDeclarations.push_back(&vec4Parameter);
+    mulFunction.parameterDeclarations.push_back(&samplerParameter);
+    mulFunction.parameterDeclarations.push_back(&vec2Parameter);
     mulFunction.isBuiltin = true;
 }
 

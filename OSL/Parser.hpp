@@ -833,7 +833,7 @@ private:
     StructDeclaration samplerStateType;
     StructDeclaration texture2DType;
 
-    ParameterDeclaration vec4Parameter;
-    ParameterDeclaration mat4Parameter;
+    ParameterDeclaration samplerParameter;
+    ParameterDeclaration vec2Parameter;
     FunctionDeclaration mulFunction;
 };
