@@ -12,37 +12,31 @@ static const std::vector<std::string> builtinTypes = {
 
 ASTContext::ASTContext()
 {
-    boolType.declarationKind = Declaration::Kind::TYPE;
     boolType.typeKind = TypeDeclaration::Kind::SIMPLE;
     boolType.name = "bool";
     boolType.scalar = true;
     boolType.isBuiltin = true;
 
-    intType.declarationKind = Declaration::Kind::TYPE;
     intType.typeKind = TypeDeclaration::Kind::SIMPLE;
     intType.name = "int";
     intType.scalar = true;
     intType.isBuiltin = true;
 
-    floatType.declarationKind = Declaration::Kind::TYPE;
     floatType.typeKind = TypeDeclaration::Kind::SIMPLE;
     floatType.name = "float";
     floatType.scalar = true;
     floatType.isBuiltin = true;
 
-    vec2Type.declarationKind = Declaration::Kind::TYPE;
     vec2Type.typeKind = TypeDeclaration::Kind::STRUCT;
     vec2Type.name = "vec2";
     vec2Type.isBuiltin = true;
     vec2Type.hasDefinition = true;
 
-    vec3Type.declarationKind = Declaration::Kind::TYPE;
     vec3Type.typeKind = TypeDeclaration::Kind::STRUCT;
     vec3Type.name = "vec3";
     vec3Type.isBuiltin = true;
     vec3Type.hasDefinition = true;
 
-    vec4Type.declarationKind = Declaration::Kind::TYPE;
     vec4Type.typeKind = TypeDeclaration::Kind::STRUCT;
     vec4Type.name = "vec4";
     vec4Type.isBuiltin = true;
@@ -56,47 +50,39 @@ ASTContext::ASTContext()
                     ParameterDeclaration parameter;
                 }*/
 
-    mat3Type.declarationKind = Declaration::Kind::TYPE;
     mat3Type.typeKind = TypeDeclaration::Kind::STRUCT;
     mat3Type.name = "mat3";
     mat3Type.isBuiltin = true;
     mat3Type.hasDefinition = true;
 
-    mat4Type.declarationKind = Declaration::Kind::TYPE;
     mat4Type.typeKind = TypeDeclaration::Kind::STRUCT;
     mat4Type.name = "mat4";
     mat4Type.isBuiltin = true;
     mat4Type.hasDefinition = true;
 
-    stringType.declarationKind = Declaration::Kind::TYPE;
     stringType.typeKind = TypeDeclaration::Kind::STRUCT;
     stringType.name = "string";
     stringType.isBuiltin = true;
     stringType.hasDefinition = true;
 
-    samplerStateType.declarationKind = Declaration::Kind::TYPE;
     samplerStateType.typeKind = TypeDeclaration::Kind::STRUCT;
     samplerStateType.name = "SamplerState";
     samplerStateType.isBuiltin = true;
     samplerStateType.hasDefinition = true;
 
-    texture2DType.declarationKind = Declaration::Kind::TYPE;
     texture2DType.typeKind = TypeDeclaration::Kind::STRUCT;
     texture2DType.name = "Texture2D";
     texture2DType.isBuiltin = true;
     texture2DType.hasDefinition = true;
 
-    samplerParameter.declarationKind = Declaration::Kind::PARAMETER;
     samplerParameter.name = "sampler";
     samplerParameter.qualifiedType.typeDeclaration = &samplerStateType;
     samplerParameter.qualifiedType.isConst = true;
 
-    vec2Parameter.declarationKind = Declaration::Kind::PARAMETER;
     vec2Parameter.name = "coord";
     vec2Parameter.qualifiedType.typeDeclaration = &vec2Type;
     vec2Parameter.qualifiedType.isConst = true;
 
-    mulFunction.declarationKind = Declaration::Kind::FUNCTION;
     mulFunction.name = "texture2D";
     mulFunction.qualifiedType.typeDeclaration = &vec4Type;
     mulFunction.parameterDeclarations.push_back(&samplerParameter);
@@ -171,9 +157,8 @@ Declaration* ASTContext::parseTopLevelDeclaration(const std::vector<Token>& toke
     {
         ++iterator;
 
-        Declaration* declaration = new Declaration();
+        Declaration* declaration = new Declaration(Declaration::Kind::EMPTY);
         constructs.push_back(std::unique_ptr<Construct>(declaration));
-        declaration->declarationKind = Declaration::Kind::EMPTY;
 
         return declaration;
     }
@@ -186,7 +171,7 @@ Declaration* ASTContext::parseTopLevelDeclaration(const std::vector<Token>& toke
             return nullptr;
         }
 
-        if (declaration->declarationKind == Declaration::Kind::FUNCTION)
+        if (declaration->getDeclarationKind() == Declaration::Kind::FUNCTION)
         {
             FunctionDeclaration* functionDeclaration = static_cast<FunctionDeclaration*>(declaration);
 
@@ -314,7 +299,6 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
 
             FunctionDeclaration* result = new FunctionDeclaration();
             constructs.push_back(std::unique_ptr<Construct>(result));
-            result->declarationKind = Declaration::Kind::FUNCTION;
             result->qualifiedType = qualifiedType;
             result->isStatic = isStatic;
             result->name = name;
@@ -478,7 +462,6 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
 
             VariableDeclaration* result = new VariableDeclaration();
             constructs.push_back(std::unique_ptr<VariableDeclaration>(result));
-            result->declarationKind = Declaration::Kind::VARIABLE;
             result->qualifiedType = qualifiedType;
             result->isStatic = isStatic;
             result->name = name;
@@ -566,7 +549,6 @@ StructDeclaration* ASTContext::parseStructDeclaration(const std::vector<Token>& 
 
     StructDeclaration* result = new StructDeclaration();
     constructs.push_back(std::unique_ptr<Construct>(result));
-    result->declarationKind = Declaration::Kind::TYPE;
     result->typeKind = TypeDeclaration::Kind::STRUCT;
     result->name = iterator->value;
     result->previousDeclaration = findStructDeclaration(iterator->value, declarationScopes);
@@ -636,7 +618,6 @@ FieldDeclaration* ASTContext::parseFieldDeclaration(const std::vector<Token>& to
 {
     FieldDeclaration* fieldDeclaration = new FieldDeclaration();
     constructs.push_back(std::unique_ptr<Construct>(fieldDeclaration));
-    fieldDeclaration->declarationKind = Declaration::Kind::FIELD;
 
     for (;;)
     {
@@ -802,7 +783,6 @@ ParameterDeclaration* ASTContext::parseParameterDeclaration(const std::vector<To
 {
     ParameterDeclaration* parameterDeclaration = new ParameterDeclaration();
     constructs.push_back(std::unique_ptr<Construct>(parameterDeclaration));
-    parameterDeclaration->declarationKind = Declaration::Kind::PARAMETER;
 
     for (;;)
     {
@@ -963,7 +943,6 @@ Statement* ASTContext::parseStatement(const std::vector<Token>& tokens,
 
         BreakStatement* result = new BreakStatement();
         constructs.push_back(std::unique_ptr<Construct>(result));
-        result->statementKind = Statement::Kind::BREAK;
 
         if (!checkToken(Token::Type::SEMICOLON, tokens, iterator))
         {
@@ -981,7 +960,6 @@ Statement* ASTContext::parseStatement(const std::vector<Token>& tokens,
 
         ContinueStatement* result = new ContinueStatement();
         constructs.push_back(std::unique_ptr<Construct>(result));
-        result->statementKind = Statement::Kind::CONTINUE;
 
         if (!checkToken(Token::Type::SEMICOLON, tokens, iterator))
         {
@@ -999,7 +977,6 @@ Statement* ASTContext::parseStatement(const std::vector<Token>& tokens,
 
         ReturnStatement* result = new ReturnStatement();
         constructs.push_back(std::unique_ptr<Construct>(result));
-        result->statementKind = Statement::Kind::RETURN;
 
         if (!(result->result = parseComma(tokens, iterator, declarationScopes)))
         {
@@ -1025,7 +1002,7 @@ Statement* ASTContext::parseStatement(const std::vector<Token>& tokens,
             return nullptr;
         }
 
-        if (declaration->declarationKind != Declaration::Kind::VARIABLE)
+        if (declaration->getDeclarationKind() != Declaration::Kind::VARIABLE)
         {
             std::cerr << "Expected a variable declaration" << std::endl;
             return nullptr;
@@ -1041,7 +1018,6 @@ Statement* ASTContext::parseStatement(const std::vector<Token>& tokens,
 
         DeclarationStatement* declarationStatement = new DeclarationStatement();
         constructs.push_back(std::unique_ptr<Construct>(declarationStatement));
-        declarationStatement->statementKind = Statement::Kind::DECLARATION;
         declarationStatement->declaration = declaration;
 
         return declarationStatement;
@@ -1050,9 +1026,8 @@ Statement* ASTContext::parseStatement(const std::vector<Token>& tokens,
     {
         ++iterator;
 
-        Statement* statement = new Statement();
+        Statement* statement = new Statement(Statement::Kind::EMPTY);
         constructs.push_back(std::unique_ptr<Construct>(statement));
-        statement->statementKind = Statement::Kind::EMPTY;
 
         return statement;
     }
@@ -1060,7 +1035,6 @@ Statement* ASTContext::parseStatement(const std::vector<Token>& tokens,
     {
         ExpressionStatement* expressionStatement = new ExpressionStatement();
         constructs.push_back(std::unique_ptr<Construct>(expressionStatement));
-        expressionStatement->statementKind = Statement::Kind::EXPRESSION;
 
         if (!(expressionStatement->expression = parseComma(tokens, iterator, declarationScopes)))
         {
@@ -1097,7 +1071,6 @@ CompoundStatement* ASTContext::parseCompoundStatement(const std::vector<Token>& 
 
     CompoundStatement* result = new CompoundStatement();
     constructs.push_back(std::unique_ptr<Construct>(result));
-    result->statementKind = Statement::Kind::COMPOUND;
 
     for (;;)
     {
@@ -1138,7 +1111,6 @@ IfStatement* ASTContext::parseIfStatement(const std::vector<Token>& tokens,
 
     IfStatement* result = new IfStatement();
     constructs.push_back(std::unique_ptr<Construct>(result));
-    result->statementKind = Statement::Kind::IF;
 
     if (!checkToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
     {
@@ -1156,8 +1128,8 @@ IfStatement* ASTContext::parseIfStatement(const std::vector<Token>& tokens,
             return nullptr;
         }
 
-        if (declaration->declarationKind != Declaration::Kind::VARIABLE &&
-            declaration->declarationKind != Declaration::Kind::PARAMETER)
+        if (declaration->getDeclarationKind() != Declaration::Kind::VARIABLE &&
+            declaration->getDeclarationKind() != Declaration::Kind::PARAMETER)
         {
             std::cerr << "Expected a variable declaration" << std::endl;
             return nullptr;
@@ -1220,7 +1192,6 @@ ForStatement* ASTContext::parseForStatement(const std::vector<Token>& tokens,
 
     ForStatement* result = new ForStatement();
     constructs.push_back(std::unique_ptr<Construct>(result));
-    result->statementKind = Statement::Kind::FOR;
 
     if (!checkToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
     {
@@ -1238,8 +1209,8 @@ ForStatement* ASTContext::parseForStatement(const std::vector<Token>& tokens,
             return nullptr;
         }
 
-        if (declaration->declarationKind != Declaration::Kind::VARIABLE &&
-            declaration->declarationKind != Declaration::Kind::PARAMETER)
+        if (declaration->getDeclarationKind() != Declaration::Kind::VARIABLE &&
+            declaration->getDeclarationKind() != Declaration::Kind::PARAMETER)
         {
             std::cerr << "Expected a variable declaration" << std::endl;
             return nullptr;
@@ -1285,8 +1256,8 @@ ForStatement* ASTContext::parseForStatement(const std::vector<Token>& tokens,
             return nullptr;
         }
 
-        if (declaration->declarationKind != Declaration::Kind::VARIABLE &&
-            declaration->declarationKind != Declaration::Kind::PARAMETER)
+        if (declaration->getDeclarationKind() != Declaration::Kind::VARIABLE &&
+            declaration->getDeclarationKind() != Declaration::Kind::PARAMETER)
         {
             std::cerr << "Expected a variable declaration" << std::endl;
             return nullptr;
@@ -1368,7 +1339,6 @@ SwitchStatement* ASTContext::parseSwitchStatement(const std::vector<Token>& toke
 
     SwitchStatement* result = new SwitchStatement();
     constructs.push_back(std::unique_ptr<Construct>(result));
-    result->statementKind = Statement::Kind::SWITCH;
 
     if (!checkToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
     {
@@ -1386,8 +1356,8 @@ SwitchStatement* ASTContext::parseSwitchStatement(const std::vector<Token>& toke
             return nullptr;
         }
 
-        if (declaration->declarationKind != Declaration::Kind::VARIABLE &&
-            declaration->declarationKind != Declaration::Kind::PARAMETER)
+        if (declaration->getDeclarationKind() != Declaration::Kind::VARIABLE &&
+            declaration->getDeclarationKind() != Declaration::Kind::PARAMETER)
         {
             std::cerr << "Expected a variable declaration" << std::endl;
             return nullptr;
@@ -1433,7 +1403,6 @@ CaseStatement* ASTContext::parseCaseStatement(const std::vector<Token>& tokens,
 
     CaseStatement* result = new CaseStatement();
     constructs.push_back(std::unique_ptr<Construct>(result));
-    result->statementKind = Statement::Kind::CASE;
 
     if (!(result->condition = parseComma(tokens, iterator, declarationScopes)))
     {
@@ -1471,7 +1440,6 @@ WhileStatement* ASTContext::parseWhileStatement(const std::vector<Token>& tokens
 
     WhileStatement* result = new WhileStatement();
     constructs.push_back(std::unique_ptr<Construct>(result));
-    result->statementKind = Statement::Kind::WHILE;
 
     if (!checkToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
     {
@@ -1489,8 +1457,8 @@ WhileStatement* ASTContext::parseWhileStatement(const std::vector<Token>& tokens
             return nullptr;
         }
 
-        if (declaration->declarationKind != Declaration::Kind::VARIABLE &&
-            declaration->declarationKind != Declaration::Kind::PARAMETER)
+        if (declaration->getDeclarationKind() != Declaration::Kind::VARIABLE &&
+            declaration->getDeclarationKind() != Declaration::Kind::PARAMETER)
         {
             std::cerr << "Expected a variable declaration" << std::endl;
             return nullptr;
@@ -1536,7 +1504,6 @@ DoStatement* ASTContext::parseDoStatement(const std::vector<Token>& tokens,
 
     DoStatement* result = new DoStatement();
     constructs.push_back(std::unique_ptr<Construct>(result));
-    result->statementKind = Statement::Kind::DO;
 
     if (!(result->body = parseStatement(tokens, iterator, declarationScopes)))
     {
@@ -1592,7 +1559,6 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
     {
         IntegerLiteralExpression* result = new IntegerLiteralExpression();
         constructs.push_back(std::unique_ptr<Construct>(result));
-        result->expressionKind = Expression::Kind::LITERAL;
         result->literalKind = LiteralExpression::Kind::INTEGER;
         result->qualifiedType.typeDeclaration = &intType;
         result->value = strtoll(iterator->value.c_str(), nullptr, 0);
@@ -1605,7 +1571,6 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
     {
         FloatingPointLiteralExpression* result = new FloatingPointLiteralExpression();
         constructs.push_back(std::unique_ptr<Construct>(result));
-        result->expressionKind = Expression::Kind::LITERAL;
         result->literalKind = LiteralExpression::Kind::FLOATING_POINT;
         result->qualifiedType.typeDeclaration = &floatType;
         result->value = strtod(iterator->value.c_str(), nullptr);
@@ -1618,7 +1583,6 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
     {
         StringLiteralExpression* result = new StringLiteralExpression();
         constructs.push_back(std::unique_ptr<Construct>(result));
-        result->expressionKind = Expression::Kind::LITERAL;
         result->literalKind = LiteralExpression::Kind::STRING;
         result->qualifiedType.typeDeclaration = &stringType;
         result->value = iterator->value;
@@ -1631,7 +1595,6 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
     {
         BooleanLiteralExpression* result = new BooleanLiteralExpression();
         constructs.push_back(std::unique_ptr<Construct>(result));
-        result->expressionKind = Expression::Kind::LITERAL;
         result->literalKind = LiteralExpression::Kind::BOOLEAN;
         result->qualifiedType.typeDeclaration = &boolType;
         result->value = (iterator->type == Token::Type::KEYWORD_TRUE);
@@ -1652,7 +1615,6 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
 
             CallExpression* result = new CallExpression();
             constructs.push_back(std::unique_ptr<Construct>(result));
-            result->expressionKind = Expression::Kind::CALL;
 
             std::vector<QualifiedType> parameters;
 
@@ -1691,7 +1653,6 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
 
             DeclarationReferenceExpression* declRefExpression = new DeclarationReferenceExpression();
             constructs.push_back(std::unique_ptr<Construct>(declRefExpression));
-            declRefExpression->expressionKind = Expression::Kind::DECLARATION_REFERENCE;
 
             FunctionDeclaration* functionDeclaration = findFunctionDeclaration(name, declarationScopes, parameters);
 
@@ -1714,11 +1675,9 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
 
             ArraySubscriptExpression* result = new ArraySubscriptExpression();
             constructs.push_back(std::unique_ptr<Construct>(result));
-            result->expressionKind = Expression::Kind::ARRAY_SUBSCRIPT;
 
             DeclarationReferenceExpression* declRefExpression = new DeclarationReferenceExpression();
             constructs.push_back(std::unique_ptr<Construct>(declRefExpression));
-            declRefExpression->expressionKind = Expression::Kind::DECLARATION_REFERENCE;
             declRefExpression->declaration = findDeclaration(name, declarationScopes);
 
             if (!declRefExpression->declaration)
@@ -1727,8 +1686,8 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
                 return nullptr;
             }
 
-            if (declRefExpression->declaration->declarationKind != Declaration::Kind::VARIABLE &&
-                declRefExpression->declaration->declarationKind != Declaration::Kind::PARAMETER)
+            if (declRefExpression->declaration->getDeclarationKind() != Declaration::Kind::VARIABLE &&
+                declRefExpression->declaration->getDeclarationKind() != Declaration::Kind::PARAMETER)
             {
                 std::cerr << "Expected a variable" << std::endl;
                 return nullptr;
@@ -1759,7 +1718,6 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
         {
             DeclarationReferenceExpression* result = new DeclarationReferenceExpression();
             constructs.push_back(std::unique_ptr<Construct>(result));
-            result->expressionKind = Expression::Kind::DECLARATION_REFERENCE;
             result->declaration = findDeclaration(name, declarationScopes);
 
             if (!result->declaration)
@@ -1768,7 +1726,7 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
                 return nullptr;
             }
 
-            switch (result->declaration->declarationKind)
+            switch (result->declaration->getDeclarationKind())
             {
                 case Declaration::Kind::TYPE:
                 {
@@ -1806,7 +1764,6 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
 
         ParenExpression* result = new ParenExpression();
         constructs.push_back(std::unique_ptr<Construct>(result));
-        result->expressionKind = Expression::Kind::PAREN;
 
         if (!(result->expression = parseComma(tokens, iterator, declarationScopes)))
         {
@@ -1848,7 +1805,6 @@ Expression* ASTContext::parseMember(const std::vector<Token>& tokens,
 
         MemberExpression* expression = new MemberExpression();
         constructs.push_back(std::unique_ptr<Construct>(expression));
-        expression->expressionKind = Expression::Kind::MEMBER;
         expression->expression = result;
 
         if (!result->qualifiedType.typeDeclaration)
@@ -1897,7 +1853,6 @@ Expression* ASTContext::parseSign(const std::vector<Token>& tokens,
     {
         UnaryOperatorExpression* result = new UnaryOperatorExpression();
         constructs.push_back(std::unique_ptr<Construct>(result));
-        result->expressionKind = Expression::Kind::UNARY;
 
         if (iterator->type == Token::Type::OPERATOR_PLUS) result->operatorKind = UnaryOperatorExpression::Kind::POSITIVE;
         else if (iterator->type == Token::Type::OPERATOR_MINUS) result->operatorKind = UnaryOperatorExpression::Kind::NEGATIVE;
@@ -1933,7 +1888,6 @@ Expression* ASTContext::parseNot(const std::vector<Token>& tokens,
     {
         UnaryOperatorExpression* result = new UnaryOperatorExpression();
         constructs.push_back(std::unique_ptr<Construct>(result));
-        result->expressionKind = Expression::Kind::UNARY;
         result->operatorKind = UnaryOperatorExpression::Kind::NEGATION;
 
         ++iterator;
@@ -1973,7 +1927,6 @@ Expression* ASTContext::parseMultiplication(const std::vector<Token>& tokens,
     {
         BinaryOperatorExpression* expression = new BinaryOperatorExpression();
         constructs.push_back(std::unique_ptr<Construct>(expression));
-        expression->expressionKind = Expression::Kind::BINARY;
 
         if (iterator->type == Token::Type::OPERATOR_MULTIPLY) expression->operatorKind = BinaryOperatorExpression::Kind::MULTIPLICATION;
         else if (iterator->type == Token::Type::OPERATOR_DIVIDE) expression->operatorKind = BinaryOperatorExpression::Kind::DIVISION;
@@ -2010,7 +1963,6 @@ Expression* ASTContext::parseAddition(const std::vector<Token>& tokens,
     {
         BinaryOperatorExpression* expression = new BinaryOperatorExpression();
         constructs.push_back(std::unique_ptr<Construct>(expression));
-        expression->expressionKind = Expression::Kind::BINARY;
 
         if (iterator->type == Token::Type::OPERATOR_PLUS) expression->operatorKind = BinaryOperatorExpression::Kind::ADDITION;
         else if (iterator->type == Token::Type::OPERATOR_MINUS) expression->operatorKind = BinaryOperatorExpression::Kind::SUBTRACTION;
@@ -2047,7 +1999,6 @@ Expression* ASTContext::parseLessThan(const std::vector<Token>& tokens,
     {
         BinaryOperatorExpression* expression = new BinaryOperatorExpression();
         constructs.push_back(std::unique_ptr<Construct>(expression));
-        expression->expressionKind = Expression::Kind::BINARY;
 
         if (iterator->type == Token::Type::OPERATOR_LESS_THAN) expression->operatorKind = BinaryOperatorExpression::Kind::LESS_THAN;
         else if (iterator->type == Token::Type::OPERATOR_LESS_THAN_EQUAL) expression->operatorKind = BinaryOperatorExpression::Kind::LESS_THAN_EQUAL;
@@ -2084,7 +2035,6 @@ Expression* ASTContext::parseGreaterThan(const std::vector<Token>& tokens,
     {
         BinaryOperatorExpression* expression = new BinaryOperatorExpression();
         constructs.push_back(std::unique_ptr<Construct>(expression));
-        expression->expressionKind = Expression::Kind::BINARY;
 
         if (iterator->type == Token::Type::OPERATOR_GREATER_THAN) expression->operatorKind = BinaryOperatorExpression::Kind::GREATER_THAN;
         else if (iterator->type == Token::Type::OPERATOR_GREATER_THAN_EQUAL) expression->operatorKind = BinaryOperatorExpression::Kind::GREATER_THAN_EQUAL;
@@ -2121,7 +2071,6 @@ Expression* ASTContext::parseEquality(const std::vector<Token>& tokens,
     {
         BinaryOperatorExpression* expression = new BinaryOperatorExpression();
         constructs.push_back(std::unique_ptr<Construct>(expression));
-        expression->expressionKind = Expression::Kind::BINARY;
 
         if (iterator->type == Token::Type::OPERATOR_EQUAL) expression->operatorKind = BinaryOperatorExpression::Kind::EQUALITY;
         else if (iterator->type == Token::Type::OPERATOR_NOT_EQUAL) expression->operatorKind = BinaryOperatorExpression::Kind::INEQUALITY;
@@ -2158,7 +2107,6 @@ Expression* ASTContext::parseTernary(const std::vector<Token>& tokens,
     {
         TernaryOperatorExpression* expression = new TernaryOperatorExpression();
         constructs.push_back(std::unique_ptr<Construct>(expression));
-        expression->expressionKind = Expression::Kind::TERNARY;
         expression->condition = result;
 
         ++iterator;
@@ -2204,7 +2152,6 @@ Expression* ASTContext::parseAssignment(const std::vector<Token>& tokens,
     {
         BinaryOperatorExpression* expression = new BinaryOperatorExpression();
         constructs.push_back(std::unique_ptr<Construct>(expression));
-        expression->expressionKind = Expression::Kind::BINARY;
         expression->operatorKind = BinaryOperatorExpression::Kind::ASSIGNMENT;
         expression->leftExpression = result;
 
@@ -2238,7 +2185,6 @@ Expression* ASTContext::parseAdditionAssignment(const std::vector<Token>& tokens
     {
         BinaryOperatorExpression* expression = new BinaryOperatorExpression();
         constructs.push_back(std::unique_ptr<Construct>(expression));
-        expression->expressionKind = Expression::Kind::BINARY;
 
         if (iterator->type == Token::Type::OPERATOR_PLUS_ASSIGNMENT) expression->operatorKind = BinaryOperatorExpression::Kind::ADDITION_ASSIGNMENT;
         else if (iterator->type == Token::Type::OPERATOR_MINUS_ASSIGNMENT) expression->operatorKind = BinaryOperatorExpression::Kind::SUBTRACTION_ASSIGNMENT;
@@ -2275,7 +2221,6 @@ Expression* ASTContext::parseMultiplicationAssignment(const std::vector<Token>& 
     {
         BinaryOperatorExpression* expression = new BinaryOperatorExpression();
         constructs.push_back(std::unique_ptr<Construct>(expression));
-        expression->expressionKind = Expression::Kind::BINARY;
 
         if (iterator->type == Token::Type::OPERATOR_MULTIPLY_ASSIGNMENT) expression->operatorKind = BinaryOperatorExpression::Kind::MULTIPLICATION_ASSIGNMENT;
         else if (iterator->type == Token::Type::OPERATOR_DIVIDE_ASSIGNMENT) expression->operatorKind = BinaryOperatorExpression::Kind::DIVISION_ASSIGNMENT;
@@ -2313,7 +2258,6 @@ Expression* ASTContext::parseComma(const std::vector<Token>& tokens,
     {
         BinaryOperatorExpression* expression = new BinaryOperatorExpression();
         constructs.push_back(std::unique_ptr<Construct>(expression));
-        expression->expressionKind = Expression::Kind::BINARY;
         expression->operatorKind = BinaryOperatorExpression::Kind::COMMA;
         expression->leftExpression = result;
 
@@ -2343,9 +2287,9 @@ void ASTContext::dump() const
 
 void ASTContext::dumpDeclaration(const Declaration* declaration, std::string indent) const
 {
-    std::cout << " " << declarationKindToString(declaration->declarationKind);
+    std::cout << " " << declarationKindToString(declaration->getDeclarationKind());
 
-    switch (declaration->declarationKind)
+    switch (declaration->getDeclarationKind())
     {
         case Declaration::Kind::NONE:
         {
@@ -2478,9 +2422,9 @@ void ASTContext::dumpDeclaration(const Declaration* declaration, std::string ind
 
 void ASTContext::dumpStatement(const Statement* statement, std::string indent) const
 {
-    std::cout << " " << statementKindToString(statement->statementKind);
+    std::cout << " " << statementKindToString(statement->getStatementKind());
 
-    switch (statement->statementKind)
+    switch (statement->getStatementKind())
     {
         case Statement::Kind::NONE:
         {
@@ -2627,9 +2571,9 @@ void ASTContext::dumpStatement(const Statement* statement, std::string indent) c
 
 void ASTContext::dumpExpression(const Expression* expression, std::string indent) const
 {
-    std::cout << " " << expressionKindToString(expression->expressionKind);
+    std::cout << " " << expressionKindToString(expression->getExpressionKind());
 
-    switch (expression->expressionKind)
+    switch (expression->getExpressionKind())
     {
         case Expression::Kind::NONE:
         {

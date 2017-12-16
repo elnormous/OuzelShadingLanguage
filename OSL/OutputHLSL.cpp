@@ -25,7 +25,7 @@ bool OutputHLSL::output(const ASTContext& context, const std::string& outputFile
             return false;
         }
 
-        if (declaration->declarationKind != Declaration::Kind::FUNCTION ||
+        if (declaration->getDeclarationKind() != Declaration::Kind::FUNCTION ||
             !static_cast<const FunctionDeclaration*>(declaration)->body) // function doesn't have a body
         {
             code += ";";
@@ -41,7 +41,7 @@ bool OutputHLSL::output(const ASTContext& context, const std::string& outputFile
 
 bool OutputHLSL::printDeclaration(const Declaration* declaration, Options options, std::string& code)
 {
-    switch (declaration->declarationKind)
+    switch (declaration->getDeclarationKind())
     {
         case Declaration::Kind::NONE:
         {
@@ -208,7 +208,7 @@ bool OutputHLSL::printDeclaration(const Declaration* declaration, Options option
 
 bool OutputHLSL::printStatement(const Statement* statement, Options options, std::string& code)
 {
-    switch (statement->statementKind)
+    switch (statement->getStatementKind())
     {
         case Statement::Kind::NONE:
         {
@@ -286,7 +286,7 @@ bool OutputHLSL::printStatement(const Statement* statement, Options options, std
 
             code += ")\n";
 
-            if (ifStatement->body->statementKind == Statement::Kind::COMPOUND)
+            if (ifStatement->body->getStatementKind() == Statement::Kind::COMPOUND)
             {
                 if (!printConstruct(ifStatement->body, options, code))
                 {
@@ -307,7 +307,7 @@ bool OutputHLSL::printStatement(const Statement* statement, Options options, std
                 code.append(options.indentation, ' ');
                 code += "else\n";
 
-                if (ifStatement->elseBody->statementKind == Statement::Kind::COMPOUND)
+                if (ifStatement->elseBody->getStatementKind() == Statement::Kind::COMPOUND)
                 {
                     if (!printConstruct(ifStatement->elseBody, options, code))
                     {
@@ -362,7 +362,7 @@ bool OutputHLSL::printStatement(const Statement* statement, Options options, std
 
             code += ")\n";
 
-            if (forStatement->body->statementKind == Statement::Kind::COMPOUND)
+            if (forStatement->body->getStatementKind() == Statement::Kind::COMPOUND)
             {
                 if (!printConstruct(forStatement->body, options, code))
                 {
@@ -393,7 +393,7 @@ bool OutputHLSL::printStatement(const Statement* statement, Options options, std
 
             code += ")\n";
 
-            if (switchStatement->body->statementKind == Statement::Kind::COMPOUND)
+            if (switchStatement->body->getStatementKind() == Statement::Kind::COMPOUND)
             {
                 if (!printConstruct(switchStatement->body, options, code))
                 {
@@ -425,7 +425,7 @@ bool OutputHLSL::printStatement(const Statement* statement, Options options, std
 
             code += ":\n";
 
-            if (caseStatement->body->statementKind == Statement::Kind::COMPOUND)
+            if (caseStatement->body->getStatementKind() == Statement::Kind::COMPOUND)
             {
                 if (!printConstruct(caseStatement->body, options, code))
                 {
@@ -457,7 +457,7 @@ bool OutputHLSL::printStatement(const Statement* statement, Options options, std
 
             code += ")\n";
 
-            if (whileStatement->body->statementKind == Statement::Kind::COMPOUND)
+            if (whileStatement->body->getStatementKind() == Statement::Kind::COMPOUND)
             {
                 if (!printConstruct(whileStatement->body, options, code))
                 {
@@ -481,7 +481,7 @@ bool OutputHLSL::printStatement(const Statement* statement, Options options, std
             const DoStatement* doStatement = static_cast<const DoStatement*>(statement);
             code += "do\n";
 
-            if (doStatement->body->statementKind == Statement::Kind::COMPOUND)
+            if (doStatement->body->getStatementKind() == Statement::Kind::COMPOUND)
             {
                 if (!printConstruct(doStatement->body, options, code))
                 {
@@ -552,7 +552,7 @@ bool OutputHLSL::printStatement(const Statement* statement, Options options, std
 
 bool OutputHLSL::printExpression(const Expression* expression, Options options, std::string& code)
 {
-    switch (expression->expressionKind)
+    switch (expression->getExpressionKind())
     {
         case Expression::Kind::NONE:
         {
@@ -633,7 +633,7 @@ bool OutputHLSL::printExpression(const Expression* expression, Options options, 
             const DeclarationReferenceExpression* declarationReferenceExpression = static_cast<const DeclarationReferenceExpression*>(expression);
             Declaration* declaration = declarationReferenceExpression->declaration;
 
-            switch (declaration->declarationKind)
+            switch (declaration->getDeclarationKind())
             {
                 case Declaration::Kind::FUNCTION:
                 {

@@ -36,7 +36,7 @@ public:
 
     Construct(Kind initKind): kind(initKind) {}
 
-    inline const Kind getKind() const { return kind; }
+    inline Kind getKind() const { return kind; }
 
 protected:
     Kind kind = Kind::NONE;
@@ -105,8 +105,11 @@ public:
         RETURN,
     };
 
-    Statement(): Construct(Construct::Kind::STATEMENT) {}
+    Statement(Kind initStatementKind): Construct(Construct::Kind::STATEMENT), statementKind(initStatementKind) {}
 
+    inline Kind getStatementKind() const { return statementKind; }
+
+protected:
     Kind statementKind = Kind::NONE;
 };
 
@@ -150,11 +153,14 @@ public:
         TERNARY,
     };
 
-    Expression(): Construct(Construct::Kind::EXPRESSION) {}
+    Expression(Kind initExpressionKind): Construct(Construct::Kind::EXPRESSION), expressionKind(initExpressionKind) {}
 
-    Kind expressionKind = Kind::NONE;
+    inline Kind getExpressionKind() const { return expressionKind; }
 
     QualifiedType qualifiedType;
+
+protected:
+    Kind expressionKind = Kind::NONE;
 };
 
 inline std::string expressionKindToString(Expression::Kind kind)
@@ -190,11 +196,14 @@ public:
         PARAMETER
     };
 
-    Declaration(): Construct(Construct::Kind::DECLARATION) {}
+    Declaration(Kind initDeclarationKind): Construct(Construct::Kind::DECLARATION), declarationKind(initDeclarationKind) {}
 
-    Kind declarationKind = Kind::NONE;
+    inline Kind getDeclarationKind() const { return declarationKind; }
 
     std::string name;
+
+protected:
+    Kind declarationKind = Kind::NONE;
 };
 
 class TypeDeclaration: public Declaration
@@ -207,6 +216,8 @@ public:
         STRUCT,
         //TYPE_DEFINITION, // typedef is not supported in GLSL
     };
+
+    TypeDeclaration(): Declaration(Declaration::Kind::TYPE) {}
 
     Kind typeKind = Kind::NONE;
 
@@ -263,6 +274,8 @@ inline std::string declarationKindToString(Declaration::Kind kind)
 class FieldDeclaration: public Declaration
 {
 public:
+    FieldDeclaration(): Declaration(Declaration::Kind::FIELD) {}
+
     StructDeclaration* structTypeDeclaration = nullptr;
     QualifiedType qualifiedType;
     FieldDeclaration* declaration = nullptr;
@@ -280,6 +293,8 @@ public:
 class ParameterDeclaration: public Declaration
 {
 public:
+    ParameterDeclaration(): Declaration(Declaration::Kind::PARAMETER) {}
+
     QualifiedType qualifiedType;
 };
 
@@ -292,6 +307,8 @@ public:
         FRAGMENT,
         VERTEX
     };
+
+    FunctionDeclaration(): Declaration(Declaration::Kind::FUNCTION) {}
 
     QualifiedType qualifiedType;
     std::vector<ParameterDeclaration*> parameterDeclarations;
@@ -319,6 +336,8 @@ inline std::string programToString(FunctionDeclaration::Program program)
 class VariableDeclaration: public Declaration
 {
 public:
+    VariableDeclaration(): Declaration(Declaration::Kind::VARIABLE) {}
+
     QualifiedType qualifiedType;
     Expression* initialization = nullptr;
 
@@ -328,24 +347,32 @@ public:
 class ExpressionStatement: public Statement
 {
 public:
+    ExpressionStatement(): Statement(Statement::Kind::EXPRESSION) {}
+
     Expression* expression = nullptr;
 };
 
 class DeclarationStatement: public Statement
 {
 public:
+    DeclarationStatement(): Statement(Statement::Kind::DECLARATION) {}
+
     Declaration* declaration = nullptr;
 };
 
 class CompoundStatement: public Statement
 {
 public:
+    CompoundStatement(): Statement(Statement::Kind::COMPOUND) {}
+
     std::vector<Statement*> statements;
 };
 
 class IfStatement: public Statement
 {
 public:
+    IfStatement(): Statement(Statement::Kind::IF) {}
+
     Construct* condition = nullptr;
     Statement* body = nullptr;
     Statement* elseBody = nullptr;
@@ -354,6 +381,8 @@ public:
 class ForStatement: public Statement
 {
 public:
+    ForStatement(): Statement(Statement::Kind::FOR) {}
+
     Construct* initialization = nullptr;
     Construct* condition = nullptr;
     Expression* increment = nullptr;
@@ -363,6 +392,8 @@ public:
 class SwitchStatement: public Statement
 {
 public:
+    SwitchStatement(): Statement(Statement::Kind::SWITCH) {}
+
     Construct* condition = nullptr;
     Statement* body = nullptr;
 };
@@ -370,6 +401,8 @@ public:
 class CaseStatement: public Statement
 {
 public:
+    CaseStatement(): Statement(Statement::Kind::CASE) {}
+
     Expression* condition = nullptr;
     Statement* body = nullptr;
 };
@@ -377,6 +410,8 @@ public:
 class WhileStatement: public Statement
 {
 public:
+    WhileStatement(): Statement(Statement::Kind::WHILE) {}
+
     Construct* condition = nullptr;
     Statement* body = nullptr;
 };
@@ -384,6 +419,8 @@ public:
 class DoStatement: public Statement
 {
 public:
+    DoStatement(): Statement(Statement::Kind::DO) {}
+
     Expression* condition = nullptr;
     Statement* body = nullptr;
 };
@@ -391,16 +428,20 @@ public:
 class BreakStatement: public Statement
 {
 public:
+    BreakStatement(): Statement(Statement::Kind::BREAK) {}
 };
 
 class ContinueStatement: public Statement
 {
 public:
+    ContinueStatement(): Statement(Statement::Kind::CONTINUE) {}
 };
 
 class ReturnStatement: public Statement
 {
 public:
+    ReturnStatement(): Statement(Statement::Kind::RETURN) {}
+
     Expression* result = nullptr;
 };
 
@@ -415,6 +456,8 @@ public:
         FLOATING_POINT,
         STRING
     };
+
+    LiteralExpression(): Expression(Expression::Kind::LITERAL) {}
 
     TypeDeclaration* typeDeclaration = nullptr;
 
@@ -462,12 +505,16 @@ public:
 class DeclarationReferenceExpression: public Expression
 {
 public:
+    DeclarationReferenceExpression(): Expression(Expression::Kind::DECLARATION_REFERENCE) {}
+
     Declaration* declaration = nullptr;
 };
 
 class CallExpression: public Expression
 {
 public:
+    CallExpression(): Expression(Expression::Kind::CALL) {}
+
     DeclarationReferenceExpression* declarationReference = nullptr;
     std::vector<Expression*> parameters;
 };
@@ -475,12 +522,16 @@ public:
 class ParenExpression: public Expression
 {
 public:
+    ParenExpression(): Expression(Expression::Kind::PAREN) {}
+
     Expression* expression = nullptr;
 };
 
 class MemberExpression: public Expression
 {
 public:
+    MemberExpression(): Expression(Expression::Kind::MEMBER) {}
+
     Expression* expression = nullptr;
     FieldDeclaration* fieldDeclaration = nullptr;
 };
@@ -488,6 +539,8 @@ public:
 class ArraySubscriptExpression: public Expression
 {
 public:
+    ArraySubscriptExpression(): Expression(Expression::Kind::ARRAY_SUBSCRIPT) {}
+
     DeclarationReferenceExpression* declarationReference = nullptr;
     Expression* expression = nullptr;
 };
@@ -502,6 +555,8 @@ public:
         POSITIVE, // +
         NEGATIVE // -
     };
+
+    UnaryOperatorExpression(): Expression(Expression::Kind::UNARY) {}
 
     Expression* expression = nullptr;
 
@@ -545,6 +600,8 @@ public:
         COMMA // ,
     };
 
+    BinaryOperatorExpression(): Expression(Expression::Kind::BINARY) {}
+
     Expression* leftExpression = nullptr;
     Expression* rightExpression = nullptr;
 
@@ -580,6 +637,8 @@ inline std::string binaryOperatorKindToString(BinaryOperatorExpression::Kind kin
 class TernaryOperatorExpression: public Expression
 {
 public:
+    TernaryOperatorExpression(): Expression(Expression::Kind::TERNARY) {}
+
     Expression* condition;
     Expression* leftExpression = nullptr;
     Expression* rightExpression = nullptr;
@@ -644,7 +703,7 @@ private:
     {
         Declaration* declaration = findDeclaration(name, declarationScopes);
 
-        if (declaration && declaration->declarationKind == Declaration::Kind::TYPE)
+        if (declaration && declaration->getDeclarationKind() == Declaration::Kind::TYPE)
             return static_cast<TypeDeclaration*>(declaration);
         else
             return nullptr;
@@ -654,7 +713,7 @@ private:
     {
         Declaration* declaration = findDeclaration(name, declarationScopes);
 
-        if (declaration && declaration->declarationKind == Declaration::Kind::TYPE)
+        if (declaration && declaration->getDeclarationKind() == Declaration::Kind::TYPE)
         {
             TypeDeclaration* typeDeclaration = static_cast<TypeDeclaration*>(declaration);
 
@@ -673,7 +732,7 @@ private:
             for (auto declarationIterator = scopeIterator->crbegin(); declarationIterator != scopeIterator->crend(); ++declarationIterator)
             {
                 if ((*declarationIterator)->name == name &&
-                    (*declarationIterator)->declarationKind == Declaration::Kind::FUNCTION)
+                    (*declarationIterator)->getDeclarationKind() == Declaration::Kind::FUNCTION)
                 {
                     FunctionDeclaration* functionDeclaration = static_cast<FunctionDeclaration*>(*declarationIterator);
 
