@@ -217,11 +217,14 @@ public:
         //TYPE_DEFINITION, // typedef is not supported in GLSL
     };
 
-    TypeDeclaration(): Declaration(Declaration::Kind::TYPE) {}
+    TypeDeclaration(Kind initTypeKind): Declaration(Declaration::Kind::TYPE), typeKind(initTypeKind) {}
 
-    Kind typeKind = Kind::NONE;
+    inline Kind getTypeKind() const { return typeKind; }
 
     bool isBuiltin = false;
+
+protected:
+    Kind typeKind = Kind::NONE;
 };
 
 inline std::string typeKindToString(TypeDeclaration::Kind kind)
@@ -240,6 +243,8 @@ inline std::string typeKindToString(TypeDeclaration::Kind kind)
 class SimpleTypeDeclaration: public TypeDeclaration
 {
 public:
+    SimpleTypeDeclaration(): TypeDeclaration(TypeDeclaration::Kind::SIMPLE) {}
+
     bool scalar = false;
 };
 
@@ -248,6 +253,8 @@ class FieldDeclaration;
 class StructDeclaration: public TypeDeclaration
 {
 public:
+    StructDeclaration(): TypeDeclaration(TypeDeclaration::Kind::STRUCT) {}
+
     std::vector<FieldDeclaration*> fieldDeclarations;
 
     bool hasDefinition = false;
@@ -457,10 +464,13 @@ public:
         STRING
     };
 
-    LiteralExpression(): Expression(Expression::Kind::LITERAL) {}
+    LiteralExpression(Kind initLiteralKind): Expression(Expression::Kind::LITERAL), literalKind(initLiteralKind) {}
+
+    inline Kind getLiteralKind() const { return literalKind; }
 
     TypeDeclaration* typeDeclaration = nullptr;
 
+protected:
     Kind literalKind = Kind::NONE;
 };
 
@@ -481,24 +491,31 @@ inline std::string literalKindToString(LiteralExpression::Kind kind)
 class BooleanLiteralExpression: public LiteralExpression
 {
 public:
+    BooleanLiteralExpression(): LiteralExpression(LiteralExpression::Kind::BOOLEAN) {}
     bool value;
 };
 
 class IntegerLiteralExpression: public LiteralExpression
 {
 public:
+    IntegerLiteralExpression(): LiteralExpression(LiteralExpression::Kind::INTEGER) {}
+
     int64_t value;
 };
 
 class FloatingPointLiteralExpression: public LiteralExpression
 {
 public:
+    FloatingPointLiteralExpression(): LiteralExpression(LiteralExpression::Kind::FLOATING_POINT) {}
+
     double value;
 };
 
 class StringLiteralExpression: public LiteralExpression
 {
 public:
+    StringLiteralExpression(): LiteralExpression(LiteralExpression::Kind::STRING) {}
+
     std::string value;
 };
 
@@ -717,7 +734,7 @@ private:
         {
             TypeDeclaration* typeDeclaration = static_cast<TypeDeclaration*>(declaration);
 
-            if (typeDeclaration->typeKind == TypeDeclaration::Kind::STRUCT) return static_cast<StructDeclaration*>(typeDeclaration);
+            if (typeDeclaration->getTypeKind() == TypeDeclaration::Kind::STRUCT) return static_cast<StructDeclaration*>(typeDeclaration);
         }
 
         return nullptr;

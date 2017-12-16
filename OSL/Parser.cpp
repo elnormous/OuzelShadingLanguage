@@ -12,32 +12,26 @@ static const std::vector<std::string> builtinTypes = {
 
 ASTContext::ASTContext()
 {
-    boolType.typeKind = TypeDeclaration::Kind::SIMPLE;
     boolType.name = "bool";
     boolType.scalar = true;
     boolType.isBuiltin = true;
 
-    intType.typeKind = TypeDeclaration::Kind::SIMPLE;
     intType.name = "int";
     intType.scalar = true;
     intType.isBuiltin = true;
 
-    floatType.typeKind = TypeDeclaration::Kind::SIMPLE;
     floatType.name = "float";
     floatType.scalar = true;
     floatType.isBuiltin = true;
 
-    vec2Type.typeKind = TypeDeclaration::Kind::STRUCT;
     vec2Type.name = "vec2";
     vec2Type.isBuiltin = true;
     vec2Type.hasDefinition = true;
 
-    vec3Type.typeKind = TypeDeclaration::Kind::STRUCT;
     vec3Type.name = "vec3";
     vec3Type.isBuiltin = true;
     vec3Type.hasDefinition = true;
 
-    vec4Type.typeKind = TypeDeclaration::Kind::STRUCT;
     vec4Type.name = "vec4";
     vec4Type.isBuiltin = true;
     vec4Type.hasDefinition = true;
@@ -50,27 +44,22 @@ ASTContext::ASTContext()
                     ParameterDeclaration parameter;
                 }*/
 
-    mat3Type.typeKind = TypeDeclaration::Kind::STRUCT;
     mat3Type.name = "mat3";
     mat3Type.isBuiltin = true;
     mat3Type.hasDefinition = true;
 
-    mat4Type.typeKind = TypeDeclaration::Kind::STRUCT;
     mat4Type.name = "mat4";
     mat4Type.isBuiltin = true;
     mat4Type.hasDefinition = true;
 
-    stringType.typeKind = TypeDeclaration::Kind::STRUCT;
     stringType.name = "string";
     stringType.isBuiltin = true;
     stringType.hasDefinition = true;
 
-    samplerStateType.typeKind = TypeDeclaration::Kind::STRUCT;
     samplerStateType.name = "SamplerState";
     samplerStateType.isBuiltin = true;
     samplerStateType.hasDefinition = true;
 
-    texture2DType.typeKind = TypeDeclaration::Kind::STRUCT;
     texture2DType.name = "Texture2D";
     texture2DType.isBuiltin = true;
     texture2DType.hasDefinition = true;
@@ -268,7 +257,7 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
             return nullptr;
         }
 
-        if (qualifiedType.typeDeclaration->typeKind == TypeDeclaration::Kind::STRUCT)
+        if (qualifiedType.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::STRUCT)
         {
             StructDeclaration* structDeclaration = static_cast<StructDeclaration*>(qualifiedType.typeDeclaration);
 
@@ -549,7 +538,6 @@ StructDeclaration* ASTContext::parseStructDeclaration(const std::vector<Token>& 
 
     StructDeclaration* result = new StructDeclaration();
     constructs.push_back(std::unique_ptr<Construct>(result));
-    result->typeKind = TypeDeclaration::Kind::STRUCT;
     result->name = iterator->value;
     result->previousDeclaration = findStructDeclaration(iterator->value, declarationScopes);
 
@@ -1559,7 +1547,6 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
     {
         IntegerLiteralExpression* result = new IntegerLiteralExpression();
         constructs.push_back(std::unique_ptr<Construct>(result));
-        result->literalKind = LiteralExpression::Kind::INTEGER;
         result->qualifiedType.typeDeclaration = &intType;
         result->value = strtoll(iterator->value.c_str(), nullptr, 0);
 
@@ -1571,7 +1558,6 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
     {
         FloatingPointLiteralExpression* result = new FloatingPointLiteralExpression();
         constructs.push_back(std::unique_ptr<Construct>(result));
-        result->literalKind = LiteralExpression::Kind::FLOATING_POINT;
         result->qualifiedType.typeDeclaration = &floatType;
         result->value = strtod(iterator->value.c_str(), nullptr);
 
@@ -1583,7 +1569,6 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
     {
         StringLiteralExpression* result = new StringLiteralExpression();
         constructs.push_back(std::unique_ptr<Construct>(result));
-        result->literalKind = LiteralExpression::Kind::STRING;
         result->qualifiedType.typeDeclaration = &stringType;
         result->value = iterator->value;
 
@@ -1595,7 +1580,6 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
     {
         BooleanLiteralExpression* result = new BooleanLiteralExpression();
         constructs.push_back(std::unique_ptr<Construct>(result));
-        result->literalKind = LiteralExpression::Kind::BOOLEAN;
         result->qualifiedType.typeDeclaration = &boolType;
         result->value = (iterator->type == Token::Type::KEYWORD_TRUE);
 
@@ -1813,7 +1797,7 @@ Expression* ASTContext::parseMember(const std::vector<Token>& tokens,
             return nullptr;
         }
 
-        if (result->qualifiedType.typeDeclaration->typeKind != TypeDeclaration::Kind::STRUCT)
+        if (result->qualifiedType.typeDeclaration->getTypeKind() != TypeDeclaration::Kind::STRUCT)
         {
             std::cerr << result->qualifiedType.typeDeclaration->name << " is not a structure" << std::endl;
             return nullptr;
@@ -2306,9 +2290,9 @@ void ASTContext::dumpDeclaration(const Declaration* declaration, std::string ind
         {
             const TypeDeclaration* typeDeclaration = static_cast<const TypeDeclaration*>(declaration);
 
-            std::cout << " " << typeKindToString(typeDeclaration->typeKind);
+            std::cout << " " << typeKindToString(typeDeclaration->getTypeKind());
 
-            switch (typeDeclaration->typeKind)
+            switch (typeDeclaration->getTypeKind())
             {
                 case TypeDeclaration::Kind::NONE:
                 {
@@ -2600,9 +2584,9 @@ void ASTContext::dumpExpression(const Expression* expression, std::string indent
         {
             const LiteralExpression* literalExpression = static_cast<const LiteralExpression*>(expression);
 
-            std::cout << ", literal kind: " << literalKindToString(literalExpression->literalKind) << ", value: ";
+            std::cout << ", literal kind: " << literalKindToString(literalExpression->getLiteralKind()) << ", value: ";
 
-            switch (literalExpression->literalKind)
+            switch (literalExpression->getLiteralKind())
             {
                 case LiteralExpression::Kind::NONE: break;
                 case LiteralExpression::Kind::BOOLEAN:

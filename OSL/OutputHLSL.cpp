@@ -60,7 +60,7 @@ bool OutputHLSL::printDeclaration(const Declaration* declaration, Options option
 
             const TypeDeclaration* typeDeclaration = static_cast<const TypeDeclaration*>(declaration);
 
-            if (typeDeclaration->typeKind != TypeDeclaration::Kind::STRUCT) return false;
+            if (typeDeclaration->getTypeKind() != TypeDeclaration::Kind::STRUCT) return false;
 
 
             const StructDeclaration* structDeclaration = static_cast<const StructDeclaration*>(declaration);
@@ -595,7 +595,7 @@ bool OutputHLSL::printExpression(const Expression* expression, Options options, 
 
             const LiteralExpression* literalExpression = static_cast<const LiteralExpression*>(expression);
 
-            switch (literalExpression->literalKind)
+            switch (literalExpression->getLiteralKind())
             {
                 case LiteralExpression::Kind::NONE: break;
                 case LiteralExpression::Kind::BOOLEAN:
