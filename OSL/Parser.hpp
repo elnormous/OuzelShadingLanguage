@@ -285,7 +285,6 @@ public:
 
     StructDeclaration* structTypeDeclaration = nullptr;
     QualifiedType qualifiedType;
-    FieldDeclaration* declaration = nullptr;
 
     bool isStatic = false;
     Semantic semantic = Semantic::NONE;
