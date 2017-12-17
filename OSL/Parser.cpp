@@ -24,17 +24,17 @@ ASTContext::ASTContext()
     floatType.scalar = true;
     floatType.isBuiltin = true;
 
-    vec2Type.name = "vec2";
-    vec2Type.isBuiltin = true;
-    vec2Type.hasDefinition = true;
+    float2Type.name = "float2";
+    float2Type.isBuiltin = true;
+    float2Type.hasDefinition = true;
 
-    vec3Type.name = "vec3";
-    vec3Type.isBuiltin = true;
-    vec3Type.hasDefinition = true;
+    float3Type.name = "float3";
+    float3Type.isBuiltin = true;
+    float3Type.hasDefinition = true;
 
-    vec4Type.name = "vec4";
-    vec4Type.isBuiltin = true;
-    vec4Type.hasDefinition = true;
+    float4Type.name = "float4";
+    float4Type.isBuiltin = true;
+    float4Type.hasDefinition = true;
 
     /*for (char first : {'x', 'y', 'z', 'w'})
         for (char second : {'x', 'y', 'z', 'w'})
@@ -44,13 +44,13 @@ ASTContext::ASTContext()
                     ParameterDeclaration parameter;
                 }*/
 
-    mat3Type.name = "mat3";
-    mat3Type.isBuiltin = true;
-    mat3Type.hasDefinition = true;
+    float3x3Type.name = "float3x3";
+    float3x3Type.isBuiltin = true;
+    float3x3Type.hasDefinition = true;
 
-    mat4Type.name = "mat4";
-    mat4Type.isBuiltin = true;
-    mat4Type.hasDefinition = true;
+    float4x4Type.name = "float4x4";
+    float4x4Type.isBuiltin = true;
+    float4x4Type.hasDefinition = true;
 
     stringType.name = "string";
     stringType.isBuiltin = true;
@@ -68,14 +68,14 @@ ASTContext::ASTContext()
     samplerParameter.qualifiedType.typeDeclaration = &samplerStateType;
     samplerParameter.qualifiedType.isConst = true;
 
-    vec2Parameter.name = "coord";
-    vec2Parameter.qualifiedType.typeDeclaration = &vec2Type;
-    vec2Parameter.qualifiedType.isConst = true;
+    coordParameter.name = "coord";
+    coordParameter.qualifiedType.typeDeclaration = &float2Type;
+    coordParameter.qualifiedType.isConst = true;
 
     mulFunction.name = "texture2D";
-    mulFunction.qualifiedType.typeDeclaration = &vec4Type;
+    mulFunction.qualifiedType.typeDeclaration = &float4Type;
     mulFunction.parameterDeclarations.push_back(&samplerParameter);
-    mulFunction.parameterDeclarations.push_back(&vec2Parameter);
+    mulFunction.parameterDeclarations.push_back(&coordParameter);
     mulFunction.isBuiltin = true;
 }
 
@@ -92,11 +92,11 @@ bool ASTContext::parse(const std::vector<Token>& tokens)
     declarationScopes.back().push_back(&boolType);
     declarationScopes.back().push_back(&intType);
     declarationScopes.back().push_back(&floatType);
-    declarationScopes.back().push_back(&vec2Type);
-    declarationScopes.back().push_back(&vec3Type);
-    declarationScopes.back().push_back(&vec4Type);
-    declarationScopes.back().push_back(&mat3Type);
-    declarationScopes.back().push_back(&mat4Type);
+    declarationScopes.back().push_back(&float2Type);
+    declarationScopes.back().push_back(&float3Type);
+    declarationScopes.back().push_back(&float4Type);
+    declarationScopes.back().push_back(&float3x3Type);
+    declarationScopes.back().push_back(&float4x4Type);
     declarationScopes.back().push_back(&stringType);
     declarationScopes.back().push_back(&samplerStateType);
     declarationScopes.back().push_back(&texture2DType);

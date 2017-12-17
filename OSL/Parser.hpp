@@ -910,17 +910,17 @@ private:
     SimpleTypeDeclaration boolType;
     SimpleTypeDeclaration intType;
     SimpleTypeDeclaration floatType;
-    StructDeclaration vec2Type;
-    StructDeclaration vec3Type;
-    StructDeclaration vec4Type;
-    std::vector<ParameterDeclaration> parameters;
-    StructDeclaration mat3Type;
-    StructDeclaration mat4Type;
+    StructDeclaration float2Type;
+    StructDeclaration float3Type;
+    StructDeclaration float4Type;
+    std::vector<FieldDeclaration> fields;
+    StructDeclaration float3x3Type;
+    StructDeclaration float4x4Type;
     StructDeclaration stringType;
     StructDeclaration samplerStateType;
     StructDeclaration texture2DType;
 
     ParameterDeclaration samplerParameter;
-    ParameterDeclaration vec2Parameter;
+    ParameterDeclaration coordParameter;
     FunctionDeclaration mulFunction;
 };
