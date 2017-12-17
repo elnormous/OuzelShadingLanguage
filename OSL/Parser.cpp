@@ -36,13 +36,21 @@ ASTContext::ASTContext()
     float4Type.isBuiltin = true;
     float4Type.hasDefinition = true;
 
-    /*for (char first : {'x', 'y', 'z', 'w'})
+    for (char first : {'x', 'y', 'z', 'w'})
         for (char second : {'x', 'y', 'z', 'w'})
             for (char third : {'x', 'y', 'z', 'w'})
                 for (char fourth : {'x', 'y', 'z', 'w'})
                 {
-                    ParameterDeclaration parameter;
-                }*/
+                    FieldDeclaration* field = new FieldDeclaration();
+                    fields.push_back(std::unique_ptr<FieldDeclaration>(field));
+
+                    field->structTypeDeclaration = &float4Type;
+                    field->qualifiedType.typeDeclaration = &float4Type;
+                    field->qualifiedType.isConst = true;
+                    field->name.assign({first, second, third, fourth});
+
+                    float4Type.fieldDeclarations.push_back(field);
+                }
 
     float3x3Type.name = "float3x3";
     float3x3Type.isBuiltin = true;
