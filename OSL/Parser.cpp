@@ -2751,7 +2751,7 @@ void ASTContext::dumpStatement(const Statement* statement, std::string indent) c
 
 void ASTContext::dumpExpression(const Expression* expression, std::string indent) const
 {
-    std::cout << " " << expressionKindToString(expression->getExpressionKind());
+    std::cout << " " << expressionKindToString(expression->getExpressionKind()) << ", lvalue: " << (expression->isLValue ? "true" : "false");
 
     switch (expression->getExpressionKind())
     {
