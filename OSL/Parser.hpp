@@ -913,7 +913,7 @@ private:
     StructDeclaration float2Type;
     StructDeclaration float3Type;
     StructDeclaration float4Type;
-    FieldDeclaration fields[30 + 120 + 340];
+    FieldDeclaration fields[2 * (30 + 120 + 340)];
     StructDeclaration float3x3Type;
     StructDeclaration float4x4Type;
     StructDeclaration stringType;
