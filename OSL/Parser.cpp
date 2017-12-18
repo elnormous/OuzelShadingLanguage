@@ -1869,7 +1869,7 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
 
         ++iterator;
 
-        result->qualifiedType.typeDeclaration = result->expression->qualifiedType.typeDeclaration;
+        result->qualifiedType = result->expression->qualifiedType;
 
         return result;
     }
