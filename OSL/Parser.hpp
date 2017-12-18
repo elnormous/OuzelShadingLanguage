@@ -913,7 +913,7 @@ private:
     StructDeclaration float2Type;
     StructDeclaration float3Type;
     StructDeclaration float4Type;
-    std::vector<std::unique_ptr<FieldDeclaration>> fields;
+    FieldDeclaration fields[30 + 120 + 340];
     StructDeclaration float3x3Type;
     StructDeclaration float4x4Type;
     StructDeclaration stringType;

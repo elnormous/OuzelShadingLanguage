@@ -28,29 +28,177 @@ ASTContext::ASTContext()
     float2Type.isBuiltin = true;
     float2Type.hasDefinition = true;
 
+    FieldDeclaration* field = fields;
+
+    for (char first : {'x', 'y'})
+    {
+        field->structTypeDeclaration = &float2Type;
+        field->qualifiedType.typeDeclaration = &floatType;
+        field->qualifiedType.isConst = false;
+        field->name.assign({first});
+
+        float2Type.fieldDeclarations.push_back(field);
+
+        ++field;
+
+        for (char second : {'x', 'y'})
+        {
+            bool secondConst = (second == first);
+
+            field->structTypeDeclaration = &float2Type;
+            field->qualifiedType.typeDeclaration = &float2Type;
+            field->qualifiedType.isConst = secondConst;
+            field->name.assign({first, second});
+
+            float2Type.fieldDeclarations.push_back(field);
+
+            ++field;
+
+            for (char third : {'x', 'y'})
+            {
+                bool thirdConst = secondConst || (third == first || third == second);
+
+                field->structTypeDeclaration = &float2Type;
+                field->qualifiedType.typeDeclaration = &float3Type;
+                field->qualifiedType.isConst = thirdConst;
+                field->name.assign({first, second, third});
+
+                float2Type.fieldDeclarations.push_back(field);
+
+                ++field;
+
+                for (char fourth : {'x', 'y'})
+                {
+                    bool fourthConst = thirdConst || (fourth == first || fourth == second || fourth == third);
+
+                    field->structTypeDeclaration = &float2Type;
+                    field->qualifiedType.typeDeclaration = &float4Type;
+                    field->qualifiedType.isConst = fourthConst;
+                    field->name.assign({first, second, third, fourth});
+
+                    float2Type.fieldDeclarations.push_back(field);
+
+                    ++field;
+                }
+            }
+        }
+    }
+
     float3Type.name = "float3";
     float3Type.isBuiltin = true;
     float3Type.hasDefinition = true;
+
+    for (char first : {'x', 'y', 'z'})
+    {
+        field->structTypeDeclaration = &float4Type;
+        field->qualifiedType.typeDeclaration = &floatType;
+        field->qualifiedType.isConst = false;
+        field->name.assign({first});
+
+        float4Type.fieldDeclarations.push_back(field);
+
+        ++field;
+
+        for (char second : {'x', 'y', 'z'})
+        {
+            bool secondConst = (second == first);
+
+            field->structTypeDeclaration = &float3Type;
+            field->qualifiedType.typeDeclaration = &float2Type;
+            field->qualifiedType.isConst = secondConst;
+            field->name.assign({first, second});
+
+            float3Type.fieldDeclarations.push_back(field);
+
+            ++field;
+
+            for (char third : {'x', 'y', 'z'})
+            {
+                bool thirdConst = secondConst || (third == first || third == second);
+
+                field->structTypeDeclaration = &float3Type;
+                field->qualifiedType.typeDeclaration = &float3Type;
+                field->qualifiedType.isConst = thirdConst;
+                field->name.assign({first, second, third});
+
+                float3Type.fieldDeclarations.push_back(field);
+
+                ++field;
+
+                for (char fourth : {'x', 'y', 'z'})
+                {
+                    bool fourthConst = thirdConst || (fourth == first || fourth == second || fourth == third);
+
+                    field->structTypeDeclaration = &float3Type;
+                    field->qualifiedType.typeDeclaration = &float4Type;
+                    field->qualifiedType.isConst = fourthConst;
+                    field->name.assign({first, second, third, fourth});
+
+                    float3Type.fieldDeclarations.push_back(field);
+
+                    ++field;
+                }
+            }
+        }
+    }
 
     float4Type.name = "float4";
     float4Type.isBuiltin = true;
     float4Type.hasDefinition = true;
 
     for (char first : {'x', 'y', 'z', 'w'})
+    {
+        field->structTypeDeclaration = &float4Type;
+        field->qualifiedType.typeDeclaration = &floatType;
+        field->qualifiedType.isConst = false;
+        field->name.assign({first});
+
+        float4Type.fieldDeclarations.push_back(field);
+
+        ++field;
+
         for (char second : {'x', 'y', 'z', 'w'})
+        {
+            bool secondConst = (second == first);
+
+            field->structTypeDeclaration = &float4Type;
+            field->qualifiedType.typeDeclaration = &float2Type;
+            field->qualifiedType.isConst = secondConst;
+            field->name.assign({first, second});
+
+            float4Type.fieldDeclarations.push_back(field);
+
+            ++field;
+
             for (char third : {'x', 'y', 'z', 'w'})
+            {
+                bool thirdConst = secondConst || (third == first || third == second);
+
+                field->structTypeDeclaration = &float4Type;
+                field->qualifiedType.typeDeclaration = &float3Type;
+                field->qualifiedType.isConst = thirdConst;
+                field->name.assign({first, second, third});
+
+                float4Type.fieldDeclarations.push_back(field);
+
+                ++field;
+
                 for (char fourth : {'x', 'y', 'z', 'w'})
                 {
-                    FieldDeclaration* field = new FieldDeclaration();
-                    fields.push_back(std::unique_ptr<FieldDeclaration>(field));
+                    bool fourthConst = thirdConst || (fourth == first || fourth == second || fourth == third);
 
                     field->structTypeDeclaration = &float4Type;
                     field->qualifiedType.typeDeclaration = &float4Type;
-                    field->qualifiedType.isConst = true;
+                    field->qualifiedType.isConst = fourthConst;
                     field->name.assign({first, second, third, fourth});
 
                     float4Type.fieldDeclarations.push_back(field);
+
+                    ++field;
                 }
+            }
+        }
+    }
 
     float3x3Type.name = "float3x3";
     float3x3Type.isBuiltin = true;
