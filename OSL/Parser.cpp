@@ -1608,6 +1608,7 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
         IntegerLiteralExpression* result = new IntegerLiteralExpression();
         constructs.push_back(std::unique_ptr<Construct>(result));
         result->qualifiedType.typeDeclaration = &intType;
+        result->qualifiedType.isConst = true;
         result->value = strtoll(iterator->value.c_str(), nullptr, 0);
 
         ++iterator;
@@ -1619,6 +1620,7 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
         FloatingPointLiteralExpression* result = new FloatingPointLiteralExpression();
         constructs.push_back(std::unique_ptr<Construct>(result));
         result->qualifiedType.typeDeclaration = &floatType;
+        result->qualifiedType.isConst = true;
         result->value = strtod(iterator->value.c_str(), nullptr);
 
         ++iterator;
@@ -1630,6 +1632,7 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
         StringLiteralExpression* result = new StringLiteralExpression();
         constructs.push_back(std::unique_ptr<Construct>(result));
         result->qualifiedType.typeDeclaration = &stringType;
+        result->qualifiedType.isConst = true;
         result->value = iterator->value;
 
         ++iterator;
@@ -1641,6 +1644,7 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
         BooleanLiteralExpression* result = new BooleanLiteralExpression();
         constructs.push_back(std::unique_ptr<Construct>(result));
         result->qualifiedType.typeDeclaration = &boolType;
+        result->qualifiedType.isConst = true;
         result->value = (iterator->type == Token::Type::KEYWORD_TRUE);
 
         ++iterator;
@@ -1707,9 +1711,11 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
             }
 
             declRefExpression->declaration = functionDeclaration;
-            declRefExpression->qualifiedType = functionDeclaration->qualifiedType;
+            declRefExpression->qualifiedType.typeDeclaration = functionDeclaration->qualifiedType.typeDeclaration;
+            declRefExpression->qualifiedType.isConst = true;
             result->declarationReference = declRefExpression;
-            result->qualifiedType = functionDeclaration->qualifiedType;
+            result->qualifiedType.typeDeclaration = functionDeclaration->qualifiedType.typeDeclaration;
+            result->qualifiedType.isConst = true;
 
             return result;
         }
@@ -1881,7 +1887,7 @@ Expression* ASTContext::parseMember(const std::vector<Token>& tokens,
 
         ++iterator;
 
-        expression->qualifiedType.typeDeclaration = expression->fieldDeclaration->qualifiedType.typeDeclaration;
+        expression->qualifiedType = expression->fieldDeclaration->qualifiedType;
 
         result = expression;
     }
@@ -1909,6 +1915,7 @@ Expression* ASTContext::parseSign(const std::vector<Token>& tokens,
         }
 
         result->qualifiedType.typeDeclaration = result->expression->qualifiedType.typeDeclaration;
+        result->qualifiedType.isConst = true;
 
         return result;
     }
@@ -1942,6 +1949,7 @@ Expression* ASTContext::parseNot(const std::vector<Token>& tokens,
         }
 
         result->qualifiedType.typeDeclaration = findTypeDeclaration("bool", declarationScopes);
+        result->qualifiedType.isConst = true;
 
         return result;
     }
@@ -1986,6 +1994,7 @@ Expression* ASTContext::parseMultiplication(const std::vector<Token>& tokens,
 
         // TODO: fix this
         expression->qualifiedType.typeDeclaration = expression->leftExpression->qualifiedType.typeDeclaration;
+        expression->qualifiedType.isConst = true;
 
         result = expression;
     }
@@ -2022,6 +2031,7 @@ Expression* ASTContext::parseAddition(const std::vector<Token>& tokens,
 
         // TODO: fix this
         expression->qualifiedType.typeDeclaration = expression->leftExpression->qualifiedType.typeDeclaration;
+        expression->qualifiedType.isConst = true;
 
         result = expression;
     }
@@ -2058,6 +2068,7 @@ Expression* ASTContext::parseLessThan(const std::vector<Token>& tokens,
 
         // TODO: fix this
         expression->qualifiedType.typeDeclaration = expression->leftExpression->qualifiedType.typeDeclaration;
+        expression->qualifiedType.isConst = true;
 
         result = expression;
     }
@@ -2094,6 +2105,7 @@ Expression* ASTContext::parseGreaterThan(const std::vector<Token>& tokens,
 
         // TODO: fix this
         expression->qualifiedType.typeDeclaration = expression->leftExpression->qualifiedType.typeDeclaration;
+        expression->qualifiedType.isConst = true;
 
         result = expression;
     }
@@ -2130,6 +2142,7 @@ Expression* ASTContext::parseEquality(const std::vector<Token>& tokens,
 
         // TODO: fix this
         expression->qualifiedType.typeDeclaration = expression->leftExpression->qualifiedType.typeDeclaration;
+        expression->qualifiedType.isConst = true;
 
         result = expression;
     }
@@ -2175,6 +2188,7 @@ Expression* ASTContext::parseTernary(const std::vector<Token>& tokens,
 
         // TODO: fix this
         expression->qualifiedType.typeDeclaration = expression->leftExpression->qualifiedType.typeDeclaration;
+        expression->qualifiedType.isConst = true;
 
         result = expression;
     }
@@ -2194,6 +2208,12 @@ Expression* ASTContext::parseAssignment(const std::vector<Token>& tokens,
 
     while (checkToken(Token::Type::OPERATOR_ASSIGNMENT, tokens, iterator))
     {
+        if (result->qualifiedType.isConst)
+        {
+            std::cerr << "Cannot assign to const variable" << std::endl;
+            return nullptr;
+        }
+
         BinaryOperatorExpression* expression = new BinaryOperatorExpression();
         constructs.push_back(std::unique_ptr<Construct>(expression));
         expression->operatorKind = BinaryOperatorExpression::Kind::ASSIGNMENT;
@@ -2208,6 +2228,7 @@ Expression* ASTContext::parseAssignment(const std::vector<Token>& tokens,
 
         // TODO: fix this
         expression->qualifiedType.typeDeclaration = expression->leftExpression->qualifiedType.typeDeclaration;
+        expression->qualifiedType.isConst = true;
 
         result = expression;
     }
@@ -2227,6 +2248,12 @@ Expression* ASTContext::parseAdditionAssignment(const std::vector<Token>& tokens
 
     while (checkTokens({Token::Type::OPERATOR_PLUS_ASSIGNMENT, Token::Type::OPERATOR_MINUS_ASSIGNMENT}, tokens, iterator))
     {
+        if (result->qualifiedType.isConst)
+        {
+            std::cerr << "Cannot assign to const variable" << std::endl;
+            return nullptr;
+        }
+
         BinaryOperatorExpression* expression = new BinaryOperatorExpression();
         constructs.push_back(std::unique_ptr<Construct>(expression));
 
@@ -2244,6 +2271,7 @@ Expression* ASTContext::parseAdditionAssignment(const std::vector<Token>& tokens
 
         // TODO: fix this
         expression->qualifiedType.typeDeclaration = expression->leftExpression->qualifiedType.typeDeclaration;
+        expression->qualifiedType.isConst = true;
 
         result = expression;
     }
@@ -2263,6 +2291,12 @@ Expression* ASTContext::parseMultiplicationAssignment(const std::vector<Token>& 
 
     while (checkTokens({Token::Type::OPERATOR_MULTIPLY_ASSIGNMENT, Token::Type::OPERATOR_DIVIDE_ASSIGNMENT}, tokens, iterator))
     {
+        if (result->qualifiedType.isConst)
+        {
+            std::cerr << "Cannot assign to const variable" << std::endl;
+            return nullptr;
+        }
+
         BinaryOperatorExpression* expression = new BinaryOperatorExpression();
         constructs.push_back(std::unique_ptr<Construct>(expression));
 
@@ -2281,6 +2315,7 @@ Expression* ASTContext::parseMultiplicationAssignment(const std::vector<Token>& 
 
         // TODO: fix this
         expression->qualifiedType.typeDeclaration = expression->leftExpression->qualifiedType.typeDeclaration;
+        expression->qualifiedType.isConst = true;
 
         result = expression;
     }
@@ -2314,6 +2349,7 @@ Expression* ASTContext::parseComma(const std::vector<Token>& tokens,
         }
 
         expression->qualifiedType.typeDeclaration = expression->rightExpression->qualifiedType.typeDeclaration;
+        expression->qualifiedType.isConst = true;
 
         result = expression;
     }
