@@ -160,6 +160,7 @@ public:
     inline Kind getExpressionKind() const { return expressionKind; }
 
     QualifiedType qualifiedType;
+    bool isLValue = false;
 
 protected:
     Kind expressionKind = Kind::NONE;

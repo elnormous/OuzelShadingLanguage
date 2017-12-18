@@ -1640,7 +1640,7 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
         constructs.push_back(std::unique_ptr<Construct>(result));
         result->parent = parent;
         result->qualifiedType.typeDeclaration = &intType;
-        result->qualifiedType.isConst = true;
+        result->isLValue = false;
         result->value = strtoll(iterator->value.c_str(), nullptr, 0);
 
         ++iterator;
@@ -1653,7 +1653,7 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
         constructs.push_back(std::unique_ptr<Construct>(result));
         result->parent = parent;
         result->qualifiedType.typeDeclaration = &floatType;
-        result->qualifiedType.isConst = true;
+        result->isLValue = false;
         result->value = strtod(iterator->value.c_str(), nullptr);
 
         ++iterator;
@@ -1666,7 +1666,7 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
         constructs.push_back(std::unique_ptr<Construct>(result));
         result->parent = parent;
         result->qualifiedType.typeDeclaration = &stringType;
-        result->qualifiedType.isConst = true;
+        result->isLValue = false;
         result->value = iterator->value;
 
         ++iterator;
@@ -1679,7 +1679,7 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
         constructs.push_back(std::unique_ptr<Construct>(result));
         result->parent = parent;
         result->qualifiedType.typeDeclaration = &boolType;
-        result->qualifiedType.isConst = true;
+        result->isLValue = false;
         result->value = (iterator->type == Token::Type::KEYWORD_TRUE);
 
         ++iterator;
@@ -1748,11 +1748,11 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
             }
 
             declRefExpression->declaration = functionDeclaration;
-            declRefExpression->qualifiedType.typeDeclaration = functionDeclaration->qualifiedType.typeDeclaration;
-            declRefExpression->qualifiedType.isConst = true;
+            declRefExpression->qualifiedType = functionDeclaration->qualifiedType;
+            declRefExpression->isLValue = true;
             result->declarationReference = declRefExpression;
-            result->qualifiedType.typeDeclaration = functionDeclaration->qualifiedType.typeDeclaration;
-            result->qualifiedType.isConst = true;
+            result->qualifiedType = functionDeclaration->qualifiedType;
+            result->isLValue = false;
 
             return result;
         }
@@ -1784,9 +1784,11 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
 
             VariableDeclaration* variableDeclaration = static_cast<VariableDeclaration*>(declRefExpression->declaration);
             declRefExpression->qualifiedType = variableDeclaration->qualifiedType;
+            declRefExpression->isLValue = true;
 
             result->declarationReference = declRefExpression;
             result->qualifiedType = declRefExpression->qualifiedType;
+            result->isLValue = true;
 
             if (!(result->expression = parseComma(tokens, iterator, declarationScopes, result)))
             {
@@ -1822,22 +1824,21 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
                 {
                     TypeDeclaration* typeDeclaration = static_cast<TypeDeclaration*>(result->declaration);
                     result->qualifiedType.typeDeclaration = typeDeclaration;
+                    result->isLValue = false;
                     break;
                 }
                 case Declaration::Kind::VARIABLE:
                 {
                     VariableDeclaration* variableDeclaration = static_cast<VariableDeclaration*>(result->declaration);
-                    result->qualifiedType.typeDeclaration = variableDeclaration->qualifiedType.typeDeclaration;
-                    result->qualifiedType.isConst = variableDeclaration->qualifiedType.isConst;
-                    result->qualifiedType.dimensions = variableDeclaration->qualifiedType.dimensions;
+                    result->qualifiedType = variableDeclaration->qualifiedType;
+                    result->isLValue = true;
                     break;
                 }
                 case Declaration::Kind::PARAMETER:
                 {
                     ParameterDeclaration* parameterDeclaration = static_cast<ParameterDeclaration*>(result->declaration);
-                    result->qualifiedType.typeDeclaration = parameterDeclaration->qualifiedType.typeDeclaration;
-                    result->qualifiedType.isConst = parameterDeclaration->qualifiedType.isConst;
-                    result->qualifiedType.dimensions = parameterDeclaration->qualifiedType.dimensions;
+                    result->qualifiedType = parameterDeclaration->qualifiedType;
+                    result->isLValue = false;
                     break;
                 }
                 default:
@@ -1870,6 +1871,7 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
         ++iterator;
 
         result->qualifiedType = result->expression->qualifiedType;
+        result->isLValue = result->expression->isLValue;
 
         return result;
     }
@@ -1931,6 +1933,8 @@ Expression* ASTContext::parseMember(const std::vector<Token>& tokens,
         ++iterator;
 
         expression->qualifiedType = expression->fieldDeclaration->qualifiedType;
+        if (expression->qualifiedType.isConst) expression->qualifiedType.isConst = true;
+        expression->isLValue = true;
 
         result->parent = expression;
         result = expression;
@@ -1960,8 +1964,8 @@ Expression* ASTContext::parseSign(const std::vector<Token>& tokens,
             return nullptr;
         }
 
-        result->qualifiedType.typeDeclaration = result->expression->qualifiedType.typeDeclaration;
-        result->qualifiedType.isConst = true;
+        result->qualifiedType = result->expression->qualifiedType;
+        result->isLValue = false;
 
         return result;
     }
@@ -1996,8 +2000,8 @@ Expression* ASTContext::parseNot(const std::vector<Token>& tokens,
             return nullptr;
         }
 
-        result->qualifiedType.typeDeclaration = findTypeDeclaration("bool", declarationScopes);
-        result->qualifiedType.isConst = true;
+        result->qualifiedType.typeDeclaration = &boolType;
+        result->isLValue = false;
 
         return result;
     }
@@ -2043,8 +2047,8 @@ Expression* ASTContext::parseMultiplication(const std::vector<Token>& tokens,
         }
 
         // TODO: fix this
-        expression->qualifiedType.typeDeclaration = expression->leftExpression->qualifiedType.typeDeclaration;
-        expression->qualifiedType.isConst = true;
+        expression->qualifiedType = expression->leftExpression->qualifiedType;
+        expression->isLValue = false;
 
         result->parent = expression;
         result = expression;
@@ -2083,8 +2087,8 @@ Expression* ASTContext::parseAddition(const std::vector<Token>& tokens,
         }
 
         // TODO: fix this
-        expression->qualifiedType.typeDeclaration = expression->leftExpression->qualifiedType.typeDeclaration;
-        expression->qualifiedType.isConst = true;
+        expression->qualifiedType = expression->leftExpression->qualifiedType;
+        expression->isLValue = false;
 
         result->parent = expression;
         result = expression;
@@ -2113,9 +2117,9 @@ Expression* ASTContext::parseLessThan(const std::vector<Token>& tokens,
         if (iterator->type == Token::Type::OPERATOR_LESS_THAN) expression->operatorKind = BinaryOperatorExpression::Kind::LESS_THAN;
         else if (iterator->type == Token::Type::OPERATOR_LESS_THAN_EQUAL) expression->operatorKind = BinaryOperatorExpression::Kind::LESS_THAN_EQUAL;
 
-        expression->leftExpression = result;
-
         ++iterator;
+
+        expression->leftExpression = result;
 
         if (!(expression->rightExpression = parseAddition(tokens, iterator, declarationScopes, expression)))
         {
@@ -2123,8 +2127,8 @@ Expression* ASTContext::parseLessThan(const std::vector<Token>& tokens,
         }
 
         // TODO: fix this
-        expression->qualifiedType.typeDeclaration = expression->leftExpression->qualifiedType.typeDeclaration;
-        expression->qualifiedType.isConst = true;
+        expression->qualifiedType = expression->leftExpression->qualifiedType;
+        expression->isLValue = false;
 
         result->parent = expression;
         result = expression;
@@ -2153,9 +2157,9 @@ Expression* ASTContext::parseGreaterThan(const std::vector<Token>& tokens,
         if (iterator->type == Token::Type::OPERATOR_GREATER_THAN) expression->operatorKind = BinaryOperatorExpression::Kind::GREATER_THAN;
         else if (iterator->type == Token::Type::OPERATOR_GREATER_THAN_EQUAL) expression->operatorKind = BinaryOperatorExpression::Kind::GREATER_THAN_EQUAL;
 
-        expression->leftExpression = result;
-
         ++iterator;
+
+        expression->leftExpression = result;
 
         if (!(expression->rightExpression = parseLessThan(tokens, iterator, declarationScopes, expression)))
         {
@@ -2163,8 +2167,8 @@ Expression* ASTContext::parseGreaterThan(const std::vector<Token>& tokens,
         }
 
         // TODO: fix this
-        expression->qualifiedType.typeDeclaration = expression->leftExpression->qualifiedType.typeDeclaration;
-        expression->qualifiedType.isConst = true;
+        expression->qualifiedType = expression->leftExpression->qualifiedType;
+        expression->isLValue = false;
 
         result->parent = expression;
         result = expression;
@@ -2193,9 +2197,9 @@ Expression* ASTContext::parseEquality(const std::vector<Token>& tokens,
         if (iterator->type == Token::Type::OPERATOR_EQUAL) expression->operatorKind = BinaryOperatorExpression::Kind::EQUALITY;
         else if (iterator->type == Token::Type::OPERATOR_NOT_EQUAL) expression->operatorKind = BinaryOperatorExpression::Kind::INEQUALITY;
 
-        expression->leftExpression = result;
-
         ++iterator;
+
+        expression->leftExpression = result;
 
         if (!(expression->rightExpression = parseGreaterThan(tokens, iterator, declarationScopes, expression)))
         {
@@ -2203,8 +2207,8 @@ Expression* ASTContext::parseEquality(const std::vector<Token>& tokens,
         }
 
         // TODO: fix this
-        expression->qualifiedType.typeDeclaration = expression->leftExpression->qualifiedType.typeDeclaration;
-        expression->qualifiedType.isConst = true;
+        expression->qualifiedType = expression->leftExpression->qualifiedType;
+        expression->isLValue = false;
 
         result->parent = expression;
         result = expression;
@@ -2226,12 +2230,12 @@ Expression* ASTContext::parseTernary(const std::vector<Token>& tokens,
 
     while (checkToken(Token::Type::OPERATOR_CONDITIONAL, tokens, iterator))
     {
+        ++iterator;
+
         TernaryOperatorExpression* expression = new TernaryOperatorExpression();
         constructs.push_back(std::unique_ptr<Construct>(expression));
         expression->parent = parent;
         expression->condition = result;
-
-        ++iterator;
 
         if (!(expression->leftExpression = parseTernary(tokens, iterator, declarationScopes, expression)))
         {
@@ -2252,8 +2256,8 @@ Expression* ASTContext::parseTernary(const std::vector<Token>& tokens,
         }
 
         // TODO: fix this
-        expression->qualifiedType.typeDeclaration = expression->leftExpression->qualifiedType.typeDeclaration;
-        expression->qualifiedType.isConst = true;
+        expression->qualifiedType = expression->leftExpression->qualifiedType;
+        expression->isLValue = expression->leftExpression->isLValue && expression->rightExpression->isLValue;
 
         result->parent = expression;
         result = expression;
@@ -2275,11 +2279,7 @@ Expression* ASTContext::parseAssignment(const std::vector<Token>& tokens,
 
     while (checkToken(Token::Type::OPERATOR_ASSIGNMENT, tokens, iterator))
     {
-        if (result->qualifiedType.isConst)
-        {
-            std::cerr << "Cannot assign to const variable" << std::endl;
-            return nullptr;
-        }
+        ++iterator;
 
         BinaryOperatorExpression* expression = new BinaryOperatorExpression();
         constructs.push_back(std::unique_ptr<Construct>(expression));
@@ -2287,7 +2287,17 @@ Expression* ASTContext::parseAssignment(const std::vector<Token>& tokens,
         expression->operatorKind = BinaryOperatorExpression::Kind::ASSIGNMENT;
         expression->leftExpression = result;
 
-        ++iterator;
+        if (expression->leftExpression->qualifiedType.isConst)
+        {
+            std::cerr << "Cannot assign to const variable" << std::endl;
+            return nullptr;
+        }
+
+        if (!expression->leftExpression->isLValue)
+        {
+            std::cerr << "Expression is not assignable" << std::endl;
+            return nullptr;
+        }
 
         if (!(expression->rightExpression = parseTernary(tokens, iterator, declarationScopes, expression)))
         {
@@ -2295,8 +2305,8 @@ Expression* ASTContext::parseAssignment(const std::vector<Token>& tokens,
         }
 
         // TODO: fix this
-        expression->qualifiedType.typeDeclaration = expression->leftExpression->qualifiedType.typeDeclaration;
-        expression->qualifiedType.isConst = true;
+        expression->qualifiedType = expression->leftExpression->qualifiedType;
+        expression->isLValue = true;
 
         result->parent = expression;
         result = expression;
@@ -2318,12 +2328,6 @@ Expression* ASTContext::parseAdditionAssignment(const std::vector<Token>& tokens
 
     while (checkTokens({Token::Type::OPERATOR_PLUS_ASSIGNMENT, Token::Type::OPERATOR_MINUS_ASSIGNMENT}, tokens, iterator))
     {
-        if (result->qualifiedType.isConst)
-        {
-            std::cerr << "Cannot assign to const variable" << std::endl;
-            return nullptr;
-        }
-
         BinaryOperatorExpression* expression = new BinaryOperatorExpression();
         constructs.push_back(std::unique_ptr<Construct>(expression));
         expression->parent = parent;
@@ -2331,9 +2335,21 @@ Expression* ASTContext::parseAdditionAssignment(const std::vector<Token>& tokens
         if (iterator->type == Token::Type::OPERATOR_PLUS_ASSIGNMENT) expression->operatorKind = BinaryOperatorExpression::Kind::ADDITION_ASSIGNMENT;
         else if (iterator->type == Token::Type::OPERATOR_MINUS_ASSIGNMENT) expression->operatorKind = BinaryOperatorExpression::Kind::SUBTRACTION_ASSIGNMENT;
 
+        ++iterator;
+
         expression->leftExpression = result;
 
-        ++iterator;
+        if (expression->leftExpression->qualifiedType.isConst)
+        {
+            std::cerr << "Cannot assign to const variable" << std::endl;
+            return nullptr;
+        }
+
+        if (!expression->leftExpression->isLValue)
+        {
+            std::cerr << "Expression is not assignable" << std::endl;
+            return nullptr;
+        }
 
         if (!(expression->rightExpression = parseAssignment(tokens, iterator, declarationScopes, expression)))
         {
@@ -2341,8 +2357,8 @@ Expression* ASTContext::parseAdditionAssignment(const std::vector<Token>& tokens
         }
 
         // TODO: fix this
-        expression->qualifiedType.typeDeclaration = expression->leftExpression->qualifiedType.typeDeclaration;
-        expression->qualifiedType.isConst = true;
+        expression->qualifiedType = expression->leftExpression->qualifiedType;
+        expression->isLValue = true;
 
         result->parent = expression;
         result = expression;
@@ -2364,12 +2380,6 @@ Expression* ASTContext::parseMultiplicationAssignment(const std::vector<Token>& 
 
     while (checkTokens({Token::Type::OPERATOR_MULTIPLY_ASSIGNMENT, Token::Type::OPERATOR_DIVIDE_ASSIGNMENT}, tokens, iterator))
     {
-        if (result->qualifiedType.isConst)
-        {
-            std::cerr << "Cannot assign to const variable" << std::endl;
-            return nullptr;
-        }
-
         BinaryOperatorExpression* expression = new BinaryOperatorExpression();
         constructs.push_back(std::unique_ptr<Construct>(expression));
         expression->parent = parent;
@@ -2377,9 +2387,21 @@ Expression* ASTContext::parseMultiplicationAssignment(const std::vector<Token>& 
         if (iterator->type == Token::Type::OPERATOR_MULTIPLY_ASSIGNMENT) expression->operatorKind = BinaryOperatorExpression::Kind::MULTIPLICATION_ASSIGNMENT;
         else if (iterator->type == Token::Type::OPERATOR_DIVIDE_ASSIGNMENT) expression->operatorKind = BinaryOperatorExpression::Kind::DIVISION_ASSIGNMENT;
 
+        ++iterator;
+
         expression->leftExpression = result;
 
-        ++iterator;
+        if (expression->leftExpression->qualifiedType.isConst)
+        {
+            std::cerr << "Cannot assign to const variable" << std::endl;
+            return nullptr;
+        }
+
+        if (!expression->leftExpression->isLValue)
+        {
+            std::cerr << "Expression is not assignable" << std::endl;
+            return nullptr;
+        }
 
         std::unique_ptr<Construct> right;
         if (!(expression->rightExpression = parseAdditionAssignment(tokens, iterator, declarationScopes, expression)))
@@ -2388,8 +2410,8 @@ Expression* ASTContext::parseMultiplicationAssignment(const std::vector<Token>& 
         }
 
         // TODO: fix this
-        expression->qualifiedType.typeDeclaration = expression->leftExpression->qualifiedType.typeDeclaration;
-        expression->qualifiedType.isConst = true;
+        expression->qualifiedType = expression->leftExpression->qualifiedType;
+        expression->isLValue = true;
 
         result->parent = expression;
         result = expression;
@@ -2425,8 +2447,8 @@ Expression* ASTContext::parseComma(const std::vector<Token>& tokens,
             return nullptr;
         }
 
-        expression->qualifiedType.typeDeclaration = expression->rightExpression->qualifiedType.typeDeclaration;
-        expression->qualifiedType.isConst = true;
+        expression->qualifiedType = expression->rightExpression->qualifiedType;
+        expression->isLValue = expression->rightExpression->isLValue;
 
         result->parent = expression;
         result = expression;
