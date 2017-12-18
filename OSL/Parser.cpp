@@ -104,6 +104,10 @@ ASTContext::ASTContext()
         }
     }
 
+    float2x2Type.name = "float2x2";
+    float2x2Type.isBuiltin = true;
+    float2x2Type.hasDefinition = true;
+
     float3x3Type.name = "float3x3";
     float3x3Type.isBuiltin = true;
     float3x3Type.hasDefinition = true;
@@ -155,6 +159,7 @@ bool ASTContext::parse(const std::vector<Token>& tokens)
     declarationScopes.back().push_back(&float2Type);
     declarationScopes.back().push_back(&float3Type);
     declarationScopes.back().push_back(&float4Type);
+    declarationScopes.back().push_back(&float2x2Type);
     declarationScopes.back().push_back(&float3x3Type);
     declarationScopes.back().push_back(&float4x4Type);
     declarationScopes.back().push_back(&stringType);
