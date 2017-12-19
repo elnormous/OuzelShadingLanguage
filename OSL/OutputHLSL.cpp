@@ -706,14 +706,14 @@ bool OutputHLSL::printExpression(const Expression* expression, Options options, 
 
             const ArraySubscriptExpression* arraySubscriptExpression = static_cast<const ArraySubscriptExpression*>(expression);
 
-            if (!printConstruct(arraySubscriptExpression->declarationReference, Options(0), code))
+            if (!printConstruct(arraySubscriptExpression->expression, Options(0), code))
             {
                 return false;
             }
 
             code += "[";
 
-            if (!printConstruct(arraySubscriptExpression->expression, Options(0), code))
+            if (!printConstruct(arraySubscriptExpression->subscript, Options(0), code))
             {
                 return false;
             }

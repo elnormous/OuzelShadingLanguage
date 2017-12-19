@@ -557,8 +557,8 @@ class ArraySubscriptExpression: public Expression
 public:
     ArraySubscriptExpression(): Expression(Expression::Kind::ARRAY_SUBSCRIPT) {}
 
-    DeclarationReferenceExpression* declarationReference = nullptr;
     Expression* expression = nullptr;
+    Expression* subscript = nullptr;
 };
 
 class UnaryOperatorExpression: public Expression
@@ -860,6 +860,11 @@ private:
                              std::vector<Token>::const_iterator& iterator,
                              std::vector<std::vector<Declaration*>>& declarationScopes,
                              Construct* parent);
+
+    Expression* parseSubscript(const std::vector<Token>& tokens,
+                               std::vector<Token>::const_iterator& iterator,
+                               std::vector<std::vector<Declaration*>>& declarationScopes,
+                               Construct* parent);
 
     Expression* parseMember(const std::vector<Token>& tokens,
                             std::vector<Token>::const_iterator& iterator,

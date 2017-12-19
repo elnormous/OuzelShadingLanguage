@@ -1761,55 +1761,6 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
 
             return result;
         }
-        else if (checkToken(Token::Type::LEFT_BRACKET, tokens, iterator))
-        {
-            ++iterator;
-
-            ArraySubscriptExpression* result = new ArraySubscriptExpression();
-            constructs.push_back(std::unique_ptr<Construct>(result));
-            result->parent = parent;
-
-            DeclarationReferenceExpression* declRefExpression = new DeclarationReferenceExpression();
-            constructs.push_back(std::unique_ptr<Construct>(declRefExpression));
-            declRefExpression->parent = result;
-            declRefExpression->declaration = findDeclaration(name, declarationScopes);
-
-            if (!declRefExpression->declaration)
-            {
-                std::cerr << "Invalid declaration reference: " << name << std::endl;
-                return nullptr;
-            }
-
-            if (declRefExpression->declaration->getDeclarationKind() != Declaration::Kind::VARIABLE &&
-                declRefExpression->declaration->getDeclarationKind() != Declaration::Kind::PARAMETER)
-            {
-                std::cerr << "Expected a variable" << std::endl;
-                return nullptr;
-            }
-
-            VariableDeclaration* variableDeclaration = static_cast<VariableDeclaration*>(declRefExpression->declaration);
-            declRefExpression->qualifiedType = variableDeclaration->qualifiedType;
-            declRefExpression->isLValue = true;
-
-            result->declarationReference = declRefExpression;
-            result->qualifiedType = declRefExpression->qualifiedType;
-            result->isLValue = true;
-
-            if (!(result->expression = parseComma(tokens, iterator, declarationScopes, result)))
-            {
-                return nullptr;
-            }
-
-            if (!checkToken(Token::Type::RIGHT_BRACKET, tokens, iterator))
-            {
-                std::cerr << "Expected a right brace" << std::endl;
-                return nullptr;
-            }
-
-            ++iterator;
-
-            return result;
-        }
         else
         {
             DeclarationReferenceExpression* result = new DeclarationReferenceExpression();
@@ -1887,13 +1838,63 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
     }
 }
 
+Expression* ASTContext::parseSubscript(const std::vector<Token>& tokens,
+                                       std::vector<Token>::const_iterator& iterator,
+                                       std::vector<std::vector<Declaration*>>& declarationScopes,
+                                       Construct* parent)
+{
+    Expression* result;
+    if (!(result = parsePrimary(tokens, iterator, declarationScopes, parent)))
+    {
+        return nullptr;
+    }
+
+    while (checkToken(Token::Type::LEFT_BRACKET, tokens, iterator))
+    {
+        ++iterator;
+
+        ArraySubscriptExpression* expression = new ArraySubscriptExpression();
+        constructs.push_back(std::unique_ptr<Construct>(expression));
+        expression->parent = parent;
+        expression->expression = result;
+
+        if (result->qualifiedType.dimensions.empty())
+        {
+            std::cerr << "Subscript value is not an array" << std::endl;
+            return nullptr;
+        }
+
+        if (!(expression->subscript = parseComma(tokens, iterator, declarationScopes, expression)))
+        {
+            return nullptr;
+        }
+
+        if (!checkToken(Token::Type::RIGHT_BRACKET, tokens, iterator))
+        {
+            std::cerr << "Expected a right brace" << std::endl;
+            return nullptr;
+        }
+
+        ++iterator;
+
+        expression->qualifiedType = result->qualifiedType;
+        expression->qualifiedType.dimensions.pop_back();
+        expression->isLValue = true;
+
+        result->parent = expression;
+        result = expression;
+    }
+
+    return result;
+}
+
 Expression* ASTContext::parseMember(const std::vector<Token>& tokens,
                                     std::vector<Token>::const_iterator& iterator,
                                     std::vector<std::vector<Declaration*>>& declarationScopes,
                                     Construct* parent)
 {
     Expression* result;
-    if (!(result = parsePrimary(tokens, iterator, declarationScopes, parent)))
+    if (!(result = parseSubscript(tokens, iterator, declarationScopes, parent)))
     {
         return nullptr;
     }
@@ -2856,8 +2857,8 @@ void ASTContext::dumpExpression(const Expression* expression, std::string indent
 
             std::cout << std::endl;
 
-            dumpConstruct(arraySubscriptExpression->declarationReference, indent + "  ");
             dumpConstruct(arraySubscriptExpression->expression, indent + "  ");
+            dumpConstruct(arraySubscriptExpression->subscript, indent + "  ");
             break;
         }
 
