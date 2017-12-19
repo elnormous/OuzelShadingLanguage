@@ -1878,7 +1878,7 @@ Expression* ASTContext::parseSubscript(const std::vector<Token>& tokens,
         ++iterator;
 
         expression->qualifiedType = result->qualifiedType;
-        expression->qualifiedType.dimensions.pop_back();
+        expression->qualifiedType.dimensions.erase(expression->qualifiedType.dimensions.begin());
         expression->isLValue = true;
 
         result->parent = expression;
