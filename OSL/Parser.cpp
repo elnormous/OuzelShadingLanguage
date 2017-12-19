@@ -650,7 +650,7 @@ StructDeclaration* ASTContext::parseStructDeclaration(const std::vector<Token>& 
                     return nullptr;
                 }
 
-                if (findFieldDeclaration(fieldDeclaration->name, result))
+                if (result->findFieldDeclaration(fieldDeclaration->name))
                 {
                     std::cerr << "Redefinition of field " << fieldDeclaration->name << std::endl;
                     return nullptr;
@@ -1928,7 +1928,7 @@ Expression* ASTContext::parseMember(const std::vector<Token>& tokens,
             return nullptr;
         }
 
-        expression->fieldDeclaration = findFieldDeclaration(iterator->value, structDeclaration);
+        expression->fieldDeclaration = structDeclaration->findFieldDeclaration(iterator->value);
 
         if (!expression->fieldDeclaration)
         {

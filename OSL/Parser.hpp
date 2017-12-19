@@ -267,6 +267,16 @@ class StructDeclaration: public TypeDeclaration
 public:
     StructDeclaration(): TypeDeclaration(TypeDeclaration::Kind::STRUCT) {}
 
+    FieldDeclaration* findFieldDeclaration(const std::string& name) const
+    {
+        for (FieldDeclaration* fieldDeclaration : fieldDeclarations)
+        {
+            if (fieldDeclaration->name == name) return fieldDeclaration;
+        }
+
+        return nullptr;
+    }
+
     std::vector<FieldDeclaration*> fieldDeclarations;
 
     bool hasDefinition = false;
@@ -768,16 +778,6 @@ private:
                     }
                 }
             }
-        }
-
-        return nullptr;
-    }
-
-    FieldDeclaration* findFieldDeclaration(const std::string& name, StructDeclaration* structTypeDeclaration) const
-    {
-        for (FieldDeclaration* fieldDeclaration : structTypeDeclaration->fieldDeclarations)
-        {
-            if (fieldDeclaration->name == name) return fieldDeclaration;
         }
 
         return nullptr;
