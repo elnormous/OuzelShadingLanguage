@@ -2302,13 +2302,89 @@ Expression* ASTContext::parseEqualityExpression(const std::vector<Token>& tokens
     return result;
 }
 
+Expression* ASTContext::parseLogicalAndExpression(const std::vector<Token>& tokens,
+                                                  std::vector<Token>::const_iterator& iterator,
+                                                  std::vector<std::vector<Declaration*>>& declarationScopes,
+                                                  Construct* parent)
+{
+    Expression* result;
+    if (!(result = parseEqualityExpression(tokens, iterator, declarationScopes, parent)))
+    {
+        return nullptr;
+    }
+
+    while (checkToken(Token::Type::OPERATOR_AND, tokens, iterator))
+    {
+        ++iterator;
+
+        BinaryOperatorExpression* expression = new BinaryOperatorExpression();
+        constructs.push_back(std::unique_ptr<Construct>(expression));
+        expression->parent = parent;
+        expression->operatorKind = BinaryOperatorExpression::Kind::AND;
+
+        expression->leftExpression = result;
+
+        if (!(expression->rightExpression = parseEqualityExpression(tokens, iterator, declarationScopes, expression)))
+        {
+            return nullptr;
+        }
+
+        // TODO: check if both sides ar scalar
+        expression->qualifiedType.typeDeclaration = &boolTypeDeclaration;
+        expression->isLValue = false;
+
+        result->parent = expression;
+        result = expression;
+    }
+
+    return result;
+}
+
+Expression* ASTContext::parseLogicalOrExpression(const std::vector<Token>& tokens,
+                                                 std::vector<Token>::const_iterator& iterator,
+                                                 std::vector<std::vector<Declaration*>>& declarationScopes,
+                                                 Construct* parent)
+{
+    Expression* result;
+    if (!(result = parseLogicalAndExpression(tokens, iterator, declarationScopes, parent)))
+    {
+        return nullptr;
+    }
+
+    while (checkToken(Token::Type::OPERATOR_OR, tokens, iterator))
+    {
+        ++iterator;
+
+        BinaryOperatorExpression* expression = new BinaryOperatorExpression();
+        constructs.push_back(std::unique_ptr<Construct>(expression));
+        expression->parent = parent;
+        expression->operatorKind = BinaryOperatorExpression::Kind::OR;
+
+        expression->leftExpression = result;
+
+        if (!(expression->rightExpression = parseLogicalAndExpression(tokens, iterator, declarationScopes, expression)))
+        {
+            return nullptr;
+        }
+
+        // TODO: check if both sides ar scalar
+        expression->qualifiedType.typeDeclaration = &boolTypeDeclaration;
+        expression->isLValue = false;
+
+        result->parent = expression;
+        result = expression;
+    }
+
+    return result;
+}
+
 Expression* ASTContext::parseTernaryExpression(const std::vector<Token>& tokens,
                                                std::vector<Token>::const_iterator& iterator,
                                                std::vector<std::vector<Declaration*>>& declarationScopes,
                                                Construct* parent)
 {
     Expression* result;
-    if (!(result = parseEqualityExpression(tokens, iterator, declarationScopes, parent)))
+    if (!(result = parseLogicalOrExpression(tokens, iterator, declarationScopes, parent)))
     {
         return nullptr;
     }
@@ -2347,7 +2423,7 @@ Expression* ASTContext::parseTernaryExpression(const std::vector<Token>& tokens,
         result->parent = expression;
         result = expression;
     }
-    
+
     return result;
 }
 

@@ -802,6 +802,8 @@ bool OutputHLSL::printExpression(const Expression* expression, Options options, 
                 case BinaryOperatorExpression::Kind::EQUALITY: code += " == "; break;
                 case BinaryOperatorExpression::Kind::INEQUALITY: code += " != "; break;
                 case BinaryOperatorExpression::Kind::ASSIGNMENT: code += " = "; break;
+                case BinaryOperatorExpression::Kind::OR: code += " || "; break;
+                case BinaryOperatorExpression::Kind::AND: code += " && "; break;
                 case BinaryOperatorExpression::Kind::COMMA: code += ", "; break;
                 default:
                     std::cerr << "Unknown operator";

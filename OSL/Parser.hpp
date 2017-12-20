@@ -647,6 +647,8 @@ public:
         EQUALITY, // ==
         INEQUALITY, // !=
         ASSIGNMENT, // =
+        OR, // ||
+        AND, // &&
         COMMA // ,
     };
 
@@ -678,6 +680,8 @@ inline std::string binaryOperatorKindToString(BinaryOperatorExpression::Kind kin
         case BinaryOperatorExpression::Kind::EQUALITY: return "EQUALITY";
         case BinaryOperatorExpression::Kind::INEQUALITY: return "INEQUALITY";
         case BinaryOperatorExpression::Kind::ASSIGNMENT: return "ASSIGNMENT";
+        case BinaryOperatorExpression::Kind::OR: return "OR";
+        case BinaryOperatorExpression::Kind::AND: return "AND";
         case BinaryOperatorExpression::Kind::COMMA: return "COMMA";
     }
 
@@ -951,6 +955,16 @@ private:
                                         std::vector<Token>::const_iterator& iterator,
                                         std::vector<std::vector<Declaration*>>& declarationScopes,
                                         Construct* parent);
+
+    Expression* parseLogicalAndExpression(const std::vector<Token>& tokens,
+                                          std::vector<Token>::const_iterator& iterator,
+                                          std::vector<std::vector<Declaration*>>& declarationScopes,
+                                          Construct* parent);
+
+    Expression* parseLogicalOrExpression(const std::vector<Token>& tokens,
+                                         std::vector<Token>::const_iterator& iterator,
+                                         std::vector<std::vector<Declaration*>>& declarationScopes,
+                                         Construct* parent);
 
     Expression* parseTernaryExpression(const std::vector<Token>& tokens,
                                        std::vector<Token>::const_iterator& iterator,
