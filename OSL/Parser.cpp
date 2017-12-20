@@ -2556,6 +2556,16 @@ void ASTContext::dumpDeclaration(const Declaration* declaration, std::string ind
             break;
         }
 
+        case Declaration::Kind::CONSTRUCTOR:
+        {
+            const ConstructorDeclaration* constructorDeclaration = static_cast<const ConstructorDeclaration*>(declaration);
+
+            for (ParameterDeclaration* parameter : constructorDeclaration->parameterDeclarations)
+            {
+                dumpConstruct(parameter, indent + "  ");
+            }
+        }
+
         case Declaration::Kind::FUNCTION:
         {
             const FunctionDeclaration* functionDeclaration = static_cast<const FunctionDeclaration*>(declaration);

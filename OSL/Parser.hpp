@@ -194,6 +194,7 @@ public:
         EMPTY,
         TYPE,
         FIELD,
+        CONSTRUCTOR,
         FUNCTION,
         VARIABLE,
         PARAMETER
@@ -251,17 +252,6 @@ public:
     bool scalar = false;
 };
 
-class FieldDeclaration: public Declaration
-{
-public:
-    FieldDeclaration(): Declaration(Declaration::Kind::FIELD) {}
-
-    QualifiedType qualifiedType;
-
-    bool isStatic = false;
-    Semantic semantic = Semantic::NONE;
-};
-
 class StructDeclaration: public TypeDeclaration
 {
 public:
@@ -284,6 +274,33 @@ public:
     StructDeclaration* previousDeclaration = nullptr;
 };
 
+class FieldDeclaration: public Declaration
+{
+public:
+    FieldDeclaration(): Declaration(Declaration::Kind::FIELD) {}
+
+    QualifiedType qualifiedType;
+
+    bool isStatic = false;
+    Semantic semantic = Semantic::NONE;
+};
+
+class ParameterDeclaration: public Declaration
+{
+public:
+    ParameterDeclaration(): Declaration(Declaration::Kind::PARAMETER) {}
+
+    QualifiedType qualifiedType;
+};
+
+class ConstructorDeclaration: public Declaration
+{
+public:
+    ConstructorDeclaration(): Declaration(Declaration::Kind::CONSTRUCTOR) {}
+
+    std::vector<ParameterDeclaration*> parameterDeclarations;
+};
+
 inline std::string declarationKindToString(Declaration::Kind kind)
 {
     switch (kind)
@@ -292,6 +309,7 @@ inline std::string declarationKindToString(Declaration::Kind kind)
         case Declaration::Kind::EMPTY: return "EMPTY";
         case Declaration::Kind::TYPE: return "TYPE";
         case Declaration::Kind::FIELD: return "FIELD";
+        case Declaration::Kind::CONSTRUCTOR: return "CONSTRUCTOR";
         case Declaration::Kind::FUNCTION: return "FUNCTION";
         case Declaration::Kind::VARIABLE: return "VARIABLE";
         case Declaration::Kind::PARAMETER: return "PARAMETER";
@@ -305,14 +323,6 @@ inline std::string declarationKindToString(Declaration::Kind kind)
 public:
     QualifiedType qualifiedType;
 };*/
-
-class ParameterDeclaration: public Declaration
-{
-public:
-    ParameterDeclaration(): Declaration(Declaration::Kind::PARAMETER) {}
-
-    QualifiedType qualifiedType;
-};
 
 class FunctionDeclaration: public Declaration
 {

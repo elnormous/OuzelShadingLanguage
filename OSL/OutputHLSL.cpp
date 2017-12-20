@@ -138,6 +138,11 @@ bool OutputHLSL::printDeclaration(const Declaration* declaration, Options option
             break;
         }
 
+        case Declaration::Kind::CONSTRUCTOR:
+        {
+            break;
+        }
+
         case Declaration::Kind::FUNCTION:
         {
             code.append(options.indentation, ' ');
