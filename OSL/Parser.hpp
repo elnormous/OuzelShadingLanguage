@@ -887,80 +887,80 @@ private:
                                   std::vector<std::vector<Declaration*>>& declarationScopes,
                                   Construct* parent);
 
-    Expression* parsePrimary(const std::vector<Token>& tokens,
-                             std::vector<Token>::const_iterator& iterator,
-                             std::vector<std::vector<Declaration*>>& declarationScopes,
-                             Construct* parent);
+    Expression* parsePrimaryExpression(const std::vector<Token>& tokens,
+                                       std::vector<Token>::const_iterator& iterator,
+                                       std::vector<std::vector<Declaration*>>& declarationScopes,
+                                       Construct* parent);
 
-    Expression* parseSubscript(const std::vector<Token>& tokens,
-                               std::vector<Token>::const_iterator& iterator,
-                               std::vector<std::vector<Declaration*>>& declarationScopes,
-                               Construct* parent);
+    Expression* parseSubscriptExpression(const std::vector<Token>& tokens,
+                                         std::vector<Token>::const_iterator& iterator,
+                                         std::vector<std::vector<Declaration*>>& declarationScopes,
+                                         Construct* parent);
 
-    Expression* parseMember(const std::vector<Token>& tokens,
-                            std::vector<Token>::const_iterator& iterator,
-                            std::vector<std::vector<Declaration*>>& declarationScopes,
-                            Construct* parent);
+    Expression* parseMemberExpression(const std::vector<Token>& tokens,
+                                      std::vector<Token>::const_iterator& iterator,
+                                      std::vector<std::vector<Declaration*>>& declarationScopes,
+                                      Construct* parent);
 
-    Expression* parseSign(const std::vector<Token>& tokens,
-                          std::vector<Token>::const_iterator& iterator,
-                          std::vector<std::vector<Declaration*>>& declarationScopes,
-                          Construct* parent);
-
-    Expression* parseNot(const std::vector<Token>& tokens,
-                         std::vector<Token>::const_iterator& iterator,
-                         std::vector<std::vector<Declaration*>>& declarationScopes,
-                         Construct* parent);
-
-    Expression* parseMultiplication(const std::vector<Token>& tokens,
+    Expression* parseSignExpression(const std::vector<Token>& tokens,
                                     std::vector<Token>::const_iterator& iterator,
                                     std::vector<std::vector<Declaration*>>& declarationScopes,
                                     Construct* parent);
 
-    Expression* parseAddition(const std::vector<Token>& tokens,
-                              std::vector<Token>::const_iterator& iterator,
-                              std::vector<std::vector<Declaration*>>& declarationScopes,
-                              Construct* parent);
+    Expression* parseNotExpression(const std::vector<Token>& tokens,
+                                   std::vector<Token>::const_iterator& iterator,
+                                   std::vector<std::vector<Declaration*>>& declarationScopes,
+                                   Construct* parent);
 
-    Expression* parseLessThan(const std::vector<Token>& tokens,
-                              std::vector<Token>::const_iterator& iterator,
-                              std::vector<std::vector<Declaration*>>& declarationScopes,
-                              Construct* parent);
-
-    Expression* parseGreaterThan(const std::vector<Token>& tokens,
-                                 std::vector<Token>::const_iterator& iterator,
-                                 std::vector<std::vector<Declaration*>>& declarationScopes,
-                                 Construct* parent);
-
-    Expression* parseEquality(const std::vector<Token>& tokens,
-                              std::vector<Token>::const_iterator& iterator,
-                              std::vector<std::vector<Declaration*>>& declarationScopes,
-                              Construct* parent);
-
-    Expression* parseTernary(const std::vector<Token>& tokens,
-                             std::vector<Token>::const_iterator& iterator,
-                             std::vector<std::vector<Declaration*>>& declarationScopes,
-                             Construct* parent);
-
-    Expression* parseAssignment(const std::vector<Token>& tokens,
-                                std::vector<Token>::const_iterator& iterator,
-                                std::vector<std::vector<Declaration*>>& declarationScopes,
-                                Construct* parent);
-
-    Expression* parseAdditionAssignment(const std::vector<Token>& tokens,
-                                        std::vector<Token>::const_iterator& iterator,
-                                        std::vector<std::vector<Declaration*>>& declarationScopes,
-                                        Construct* parent);
-
-    Expression* parseMultiplicationAssignment(const std::vector<Token>& tokens,
+    Expression* parseMultiplicationExpression(const std::vector<Token>& tokens,
                                               std::vector<Token>::const_iterator& iterator,
                                               std::vector<std::vector<Declaration*>>& declarationScopes,
                                               Construct* parent);
 
-    Expression* parseComma(const std::vector<Token>& tokens,
-                           std::vector<Token>::const_iterator& iterator,
-                           std::vector<std::vector<Declaration*>>& declarationScopes,
-                           Construct* parent);
+    Expression* parseAdditionExpression(const std::vector<Token>& tokens,
+                                        std::vector<Token>::const_iterator& iterator,
+                                        std::vector<std::vector<Declaration*>>& declarationScopes,
+                                        Construct* parent);
+
+    Expression* parseLessThanExpression(const std::vector<Token>& tokens,
+                                        std::vector<Token>::const_iterator& iterator,
+                                        std::vector<std::vector<Declaration*>>& declarationScopes,
+                                        Construct* parent);
+
+    Expression* parseGreaterThanExpression(const std::vector<Token>& tokens,
+                                           std::vector<Token>::const_iterator& iterator,
+                                           std::vector<std::vector<Declaration*>>& declarationScopes,
+                                           Construct* parent);
+
+    Expression* parseEqualityExpression(const std::vector<Token>& tokens,
+                                        std::vector<Token>::const_iterator& iterator,
+                                        std::vector<std::vector<Declaration*>>& declarationScopes,
+                                        Construct* parent);
+
+    Expression* parseTernaryExpression(const std::vector<Token>& tokens,
+                                       std::vector<Token>::const_iterator& iterator,
+                                       std::vector<std::vector<Declaration*>>& declarationScopes,
+                                       Construct* parent);
+
+    Expression* parseAssignmentExpression(const std::vector<Token>& tokens,
+                                          std::vector<Token>::const_iterator& iterator,
+                                          std::vector<std::vector<Declaration*>>& declarationScopes,
+                                          Construct* parent);
+
+    Expression* parseAdditionAssignmentExpression(const std::vector<Token>& tokens,
+                                                  std::vector<Token>::const_iterator& iterator,
+                                                  std::vector<std::vector<Declaration*>>& declarationScopes,
+                                                  Construct* parent);
+
+    Expression* parseMultiplicationAssignmentExpression(const std::vector<Token>& tokens,
+                                                        std::vector<Token>::const_iterator& iterator,
+                                                        std::vector<std::vector<Declaration*>>& declarationScopes,
+                                                        Construct* parent);
+
+    Expression* parseCommaExpression(const std::vector<Token>& tokens,
+                                     std::vector<Token>::const_iterator& iterator,
+                                     std::vector<std::vector<Declaration*>>& declarationScopes,
+                                     Construct* parent);
 
     void dumpDeclaration(const Declaration* declaration, std::string indent = std::string()) const;
     void dumpStatement(const Statement* statement, std::string indent = std::string()) const;
