@@ -75,7 +75,7 @@ ASTContext::ASTContext()
 
                 for (char third : type.second)
                 {
-                    bool thirdConst = secondConst || (third == first || third == second);
+                    bool thirdConst = (secondConst || third == first || third == second);
 
                     field->parent = type.first;
                     field->qualifiedType.typeDeclaration = &float3Type;
@@ -88,7 +88,7 @@ ASTContext::ASTContext()
 
                     for (char fourth : type.second)
                     {
-                        bool fourthConst = thirdConst || (fourth == first || fourth == second || fourth == third);
+                        bool fourthConst = (thirdConst || fourth == first || fourth == second || fourth == third);
 
                         field->parent = type.first;
                         field->qualifiedType.typeDeclaration = &float4Type;
@@ -1942,12 +1942,10 @@ Expression* ASTContext::parseMember(const std::vector<Token>& tokens,
 
         expression->fieldDeclaration = static_cast<FieldDeclaration*>(memberDeclaration);
 
-
-
         ++iterator;
 
         expression->qualifiedType = expression->fieldDeclaration->qualifiedType;
-        if (expression->qualifiedType.isConst) expression->qualifiedType.isConst = true;
+        if (result->qualifiedType.isConst) expression->qualifiedType.isConst = true;
         expression->isLValue = true;
 
         result->parent = expression;
