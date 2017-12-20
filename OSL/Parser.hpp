@@ -267,17 +267,17 @@ class StructDeclaration: public TypeDeclaration
 public:
     StructDeclaration(): TypeDeclaration(TypeDeclaration::Kind::STRUCT) {}
 
-    Declaration* findDeclaration(const std::string& name) const
+    Declaration* findMemberDeclaration(const std::string& name) const
     {
-        for (Declaration* declaration : declarations)
+        for (Declaration* memberDeclaration : memberDeclarations)
         {
-            if (declaration->name == name) return declaration;
+            if (memberDeclaration->name == name) return memberDeclaration;
         }
 
         return nullptr;
     }
 
-    std::vector<Declaration*> declarations;
+    std::vector<Declaration*> memberDeclarations;
 
     bool hasDefinition = false;
 
@@ -801,10 +801,10 @@ private:
                                               std::vector<std::vector<Declaration*>>& declarationScopes,
                                               Construct* parent);
 
-    FieldDeclaration* parseFieldDeclaration(const std::vector<Token>& tokens,
-                                            std::vector<Token>::const_iterator& iterator,
-                                            std::vector<std::vector<Declaration*>>& declarationScopes,
-                                            Construct* parent);
+    Declaration* parseMemberDeclaration(const std::vector<Token>& tokens,
+                                        std::vector<Token>::const_iterator& iterator,
+                                        std::vector<std::vector<Declaration*>>& declarationScopes,
+                                        Construct* parent);
 
     ParameterDeclaration* parseParameterDeclaration(const std::vector<Token>& tokens,
                                                     std::vector<Token>::const_iterator& iterator,

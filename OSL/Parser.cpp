@@ -56,7 +56,7 @@ ASTContext::ASTContext()
             field->qualifiedType.isConst = false;
             field->name.assign({first});
 
-            type.first->declarations.push_back(field);
+            type.first->memberDeclarations.push_back(field);
 
             ++field;
 
@@ -69,7 +69,7 @@ ASTContext::ASTContext()
                 field->qualifiedType.isConst = secondConst;
                 field->name.assign({first, second});
 
-                type.first->declarations.push_back(field);
+                type.first->memberDeclarations.push_back(field);
 
                 ++field;
 
@@ -82,7 +82,7 @@ ASTContext::ASTContext()
                     field->qualifiedType.isConst = thirdConst;
                     field->name.assign({first, second, third});
 
-                    type.first->declarations.push_back(field);
+                    type.first->memberDeclarations.push_back(field);
 
                     ++field;
 
@@ -95,7 +95,7 @@ ASTContext::ASTContext()
                         field->qualifiedType.isConst = fourthConst;
                         field->name.assign({first, second, third, fourth});
 
-                        type.first->declarations.push_back(field);
+                        type.first->memberDeclarations.push_back(field);
 
                         ++field;
                     }
@@ -207,41 +207,19 @@ Declaration* ASTContext::parseTopLevelDeclaration(const std::vector<Token>& toke
                                                   std::vector<Token>::const_iterator& iterator,
                                                   std::vector<std::vector<Declaration*>>& declarationScopes)
 {
-    if (checkToken(Token::Type::SEMICOLON, tokens, iterator))
+    Declaration* declaration;
+    if (!(declaration = parseDeclaration(tokens, iterator, declarationScopes, nullptr)))
     {
-        ++iterator;
-
-        Declaration* declaration = new Declaration(Declaration::Kind::EMPTY);
-        constructs.push_back(std::unique_ptr<Construct>(declaration));
-
-        return declaration;
+        std::cerr << "Failed to parse a declaration" << std::endl;
+        return nullptr;
     }
-    else
+
+    if (declaration->getDeclarationKind() == Declaration::Kind::FUNCTION)
     {
-        Declaration* declaration;
-        if (!(declaration = parseDeclaration(tokens, iterator, declarationScopes, nullptr)))
-        {
-            std::cerr << "Failed to parse a declaration" << std::endl;
-            return nullptr;
-        }
+        FunctionDeclaration* functionDeclaration = static_cast<FunctionDeclaration*>(declaration);
 
-        if (declaration->getDeclarationKind() == Declaration::Kind::FUNCTION)
-        {
-            FunctionDeclaration* functionDeclaration = static_cast<FunctionDeclaration*>(declaration);
-
-            // semicolon is not needed after a function definition
-            if (!functionDeclaration->body)
-            {
-                if (!checkToken(Token::Type::SEMICOLON, tokens, iterator))
-                {
-                    std::cerr << "Expected a semicolon" << std::endl;
-                    return nullptr;
-                }
-                
-                ++iterator;
-            }
-        }
-        else
+        // semicolon is not needed after a function definition
+        if (!functionDeclaration->body)
         {
             if (!checkToken(Token::Type::SEMICOLON, tokens, iterator))
             {
@@ -251,11 +229,19 @@ Declaration* ASTContext::parseTopLevelDeclaration(const std::vector<Token>& toke
 
             ++iterator;
         }
+    }
+    else
+    {
+        if (!checkToken(Token::Type::SEMICOLON, tokens, iterator))
+        {
+            std::cerr << "Expected a semicolon" << std::endl;
+            return nullptr;
+        }
 
-        return declaration;
+        ++iterator;
     }
 
-    return nullptr;
+    return declaration;
 }
 
 Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
@@ -263,7 +249,14 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
                                           std::vector<std::vector<Declaration*>>& declarationScopes,
                                           Construct* parent)
 {
-    if (checkToken(Token::Type::KEYWORD_STRUCT, tokens, iterator))
+    if (checkToken(Token::Type::SEMICOLON, tokens, iterator))
+    {
+        Declaration* declaration = new Declaration(Declaration::Kind::EMPTY);
+        constructs.push_back(std::unique_ptr<Construct>(declaration));
+
+        return declaration;
+    }
+    else if (checkToken(Token::Type::KEYWORD_STRUCT, tokens, iterator))
     {
         ++iterator;
 
@@ -632,8 +625,8 @@ StructDeclaration* ASTContext::parseStructDeclaration(const std::vector<Token>& 
             }
             else
             {
-                FieldDeclaration* fieldDeclaration;
-                if (!(fieldDeclaration = parseFieldDeclaration(tokens, iterator, declarationScopes, result)))
+                Declaration* memberDeclaration;
+                if (!(memberDeclaration = parseMemberDeclaration(tokens, iterator, declarationScopes, result)))
                 {
                     return nullptr;
                 }
@@ -644,17 +637,17 @@ StructDeclaration* ASTContext::parseStructDeclaration(const std::vector<Token>& 
                     return nullptr;
                 }
 
-                if (result->findDeclaration(fieldDeclaration->name))
+                if (result->findMemberDeclaration(memberDeclaration->name))
                 {
-                    std::cerr << "Redefinition of field " << fieldDeclaration->name << std::endl;
+                    std::cerr << "Redefinition of member " << memberDeclaration->name << std::endl;
                     return nullptr;
                 }
 
                 ++iterator;
 
-                fieldDeclaration->parent = result;
+                memberDeclaration->parent = result;
 
-                result->declarations.push_back(fieldDeclaration);
+                result->memberDeclarations.push_back(memberDeclaration);
             }
         }
     }
@@ -664,131 +657,169 @@ StructDeclaration* ASTContext::parseStructDeclaration(const std::vector<Token>& 
     return result;
 }
 
-FieldDeclaration* ASTContext::parseFieldDeclaration(const std::vector<Token>& tokens,
-                                                    std::vector<Token>::const_iterator& iterator,
-                                                    std::vector<std::vector<Declaration*>>& declarationScopes,
-                                                    Construct* parent)
+Declaration* ASTContext::parseMemberDeclaration(const std::vector<Token>& tokens,
+                                                std::vector<Token>::const_iterator& iterator,
+                                                std::vector<std::vector<Declaration*>>& declarationScopes,
+                                                Construct* parent)
 {
-    FieldDeclaration* result = new FieldDeclaration();
-    constructs.push_back(std::unique_ptr<Construct>(result));
-    result->parent = parent;
-
-    for (;;)
+    if (checkToken(Token::Type::SEMICOLON, tokens, iterator))
     {
-        if (checkToken(Token::Type::KEYWORD_CONST, tokens, iterator))
+        Declaration* result = new Declaration(Declaration::Kind::EMPTY);
+        constructs.push_back(std::unique_ptr<Construct>(result));
+        result->parent = parent;
+
+        return result;
+    }
+    else
+    {
+        FieldDeclaration* result = new FieldDeclaration();
+        constructs.push_back(std::unique_ptr<Construct>(result));
+        result->parent = parent;
+
+        for (;;)
         {
-            ++iterator;
-            result->qualifiedType.isConst = true;
+            if (checkToken(Token::Type::KEYWORD_CONST, tokens, iterator))
+            {
+                ++iterator;
+                result->qualifiedType.isConst = true;
+            }
+            else if (checkToken(Token::Type::KEYWORD_STATIC, tokens, iterator))
+            {
+                ++iterator;
+                result->isStatic = true;
+            }
+            else break;
         }
-        else if (checkToken(Token::Type::KEYWORD_STATIC, tokens, iterator))
+
+        if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
         {
-            ++iterator;
-            result->isStatic = true;
+            std::cerr << "Expected a type name" << std::endl;
+            return nullptr;
         }
-        else break;
-    }
 
-    if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
-    {
-        std::cerr << "Expected a type name" << std::endl;
-        return nullptr;
-    }
+        result->qualifiedType.typeDeclaration = findTypeDeclaration(iterator->value, declarationScopes);
 
-    result->qualifiedType.typeDeclaration = findTypeDeclaration(iterator->value, declarationScopes);
+        if (!result->qualifiedType.typeDeclaration)
+        {
+            std::cerr << "Invalid type: " << iterator->value << std::endl;
+            return nullptr;
+        }
 
-    if (!result->qualifiedType.typeDeclaration)
-    {
-        std::cerr << "Invalid type: " << iterator->value << std::endl;
-        return nullptr;
-    }
-
-    ++iterator;
-
-    if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
-    {
-        std::cerr << "Expected an identifier" << std::endl;
-        return nullptr;
-    }
-
-    result->name = iterator->value;
-
-    ++iterator;
-
-    while (checkToken(Token::Type::LEFT_BRACKET, tokens, iterator))
-    {
         ++iterator;
 
-        if (checkToken(Token::Type::LEFT_BRACKET, tokens, iterator))
+        if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
+        {
+            std::cerr << "Expected an identifier" << std::endl;
+            return nullptr;
+        }
+
+        result->name = iterator->value;
+
+        ++iterator;
+
+        while (checkToken(Token::Type::LEFT_BRACKET, tokens, iterator))
         {
             ++iterator;
 
-            if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
-            {
-                std::cerr << "Expected an identifier" << std::endl;
-                return nullptr;
-            }
-
-            std::string attribute = iterator->value;
-
-            ++iterator;
-
-            if (checkToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
+            if (checkToken(Token::Type::LEFT_BRACKET, tokens, iterator))
             {
                 ++iterator;
 
-                if (attribute != "semantic")
+                if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
                 {
-                    std::cerr << "Invalid attribute " << attribute << std::endl;
+                    std::cerr << "Expected an identifier" << std::endl;
+                    return nullptr;
                 }
 
-                if (checkToken(Token::Type::LITERAL_INT, tokens, iterator))
+                std::string attribute = iterator->value;
+
+                ++iterator;
+
+                if (checkToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
                 {
                     ++iterator;
-                }
-                else if (checkToken(Token::Type::LITERAL_FLOAT, tokens, iterator))
-                {
-                    ++iterator;
-                }
-                else if (checkToken(Token::Type::LITERAL_CHAR, tokens, iterator))
-                {
-                    ++iterator;
-                }
-                else if (checkToken(Token::Type::LITERAL_STRING, tokens, iterator))
-                {
-                    if (attribute == "semantic")
+
+                    if (attribute != "semantic")
                     {
-                        Semantic semantic = Semantic::NONE;
+                        std::cerr << "Invalid attribute " << attribute << std::endl;
+                    }
 
-                        // TODO: find slot number
-                        if (iterator->value == "binormal") semantic = Semantic::BINORMAL;
-                        else if (iterator->value == "blend_indices") semantic = Semantic::BLEND_INDICES;
-                        else if (iterator->value == "blend_weight") semantic = Semantic::BLEND_WEIGHT;
-                        else if (iterator->value == "color") semantic = Semantic::COLOR;
-                        else if (iterator->value == "normal") semantic = Semantic::NORMAL;
-                        else if (iterator->value == "position") semantic = Semantic::POSITION;
-                        else if (iterator->value == "position_transformed") semantic = Semantic::POSITION_TRANSFORMED;
-                        else if (iterator->value == "point_size") semantic = Semantic::POINT_SIZE;
-                        else if (iterator->value == "tangent") semantic = Semantic::TANGENT;
-                        else if (iterator->value == "texture_coordinates") semantic = Semantic::TEXTURE_COORDINATES;
-                        else
+                    if (checkToken(Token::Type::LITERAL_INT, tokens, iterator))
+                    {
+                        ++iterator;
+                    }
+                    else if (checkToken(Token::Type::LITERAL_FLOAT, tokens, iterator))
+                    {
+                        ++iterator;
+                    }
+                    else if (checkToken(Token::Type::LITERAL_CHAR, tokens, iterator))
+                    {
+                        ++iterator;
+                    }
+                    else if (checkToken(Token::Type::LITERAL_STRING, tokens, iterator))
+                    {
+                        if (attribute == "semantic")
                         {
-                            std::cerr << "Invalid semantic" << std::endl;
-                            return nullptr;
+                            Semantic semantic = Semantic::NONE;
+
+                            // TODO: find slot number
+                            if (iterator->value == "binormal") semantic = Semantic::BINORMAL;
+                            else if (iterator->value == "blend_indices") semantic = Semantic::BLEND_INDICES;
+                            else if (iterator->value == "blend_weight") semantic = Semantic::BLEND_WEIGHT;
+                            else if (iterator->value == "color") semantic = Semantic::COLOR;
+                            else if (iterator->value == "normal") semantic = Semantic::NORMAL;
+                            else if (iterator->value == "position") semantic = Semantic::POSITION;
+                            else if (iterator->value == "position_transformed") semantic = Semantic::POSITION_TRANSFORMED;
+                            else if (iterator->value == "point_size") semantic = Semantic::POINT_SIZE;
+                            else if (iterator->value == "tangent") semantic = Semantic::TANGENT;
+                            else if (iterator->value == "texture_coordinates") semantic = Semantic::TEXTURE_COORDINATES;
+                            else
+                            {
+                                std::cerr << "Invalid semantic" << std::endl;
+                                return nullptr;
+                            }
+
+                            result->semantic = semantic;
                         }
 
-                        result->semantic = semantic;
+                        ++iterator;
+                    }
+
+                    if (!checkToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
+                    {
+                        std::cerr << "Expected a right parenthesis" << std::endl;
+                        return nullptr;
                     }
 
                     ++iterator;
                 }
 
-                if (!checkToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
+                if (!checkToken(Token::Type::RIGHT_BRACKET, tokens, iterator))
                 {
-                    std::cerr << "Expected a right parenthesis" << std::endl;
+                    std::cerr << "Expected a right bracket" << std::endl;
                     return nullptr;
                 }
 
                 ++iterator;
+            }
+            else if (checkToken(Token::Type::LITERAL_INT, tokens, iterator))
+            {
+                int size = std::stoi(iterator->value);
+
+                ++iterator;
+
+                if (size <= 0)
+                {
+                    std::cerr << "Array size must be greater than zero" << std::endl;
+                    return nullptr;
+                }
+
+                result->qualifiedType.dimensions.push_back(static_cast<uint32_t>(size));
+            }
+            else
+            {
+                std::cerr << "Expected an integer literal" << std::endl;
+                return nullptr;
             }
 
             if (!checkToken(Token::Type::RIGHT_BRACKET, tokens, iterator))
@@ -799,36 +830,11 @@ FieldDeclaration* ASTContext::parseFieldDeclaration(const std::vector<Token>& to
 
             ++iterator;
         }
-        else if (checkToken(Token::Type::LITERAL_INT, tokens, iterator))
-        {
-            int size = std::stoi(iterator->value);
 
-            ++iterator;
-
-            if (size <= 0)
-            {
-                std::cerr << "Array size must be greater than zero" << std::endl;
-                return nullptr;
-            }
-
-            result->qualifiedType.dimensions.push_back(static_cast<uint32_t>(size));
-        }
-        else
-        {
-            std::cerr << "Expected an integer literal" << std::endl;
-            return nullptr;
-        }
-
-        if (!checkToken(Token::Type::RIGHT_BRACKET, tokens, iterator))
-        {
-            std::cerr << "Expected a right bracket" << std::endl;
-            return nullptr;
-        }
-
-        ++iterator;
+        return result;
     }
 
-    return result;
+    return nullptr;
 }
 
 ParameterDeclaration* ASTContext::parseParameterDeclaration(const std::vector<Token>& tokens,
@@ -1922,21 +1928,21 @@ Expression* ASTContext::parseMember(const std::vector<Token>& tokens,
             return nullptr;
         }
 
-        Declaration* declaration = structDeclaration->findDeclaration(iterator->value);
+        Declaration* memberDeclaration = structDeclaration->findMemberDeclaration(iterator->value);
 
-        if (!declaration)
+        if (!memberDeclaration)
         {
             std::cerr << "Structure " << structDeclaration->name <<  " has no member " << iterator->value << std::endl;
             return nullptr;
         }
 
-        if (declaration->getDeclarationKind() != Declaration::Kind::FIELD)
+        if (memberDeclaration->getDeclarationKind() != Declaration::Kind::FIELD)
         {
             std::cerr << iterator->value << " is not a field" << std::endl;
             return nullptr;
         }
 
-        expression->fieldDeclaration = static_cast<FieldDeclaration*>(declaration);
+        expression->fieldDeclaration = static_cast<FieldDeclaration*>(memberDeclaration);
 
 
 
@@ -2517,9 +2523,9 @@ void ASTContext::dumpDeclaration(const Declaration* declaration, std::string ind
 
                     std::cout << std::endl;
 
-                    for (const Declaration* declaration : structDeclaration->declarations)
+                    for (const Declaration* memberDeclaration : structDeclaration->memberDeclarations)
                     {
-                        dumpConstruct(declaration, indent + " ");
+                        dumpConstruct(memberDeclaration, indent + " ");
                     }
 
                     break;
