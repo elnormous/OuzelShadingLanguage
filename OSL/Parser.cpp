@@ -130,11 +130,9 @@ ASTContext::ASTContext()
 
     samplerParameter.name = "sampler";
     samplerParameter.qualifiedType.typeDeclaration = &samplerStateType;
-    samplerParameter.qualifiedType.isConst = true;
 
     coordParameter.name = "coord";
     coordParameter.qualifiedType.typeDeclaration = &float2Type;
-    coordParameter.qualifiedType.isConst = true;
 
     mulFunction.name = "texture2D";
     mulFunction.qualifiedType.typeDeclaration = &float4Type;

@@ -790,7 +790,6 @@ private:
                                        [](const QualifiedType& qualifiedType,
                                           const ParameterDeclaration* parameterDeclaration) {
                                            return qualifiedType.typeDeclaration == parameterDeclaration->qualifiedType.typeDeclaration && // TODO: check for forward declarations
-                                            (!qualifiedType.isConst || parameterDeclaration->qualifiedType.isConst) &&
                                             qualifiedType.dimensions == parameterDeclaration->qualifiedType.dimensions;
                                        }))
                         {
