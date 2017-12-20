@@ -56,7 +56,7 @@ ASTContext::ASTContext()
             field->qualifiedType.isConst = false;
             field->name.assign({first});
 
-            type.first->fieldDeclarations.push_back(field);
+            type.first->declarations.push_back(field);
 
             ++field;
 
@@ -69,7 +69,7 @@ ASTContext::ASTContext()
                 field->qualifiedType.isConst = secondConst;
                 field->name.assign({first, second});
 
-                type.first->fieldDeclarations.push_back(field);
+                type.first->declarations.push_back(field);
 
                 ++field;
 
@@ -82,7 +82,7 @@ ASTContext::ASTContext()
                     field->qualifiedType.isConst = thirdConst;
                     field->name.assign({first, second, third});
 
-                    type.first->fieldDeclarations.push_back(field);
+                    type.first->declarations.push_back(field);
 
                     ++field;
 
@@ -95,7 +95,7 @@ ASTContext::ASTContext()
                         field->qualifiedType.isConst = fourthConst;
                         field->name.assign({first, second, third, fourth});
 
-                        type.first->fieldDeclarations.push_back(field);
+                        type.first->declarations.push_back(field);
 
                         ++field;
                     }
@@ -627,12 +627,6 @@ StructDeclaration* ASTContext::parseStructDeclaration(const std::vector<Token>& 
             {
                 ++iterator;
 
-                if (result->fieldDeclarations.empty())
-                {
-                    std::cerr << "Structure must have at least one member" << std::endl;
-                    return nullptr;
-                }
-
                 declarationScopes.back().push_back(result);
                 break;
             }
@@ -650,7 +644,7 @@ StructDeclaration* ASTContext::parseStructDeclaration(const std::vector<Token>& 
                     return nullptr;
                 }
 
-                if (result->findFieldDeclaration(fieldDeclaration->name))
+                if (result->findDeclaration(fieldDeclaration->name))
                 {
                     std::cerr << "Redefinition of field " << fieldDeclaration->name << std::endl;
                     return nullptr;
@@ -660,7 +654,7 @@ StructDeclaration* ASTContext::parseStructDeclaration(const std::vector<Token>& 
 
                 fieldDeclaration->parent = result;
 
-                result->fieldDeclarations.push_back(fieldDeclaration);
+                result->declarations.push_back(fieldDeclaration);
             }
         }
     }
@@ -1928,13 +1922,23 @@ Expression* ASTContext::parseMember(const std::vector<Token>& tokens,
             return nullptr;
         }
 
-        expression->fieldDeclaration = structDeclaration->findFieldDeclaration(iterator->value);
+        Declaration* declaration = structDeclaration->findDeclaration(iterator->value);
 
-        if (!expression->fieldDeclaration)
+        if (!declaration)
         {
             std::cerr << "Structure " << structDeclaration->name <<  " has no member " << iterator->value << std::endl;
             return nullptr;
         }
+
+        if (declaration->getDeclarationKind() != Declaration::Kind::FIELD)
+        {
+            std::cerr << iterator->value << " is not a field" << std::endl;
+            return nullptr;
+        }
+
+        expression->fieldDeclaration = static_cast<FieldDeclaration*>(declaration);
+
+
 
         ++iterator;
 
@@ -2513,9 +2517,9 @@ void ASTContext::dumpDeclaration(const Declaration* declaration, std::string ind
 
                     std::cout << std::endl;
 
-                    for (const FieldDeclaration* fieldDeclaration : structDeclaration->fieldDeclarations)
+                    for (const Declaration* declaration : structDeclaration->declarations)
                     {
-                        dumpConstruct(fieldDeclaration, indent + " ");
+                        dumpConstruct(declaration, indent + " ");
                     }
 
                     break;

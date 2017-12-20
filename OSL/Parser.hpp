@@ -267,17 +267,17 @@ class StructDeclaration: public TypeDeclaration
 public:
     StructDeclaration(): TypeDeclaration(TypeDeclaration::Kind::STRUCT) {}
 
-    FieldDeclaration* findFieldDeclaration(const std::string& name) const
+    Declaration* findDeclaration(const std::string& name) const
     {
-        for (FieldDeclaration* fieldDeclaration : fieldDeclarations)
+        for (Declaration* declaration : declarations)
         {
-            if (fieldDeclaration->name == name) return fieldDeclaration;
+            if (declaration->name == name) return declaration;
         }
 
         return nullptr;
     }
 
-    std::vector<FieldDeclaration*> fieldDeclarations;
+    std::vector<Declaration*> declarations;
 
     bool hasDefinition = false;
 

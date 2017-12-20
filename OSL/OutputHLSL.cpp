@@ -66,14 +66,14 @@ bool OutputHLSL::printDeclaration(const Declaration* declaration, Options option
             const StructDeclaration* structDeclaration = static_cast<const StructDeclaration*>(declaration);
             code += "struct " + structDeclaration->name;
 
-            if (!structDeclaration->fieldDeclarations.empty())
+            if (!structDeclaration->declarations.empty())
             {
                 code.append(options.indentation, ' ');
                 code += "\n{\n";
 
-                for (const FieldDeclaration* fieldDeclaration : structDeclaration->fieldDeclarations)
+                for (const Declaration* declaration : structDeclaration->declarations)
                 {
-                    if (!printConstruct(fieldDeclaration, Options(options.indentation + 4), code))
+                    if (!printConstruct(declaration, Options(options.indentation + 4), code))
                     {
                         return false;
                     }
