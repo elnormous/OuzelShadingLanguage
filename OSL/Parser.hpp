@@ -153,7 +153,8 @@ public:
         UNARY,
         BINARY,
         TERNARY,
-        CONSTRUCTOR
+        CONSTRUCTOR,
+        TEMPORARY_OBJECT
     };
 
     Expression(Kind initExpressionKind): Construct(Construct::Kind::EXPRESSION), expressionKind(initExpressionKind) {}
@@ -182,6 +183,7 @@ inline std::string expressionKindToString(Expression::Kind kind)
         case Expression::Kind::BINARY: return "BINARY";
         case Expression::Kind::TERNARY: return "TERNARY";
         case Expression::Kind::CONSTRUCTOR: return "CONSTRUCTOR";
+        case Expression::Kind::TEMPORARY_OBJECT: return "TEMPORARY_OBJECT";
     }
 
     return "unknown";
@@ -691,6 +693,15 @@ public:
     std::vector<Expression*> parameters;
 };
 
+class TemporaryObjectExpression: public Expression
+{
+public:
+    TemporaryObjectExpression(): Expression(Expression::Kind::TEMPORARY_OBJECT) {}
+
+    ConstructorDeclaration* constructorDeclaration = nullptr;
+    std::vector<Expression*> parameters;
+};
+
 class ASTContext
 {
 public:
@@ -959,21 +970,23 @@ private:
 
     std::vector<std::unique_ptr<Construct>> constructs;
 
-    SimpleTypeDeclaration boolType;
-    SimpleTypeDeclaration intType;
-    SimpleTypeDeclaration floatType;
-    StructDeclaration float2Type;
-    StructDeclaration float3Type;
-    StructDeclaration float4Type;
-    FieldDeclaration fields[2 * (30 + 120 + 340)];
-    StructDeclaration float2x2Type;
-    StructDeclaration float3x3Type;
-    StructDeclaration float4x4Type;
-    StructDeclaration stringType;
-    StructDeclaration samplerStateType;
-    StructDeclaration texture2DType;
+    SimpleTypeDeclaration boolTypeDeclaration;
+    SimpleTypeDeclaration intTypeDeclaration;
+    SimpleTypeDeclaration floatTypeDeclaration;
+    StructDeclaration float2TypeDeclaration;
+    StructDeclaration float3TypeDeclaration;
+    StructDeclaration float4TypeDeclaration;
+    FieldDeclaration fieldDeclarations[2 * (30 + 120 + 340)];
+    ConstructorDeclaration constructorDeclarations[3];
+    ParameterDeclaration parameterDeclarations[2 + 3 + 4];
+    StructDeclaration float2x2TypeDeclaration;
+    StructDeclaration float3x3TypeDeclaration;
+    StructDeclaration float4x4TypeDeclaration;
+    StructDeclaration stringTypeDeclaration;
+    StructDeclaration samplerStateTypeDeclaration;
+    StructDeclaration texture2DTypeDeclaration;
 
-    ParameterDeclaration samplerParameter;
-    ParameterDeclaration coordParameter;
-    FunctionDeclaration mulFunction;
+    ParameterDeclaration samplerParameterDeclaration;
+    ParameterDeclaration coordParameterDeclaration;
+    FunctionDeclaration mulFunctionDeclaration;
 };

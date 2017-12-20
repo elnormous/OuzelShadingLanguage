@@ -848,6 +848,11 @@ bool OutputHLSL::printExpression(const Expression* expression, Options options, 
 
             break;
         }
+
+        case Expression::Kind::TEMPORARY_OBJECT:
+        {
+            break;
+        }
     }
 
     return true;

@@ -12,133 +12,158 @@ static const std::vector<std::string> builtinTypes = {
 
 ASTContext::ASTContext()
 {
-    boolType.name = "bool";
-    boolType.scalar = true;
-    boolType.isBuiltin = true;
+    boolTypeDeclaration.name = "bool";
+    boolTypeDeclaration.scalar = true;
+    boolTypeDeclaration.isBuiltin = true;
 
-    intType.name = "int";
-    intType.scalar = true;
-    intType.isBuiltin = true;
+    intTypeDeclaration.name = "int";
+    intTypeDeclaration.scalar = true;
+    intTypeDeclaration.isBuiltin = true;
 
-    floatType.name = "float";
-    floatType.scalar = true;
-    floatType.isBuiltin = true;
+    floatTypeDeclaration.name = "float";
+    floatTypeDeclaration.scalar = true;
+    floatTypeDeclaration.isBuiltin = true;
 
-    float2Type.name = "float2";
-    float2Type.isBuiltin = true;
-    float2Type.hasDefinition = true;
+    float2TypeDeclaration.name = "float2";
+    float2TypeDeclaration.isBuiltin = true;
+    float2TypeDeclaration.hasDefinition = true;
 
-    float3Type.name = "float3";
-    float3Type.isBuiltin = true;
-    float3Type.hasDefinition = true;
+    float3TypeDeclaration.name = "float3";
+    float3TypeDeclaration.isBuiltin = true;
+    float3TypeDeclaration.hasDefinition = true;
 
-    float4Type.name = "float4";
-    float4Type.isBuiltin = true;
-    float4Type.hasDefinition = true;
+    float4TypeDeclaration.name = "float4";
+    float4TypeDeclaration.isBuiltin = true;
+    float4TypeDeclaration.hasDefinition = true;
 
-    std::vector<std::pair<StructDeclaration*, std::vector<char>>> types = {
-        {&float2Type, {'x', 'y'}},
-        {&float2Type, {'r', 'g'}},
-        {&float3Type, {'x', 'y', 'z'}},
-        {&float3Type, {'r', 'g', 'b'}},
-        {&float4Type, {'x', 'y', 'z', 'w'}},
-        {&float4Type, {'r', 'g', 'b', 'a'}}
+    std::vector<std::pair<StructDeclaration*, std::vector<TypeDeclaration*>>> constructors = {
+        {&float2TypeDeclaration, {&floatTypeDeclaration}},
+        {&float2TypeDeclaration, {&floatTypeDeclaration, &floatTypeDeclaration}},
+        {&float3TypeDeclaration, {&floatTypeDeclaration}},
+        {&float3TypeDeclaration, {&floatTypeDeclaration, &floatTypeDeclaration, &floatTypeDeclaration}},
+        {&float4TypeDeclaration, {&floatTypeDeclaration}},
+        {&float4TypeDeclaration, {&floatTypeDeclaration, &floatTypeDeclaration, &floatTypeDeclaration, &floatTypeDeclaration}}
     };
 
-    FieldDeclaration* field = fields;
+    ConstructorDeclaration* constructorDeclaration = constructorDeclarations;
+    ParameterDeclaration* parameterDeclaration = parameterDeclarations;
+
+    for (auto& constructor : constructors)
+    {
+        constructorDeclaration->parent = constructor.first;
+
+        for (auto& parameter : constructor.second)
+        {
+            parameterDeclaration->parent = constructorDeclaration;
+            parameterDeclaration->qualifiedType.typeDeclaration = parameter;
+            constructorDeclaration->parameterDeclarations.push_back(parameterDeclaration);
+            ++parameterDeclaration;
+        }
+    }
+
+    std::vector<std::pair<StructDeclaration*, std::vector<char>>> types = {
+        {&float2TypeDeclaration, {'x', 'y'}},
+        {&float2TypeDeclaration, {'r', 'g'}},
+        {&float3TypeDeclaration, {'x', 'y', 'z'}},
+        {&float3TypeDeclaration, {'r', 'g', 'b'}},
+        {&float4TypeDeclaration, {'x', 'y', 'z', 'w'}},
+        {&float4TypeDeclaration, {'r', 'g', 'b', 'a'}}
+    };
+
+    FieldDeclaration* fieldDeclaration = fieldDeclarations;
 
     for (auto& type : types)
     {
         for (char first : type.second)
         {
-            field->parent = type.first;
-            field->qualifiedType.typeDeclaration = &floatType;
-            field->qualifiedType.isConst = false;
-            field->name.assign({first});
+            fieldDeclaration->parent = type.first;
+            fieldDeclaration->qualifiedType.typeDeclaration = &floatTypeDeclaration;
+            fieldDeclaration->qualifiedType.isConst = false;
+            fieldDeclaration->name.assign({first});
 
-            type.first->memberDeclarations.push_back(field);
+            type.first->memberDeclarations.push_back(fieldDeclaration);
 
-            ++field;
+            ++fieldDeclaration;
 
             for (char second : type.second)
             {
                 bool secondConst = (second == first);
 
-                field->parent = type.first;
-                field->qualifiedType.typeDeclaration = &float2Type;
-                field->qualifiedType.isConst = secondConst;
-                field->name.assign({first, second});
+                fieldDeclaration->parent = type.first;
+                fieldDeclaration->qualifiedType.typeDeclaration = &float2TypeDeclaration;
+                fieldDeclaration->qualifiedType.isConst = secondConst;
+                fieldDeclaration->name.assign({first, second});
 
-                type.first->memberDeclarations.push_back(field);
+                type.first->memberDeclarations.push_back(fieldDeclaration);
 
-                ++field;
+                ++fieldDeclaration;
 
                 for (char third : type.second)
                 {
                     bool thirdConst = (secondConst || third == first || third == second);
 
-                    field->parent = type.first;
-                    field->qualifiedType.typeDeclaration = &float3Type;
-                    field->qualifiedType.isConst = thirdConst;
-                    field->name.assign({first, second, third});
+                    fieldDeclaration->parent = type.first;
+                    fieldDeclaration->qualifiedType.typeDeclaration = &float3TypeDeclaration;
+                    fieldDeclaration->qualifiedType.isConst = thirdConst;
+                    fieldDeclaration->name.assign({first, second, third});
 
-                    type.first->memberDeclarations.push_back(field);
+                    type.first->memberDeclarations.push_back(fieldDeclaration);
 
-                    ++field;
+                    ++fieldDeclaration;
 
                     for (char fourth : type.second)
                     {
                         bool fourthConst = (thirdConst || fourth == first || fourth == second || fourth == third);
 
-                        field->parent = type.first;
-                        field->qualifiedType.typeDeclaration = &float4Type;
-                        field->qualifiedType.isConst = fourthConst;
-                        field->name.assign({first, second, third, fourth});
+                        fieldDeclaration->parent = type.first;
+                        fieldDeclaration->qualifiedType.typeDeclaration = &float4TypeDeclaration;
+                        fieldDeclaration->qualifiedType.isConst = fourthConst;
+                        fieldDeclaration->name.assign({first, second, third, fourth});
 
-                        type.first->memberDeclarations.push_back(field);
+                        type.first->memberDeclarations.push_back(fieldDeclaration);
 
-                        ++field;
+                        ++fieldDeclaration;
                     }
                 }
             }
         }
     }
 
-    float2x2Type.name = "float2x2";
-    float2x2Type.isBuiltin = true;
-    float2x2Type.hasDefinition = true;
+    float2x2TypeDeclaration.name = "float2x2";
+    float2x2TypeDeclaration.isBuiltin = true;
+    float2x2TypeDeclaration.hasDefinition = true;
 
-    float3x3Type.name = "float3x3";
-    float3x3Type.isBuiltin = true;
-    float3x3Type.hasDefinition = true;
+    float3x3TypeDeclaration.name = "float3x3";
+    float3x3TypeDeclaration.isBuiltin = true;
+    float3x3TypeDeclaration.hasDefinition = true;
 
-    float4x4Type.name = "float4x4";
-    float4x4Type.isBuiltin = true;
-    float4x4Type.hasDefinition = true;
+    float4x4TypeDeclaration.name = "float4x4";
+    float4x4TypeDeclaration.isBuiltin = true;
+    float4x4TypeDeclaration.hasDefinition = true;
 
-    stringType.name = "string";
-    stringType.isBuiltin = true;
-    stringType.hasDefinition = true;
+    stringTypeDeclaration.name = "string";
+    stringTypeDeclaration.isBuiltin = true;
+    stringTypeDeclaration.hasDefinition = true;
 
-    samplerStateType.name = "SamplerState";
-    samplerStateType.isBuiltin = true;
-    samplerStateType.hasDefinition = true;
+    samplerStateTypeDeclaration.name = "SamplerState";
+    samplerStateTypeDeclaration.isBuiltin = true;
+    samplerStateTypeDeclaration.hasDefinition = true;
 
-    texture2DType.name = "Texture2D";
-    texture2DType.isBuiltin = true;
-    texture2DType.hasDefinition = true;
+    texture2DTypeDeclaration.name = "Texture2D";
+    texture2DTypeDeclaration.isBuiltin = true;
+    texture2DTypeDeclaration.hasDefinition = true;
 
-    samplerParameter.name = "sampler";
-    samplerParameter.qualifiedType.typeDeclaration = &samplerStateType;
+    samplerParameterDeclaration.name = "sampler";
+    samplerParameterDeclaration.qualifiedType.typeDeclaration = &samplerStateTypeDeclaration;
 
-    coordParameter.name = "coord";
-    coordParameter.qualifiedType.typeDeclaration = &float2Type;
+    coordParameterDeclaration.name = "coord";
+    coordParameterDeclaration.qualifiedType.typeDeclaration = &float2TypeDeclaration;
 
-    mulFunction.name = "texture2D";
-    mulFunction.qualifiedType.typeDeclaration = &float4Type;
-    mulFunction.parameterDeclarations.push_back(&samplerParameter);
-    mulFunction.parameterDeclarations.push_back(&coordParameter);
-    mulFunction.isBuiltin = true;
+    mulFunctionDeclaration.name = "texture2D";
+    mulFunctionDeclaration.qualifiedType.typeDeclaration = &float4TypeDeclaration;
+    mulFunctionDeclaration.parameterDeclarations.push_back(&samplerParameterDeclaration);
+    mulFunctionDeclaration.parameterDeclarations.push_back(&coordParameterDeclaration);
+    mulFunctionDeclaration.isBuiltin = true;
 }
 
 bool ASTContext::parse(const std::vector<Token>& tokens)
@@ -151,19 +176,19 @@ bool ASTContext::parse(const std::vector<Token>& tokens)
     std::vector<std::vector<Declaration*>> declarationScopes;
     declarationScopes.push_back(std::vector<Declaration*>());
 
-    declarationScopes.back().push_back(&boolType);
-    declarationScopes.back().push_back(&intType);
-    declarationScopes.back().push_back(&floatType);
-    declarationScopes.back().push_back(&float2Type);
-    declarationScopes.back().push_back(&float3Type);
-    declarationScopes.back().push_back(&float4Type);
-    declarationScopes.back().push_back(&float2x2Type);
-    declarationScopes.back().push_back(&float3x3Type);
-    declarationScopes.back().push_back(&float4x4Type);
-    declarationScopes.back().push_back(&stringType);
-    declarationScopes.back().push_back(&samplerStateType);
-    declarationScopes.back().push_back(&texture2DType);
-    declarationScopes.back().push_back(&mulFunction);
+    declarationScopes.back().push_back(&boolTypeDeclaration);
+    declarationScopes.back().push_back(&intTypeDeclaration);
+    declarationScopes.back().push_back(&floatTypeDeclaration);
+    declarationScopes.back().push_back(&float2TypeDeclaration);
+    declarationScopes.back().push_back(&float3TypeDeclaration);
+    declarationScopes.back().push_back(&float4TypeDeclaration);
+    declarationScopes.back().push_back(&float2x2TypeDeclaration);
+    declarationScopes.back().push_back(&float3x3TypeDeclaration);
+    declarationScopes.back().push_back(&float4x4TypeDeclaration);
+    declarationScopes.back().push_back(&stringTypeDeclaration);
+    declarationScopes.back().push_back(&samplerStateTypeDeclaration);
+    declarationScopes.back().push_back(&texture2DTypeDeclaration);
+    declarationScopes.back().push_back(&mulFunctionDeclaration);
 
     while (iterator != tokens.end())
     {
@@ -1642,7 +1667,7 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
         IntegerLiteralExpression* result = new IntegerLiteralExpression();
         constructs.push_back(std::unique_ptr<Construct>(result));
         result->parent = parent;
-        result->qualifiedType.typeDeclaration = &intType;
+        result->qualifiedType.typeDeclaration = &intTypeDeclaration;
         result->isLValue = false;
         result->value = strtoll(iterator->value.c_str(), nullptr, 0);
 
@@ -1655,7 +1680,7 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
         FloatingPointLiteralExpression* result = new FloatingPointLiteralExpression();
         constructs.push_back(std::unique_ptr<Construct>(result));
         result->parent = parent;
-        result->qualifiedType.typeDeclaration = &floatType;
+        result->qualifiedType.typeDeclaration = &floatTypeDeclaration;
         result->isLValue = false;
         result->value = strtod(iterator->value.c_str(), nullptr);
 
@@ -1668,7 +1693,7 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
         StringLiteralExpression* result = new StringLiteralExpression();
         constructs.push_back(std::unique_ptr<Construct>(result));
         result->parent = parent;
-        result->qualifiedType.typeDeclaration = &stringType;
+        result->qualifiedType.typeDeclaration = &stringTypeDeclaration;
         result->isLValue = false;
         result->value = iterator->value;
 
@@ -1681,7 +1706,7 @@ Expression* ASTContext::parsePrimary(const std::vector<Token>& tokens,
         BooleanLiteralExpression* result = new BooleanLiteralExpression();
         constructs.push_back(std::unique_ptr<Construct>(result));
         result->parent = parent;
-        result->qualifiedType.typeDeclaration = &boolType;
+        result->qualifiedType.typeDeclaration = &boolTypeDeclaration;
         result->isLValue = false;
         result->value = (iterator->type == Token::Type::KEYWORD_TRUE);
 
@@ -2012,7 +2037,7 @@ Expression* ASTContext::parseNot(const std::vector<Token>& tokens,
             return nullptr;
         }
 
-        result->qualifiedType.typeDeclaration = &boolType;
+        result->qualifiedType.typeDeclaration = &boolTypeDeclaration;
         result->isLValue = false;
 
         return result;
@@ -2923,6 +2948,13 @@ void ASTContext::dumpExpression(const Expression* expression, std::string indent
             {
                 dumpConstruct(parameter, indent + "  ");
             }
+
+            break;
+        }
+
+        case Expression::Kind::TEMPORARY_OBJECT:
+        {
+            break;
         }
     }
 }
