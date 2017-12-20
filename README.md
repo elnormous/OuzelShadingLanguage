@@ -1,5 +1,5 @@
 # 1. Introduction
-Ouzel Shading Language (OSL) is a high-level language, designed for writing shaders. OSL can be transpiled to High Level Shading Language (HLSL), OpenGL Shading Language (GLSL), and Metal Shading Language (MSL). OSL is a subset of C++11.
+Ouzel Shading Language (OSL) is a high-level language, designed for writing cross-platform shaders. OSL can be transpiled to High Level Shading Language (HLSL), OpenGL Shading Language (GLSL), and Metal Shading Language (MSL). OSL is a subset of C++11.
 
 # 2. Lexical Structure
 
@@ -50,3 +50,25 @@ The following are the keywords of the language and cannot be used as identifiers
 * catch
 * throw
 * noexcept
+
+## 2.3 Operators
+
+OSL has the following operators (in the order of precedence):
+
+| Operator | Description |
+|----------|-------------|
+| () | parenthetical grouping |
+| [] | subscript |
+| . | member access |
+| \* / | multiplicative |
+| \+ \- | additive |
+| < <= | less than relational |
+| > >= | greater than relational |
+| == != | equality relational |
+| && | logical and |
+| \|\| | logical or |
+| ?: | selection |
+| = | assignment |
+| += -= | additive assignment |
+| += -= | multiplicative assignment |
+| , | sequence |
