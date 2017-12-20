@@ -447,6 +447,31 @@ bool OutputHLSL::printStatement(const Statement* statement, Options options, std
             break;
         }
 
+        case Statement::Kind::DEFAULT:
+        {
+            code.append(options.indentation, ' ');
+
+            const DefaultStatement* defaultStatement = static_cast<const DefaultStatement*>(statement);
+            code += "default:\n";
+
+            if (defaultStatement->body->getStatementKind() == Statement::Kind::COMPOUND)
+            {
+                if (!printConstruct(defaultStatement->body, options, code))
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                if (!printConstruct(defaultStatement->body, Options(options.indentation + 4), code))
+                {
+                    return false;
+                }
+            }
+
+            break;
+        }
+
         case Statement::Kind::WHILE:
         {
             code.append(options.indentation, ' ');

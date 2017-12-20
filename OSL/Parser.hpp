@@ -100,6 +100,7 @@ public:
         FOR,
         SWITCH,
         CASE,
+        DEFAULT,
         WHILE,
         DO,
         BREAK,
@@ -128,6 +129,7 @@ inline std::string statementKindToString(Statement::Kind kind)
         case Statement::Kind::FOR: return "FOR";
         case Statement::Kind::SWITCH: return "SWITCH";
         case Statement::Kind::CASE: return "CASE";
+        case Statement::Kind::DEFAULT: return "DEFAULT";
         case Statement::Kind::WHILE: return "WHILE";
         case Statement::Kind::DO: return "DO";
         case Statement::Kind::BREAK: return "BREAK";
@@ -434,6 +436,14 @@ public:
     CaseStatement(): Statement(Statement::Kind::CASE) {}
 
     Expression* condition = nullptr;
+    Statement* body = nullptr;
+};
+
+class DefaultStatement: public Statement
+{
+public:
+    DefaultStatement(): Statement(Statement::Kind::DEFAULT) {}
+
     Statement* body = nullptr;
 };
 
@@ -876,6 +886,11 @@ private:
                                       std::vector<Token>::const_iterator& iterator,
                                       std::vector<std::vector<Declaration*>>& declarationScopes,
                                       Construct* parent);
+
+    DefaultStatement* parseDefaultStatement(const std::vector<Token>& tokens,
+                                            std::vector<Token>::const_iterator& iterator,
+                                            std::vector<std::vector<Declaration*>>& declarationScopes,
+                                            Construct* parent);
 
     WhileStatement* parseWhileStatement(const std::vector<Token>& tokens,
                                         std::vector<Token>::const_iterator& iterator,

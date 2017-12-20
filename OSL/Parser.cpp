@@ -1017,6 +1017,10 @@ Statement* ASTContext::parseStatement(const std::vector<Token>& tokens,
     {
         return parseCaseStatement(tokens, iterator, declarationScopes, parent);
     }
+    else if (checkToken(Token::Type::KEYWORD_DEFAULT, tokens, iterator))
+    {
+        return parseDefaultStatement(tokens, iterator, declarationScopes, parent);
+    }
     else if (checkToken(Token::Type::KEYWORD_WHILE, tokens, iterator))
     {
         return parseWhileStatement(tokens, iterator, declarationScopes, parent);
@@ -1511,6 +1515,39 @@ CaseStatement* ASTContext::parseCaseStatement(const std::vector<Token>& tokens,
         std::cerr << "Expected an expression" << std::endl;
         return nullptr;
     }
+
+    if (!checkToken(Token::Type::COLON, tokens, iterator))
+    {
+        std::cerr << "Expected a colon" << std::endl;
+        return nullptr;
+    }
+
+    ++iterator;
+
+    if (!(result->body = parseStatement(tokens, iterator, declarationScopes, result)))
+    {
+        return nullptr;
+    }
+
+    return result;
+}
+
+DefaultStatement* ASTContext::parseDefaultStatement(const std::vector<Token>& tokens,
+                                                    std::vector<Token>::const_iterator& iterator,
+                                                    std::vector<std::vector<Declaration*>>& declarationScopes,
+                                                    Construct* parent)
+{
+    if (!checkToken(Token::Type::KEYWORD_DEFAULT, tokens, iterator))
+    {
+        std::cerr << "Expected the default keyword" << std::endl;
+        return nullptr;
+    }
+
+    ++iterator;
+
+    DefaultStatement* result = new DefaultStatement();
+    constructs.push_back(std::unique_ptr<Construct>(result));
+    result->parent = parent;
 
     if (!checkToken(Token::Type::COLON, tokens, iterator))
     {
@@ -2752,6 +2789,16 @@ void ASTContext::dumpStatement(const Statement* statement, std::string indent) c
 
             dumpConstruct(caseStatement->condition, indent + "  ");
             dumpConstruct(caseStatement->body, indent + "  ");
+            break;
+        }
+
+        case Statement::Kind::DEFAULT:
+        {
+            const DefaultStatement* defaultStatement = static_cast<const DefaultStatement*>(statement);
+
+            std::cout << std::endl;
+
+            dumpConstruct(defaultStatement->body, indent + "  ");
             break;
         }
 
