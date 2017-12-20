@@ -2896,7 +2896,7 @@ void ASTContext::dumpExpression(const Expression* expression, std::string indent
         {
             const BinaryOperatorExpression* binaryOperatorExpression = static_cast<const BinaryOperatorExpression*>(expression);
 
-            std::cout <<", operator: " << binaryOperatorKindToString(binaryOperatorExpression->operatorKind) << std::endl;
+            std::cout << ", operator: " << binaryOperatorKindToString(binaryOperatorExpression->operatorKind) << std::endl;
 
             dumpConstruct(binaryOperatorExpression->leftExpression, indent + "  ");
             dumpConstruct(binaryOperatorExpression->rightExpression, indent + "  ");
@@ -2913,6 +2913,20 @@ void ASTContext::dumpExpression(const Expression* expression, std::string indent
             dumpConstruct(ternaryOperatorExpression->leftExpression, indent + "  ");
             dumpConstruct(ternaryOperatorExpression->rightExpression, indent + "  ");
             break;
+        }
+
+        case Expression::Kind::CONSTRUCTOR:
+        {
+            const ConstructorExpression* constructorExpression = static_cast<const ConstructorExpression*>(expression);
+
+            const TypeDeclaration* typeDeclaration = static_cast<const TypeDeclaration*>(constructorExpression->constructorDeclaration->parent);
+
+            std::cout << " " << typeDeclaration->name << std::endl;
+
+            for (Expression* parameter : constructorExpression->parameters)
+            {
+                dumpConstruct(parameter, indent + "  ");
+            }
         }
     }
 }

@@ -153,6 +153,7 @@ public:
         UNARY,
         BINARY,
         TERNARY,
+        CONSTRUCTOR
     };
 
     Expression(Kind initExpressionKind): Construct(Construct::Kind::EXPRESSION), expressionKind(initExpressionKind) {}
@@ -180,6 +181,7 @@ inline std::string expressionKindToString(Expression::Kind kind)
         case Expression::Kind::UNARY: return "UNARY";
         case Expression::Kind::BINARY: return "BINARY";
         case Expression::Kind::TERNARY: return "TERNARY";
+        case Expression::Kind::CONSTRUCTOR: return "CONSTRUCTOR";
     }
 
     return "unknown";
@@ -678,6 +680,15 @@ public:
     Expression* condition;
     Expression* leftExpression = nullptr;
     Expression* rightExpression = nullptr;
+};
+
+class ConstructorExpression: public Expression
+{
+public:
+    ConstructorExpression(): Expression(Expression::Kind::CONSTRUCTOR) {}
+
+    ConstructorDeclaration* constructorDeclaration = nullptr;
+    std::vector<Expression*> parameters;
 };
 
 class ASTContext

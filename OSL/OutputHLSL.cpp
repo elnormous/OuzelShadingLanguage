@@ -62,7 +62,6 @@ bool OutputHLSL::printDeclaration(const Declaration* declaration, Options option
 
             if (typeDeclaration->getTypeKind() != TypeDeclaration::Kind::STRUCT) return false;
 
-
             const StructDeclaration* structDeclaration = static_cast<const StructDeclaration*>(declaration);
             code += "struct " + structDeclaration->name;
 
@@ -815,6 +814,38 @@ bool OutputHLSL::printExpression(const Expression* expression, Options options, 
             {
                 return false;
             }
+            break;
+        }
+
+        case Expression::Kind::CONSTRUCTOR:
+        {
+            code.append(options.indentation, ' ');
+
+            const ConstructorExpression* constructorExpression = static_cast<const ConstructorExpression*>(expression);
+
+            const TypeDeclaration* typeDeclaration = static_cast<const TypeDeclaration*>(constructorExpression->constructorDeclaration->parent);
+
+            if (typeDeclaration->getTypeKind() != TypeDeclaration::Kind::STRUCT) return false;
+
+            const StructDeclaration* structDeclaration = static_cast<const StructDeclaration*>(typeDeclaration);
+
+            code += structDeclaration->name + "(";
+
+            bool firstParameter = true;
+
+            for (Expression* parameter : constructorExpression->parameters)
+            {
+                if (!firstParameter) code += ", ";
+                firstParameter = false;
+
+                if (!printConstruct(parameter, Options(0), code))
+                {
+                    return false;
+                }
+            }
+
+            code += ")";
+
             break;
         }
     }
