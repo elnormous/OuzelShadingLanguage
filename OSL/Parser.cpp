@@ -59,6 +59,10 @@ ASTContext::ASTContext()
             constructorDeclaration->parameterDeclarations.push_back(parameterDeclaration);
             ++parameterDeclaration;
         }
+
+        constructor.first->memberDeclarations.push_back(constructorDeclaration);
+
+        ++constructorDeclaration;
     }
 
     std::vector<std::pair<StructDeclaration*, std::vector<char>>> types = {
@@ -1765,7 +1769,62 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
 
             if ((typeDeclaration = findTypeDeclaration(name, declarationScopes)))
             {
+                TemporaryObjectExpression* result = new TemporaryObjectExpression();
+                constructs.push_back(std::unique_ptr<Construct>(result));
+                result->parent = parent;
+                result->qualifiedType.typeDeclaration = typeDeclaration;
+                result->isLValue = false;
 
+                std::vector<QualifiedType> parameters;
+
+                if (checkToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator)) // no arguments
+                {
+                    ++iterator;
+                }
+                else
+                {
+                    for (;;)
+                    {
+                        Expression* parameter;
+
+                        if (!(parameter = parseMultiplicationAssignmentExpression(tokens, iterator, declarationScopes, result)))
+                        {
+                            return nullptr;
+                        }
+
+                        result->parameters.push_back(parameter);
+                        parameters.push_back(parameter->qualifiedType);
+
+                        if (checkToken(Token::Type::COMMA, tokens, iterator))
+                            ++iterator;
+                        else
+                            break;
+                    }
+
+                    if (!checkToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
+                    {
+                        std::cerr << "Expected a right parenthesis" << std::endl;
+                        return nullptr;
+                    }
+
+                    ++iterator;
+                }
+
+                if (typeDeclaration->getTypeKind() != TypeDeclaration::Kind::STRUCT)
+                {
+                    std::cerr << "Expected a struct type" << std::endl;
+                    return nullptr;
+                }
+
+                StructDeclaration* structDeclaration = static_cast<StructDeclaration*>(typeDeclaration);
+
+                if (!(result->constructorDeclaration = structDeclaration->findConstructorDeclaration(parameters)))
+                {
+                    std::cerr << "No matching constructor found" << std::endl;
+                    return nullptr;
+                }
+
+                return result;
             }
             else
             {
@@ -3070,24 +3129,19 @@ void ASTContext::dumpExpression(const Expression* expression, std::string indent
             break;
         }
 
-        case Expression::Kind::CONSTRUCTOR:
+        case Expression::Kind::TEMPORARY_OBJECT:
         {
-            const ConstructorExpression* constructorExpression = static_cast<const ConstructorExpression*>(expression);
+            const TemporaryObjectExpression* temporaryObjectExpression = static_cast<const TemporaryObjectExpression*>(expression);
 
-            const TypeDeclaration* typeDeclaration = static_cast<const TypeDeclaration*>(constructorExpression->constructorDeclaration->parent);
+            const TypeDeclaration* typeDeclaration = static_cast<const TypeDeclaration*>(temporaryObjectExpression->constructorDeclaration->parent);
 
             std::cout << " " << typeDeclaration->name << std::endl;
 
-            for (Expression* parameter : constructorExpression->parameters)
+            for (Expression* parameter : temporaryObjectExpression->parameters)
             {
                 dumpConstruct(parameter, indent + "  ");
             }
 
-            break;
-        }
-
-        case Expression::Kind::TEMPORARY_OBJECT:
-        {
             break;
         }
     }

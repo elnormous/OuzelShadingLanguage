@@ -844,13 +844,13 @@ bool OutputHLSL::printExpression(const Expression* expression, Options options, 
             break;
         }
 
-        case Expression::Kind::CONSTRUCTOR:
+        case Expression::Kind::TEMPORARY_OBJECT:
         {
             code.append(options.indentation, ' ');
 
-            const ConstructorExpression* constructorExpression = static_cast<const ConstructorExpression*>(expression);
+            const TemporaryObjectExpression* temporaryObjectExpression = static_cast<const TemporaryObjectExpression*>(expression);
 
-            const TypeDeclaration* typeDeclaration = static_cast<const TypeDeclaration*>(constructorExpression->constructorDeclaration->parent);
+            const TypeDeclaration* typeDeclaration = static_cast<const TypeDeclaration*>(temporaryObjectExpression->constructorDeclaration->parent);
 
             if (typeDeclaration->getTypeKind() != TypeDeclaration::Kind::STRUCT) return false;
 
@@ -860,7 +860,7 @@ bool OutputHLSL::printExpression(const Expression* expression, Options options, 
 
             bool firstParameter = true;
 
-            for (Expression* parameter : constructorExpression->parameters)
+            for (Expression* parameter : temporaryObjectExpression->parameters)
             {
                 if (!firstParameter) code += ", ";
                 firstParameter = false;
@@ -873,11 +873,6 @@ bool OutputHLSL::printExpression(const Expression* expression, Options options, 
 
             code += ")";
 
-            break;
-        }
-
-        case Expression::Kind::TEMPORARY_OBJECT:
-        {
             break;
         }
     }

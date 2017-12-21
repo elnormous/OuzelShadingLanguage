@@ -156,7 +156,6 @@ public:
         UNARY,
         BINARY,
         TERNARY,
-        CONSTRUCTOR,
         TEMPORARY_OBJECT
     };
 
@@ -185,7 +184,6 @@ inline std::string expressionKindToString(Expression::Kind kind)
         case Expression::Kind::UNARY: return "UNARY";
         case Expression::Kind::BINARY: return "BINARY";
         case Expression::Kind::TERNARY: return "TERNARY";
-        case Expression::Kind::CONSTRUCTOR: return "CONSTRUCTOR";
         case Expression::Kind::TEMPORARY_OBJECT: return "TEMPORARY_OBJECT";
     }
 
@@ -259,28 +257,6 @@ public:
     bool scalar = false;
 };
 
-class StructDeclaration: public TypeDeclaration
-{
-public:
-    StructDeclaration(): TypeDeclaration(TypeDeclaration::Kind::STRUCT) {}
-
-    Declaration* findMemberDeclaration(const std::string& name) const
-    {
-        for (Declaration* memberDeclaration : memberDeclarations)
-        {
-            if (memberDeclaration->name == name) return memberDeclaration;
-        }
-
-        return nullptr;
-    }
-
-    std::vector<Declaration*> memberDeclarations;
-
-    bool hasDefinition = false;
-
-    StructDeclaration* previousDeclaration = nullptr;
-};
-
 class FieldDeclaration: public Declaration
 {
 public:
@@ -306,6 +282,57 @@ public:
     ConstructorDeclaration(): Declaration(Declaration::Kind::CONSTRUCTOR) {}
 
     std::vector<ParameterDeclaration*> parameterDeclarations;
+};
+
+#include <iostream>
+
+class StructDeclaration: public TypeDeclaration
+{
+public:
+    StructDeclaration(): TypeDeclaration(TypeDeclaration::Kind::STRUCT) {}
+
+    ConstructorDeclaration* findConstructorDeclaration(const std::vector<QualifiedType>& parameters) const
+    {
+        for (Declaration* declaration : memberDeclarations)
+        {
+            if (declaration->getDeclarationKind() == Declaration::Kind::CONSTRUCTOR)
+            {
+                ConstructorDeclaration* constructorDeclaration = static_cast<ConstructorDeclaration*>(declaration);
+
+                if (constructorDeclaration->parameterDeclarations.size() == parameters.size())
+                {
+                    if (std::equal(parameters.begin(), parameters.end(),
+                                   constructorDeclaration->parameterDeclarations.begin(),
+                                   [](const QualifiedType& qualifiedType,
+                                      const ParameterDeclaration* parameterDeclaration) {
+                                       return qualifiedType.typeDeclaration == parameterDeclaration->qualifiedType.typeDeclaration && // TODO: check for forward declarations
+                                        qualifiedType.dimensions == parameterDeclaration->qualifiedType.dimensions;
+                                   }))
+                    {
+                        return constructorDeclaration;
+                    }
+                }
+            }
+        }
+
+        return nullptr;
+    }
+
+    Declaration* findMemberDeclaration(const std::string& name) const
+    {
+        for (Declaration* memberDeclaration : memberDeclarations)
+        {
+            if (memberDeclaration->name == name) return memberDeclaration;
+        }
+
+        return nullptr;
+    }
+
+    std::vector<Declaration*> memberDeclarations;
+
+    bool hasDefinition = false;
+
+    StructDeclaration* previousDeclaration = nullptr;
 };
 
 inline std::string declarationKindToString(Declaration::Kind kind)
@@ -699,15 +726,6 @@ public:
     Expression* rightExpression = nullptr;
 };
 
-class ConstructorExpression: public Expression
-{
-public:
-    ConstructorExpression(): Expression(Expression::Kind::CONSTRUCTOR) {}
-
-    ConstructorDeclaration* constructorDeclaration = nullptr;
-    std::vector<Expression*> parameters;
-};
-
 class TemporaryObjectExpression: public Expression
 {
 public:
@@ -778,35 +796,32 @@ private:
 
         if (declaration && declaration->getDeclarationKind() == Declaration::Kind::TYPE)
             return static_cast<TypeDeclaration*>(declaration);
-        else
-            return nullptr;
+
+        return nullptr;
     }
 
     StructDeclaration* findStructDeclaration(const std::string& name, const std::vector<std::vector<Declaration*>>& declarationScopes) const
     {
-        Declaration* declaration = findDeclaration(name, declarationScopes);
+        TypeDeclaration* typeDeclaration = findTypeDeclaration(name, declarationScopes);
 
-        if (declaration && declaration->getDeclarationKind() == Declaration::Kind::TYPE)
-        {
-            TypeDeclaration* typeDeclaration = static_cast<TypeDeclaration*>(declaration);
-
-            if (typeDeclaration->getTypeKind() == TypeDeclaration::Kind::STRUCT) return static_cast<StructDeclaration*>(typeDeclaration);
-        }
+        if (typeDeclaration && typeDeclaration->getTypeKind() == TypeDeclaration::Kind::STRUCT)
+            return static_cast<StructDeclaration*>(typeDeclaration);
 
         return nullptr;
     }
 
     FunctionDeclaration* findFunctionDeclaration(const std::string& name,
                                                  const std::vector<std::vector<Declaration*>>& declarationScopes,
-                                                 std::vector<QualifiedType> parameters) const
+                                                 const std::vector<QualifiedType>& parameters) const
     {
         for (auto scopeIterator = declarationScopes.crbegin(); scopeIterator != declarationScopes.crend(); ++scopeIterator)
         {
             for (auto declarationIterator = scopeIterator->crbegin(); declarationIterator != scopeIterator->crend(); ++declarationIterator)
             {
-                if ((*declarationIterator)->name == name &&
-                    (*declarationIterator)->getDeclarationKind() == Declaration::Kind::FUNCTION)
+                if ((*declarationIterator)->name == name)
                 {
+                    if ((*declarationIterator)->getDeclarationKind() != Declaration::Kind::FUNCTION) return nullptr;
+
                     FunctionDeclaration* functionDeclaration = static_cast<FunctionDeclaration*>(*declarationIterator);
 
                     if (functionDeclaration->parameterDeclarations.size() == parameters.size())
@@ -1007,8 +1022,8 @@ private:
     StructDeclaration float3TypeDeclaration;
     StructDeclaration float4TypeDeclaration;
     FieldDeclaration fieldDeclarations[2 * (30 + 120 + 340)];
-    ConstructorDeclaration constructorDeclarations[3];
-    ParameterDeclaration parameterDeclarations[2 + 3 + 4];
+    ConstructorDeclaration constructorDeclarations[6];
+    ParameterDeclaration parameterDeclarations[3 + 4 + 5];
     StructDeclaration float2x2TypeDeclaration;
     StructDeclaration float3x3TypeDeclaration;
     StructDeclaration float4x4TypeDeclaration;
