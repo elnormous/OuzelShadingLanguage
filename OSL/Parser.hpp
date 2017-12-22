@@ -156,7 +156,8 @@ public:
         UNARY,
         BINARY,
         TERNARY,
-        TEMPORARY_OBJECT
+        TEMPORARY_OBJECT,
+        INITIALIZER_LIST
     };
 
     Expression(Kind initExpressionKind): Construct(Construct::Kind::EXPRESSION), expressionKind(initExpressionKind) {}
@@ -185,6 +186,7 @@ inline std::string expressionKindToString(Expression::Kind kind)
         case Expression::Kind::BINARY: return "BINARY";
         case Expression::Kind::TERNARY: return "TERNARY";
         case Expression::Kind::TEMPORARY_OBJECT: return "TEMPORARY_OBJECT";
+        case Expression::Kind::INITIALIZER_LIST: return "INITIALIZER_LIST";
     }
 
     return "unknown";
@@ -733,6 +735,14 @@ public:
 
     ConstructorDeclaration* constructorDeclaration = nullptr;
     std::vector<Expression*> parameters;
+};
+
+class InitializerListExpression: public Expression
+{
+public:
+    InitializerListExpression(): Expression(Expression::Kind::INITIALIZER_LIST) {}
+
+    std::vector<Expression*> expressions;
 };
 
 class ASTContext

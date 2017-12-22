@@ -3144,6 +3144,18 @@ void ASTContext::dumpExpression(const Expression* expression, std::string indent
 
             break;
         }
+
+        case Expression::Kind::INITIALIZER_LIST:
+        {
+            const InitializerListExpression* initializerListExpression = static_cast<const InitializerListExpression*>(expression);
+
+            for (Expression* expression : initializerListExpression->expressions)
+            {
+                dumpConstruct(expression, indent + "  ");
+            }
+
+            break;
+        }
     }
 }
 

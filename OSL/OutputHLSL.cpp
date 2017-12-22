@@ -875,6 +875,32 @@ bool OutputHLSL::printExpression(const Expression* expression, Options options, 
 
             break;
         }
+
+        case Expression::Kind::INITIALIZER_LIST:
+        {
+            code.append(options.indentation, ' ');
+
+            const InitializerListExpression* initializerListExpression = static_cast<const InitializerListExpression*>(expression);
+
+            code += "{";
+
+            bool firstExpression = true;
+
+            for (Expression* expression : initializerListExpression->expressions)
+            {
+                if (!firstExpression) code += ", ";
+                firstExpression = false;
+
+                if (!printConstruct(expression, Options(0), code))
+                {
+                    return false;
+                }
+            }
+
+            code += "}";
+
+            break;
+        }
     }
 
     return true;
