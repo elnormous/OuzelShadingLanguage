@@ -1755,6 +1755,61 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
 
         return result;
     }
+    else if (checkToken(Token::Type::LEFT_BRACE, tokens, iterator))
+    {
+        ++iterator;
+
+        InitializerListExpression* result = new InitializerListExpression();
+        constructs.push_back(std::unique_ptr<Construct>(result));
+
+        if (!checkToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
+        {
+            for (;;)
+            {
+                Expression* expression;
+                if (!(expression = parseMultiplicationAssignmentExpression(tokens, iterator, declarationScopes, result)))
+                {
+                    return nullptr;
+                }
+
+                if (!result->qualifiedType.typeDeclaration)
+                {
+                    result->qualifiedType.typeDeclaration = expression->qualifiedType.typeDeclaration;
+                    result->qualifiedType.dimensions.push_back(0);
+                }
+                else
+                {
+                    if (result->qualifiedType.typeDeclaration != expression->qualifiedType.typeDeclaration)
+                    {
+                        // TODO: implement type narrowing
+                        std::cerr << "Expression type does not match previous expressions in initializer list" << std ::endl;
+                        return nullptr;
+                    }
+
+                    ++result->qualifiedType.dimensions.back();
+                }
+
+                result->expressions.push_back(expression);
+
+                if (!checkToken(Token::Type::COMMA, tokens, iterator))
+                {
+                    break;
+                }
+
+                ++iterator;
+            }
+        }
+
+        if (!checkToken(Token::Type::RIGHT_BRACE, tokens, iterator))
+        {
+            std::cerr << "Expected a right brace" << std ::endl;
+            return nullptr;
+        }
+
+        ++iterator;
+
+        return result;
+    }
     else if (checkToken(Token::Type::IDENTIFIER, tokens, iterator))
     {
         std::string name = iterator->value;
