@@ -50,6 +50,7 @@ The following are the keywords of the language and cannot be used as identifiers
 * catch
 * throw
 * noexcept
+* operator
 
 ## 2.3 Operators
 
