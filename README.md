@@ -53,6 +53,8 @@ The following are the keywords of the language and cannot be used as identifiers
 * operator
 * signed
 * unsigned
+* virtual
+* void
 
 ## 2.3 Operators
 
