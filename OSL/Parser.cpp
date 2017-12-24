@@ -371,6 +371,7 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
 
         if (checkToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator) &&
             (checkToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator + 1) ||
+             checkToken(Token::Type::KEYWORD_VOID, tokens, iterator + 1) ||
              isDeclaration(tokens, iterator + 1, declarationScopes)))  // function declaration
         {
             ++iterator;
@@ -386,7 +387,11 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
 
             std::vector<QualifiedType> parameters;
 
-            if (!checkToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
+            if (checkToken(Token::Type::KEYWORD_VOID, tokens, iterator))
+            {
+                ++iterator;
+            }
+            else if (!checkToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
             {
                 for (;;)
                 {
