@@ -66,6 +66,7 @@ struct Token
         KEYWORD_THROW, // throw
         KEYWORD_NOEXCEPT, // noexcept
         KEYWORD_OPERATOR, // operator
+        KEYWORD_UNSIGNED, // unsigned
         LEFT_PARENTHESIS, // (
         RIGHT_PARENTHESIS, // )
         LEFT_BRACE, // {

@@ -51,6 +51,7 @@ The following are the keywords of the language and cannot be used as identifiers
 * throw
 * noexcept
 * operator
+* unsigned
 
 ## 2.3 Operators
 
