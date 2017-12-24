@@ -148,7 +148,12 @@ bool OutputHLSL::printDeclaration(const Declaration* declaration, Options option
 
             const FunctionDeclaration* functionDeclaration = static_cast<const FunctionDeclaration*>(declaration);
 
-            code += functionDeclaration->qualifiedType.typeDeclaration->name + " " + functionDeclaration->name + "(";
+            if (functionDeclaration->qualifiedType.typeDeclaration)
+                code += functionDeclaration->qualifiedType.typeDeclaration->name;
+            else
+                code += "void";
+
+            code += " " + functionDeclaration->name + "(";
 
             bool firstParameter = true;
 
