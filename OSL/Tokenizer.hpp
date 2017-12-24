@@ -66,6 +66,7 @@ struct Token
         KEYWORD_THROW, // throw
         KEYWORD_NOEXCEPT, // noexcept
         KEYWORD_OPERATOR, // operator
+        KEYWORD_SIGNED, // signed
         KEYWORD_UNSIGNED, // unsigned
         LEFT_PARENTHESIS, // (
         RIGHT_PARENTHESIS, // )
@@ -186,6 +187,8 @@ inline std::string tokenTypeToString(Token::Type type)
         case Token::Type::KEYWORD_THROW: return "KEYWORD_THROW";
         case Token::Type::KEYWORD_NOEXCEPT: return "KEYWORD_NOEXCEPT";
         case Token::Type::KEYWORD_OPERATOR: return "KEYWORD_OPERATOR";
+        case Token::Type::KEYWORD_SIGNED: return "KEYWORD_SIGNED";
+        case Token::Type::KEYWORD_UNSIGNED: return "KEYWORD_UNSIGNED";
         case Token::Type::LEFT_PARENTHESIS: return "LEFT_PARENTHESIS";
         case Token::Type::RIGHT_PARENTHESIS: return "RIGHT_PARENTHESIS";
         case Token::Type::LEFT_BRACE: return "LEFT_BRACE";

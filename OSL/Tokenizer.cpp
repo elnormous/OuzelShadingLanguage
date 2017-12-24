@@ -61,6 +61,7 @@ static const std::map<std::string, Token::Type> keywordMap = {
     {"throw", Token::Type::KEYWORD_THROW},
     {"noexcept", Token::Type::KEYWORD_NOEXCEPT},
     {"operator", Token::Type::KEYWORD_OPERATOR},
+    {"signed", Token::Type::KEYWORD_SIGNED},
     {"unsigned", Token::Type::KEYWORD_UNSIGNED}
 };
 
