@@ -1989,7 +1989,7 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
                     break;
                 }
                 default:
-                    std::cerr << "Invalid declaration reference " << name;
+                    std::cerr << "Invalid declaration reference " << name << std::endl;
                     return nullptr;
             }
 
@@ -2051,6 +2051,12 @@ Expression* ASTContext::parseSubscriptExpression(const std::vector<Token>& token
         expression->parent = parent;
         expression->expression = result;
 
+        if (!result->qualifiedType.typeDeclaration)
+        {
+            std::cerr << "Subscript expression with a void type" << std::endl;
+            return nullptr;
+        }
+
         if (result->qualifiedType.dimensions.empty())
         {
             std::cerr << "Subscript value is not an array" << std::endl;
@@ -2103,7 +2109,7 @@ Expression* ASTContext::parseMemberExpression(const std::vector<Token>& tokens,
 
         if (!result->qualifiedType.typeDeclaration)
         {
-            std::cerr << "Expression has no result type" << std::endl;
+            std::cerr << "Expression has a void type" << std::endl;
             return nullptr;
         }
 
@@ -2171,6 +2177,12 @@ Expression* ASTContext::parseSignExpression(const std::vector<Token>& tokens,
             return nullptr;
         }
 
+        if (!result->expression->qualifiedType.typeDeclaration)
+        {
+            std::cerr << "Unary expression with a void type" << std::endl;
+            return nullptr;
+        }
+
         result->qualifiedType = result->expression->qualifiedType;
         result->isLValue = false;
 
@@ -2204,6 +2216,12 @@ Expression* ASTContext::parseNotExpression(const std::vector<Token>& tokens,
 
         if (!(result->expression = parseSignExpression(tokens, iterator, declarationScopes, result)))
         {
+            return nullptr;
+        }
+
+        if (!result->expression->qualifiedType.typeDeclaration)
+        {
+            std::cerr << "Unary expression with a void type" << std::endl;
             return nullptr;
         }
 
@@ -2253,6 +2271,13 @@ Expression* ASTContext::parseMultiplicationExpression(const std::vector<Token>& 
             return nullptr;
         }
 
+        if (!expression->leftExpression->qualifiedType.typeDeclaration ||
+            !expression->rightExpression->qualifiedType.typeDeclaration)
+        {
+            std::cerr << "Binary expression with a void type" << std::endl;
+            return nullptr;
+        }
+
         // TODO: fix this
         expression->qualifiedType = expression->leftExpression->qualifiedType;
         expression->isLValue = false;
@@ -2290,6 +2315,13 @@ Expression* ASTContext::parseAdditionExpression(const std::vector<Token>& tokens
 
         if (!(expression->rightExpression = parseMultiplicationExpression(tokens, iterator, declarationScopes, expression)))
         {
+            return nullptr;
+        }
+
+        if (!expression->leftExpression->qualifiedType.typeDeclaration ||
+            !expression->rightExpression->qualifiedType.typeDeclaration)
+        {
+            std::cerr << "Binary expression with a void type" << std::endl;
             return nullptr;
         }
 
@@ -2333,6 +2365,13 @@ Expression* ASTContext::parseLessThanExpression(const std::vector<Token>& tokens
             return nullptr;
         }
 
+        if (!expression->leftExpression->qualifiedType.typeDeclaration ||
+            !expression->rightExpression->qualifiedType.typeDeclaration)
+        {
+            std::cerr << "Binary expression with a void type" << std::endl;
+            return nullptr;
+        }
+
         // TODO: fix this
         expression->qualifiedType = expression->leftExpression->qualifiedType;
         expression->isLValue = false;
@@ -2370,6 +2409,13 @@ Expression* ASTContext::parseGreaterThanExpression(const std::vector<Token>& tok
 
         if (!(expression->rightExpression = parseLessThanExpression(tokens, iterator, declarationScopes, expression)))
         {
+            return nullptr;
+        }
+
+        if (!expression->leftExpression->qualifiedType.typeDeclaration ||
+            !expression->rightExpression->qualifiedType.typeDeclaration)
+        {
+            std::cerr << "Binary expression with a void type" << std::endl;
             return nullptr;
         }
 
@@ -2413,6 +2459,13 @@ Expression* ASTContext::parseEqualityExpression(const std::vector<Token>& tokens
             return nullptr;
         }
 
+        if (!expression->leftExpression->qualifiedType.typeDeclaration ||
+            !expression->rightExpression->qualifiedType.typeDeclaration)
+        {
+            std::cerr << "Binary expression with a void type" << std::endl;
+            return nullptr;
+        }
+
         // TODO: fix this
         expression->qualifiedType = expression->leftExpression->qualifiedType;
         expression->isLValue = false;
@@ -2448,6 +2501,13 @@ Expression* ASTContext::parseLogicalAndExpression(const std::vector<Token>& toke
 
         if (!(expression->rightExpression = parseEqualityExpression(tokens, iterator, declarationScopes, expression)))
         {
+            return nullptr;
+        }
+
+        if (!expression->leftExpression->qualifiedType.typeDeclaration ||
+            !expression->rightExpression->qualifiedType.typeDeclaration)
+        {
+            std::cerr << "Binary expression with a void type" << std::endl;
             return nullptr;
         }
 
@@ -2489,6 +2549,13 @@ Expression* ASTContext::parseLogicalOrExpression(const std::vector<Token>& token
             return nullptr;
         }
 
+        if (!expression->leftExpression->qualifiedType.typeDeclaration ||
+            !expression->rightExpression->qualifiedType.typeDeclaration)
+        {
+            std::cerr << "Binary expression with a void type" << std::endl;
+            return nullptr;
+        }
+
         // TODO: check if both sides ar scalar
         expression->qualifiedType.typeDeclaration = &boolTypeDeclaration;
         expression->isLValue = false;
@@ -2519,6 +2586,12 @@ Expression* ASTContext::parseTernaryExpression(const std::vector<Token>& tokens,
         constructs.push_back(std::unique_ptr<Construct>(expression));
         expression->parent = parent;
         expression->condition = result;
+
+        if (!expression->condition->qualifiedType.typeDeclaration)
+        {
+            std::cerr << "Ternary expression with a void condition" << std::endl;
+            return nullptr;
+        }
 
         if (!(expression->leftExpression = parseTernaryExpression(tokens, iterator, declarationScopes, expression)))
         {
@@ -2587,6 +2660,13 @@ Expression* ASTContext::parseAssignmentExpression(const std::vector<Token>& toke
             return nullptr;
         }
 
+        if (!expression->leftExpression->qualifiedType.typeDeclaration ||
+            !expression->rightExpression->qualifiedType.typeDeclaration)
+        {
+            std::cerr << "Binary expression with a void type" << std::endl;
+            return nullptr;
+        }
+
         // TODO: fix this
         expression->qualifiedType = expression->leftExpression->qualifiedType;
         expression->isLValue = true;
@@ -2636,6 +2716,13 @@ Expression* ASTContext::parseAdditionAssignmentExpression(const std::vector<Toke
 
         if (!(expression->rightExpression = parseAssignmentExpression(tokens, iterator, declarationScopes, expression)))
         {
+            return nullptr;
+        }
+
+        if (!expression->leftExpression->qualifiedType.typeDeclaration ||
+            !expression->rightExpression->qualifiedType.typeDeclaration)
+        {
+            std::cerr << "Binary expression with a void type" << std::endl;
             return nullptr;
         }
 
@@ -2689,6 +2776,13 @@ Expression* ASTContext::parseMultiplicationAssignmentExpression(const std::vecto
         std::unique_ptr<Construct> right;
         if (!(expression->rightExpression = parseAdditionAssignmentExpression(tokens, iterator, declarationScopes, expression)))
         {
+            return nullptr;
+        }
+
+        if (!expression->leftExpression->qualifiedType.typeDeclaration ||
+            !expression->rightExpression->qualifiedType.typeDeclaration)
+        {
+            std::cerr << "Binary expression with a void type" << std::endl;
             return nullptr;
         }
 
