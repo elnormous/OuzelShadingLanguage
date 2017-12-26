@@ -593,6 +593,12 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
                     return nullptr;
                 }
 
+                if (!result->initialization->qualifiedType.typeDeclaration)
+                {
+                    std::cerr << "Initialization with a void type" << std::endl;
+                    return nullptr;
+                }
+
                 // TODO: check for comma and parse multiple expressions
 
                 if (!checkToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
@@ -609,6 +615,12 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
 
                 if (!(result->initialization = parseMultiplicationAssignmentExpression(tokens, iterator, declarationScopes, result)))
                 {
+                    return nullptr;
+                }
+
+                if (!result->initialization->qualifiedType.typeDeclaration)
+                {
+                    std::cerr << "Initialization with a void type" << std::endl;
                     return nullptr;
                 }
             }
