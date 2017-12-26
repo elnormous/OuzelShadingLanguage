@@ -35,6 +35,7 @@ The following are the keywords of the language and cannot be used as identifiers
 * union
 * enum
 * template
+* type
 * struct
 * class
 * public

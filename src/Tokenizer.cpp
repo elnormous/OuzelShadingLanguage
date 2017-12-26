@@ -45,6 +45,7 @@ static const std::map<std::string, Token::Type> keywordMap = {
     {"union", Token::Type::KEYWORD_UNION},
     {"enum", Token::Type::KEYWORD_ENUM},
     {"template", Token::Type::KEYWORD_TEMPLATE},
+    {"type", Token::Type::KEYWORD_TYPE},
     {"struct", Token::Type::KEYWORD_STRUCT},
     {"class", Token::Type::KEYWORD_CLASS},
     {"public", Token::Type::KEYWORD_PUBLIC},

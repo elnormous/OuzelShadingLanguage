@@ -50,6 +50,7 @@ struct Token
         KEYWORD_UNION, // union
         KEYWORD_ENUM, // enum
         KEYWORD_TEMPLATE, // template
+        KEYWORD_TYPE, // type
         KEYWORD_STRUCT, // struct
         KEYWORD_CLASS, // class
         KEYWORD_PUBLIC, // public
@@ -173,6 +174,7 @@ inline std::string tokenTypeToString(Token::Type type)
         case Token::Type::KEYWORD_UNION: return "KEYWORD_UNION";
         case Token::Type::KEYWORD_ENUM: return "KEYWORD_ENUM";
         case Token::Type::KEYWORD_TEMPLATE: return "KEYWORD_TEMPLATE";
+        case Token::Type::KEYWORD_TYPE: return "KEYWORD_TYPE";
         case Token::Type::KEYWORD_STRUCT: return "KEYWORD_STRUCT";
         case Token::Type::KEYWORD_CLASS: return "KEYWORD_CLASS";
         case Token::Type::KEYWORD_PUBLIC: return "KEYWORD_PUBLIC";
