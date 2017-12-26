@@ -146,21 +146,21 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="OSL\main.cpp" />
-    <ClCompile Include="OSL\Output.cpp" />
-    <ClCompile Include="OSL\OutputGLSL.cpp" />
-    <ClCompile Include="OSL\OutputHLSL.cpp" />
-    <ClCompile Include="OSL\OutputMSL.cpp" />
-    <ClCompile Include="OSL\Parser.cpp" />
-    <ClCompile Include="OSL\Tokenizer.cpp" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\Output.cpp" />
+    <ClCompile Include="src\OutputGLSL.cpp" />
+    <ClCompile Include="src\OutputHLSL.cpp" />
+    <ClCompile Include="src\OutputMSL.cpp" />
+    <ClCompile Include="src\Parser.cpp" />
+    <ClCompile Include="src\Tokenizer.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="OSL\Output.hpp" />
-    <ClInclude Include="OSL\OutputGLSL.hpp" />
-    <ClInclude Include="OSL\OutputHLSL.hpp" />
-    <ClInclude Include="OSL\OutputMSL.hpp" />
-    <ClInclude Include="OSL\Parser.hpp" />
-    <ClInclude Include="OSL\Tokenizer.hpp" />
+    <ClInclude Include="src\Output.hpp" />
+    <ClInclude Include="src\OutputGLSL.hpp" />
+    <ClInclude Include="src\OutputHLSL.hpp" />
+    <ClInclude Include="src\OutputMSL.hpp" />
+    <ClInclude Include="src\Parser.hpp" />
+    <ClInclude Include="src\Tokenizer.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

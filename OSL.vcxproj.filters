@@ -15,45 +15,45 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="OSL\Output.cpp">
+    <ClCompile Include="src\Output.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="OSL\OutputGLSL.cpp">
+    <ClCompile Include="src\OutputGLSL.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="OSL\OutputHLSL.cpp">
+    <ClCompile Include="src\OutputHLSL.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="OSL\OutputMSL.cpp">
+    <ClCompile Include="src\OutputMSL.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="OSL\Parser.cpp">
+    <ClCompile Include="src\Parser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="OSL\Tokenizer.cpp">
+    <ClCompile Include="src\Tokenizer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="OSL\main.cpp">
+    <ClCompile Include="src\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="OSL\Output.hpp">
+    <ClInclude Include="src\Output.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="OSL\OutputGLSL.hpp">
+    <ClInclude Include="src\OutputGLSL.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="OSL\OutputHLSL.hpp">
+    <ClInclude Include="src\OutputHLSL.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="OSL\OutputMSL.hpp">
+    <ClInclude Include="src\OutputMSL.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="OSL\Tokenizer.hpp">
+    <ClInclude Include="src\Tokenizer.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="OSL\Parser.hpp">
+    <ClInclude Include="src\Parser.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

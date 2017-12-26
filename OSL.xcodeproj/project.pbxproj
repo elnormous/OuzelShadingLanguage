@@ -59,7 +59,7 @@
 		30DD17341EAE944F004CAD77 = {
 			isa = PBXGroup;
 			children = (
-				30DD173F1EAE944F004CAD77 /* OSL */,
+				30DD173F1EAE944F004CAD77 /* src */,
 				30DD173E1EAE944F004CAD77 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -72,7 +72,7 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		30DD173F1EAE944F004CAD77 /* OSL */ = {
+		30DD173F1EAE944F004CAD77 /* src */ = {
 			isa = PBXGroup;
 			children = (
 				30DD17401EAE944F004CAD77 /* main.cpp */,
@@ -89,7 +89,7 @@
 				30DD17471EAF967B004CAD77 /* Tokenizer.cpp */,
 				30DD17481EAF967B004CAD77 /* Tokenizer.hpp */,
 			);
-			path = OSL;
+			path = src;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
