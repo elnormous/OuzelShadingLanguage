@@ -157,7 +157,8 @@ public:
         BINARY,
         TERNARY,
         TEMPORARY_OBJECT,
-        INITIALIZER_LIST
+        INITIALIZER_LIST,
+        CAST
     };
 
     Expression(Kind initExpressionKind): Construct(Construct::Kind::EXPRESSION), expressionKind(initExpressionKind) {}
@@ -187,6 +188,7 @@ inline std::string expressionKindToString(Expression::Kind kind)
         case Expression::Kind::TERNARY: return "TERNARY";
         case Expression::Kind::TEMPORARY_OBJECT: return "TEMPORARY_OBJECT";
         case Expression::Kind::INITIALIZER_LIST: return "INITIALIZER_LIST";
+        case Expression::Kind::CAST: return "CAST";
     }
 
     return "unknown";
@@ -744,6 +746,34 @@ public:
 
     std::vector<Expression*> expressions;
 };
+
+class CastExpression: public Expression
+{
+public:
+    enum class Kind
+    {
+        NONE,
+        IMPLICIT,
+        EXPLICIT
+    };
+
+    CastExpression(Kind  initCastKind): Expression(Expression::Kind::CAST), castKind(initCastKind) {}
+
+    Kind castKind;
+    Expression* expression;
+};
+
+inline std::string castKindToString(CastExpression::Kind kind)
+{
+    switch (kind)
+    {
+        case CastExpression::Kind::NONE: return "NONE";
+        case CastExpression::Kind::IMPLICIT: return "IMPLICIT";
+        case CastExpression::Kind::EXPLICIT: return "EXPLICIT";
+    }
+
+    return "unknown";
+}
 
 class ASTContext
 {

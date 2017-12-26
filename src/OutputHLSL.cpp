@@ -906,6 +906,18 @@ bool OutputHLSL::printExpression(const Expression* expression, Options options, 
 
             break;
         }
+
+        case Expression::Kind::CAST:
+        {
+            code.append(options.indentation, ' ');
+
+            const CastExpression* castExpression = static_cast<const CastExpression*>(expression);
+
+            if (castExpression->castKind == CastExpression::Kind::EXPLICIT)
+            {
+                // TODO: implement explicit cast
+            }
+        }
     }
 
     return true;

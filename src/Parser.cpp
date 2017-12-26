@@ -3325,6 +3325,17 @@ void ASTContext::dumpExpression(const Expression* expression, std::string indent
 
             break;
         }
+
+        case Expression::Kind::CAST:
+        {
+            const CastExpression* castExpression = static_cast<const CastExpression*>(expression);
+
+            std::cout << " " << castKindToString(castExpression->castKind) << std::endl;
+
+            dumpConstruct(castExpression->expression, indent + "  ");
+
+            break;
+        }
     }
 }
 
