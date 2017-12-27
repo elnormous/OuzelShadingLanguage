@@ -757,7 +757,7 @@ public:
         EXPLICIT
     };
 
-    CastExpression(Kind  initCastKind): Expression(Expression::Kind::CAST), castKind(initCastKind) {}
+    CastExpression(Kind initCastKind): Expression(Expression::Kind::CAST), castKind(initCastKind) {}
 
     inline Kind getCastKind() const { return castKind; }
 
