@@ -2290,6 +2290,18 @@ Expression* ASTContext::parseSignExpression(const std::vector<Token>& tokens,
             return nullptr;
         }
 
+        if (result->expression->qualifiedType.typeDeclaration == &boolTypeDeclaration)
+        {
+            CastExpression* castExpression = new CastExpression(CastExpression::Kind::IMPLICIT);
+            constructs.push_back(std::unique_ptr<Construct>(castExpression));
+            castExpression->parent = result;
+            castExpression->qualifiedType.typeDeclaration = &intTypeDeclaration;
+
+            castExpression->expression = result->expression;
+            result->expression->parent = castExpression;
+            result->expression = castExpression;
+        }
+
         result->qualifiedType = result->expression->qualifiedType;
         result->isLValue = false;
 
@@ -2330,6 +2342,19 @@ Expression* ASTContext::parseNotExpression(const std::vector<Token>& tokens,
         {
             std::cerr << "Unary expression with a void type" << std::endl;
             return nullptr;
+        }
+
+        if (result->expression->qualifiedType.typeDeclaration == &intTypeDeclaration ||
+            result->expression->qualifiedType.typeDeclaration == &floatTypeDeclaration)
+        {
+            CastExpression* castExpression = new CastExpression(CastExpression::Kind::IMPLICIT);
+            constructs.push_back(std::unique_ptr<Construct>(castExpression));
+            castExpression->parent = result;
+            castExpression->qualifiedType.typeDeclaration = &boolTypeDeclaration;
+
+            castExpression->expression = result->expression;
+            result->expression->parent = castExpression;
+            result->expression = castExpression;
         }
 
         result->qualifiedType.typeDeclaration = &boolTypeDeclaration;
@@ -3425,7 +3450,9 @@ void ASTContext::dumpExpression(const Expression* expression, std::string indent
         {
             const CastExpression* castExpression = static_cast<const CastExpression*>(expression);
 
-            std::cout << " " << castKindToString(castExpression->getCastKind()) << std::endl;
+            std::cout << " " << castKindToString(castExpression->getCastKind()) << " " <<
+                castExpression->expression->qualifiedType.typeDeclaration->name << " to " <<
+                castExpression->qualifiedType.typeDeclaration->name << std::endl;
 
             dumpConstruct(castExpression->expression, indent + "  ");
 

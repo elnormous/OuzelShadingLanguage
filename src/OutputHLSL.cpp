@@ -924,6 +924,13 @@ bool OutputHLSL::printExpression(const Expression* expression, Options options, 
 
                 code += ")";
             }
+            else
+            {
+                if (!printConstruct(castExpression->expression, Options(0), code))
+                {
+                    return false;
+                }
+            }
         }
     }
 
