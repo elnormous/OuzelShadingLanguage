@@ -69,6 +69,13 @@ struct Token
         KEYWORD_OPERATOR, // operator
         KEYWORD_SIGNED, // signed
         KEYWORD_UNSIGNED, // unsigned
+        KEYWORD_BOOL, // bool
+        KEYWORD_CHAR, // char
+        KEYWORD_SHORT, // short
+        KEYWORD_INT, // int
+        KEYWORD_LONG, // long
+        KEYWORD_FLOAT, // float
+        KEYWORD_DOUBLE, // double
         KEYWORD_VIRTUAL, // virtual
         KEYWORD_VOID, // void
         LEFT_PARENTHESIS, // (
@@ -193,6 +200,13 @@ inline std::string tokenTypeToString(Token::Type type)
         case Token::Type::KEYWORD_OPERATOR: return "KEYWORD_OPERATOR";
         case Token::Type::KEYWORD_SIGNED: return "KEYWORD_SIGNED";
         case Token::Type::KEYWORD_UNSIGNED: return "KEYWORD_UNSIGNED";
+        case Token::Type::KEYWORD_BOOL: return "KEYWORD_BOOL";
+        case Token::Type::KEYWORD_CHAR: return "KEYWORD_CHAR";
+        case Token::Type::KEYWORD_SHORT: return "KEYWORD_SHORT";
+        case Token::Type::KEYWORD_INT: return "KEYWORD_INT";
+        case Token::Type::KEYWORD_LONG: return "KEYWORD_LONG";
+        case Token::Type::KEYWORD_FLOAT: return "KEYWORD_FLOAT";
+        case Token::Type::KEYWORD_DOUBLE: return "KEYWORD_DOUBLE";
         case Token::Type::KEYWORD_VIRTUAL: return "KEYWORD_VIRTUAL";
         case Token::Type::KEYWORD_VOID: return "KEYWORD_VOID";
         case Token::Type::LEFT_PARENTHESIS: return "LEFT_PARENTHESIS";

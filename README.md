@@ -54,6 +54,13 @@ The following are the keywords of the language and cannot be used as identifiers
 * operator
 * signed
 * unsigned
+* bool
+* char
+* short
+* int
+* long
+* float
+* double
 * virtual
 * void
 
