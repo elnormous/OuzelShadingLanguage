@@ -913,9 +913,16 @@ bool OutputHLSL::printExpression(const Expression* expression, Options options, 
 
             const CastExpression* castExpression = static_cast<const CastExpression*>(expression);
 
-            if (castExpression->castKind == CastExpression::Kind::EXPLICIT)
+            if (castExpression->getCastKind() == CastExpression::Kind::EXPLICIT)
             {
-                // TODO: implement explicit cast
+                code += castExpression->qualifiedType.typeDeclaration->name + "(";
+
+                if (!printConstruct(castExpression->expression, Options(0), code))
+                {
+                    return false;
+                }
+
+                code += ")";
             }
         }
     }

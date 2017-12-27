@@ -1837,6 +1837,39 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
 
         return result;
     }
+    else if (checkToken(Token::Type::KEYWORD_BOOL, tokens, iterator) ||
+             checkToken(Token::Type::KEYWORD_INT, tokens, iterator) ||
+             checkToken(Token::Type::KEYWORD_FLOAT, tokens, iterator))
+    {
+        CastExpression* result = new CastExpression(CastExpression::Kind::EXPLICIT);
+        constructs.push_back(std::unique_ptr<Construct>(result));
+
+        if (checkToken(Token::Type::KEYWORD_BOOL, tokens, iterator)) result->qualifiedType.typeDeclaration = &boolTypeDeclaration;
+        else if(checkToken(Token::Type::KEYWORD_INT, tokens, iterator)) result->qualifiedType.typeDeclaration = &intTypeDeclaration;
+        else if(checkToken(Token::Type::KEYWORD_FLOAT, tokens, iterator)) result->qualifiedType.typeDeclaration = &floatTypeDeclaration;
+
+        ++iterator;
+
+        if (!checkToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
+        {
+            std::cerr << "Expected a left parenthesis" << std ::endl;
+            return nullptr;
+        }
+
+        ++iterator;
+
+        result->expression = parseMultiplicationAssignmentExpression(tokens, iterator, declarationScopes, result);
+
+        if (!checkToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
+        {
+            std::cerr << "Expected a right parenthesis" << std ::endl;
+            return nullptr;
+        }
+
+        ++iterator;
+        
+        return result;
+    }
     else if (checkToken(Token::Type::LEFT_BRACE, tokens, iterator))
     {
         ++iterator;
@@ -3392,7 +3425,7 @@ void ASTContext::dumpExpression(const Expression* expression, std::string indent
         {
             const CastExpression* castExpression = static_cast<const CastExpression*>(expression);
 
-            std::cout << " " << castKindToString(castExpression->castKind) << std::endl;
+            std::cout << " " << castKindToString(castExpression->getCastKind()) << std::endl;
 
             dumpConstruct(castExpression->expression, indent + "  ");
 

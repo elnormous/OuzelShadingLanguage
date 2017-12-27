@@ -759,8 +759,12 @@ public:
 
     CastExpression(Kind  initCastKind): Expression(Expression::Kind::CAST), castKind(initCastKind) {}
 
-    Kind castKind;
+    inline Kind getCastKind() const { return castKind; }
+
     Expression* expression;
+
+protected:
+    Kind castKind;
 };
 
 inline std::string castKindToString(CastExpression::Kind kind)
