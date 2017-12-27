@@ -225,9 +225,17 @@ bool ASTContext::isDeclaration(const std::vector<Token>& tokens,
     }
     else if (iterator->type == Token::Type::IDENTIFIER)
     {
-        TypeDeclaration* typeDeclaration = findTypeDeclaration(iterator->value, declarationScopes);
+        if (iterator + 1 == tokens.end()) return false;
 
-        if (typeDeclaration) return true;
+        if ((iterator + 1)->type == Token::Type::IDENTIFIER ||
+            (iterator + 1)->type == Token::Type::KEYWORD_CONST ||
+            (iterator + 1)->type == Token::Type::KEYWORD_STATIC) return true;
+
+        if ((iterator + 1)->type == Token::Type::LEFT_BRACKET)
+        {
+            if (iterator + 2 == tokens.end()) return false;
+            if ((iterator + 2)->type == Token::Type::LEFT_BRACKET) return true; // start of an attribute
+        }
     }
 
     return false;
@@ -375,6 +383,22 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
         }
 
         ++iterator;
+
+        for (;;)
+        {
+            if (checkToken(Token::Type::KEYWORD_CONST, tokens, iterator))
+            {
+                ++iterator;
+                qualifiedType.isConst = true;
+            }
+            else if (checkToken(Token::Type::KEYWORD_STATIC, tokens, iterator))
+            {
+                ++iterator;
+                isStatic = true;
+            }
+            else break;
+        }
+
 
         if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
         {
