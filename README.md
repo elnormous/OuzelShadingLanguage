@@ -9,7 +9,7 @@ Identifiers start with a alphabetic character or underscore (_) followed by any 
 
 ## 2.2 Keywords
 
-The following are the keywords of the language and cannot be used as identifiers:
+The following are the language's keywords and can only be used as described in this specification, or a compile-time error results:
 
 * if
 * else
@@ -21,13 +21,21 @@ The following are the keywords of the language and cannot be used as identifiers
 * continue
 * true
 * false
-* inline
-* goto
 * switch
 * case
 * default
 * static
 * const
+* struct
+* bool
+* int
+* float
+* void
+
+The following are the keywords reserved for future use. Using them will result in a compile-time error:
+
+* inline
+* goto
 * extern
 * mutable
 * auto
@@ -36,7 +44,6 @@ The following are the keywords of the language and cannot be used as identifiers
 * enum
 * template
 * type
-* struct
 * class
 * public
 * protected
@@ -54,15 +61,11 @@ The following are the keywords of the language and cannot be used as identifiers
 * operator
 * signed
 * unsigned
-* bool
 * char
 * short
-* int
 * long
-* float
 * double
 * virtual
-* void
 
 ## 2.3 Operators
 
