@@ -378,6 +378,7 @@ public:
     std::vector<ParameterDeclaration*> parameterDeclarations;
     Statement* body = nullptr;
 
+    bool isInline = false;
     bool isStatic = false;
     bool isBuiltin = false;
     Program program = Program::NONE;

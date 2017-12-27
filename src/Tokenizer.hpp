@@ -22,62 +22,62 @@ struct Token
     enum class Type
     {
         NONE,
+        LITERAL_CHAR, // char
         LITERAL_INT, // int
         LITERAL_FLOAT, // float
-        LITERAL_CHAR, // char
         LITERAL_STRING, // string
-        KEYWORD_IF, // if
-        KEYWORD_ELSE, // else
-        KEYWORD_RETURN, // return
-        KEYWORD_FOR, // for
-        KEYWORD_WHILE, // while
-        KEYWORD_DO, // do
-        KEYWORD_BREAK, // break
-        KEYWORD_CONTINUE, // continue
-        KEYWORD_TRUE, // true
-        KEYWORD_FALSE, // false
-        KEYWORD_INLINE, // inline
-        KEYWORD_GOTO, // goto
-        KEYWORD_SWITCH, // switch
-        KEYWORD_CASE, // case
-        KEYWORD_DEFAULT, // default
-        KEYWORD_STATIC, // static
-        KEYWORD_CONST, // const
-        KEYWORD_EXTERN, // extern
-        KEYWORD_MUTABLE, // mutable
         KEYWORD_AUTO, // auto
-        KEYWORD_TYPEDEF, // typedef
-        KEYWORD_UNION, // union
-        KEYWORD_ENUM, // enum
-        KEYWORD_TEMPLATE, // template
-        KEYWORD_TYPE, // type
-        KEYWORD_STRUCT, // struct
-        KEYWORD_CLASS, // class
-        KEYWORD_PUBLIC, // public
-        KEYWORD_PROTECTED, // protected
-        KEYWORD_PRIVATE, // private
-        KEYWORD_NEW, // new
-        KEYWORD_DELETE, // delete
-        KEYWORD_THIS, // this
-        KEYWORD_SIZEOF, // sizeof
-        KEYWORD_NAMESPACE, // namespace
-        KEYWORD_USING, // using
-        KEYWORD_TRY, // try
-        KEYWORD_CATCH, // catch
-        KEYWORD_THROW, // throw
-        KEYWORD_NOEXCEPT, // noexcept
-        KEYWORD_OPERATOR, // operator
-        KEYWORD_SIGNED, // signed
-        KEYWORD_UNSIGNED, // unsigned
         KEYWORD_BOOL, // bool
+        KEYWORD_BREAK, // break
+        KEYWORD_CASE, // case
+        KEYWORD_CATCH, // catch
         KEYWORD_CHAR, // char
-        KEYWORD_SHORT, // short
+        KEYWORD_CLASS, // class
+        KEYWORD_CONST, // const
+        KEYWORD_CONTINUE, // continue
+        KEYWORD_DEFAULT, // default
+        KEYWORD_DELETE, // delete
+        KEYWORD_DO, // do
+        KEYWORD_DOUBLE, // double
+        KEYWORD_ELSE, // else
+        KEYWORD_ENUM, // enum
+        KEYWORD_EXTERN, // extern
+        KEYWORD_FALSE, // false
+        KEYWORD_FLOAT, // float
+        KEYWORD_FOR, // for
+        KEYWORD_GOTO, // goto
+        KEYWORD_IF, // if
+        KEYWORD_INLINE, // inline
         KEYWORD_INT, // int
         KEYWORD_LONG, // long
-        KEYWORD_FLOAT, // float
-        KEYWORD_DOUBLE, // double
+        KEYWORD_MUTABLE, // mutable
+        KEYWORD_NAMESPACE, // namespace
+        KEYWORD_NEW, // new
+        KEYWORD_NOEXCEPT, // noexcept
+        KEYWORD_OPERATOR, // operator
+        KEYWORD_PRIVATE, // private
+        KEYWORD_PROTECTED, // protected
+        KEYWORD_PUBLIC, // public
+        KEYWORD_RETURN, // return
+        KEYWORD_SHORT, // short
+        KEYWORD_SIGNED, // signed
+        KEYWORD_SIZEOF, // sizeof
+        KEYWORD_STATIC, // static
+        KEYWORD_STRUCT, // struct
+        KEYWORD_SWITCH, // switch
+        KEYWORD_TEMPLATE, // template
+        KEYWORD_THIS, // this
+        KEYWORD_THROW, // throw
+        KEYWORD_TRUE, // true
+        KEYWORD_TRY, // try
+        KEYWORD_TYPE, // type
+        KEYWORD_TYPEDEF, // typedef
+        KEYWORD_UNION, // union
+        KEYWORD_UNSIGNED, // unsigned
+        KEYWORD_USING, // using
         KEYWORD_VIRTUAL, // virtual
         KEYWORD_VOID, // void
+        KEYWORD_WHILE, // while
         LEFT_PARENTHESIS, // (
         RIGHT_PARENTHESIS, // )
         LEFT_BRACE, // {
@@ -157,58 +157,58 @@ inline std::string tokenTypeToString(Token::Type type)
         case Token::Type::LITERAL_FLOAT: return "LITERAL_FLOAT";
         case Token::Type::LITERAL_CHAR: return "LITERAL_CHAR";
         case Token::Type::LITERAL_STRING: return "LITERAL_STRING";
-        case Token::Type::KEYWORD_IF: return "KEYWORD_IF";
-        case Token::Type::KEYWORD_ELSE: return "KEYWORD_ELSE";
-        case Token::Type::KEYWORD_RETURN: return "KEYWORD_RETURN";
-        case Token::Type::KEYWORD_FOR: return "KEYWORD_FOR";
-        case Token::Type::KEYWORD_WHILE: return "KEYWORD_WHILE";
-        case Token::Type::KEYWORD_DO: return "KEYWORD_DO";
-        case Token::Type::KEYWORD_BREAK: return "KEYWORD_BREAK";
-        case Token::Type::KEYWORD_CONTINUE: return "KEYWORD_CONTINUE";
-        case Token::Type::KEYWORD_TRUE: return "KEYWORD_TRUE";
-        case Token::Type::KEYWORD_FALSE: return "KEYWORD_FALSE";
-        case Token::Type::KEYWORD_INLINE: return "KEYWORD_INLINE";
-        case Token::Type::KEYWORD_GOTO: return "KEYWORD_GOTO";
-        case Token::Type::KEYWORD_SWITCH: return "KEYWORD_SWITCH";
-        case Token::Type::KEYWORD_CASE: return "KEYWORD_CASE";
-        case Token::Type::KEYWORD_DEFAULT: return "KEYWORD_DEFAULT";
-        case Token::Type::KEYWORD_STATIC: return "KEYWORD_STATIC";
-        case Token::Type::KEYWORD_CONST: return "KEYWORD_CONST";
-        case Token::Type::KEYWORD_EXTERN: return "KEYWORD_EXTERN";
-        case Token::Type::KEYWORD_MUTABLE: return "KEYWORD_MUTABLE";
         case Token::Type::KEYWORD_AUTO: return "KEYWORD_AUTO";
-        case Token::Type::KEYWORD_TYPEDEF: return "KEYWORD_TYPEDEF";
-        case Token::Type::KEYWORD_UNION: return "KEYWORD_UNION";
-        case Token::Type::KEYWORD_ENUM: return "KEYWORD_ENUM";
-        case Token::Type::KEYWORD_TEMPLATE: return "KEYWORD_TEMPLATE";
-        case Token::Type::KEYWORD_TYPE: return "KEYWORD_TYPE";
-        case Token::Type::KEYWORD_STRUCT: return "KEYWORD_STRUCT";
-        case Token::Type::KEYWORD_CLASS: return "KEYWORD_CLASS";
-        case Token::Type::KEYWORD_PUBLIC: return "KEYWORD_PUBLIC";
-        case Token::Type::KEYWORD_PROTECTED: return "KEYWORD_PROTECTED";
-        case Token::Type::KEYWORD_PRIVATE: return "KEYWORD_PRIVATE";
-        case Token::Type::KEYWORD_NEW: return "KEYWORD_NEW";
-        case Token::Type::KEYWORD_DELETE: return "KEYWORD_DELETE";
-        case Token::Type::KEYWORD_THIS: return "KEYWORD_THIS";
-        case Token::Type::KEYWORD_SIZEOF: return "KEYWORD_SIZEOF";
-        case Token::Type::KEYWORD_NAMESPACE: return "KEYWORD_NAMESPACE";
-        case Token::Type::KEYWORD_USING: return "KEYWORD_USING";
-        case Token::Type::KEYWORD_TRY: return "KEYWORD_TRY";
-        case Token::Type::KEYWORD_CATCH: return "KEYWORD_CATCH";
-        case Token::Type::KEYWORD_THROW: return "KEYWORD_THROW";
-        case Token::Type::KEYWORD_NOEXCEPT: return "KEYWORD_NOEXCEPT";
-        case Token::Type::KEYWORD_OPERATOR: return "KEYWORD_OPERATOR";
-        case Token::Type::KEYWORD_SIGNED: return "KEYWORD_SIGNED";
-        case Token::Type::KEYWORD_UNSIGNED: return "KEYWORD_UNSIGNED";
         case Token::Type::KEYWORD_BOOL: return "KEYWORD_BOOL";
+        case Token::Type::KEYWORD_BREAK: return "KEYWORD_BREAK";
+        case Token::Type::KEYWORD_CASE: return "KEYWORD_CASE";
+        case Token::Type::KEYWORD_CATCH: return "KEYWORD_CATCH";
         case Token::Type::KEYWORD_CHAR: return "KEYWORD_CHAR";
-        case Token::Type::KEYWORD_SHORT: return "KEYWORD_SHORT";
+        case Token::Type::KEYWORD_CLASS: return "KEYWORD_CLASS";
+        case Token::Type::KEYWORD_CONST: return "KEYWORD_CONST";
+        case Token::Type::KEYWORD_CONTINUE: return "KEYWORD_CONTINUE";
+        case Token::Type::KEYWORD_DEFAULT: return "KEYWORD_DEFAULT";
+        case Token::Type::KEYWORD_DELETE: return "KEYWORD_DELETE";
+        case Token::Type::KEYWORD_DO: return "KEYWORD_DO";
+        case Token::Type::KEYWORD_DOUBLE: return "KEYWORD_DOUBLE";
+        case Token::Type::KEYWORD_ELSE: return "KEYWORD_ELSE";
+        case Token::Type::KEYWORD_ENUM: return "KEYWORD_ENUM";
+        case Token::Type::KEYWORD_EXTERN: return "KEYWORD_EXTERN";
+        case Token::Type::KEYWORD_FALSE: return "KEYWORD_FALSE";
+        case Token::Type::KEYWORD_FLOAT: return "KEYWORD_FLOAT";
+        case Token::Type::KEYWORD_FOR: return "KEYWORD_FOR";
+        case Token::Type::KEYWORD_GOTO: return "KEYWORD_GOTO";
+        case Token::Type::KEYWORD_IF: return "KEYWORD_IF";
+        case Token::Type::KEYWORD_INLINE: return "KEYWORD_INLINE";
         case Token::Type::KEYWORD_INT: return "KEYWORD_INT";
         case Token::Type::KEYWORD_LONG: return "KEYWORD_LONG";
-        case Token::Type::KEYWORD_FLOAT: return "KEYWORD_FLOAT";
-        case Token::Type::KEYWORD_DOUBLE: return "KEYWORD_DOUBLE";
+        case Token::Type::KEYWORD_MUTABLE: return "KEYWORD_MUTABLE";
+        case Token::Type::KEYWORD_NAMESPACE: return "KEYWORD_NAMESPACE";
+        case Token::Type::KEYWORD_NEW: return "KEYWORD_NEW";
+        case Token::Type::KEYWORD_NOEXCEPT: return "KEYWORD_NOEXCEPT";
+        case Token::Type::KEYWORD_OPERATOR: return "KEYWORD_OPERATOR";
+        case Token::Type::KEYWORD_PRIVATE: return "KEYWORD_PRIVATE";
+        case Token::Type::KEYWORD_PROTECTED: return "KEYWORD_PROTECTED";
+        case Token::Type::KEYWORD_PUBLIC: return "KEYWORD_PUBLIC";
+        case Token::Type::KEYWORD_RETURN: return "KEYWORD_RETURN";
+        case Token::Type::KEYWORD_SHORT: return "KEYWORD_SHORT";
+        case Token::Type::KEYWORD_SIGNED: return "KEYWORD_SIGNED";
+        case Token::Type::KEYWORD_SIZEOF: return "KEYWORD_SIZEOF";
+        case Token::Type::KEYWORD_STATIC: return "KEYWORD_STATIC";
+        case Token::Type::KEYWORD_STRUCT: return "KEYWORD_STRUCT";
+        case Token::Type::KEYWORD_SWITCH: return "KEYWORD_SWITCH";
+        case Token::Type::KEYWORD_TEMPLATE: return "KEYWORD_TEMPLATE";
+        case Token::Type::KEYWORD_THIS: return "KEYWORD_THIS";
+        case Token::Type::KEYWORD_THROW: return "KEYWORD_THROW";
+        case Token::Type::KEYWORD_TRUE: return "KEYWORD_TRUE";
+        case Token::Type::KEYWORD_TRY: return "KEYWORD_TRY";
+        case Token::Type::KEYWORD_TYPE: return "KEYWORD_TYPE";
+        case Token::Type::KEYWORD_TYPEDEF: return "KEYWORD_TYPEDEF";
+        case Token::Type::KEYWORD_UNION: return "KEYWORD_UNION";
+        case Token::Type::KEYWORD_UNSIGNED: return "KEYWORD_UNSIGNED";
+        case Token::Type::KEYWORD_USING: return "KEYWORD_USING";
         case Token::Type::KEYWORD_VIRTUAL: return "KEYWORD_VIRTUAL";
         case Token::Type::KEYWORD_VOID: return "KEYWORD_VOID";
+        case Token::Type::KEYWORD_WHILE: return "KEYWORD_WHILE";
         case Token::Type::LEFT_PARENTHESIS: return "LEFT_PARENTHESIS";
         case Token::Type::RIGHT_PARENTHESIS: return "RIGHT_PARENTHESIS";
         case Token::Type::LEFT_BRACE: return "LEFT_BRACE";
