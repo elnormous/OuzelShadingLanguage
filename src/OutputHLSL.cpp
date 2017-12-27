@@ -148,6 +148,8 @@ bool OutputHLSL::printDeclaration(const Declaration* declaration, Options option
 
             const FunctionDeclaration* functionDeclaration = static_cast<const FunctionDeclaration*>(declaration);
 
+            if (functionDeclaration->isInline) code += "inline ";
+
             if (functionDeclaration->qualifiedType.typeDeclaration)
                 code += functionDeclaration->qualifiedType.typeDeclaration->name;
             else

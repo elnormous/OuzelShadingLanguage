@@ -216,6 +216,7 @@ bool ASTContext::isDeclaration(const std::vector<Token>& tokens,
 
     if (iterator->type == Token::Type::KEYWORD_CONST ||
         iterator->type == Token::Type::KEYWORD_STATIC ||
+        iterator->type == Token::Type::KEYWORD_INLINE ||
         iterator->type == Token::Type::KEYWORD_STRUCT ||
         iterator->type == Token::Type::KEYWORD_BOOL ||
         iterator->type == Token::Type::KEYWORD_INT ||
@@ -229,7 +230,8 @@ bool ASTContext::isDeclaration(const std::vector<Token>& tokens,
 
         if ((iterator + 1)->type == Token::Type::IDENTIFIER ||
             (iterator + 1)->type == Token::Type::KEYWORD_CONST ||
-            (iterator + 1)->type == Token::Type::KEYWORD_STATIC) return true;
+            (iterator + 1)->type == Token::Type::KEYWORD_STATIC ||
+            (iterator + 1)->type == Token::Type::KEYWORD_INLINE) return true;
 
         if ((iterator + 1)->type == Token::Type::LEFT_BRACKET)
         {
@@ -324,6 +326,7 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
     {
         QualifiedType qualifiedType;
         bool isStatic = false;
+        bool isInline = false;
 
         for (;;)
         {
@@ -336,6 +339,11 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
             {
                 ++iterator;
                 isStatic = true;
+            }
+            else if (checkToken(Token::Type::KEYWORD_INLINE, tokens, iterator))
+            {
+                ++iterator;
+                isInline = true;
             }
             else break;
         }
@@ -396,6 +404,11 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
                 ++iterator;
                 isStatic = true;
             }
+            else if (checkToken(Token::Type::KEYWORD_INLINE, tokens, iterator))
+            {
+                ++iterator;
+                isInline = true;
+            }
             else break;
         }
 
@@ -421,6 +434,7 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
             result->parent = parent;
             result->qualifiedType = qualifiedType;
             result->isStatic = isStatic;
+            result->isInline = isInline;
             result->name = name;
 
             // TODO: check if only one definition exists
@@ -3088,10 +3102,19 @@ void ASTContext::dumpDeclaration(const Declaration* declaration, std::string ind
 
             std::cout << ", name: " << functionDeclaration->name;
 
+            std::cout << ", result type: ";
+
             if (functionDeclaration->qualifiedType.typeDeclaration)
             {
-                std::cout << ", result type: " << functionDeclaration->qualifiedType.typeDeclaration->name;
+                std::cout << functionDeclaration->qualifiedType.typeDeclaration->name;
             }
+            else
+            {
+                std::cout << "void";
+            }
+
+            if (functionDeclaration->isStatic) std::cout << " static";
+            if (functionDeclaration->isInline) std::cout << " inline";
 
             if (functionDeclaration->program != FunctionDeclaration::Program::NONE)
             {
