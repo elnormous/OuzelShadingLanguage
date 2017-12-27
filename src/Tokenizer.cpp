@@ -683,6 +683,6 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
 
         tokens.push_back(token);
     }
-    
+
     return true;
 }

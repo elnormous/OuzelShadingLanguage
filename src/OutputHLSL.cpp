@@ -205,7 +205,7 @@ bool OutputHLSL::printDeclaration(const Declaration* declaration, Options option
         case Declaration::Kind::PARAMETER:
         {
             code.append(options.indentation, ' ');
-            
+
             const ParameterDeclaration* parameterDeclaration = static_cast<const ParameterDeclaration*>(declaration);
             code += parameterDeclaration->qualifiedType.typeDeclaration->name + " " + parameterDeclaration->name;
             break;
@@ -558,18 +558,18 @@ bool OutputHLSL::printStatement(const Statement* statement, Options options, std
             code += "continue;";
             break;
         }
-            
+
         case Statement::Kind::RETURN:
         {
             code.append(options.indentation, ' ');
-            
+
             const ReturnStatement* returnStatement = static_cast<const ReturnStatement*>(statement);
             code += "return";
-            
+
             if (returnStatement->result)
             {
                 code += " ";
-                
+
                 if (!printConstruct(returnStatement->result, Options(0), code))
                 {
                     return false;
@@ -832,16 +832,16 @@ bool OutputHLSL::printExpression(const Expression* expression, Options options, 
             {
                 return false;
             }
-            
+
             code += " ? ";
-            
+
             if (!printConstruct(ternaryOperatorExpression->leftExpression, Options(0), code))
             {
                 return false;
             }
-            
+
             code += " : ";
-            
+
             if (!printConstruct(ternaryOperatorExpression->rightExpression, Options(0), code))
             {
                 return false;

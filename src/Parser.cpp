@@ -399,7 +399,6 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
             else break;
         }
 
-
         if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
         {
             std::cerr << "Expected an identifier" << std::endl;
@@ -407,7 +406,7 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
         }
 
         std::string name = iterator->value;
-        
+
         ++iterator;
 
         if (checkToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator) &&
@@ -1027,7 +1026,7 @@ ParameterDeclaration* ASTContext::parseParameterDeclaration(const std::vector<To
             std::cerr << "Expected a right bracket" << std::endl;
             return nullptr;
         }
-        
+
         ++iterator;
     }
 
@@ -1301,7 +1300,7 @@ CompoundStatement* ASTContext::parseCompoundStatement(const std::vector<Token>& 
     }
 
     declarationScopes.pop_back();
-    
+
     return result;
 }
 
@@ -1891,7 +1890,7 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
         }
 
         ++iterator;
-        
+
         return result;
     }
     else if (checkToken(Token::Type::LEFT_BRACE, tokens, iterator))
@@ -2283,7 +2282,7 @@ Expression* ASTContext::parseMemberExpression(const std::vector<Token>& tokens,
         result->parent = expression;
         result = expression;
     }
-    
+
     return result;
 }
 
@@ -2441,7 +2440,7 @@ Expression* ASTContext::parseMultiplicationExpression(const std::vector<Token>& 
         result->parent = expression;
         result = expression;
     }
-    
+
     return result;
 }
 
@@ -2488,7 +2487,7 @@ Expression* ASTContext::parseAdditionExpression(const std::vector<Token>& tokens
         result->parent = expression;
         result = expression;
     }
-    
+
     return result;
 }
 
@@ -2535,7 +2534,7 @@ Expression* ASTContext::parseLessThanExpression(const std::vector<Token>& tokens
         result->parent = expression;
         result = expression;
     }
-    
+
     return result;
 }
 
@@ -2582,7 +2581,7 @@ Expression* ASTContext::parseGreaterThanExpression(const std::vector<Token>& tok
         result->parent = expression;
         result = expression;
     }
-    
+
     return result;
 }
 
@@ -2629,7 +2628,7 @@ Expression* ASTContext::parseEqualityExpression(const std::vector<Token>& tokens
         result->parent = expression;
         result = expression;
     }
-    
+
     return result;
 }
 
@@ -2830,7 +2829,7 @@ Expression* ASTContext::parseAssignmentExpression(const std::vector<Token>& toke
         result->parent = expression;
         result = expression;
     }
-    
+
     return result;
 }
 
@@ -2889,7 +2888,7 @@ Expression* ASTContext::parseAdditionAssignmentExpression(const std::vector<Toke
         result->parent = expression;
         result = expression;
     }
-    
+
     return result;
 }
 
@@ -2949,7 +2948,7 @@ Expression* ASTContext::parseMultiplicationAssignmentExpression(const std::vecto
         result->parent = expression;
         result = expression;
     }
-    
+
     return result;
 }
 
@@ -3068,7 +3067,7 @@ void ASTContext::dumpDeclaration(const Declaration* declaration, std::string ind
             {
                 std::cout << ", semantic: " << semanticToString(fieldDeclaration->semantic);
             }
-            
+
             std::cout << std::endl;
             break;
         }
@@ -3287,9 +3286,9 @@ void ASTContext::dumpStatement(const Statement* statement, std::string indent) c
         case Statement::Kind::RETURN:
         {
             const ReturnStatement* returnStatement = static_cast<const ReturnStatement*>(statement);
-            
+
             std::cout << std::endl;
-            
+
             if (returnStatement->result)
             {
                 dumpConstruct(returnStatement->result, indent + "  ");
