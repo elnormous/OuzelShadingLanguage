@@ -3470,18 +3470,3 @@ void ASTContext::dumpConstruct(const Construct* construct, std::string indent) c
         }
     }
 }
-
-void ASTContext::dumpDeclarationScopes(const std::vector<std::vector<Declaration*>>& declarationScopes) const
-{
-    std::string indent;
-
-    for (auto& scope : declarationScopes)
-    {
-        for (auto& declaration : scope)
-        {
-            dumpDeclaration(declaration, indent);
-        }
-
-        indent += "  ";
-    }
-}
