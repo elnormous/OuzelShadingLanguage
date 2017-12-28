@@ -268,7 +268,6 @@ public:
 
     QualifiedType qualifiedType;
 
-    bool isStatic = false;
     Semantic semantic = Semantic::NONE;
 };
 

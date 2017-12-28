@@ -782,7 +782,7 @@ Declaration* ASTContext::parseMemberDeclaration(const std::vector<Token>& tokens
 
         ASTContext::Specifiers specifiers = parseSpecifiers(tokens, iterator);
 
-        result->isStatic = specifiers.isStatic;
+        bool isStatic = specifiers.isStatic;
         bool isInline = specifiers.isInline;
 
         QualifiedType qualifiedType;
@@ -820,10 +820,10 @@ Declaration* ASTContext::parseMemberDeclaration(const std::vector<Token>& tokens
 
         specifiers = parseSpecifiers(tokens, iterator);
 
-        if (specifiers.isStatic) result->isStatic = true;
+        if (specifiers.isStatic) isStatic = true;
         if (specifiers.isInline) isInline = true;
 
-        if (result->isStatic)
+        if (isStatic)
         {
             std::cerr << "Members can not be static" << std::endl;
             return nullptr;
