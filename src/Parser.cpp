@@ -823,6 +823,12 @@ Declaration* ASTContext::parseMemberDeclaration(const std::vector<Token>& tokens
         if (specifiers.isStatic) result->isStatic = true;
         if (specifiers.isInline) isInline = true;
 
+        if (result->isStatic)
+        {
+            std::cerr << "Members can not be static" << std::endl;
+            return nullptr;
+        }
+
         if (isInline)
         {
             std::cerr << "Members can not be inline" << std::endl;
