@@ -791,16 +791,16 @@ public:
     std::vector<Declaration*> declarations;
 
 private:
-    bool checkToken(Token::Type tokenType,
-                    const std::vector<Token>& tokens,
-                    std::vector<Token>::const_iterator iterator) const
+    static bool checkToken(Token::Type tokenType,
+                           const std::vector<Token>& tokens,
+                           std::vector<Token>::const_iterator iterator)
     {
         return (iterator != tokens.end() && iterator->type == tokenType);
     }
 
-    bool checkTokens(const std::vector<Token::Type>& tokenTypes,
-                     const std::vector<Token>& tokens,
-                     std::vector<Token>::const_iterator iterator) const
+    static bool checkTokens(const std::vector<Token::Type>& tokenTypes,
+                            const std::vector<Token>& tokens,
+                            std::vector<Token>::const_iterator iterator)
     {
         if (iterator == tokens.end()) return false;
 
@@ -812,7 +812,7 @@ private:
         return false;
     }
 
-    Declaration* findDeclaration(const std::string& name, const std::vector<Declaration*>& declarationScope) const
+    static Declaration* findDeclaration(const std::string& name, const std::vector<Declaration*>& declarationScope)
     {
         for (auto declarationIterator = declarationScope.crbegin(); declarationIterator != declarationScope.crend(); ++declarationIterator)
         {
@@ -822,7 +822,7 @@ private:
         return nullptr;
     }
 
-    Declaration* findDeclaration(const std::string& name, const std::vector<std::vector<Declaration*>>& declarationScopes) const
+    static Declaration* findDeclaration(const std::string& name, const std::vector<std::vector<Declaration*>>& declarationScopes)
     {
         for (auto scopeIterator = declarationScopes.crbegin(); scopeIterator != declarationScopes.crend(); ++scopeIterator)
         {
@@ -835,7 +835,7 @@ private:
         return nullptr;
     }
 
-    TypeDeclaration* findTypeDeclaration(const std::string& name, const std::vector<std::vector<Declaration*>>& declarationScopes) const
+    static TypeDeclaration* findTypeDeclaration(const std::string& name, const std::vector<std::vector<Declaration*>>& declarationScopes)
     {
         Declaration* declaration = findDeclaration(name, declarationScopes);
 
@@ -845,7 +845,7 @@ private:
         return nullptr;
     }
 
-    StructDeclaration* findStructDeclaration(const std::string& name, const std::vector<std::vector<Declaration*>>& declarationScopes) const
+    static StructDeclaration* findStructDeclaration(const std::string& name, const std::vector<std::vector<Declaration*>>& declarationScopes)
     {
         TypeDeclaration* typeDeclaration = findTypeDeclaration(name, declarationScopes);
 
@@ -855,9 +855,9 @@ private:
         return nullptr;
     }
 
-    FunctionDeclaration* findFunctionDeclaration(const std::string& name,
+    static FunctionDeclaration* findFunctionDeclaration(const std::string& name,
                                                  const std::vector<std::vector<Declaration*>>& declarationScopes,
-                                                 const std::vector<QualifiedType>& parameters) const
+                                                 const std::vector<QualifiedType>& parameters)
     {
         for (auto scopeIterator = declarationScopes.crbegin(); scopeIterator != declarationScopes.crend(); ++scopeIterator)
         {
@@ -889,13 +889,23 @@ private:
         return nullptr;
     }
 
-    bool isDeclaration(const std::vector<Token>& tokens,
+    static bool isDeclaration(const std::vector<Token>& tokens,
                        std::vector<Token>::const_iterator iterator,
-                       std::vector<std::vector<Declaration*>>& declarationScopes) const;
+                       std::vector<std::vector<Declaration*>>& declarationScopes);
 
     Declaration* parseTopLevelDeclaration(const std::vector<Token>& tokens,
                                           std::vector<Token>::const_iterator& iterator,
                                           std::vector<std::vector<Declaration*>>& declarationScopes);
+
+    struct Specifiers
+    {
+        bool isConst = false;
+        bool isInline = false;
+        bool isStatic = false;
+    };
+
+    static Specifiers parseSpecifiers(const std::vector<Token>& tokens,
+                                      std::vector<Token>::const_iterator& iterator);
 
     Declaration* parseDeclaration(const std::vector<Token>& tokens,
                                   std::vector<Token>::const_iterator& iterator,
