@@ -208,39 +208,72 @@ bool ASTContext::parse(const std::vector<Token>& tokens)
     return true;
 }
 
+bool ASTContext::isType(const std::vector<Token>& tokens,
+                        std::vector<Token>::const_iterator iterator,
+                        std::vector<std::vector<Declaration*>>& declarationScopes)
+{
+    if (iterator == tokens.end()) return false;
+
+    return iterator->type == Token::Type::KEYWORD_BOOL ||
+        iterator->type == Token::Type::KEYWORD_INT ||
+        iterator->type == Token::Type::KEYWORD_FLOAT ||
+        (iterator->type == Token::Type::IDENTIFIER &&
+         findTypeDeclaration(iterator->value, declarationScopes));
+}
+
+TypeDeclaration* ASTContext::parseType(const std::vector<Token>& tokens,
+                                       std::vector<Token>::const_iterator& iterator,
+                                       std::vector<std::vector<Declaration*>>& declarationScopes)
+{
+    if (iterator == tokens.end()) return nullptr;
+
+    TypeDeclaration* result;
+
+    if (iterator->type == Token::Type::KEYWORD_BOOL)
+    {
+        result = &boolTypeDeclaration;
+    }
+    else if (iterator->type == Token::Type::KEYWORD_INT)
+    {
+        result = &intTypeDeclaration;
+    }
+    else if (iterator->type == Token::Type::KEYWORD_FLOAT)
+    {
+        result = &floatTypeDeclaration;
+    }
+    else if (iterator->type == Token::Type::IDENTIFIER)
+    {
+        if (!(result = findTypeDeclaration(iterator->value, declarationScopes)))
+        {
+            std::cerr << "Invalid type: " << iterator->value << std::endl;
+            return nullptr;
+        }
+    }
+    else
+    {
+        std::cerr << "Expected a type name" << std::endl;
+        return nullptr;
+    }
+
+    ++iterator;
+
+    return result;
+}
+
 bool ASTContext::isDeclaration(const std::vector<Token>& tokens,
                                std::vector<Token>::const_iterator iterator,
                                std::vector<std::vector<Declaration*>>& declarationScopes)
 {
     if (iterator == tokens.end()) return false;
 
-    if (iterator->type == Token::Type::KEYWORD_CONST ||
+    return iterator->type == Token::Type::KEYWORD_CONST ||
         iterator->type == Token::Type::KEYWORD_STATIC ||
         iterator->type == Token::Type::KEYWORD_INLINE ||
         iterator->type == Token::Type::KEYWORD_STRUCT ||
         iterator->type == Token::Type::KEYWORD_BOOL ||
         iterator->type == Token::Type::KEYWORD_INT ||
-        iterator->type == Token::Type::KEYWORD_FLOAT)
-    {
-        return true;
-    }
-    else if (iterator->type == Token::Type::IDENTIFIER)
-    {
-        if (iterator + 1 == tokens.end()) return false;
-
-        if ((iterator + 1)->type == Token::Type::IDENTIFIER ||
-            (iterator + 1)->type == Token::Type::KEYWORD_CONST ||
-            (iterator + 1)->type == Token::Type::KEYWORD_STATIC ||
-            (iterator + 1)->type == Token::Type::KEYWORD_INLINE) return true;
-
-        if ((iterator + 1)->type == Token::Type::LEFT_BRACKET)
-        {
-            if (iterator + 2 == tokens.end()) return false;
-            if ((iterator + 2)->type == Token::Type::LEFT_BRACKET) return true; // start of an attribute
-        }
-    }
-
-    return false;
+        iterator->type == Token::Type::KEYWORD_FLOAT ||
+        isType(tokens, iterator, declarationScopes);
 }
 
 Declaration* ASTContext::parseTopLevelDeclaration(const std::vector<Token>& tokens,
@@ -360,49 +393,28 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
         QualifiedType qualifiedType;
         qualifiedType.isConst = specifiers.isConst;
 
-        if (!checkToken(Token::Type::KEYWORD_VOID, tokens, iterator))
+        if (checkToken(Token::Type::KEYWORD_VOID, tokens, iterator))
         {
-            if (checkToken(Token::Type::IDENTIFIER, tokens, iterator))
+            ++iterator;
+        }
+        else
+        {
+            if (!(qualifiedType.typeDeclaration = parseType(tokens, iterator, declarationScopes)))
             {
-                qualifiedType.typeDeclaration = findTypeDeclaration(iterator->value, declarationScopes);
-
-                if (!qualifiedType.typeDeclaration)
-                {
-                    std::cerr << "Invalid type: " << iterator->value << std::endl;
-                    return nullptr;
-                }
-
-                if (qualifiedType.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::STRUCT)
-                {
-                    StructDeclaration* structDeclaration = static_cast<StructDeclaration*>(qualifiedType.typeDeclaration);
-
-                    if (!structDeclaration->hasDefinition)
-                    {
-                        std::cerr << "Incomplete type " << iterator->value << std::endl;
-                        return nullptr;
-                    }
-                }
-            }
-            else if (checkToken(Token::Type::KEYWORD_BOOL, tokens, iterator))
-            {
-                qualifiedType.typeDeclaration = &boolTypeDeclaration;
-            }
-            else if (checkToken(Token::Type::KEYWORD_INT, tokens, iterator))
-            {
-                qualifiedType.typeDeclaration = &intTypeDeclaration;
-            }
-            else if (checkToken(Token::Type::KEYWORD_FLOAT, tokens, iterator))
-            {
-                qualifiedType.typeDeclaration = &floatTypeDeclaration;
-            }
-            else
-            {
-                std::cerr << "Expected a type name" << std::endl;
                 return nullptr;
             }
-        }
 
-        ++iterator;
+            if (qualifiedType.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::STRUCT)
+            {
+                StructDeclaration* structDeclaration = static_cast<StructDeclaration*>(qualifiedType.typeDeclaration);
+
+                if (!structDeclaration->hasDefinition)
+                {
+                    std::cerr << "Incomplete type " << qualifiedType.typeDeclaration->name << std::endl;
+                    return nullptr;
+                }
+            }
+        }
 
         specifiers = parseSpecifiers(tokens, iterator);
 
@@ -785,38 +797,21 @@ Declaration* ASTContext::parseMemberDeclaration(const std::vector<Token>& tokens
         bool isStatic = specifiers.isStatic;
         bool isInline = specifiers.isInline;
 
-        QualifiedType qualifiedType;
-        qualifiedType.isConst = specifiers.isConst;
-
-        if (checkToken(Token::Type::IDENTIFIER, tokens, iterator))
+        if (!(result->qualifiedType.typeDeclaration = parseType(tokens, iterator, declarationScopes)))
         {
-            result->qualifiedType.typeDeclaration = findTypeDeclaration(iterator->value, declarationScopes);
-
-            if (!result->qualifiedType.typeDeclaration)
-            {
-                std::cerr << "Invalid type: " << iterator->value << std::endl;
-                return nullptr;
-            }
-        }
-        else if (checkToken(Token::Type::KEYWORD_BOOL, tokens, iterator))
-        {
-            result->qualifiedType.typeDeclaration = &boolTypeDeclaration;
-        }
-        else if (checkToken(Token::Type::KEYWORD_INT, tokens, iterator))
-        {
-            result->qualifiedType.typeDeclaration = &intTypeDeclaration;
-        }
-        else if (checkToken(Token::Type::KEYWORD_FLOAT, tokens, iterator))
-        {
-            result->qualifiedType.typeDeclaration = &floatTypeDeclaration;
-        }
-        else
-        {
-            std::cerr << "Expected a type name" << std::endl;
             return nullptr;
         }
 
-        ++iterator;
+        if (result->qualifiedType.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::STRUCT)
+        {
+            StructDeclaration* structDeclaration = static_cast<StructDeclaration*>(result->qualifiedType.typeDeclaration);
+
+            if (!structDeclaration->hasDefinition)
+            {
+                std::cerr << "Incomplete type " << result->qualifiedType.typeDeclaration->name << std::endl;
+                return nullptr;
+            }
+        }
 
         specifiers = parseSpecifiers(tokens, iterator);
 
@@ -979,35 +974,21 @@ ParameterDeclaration* ASTContext::parseParameterDeclaration(const std::vector<To
     bool isStatic = specifiers.isStatic;
     bool isInline = specifiers.isInline;
 
-    if (checkToken(Token::Type::IDENTIFIER, tokens, iterator))
+    if (!(result->qualifiedType.typeDeclaration = parseType(tokens, iterator, declarationScopes)))
     {
-        result->qualifiedType.typeDeclaration = findTypeDeclaration(iterator->value, declarationScopes);
-
-        if (!result->qualifiedType.typeDeclaration)
-        {
-            std::cerr << "Invalid type: " << iterator->value << std::endl;
-            return nullptr;
-        }
-    }
-    else if (checkToken(Token::Type::KEYWORD_BOOL, tokens, iterator))
-    {
-        result->qualifiedType.typeDeclaration = &boolTypeDeclaration;
-    }
-    else if (checkToken(Token::Type::KEYWORD_INT, tokens, iterator))
-    {
-        result->qualifiedType.typeDeclaration = &intTypeDeclaration;
-    }
-    else if (checkToken(Token::Type::KEYWORD_FLOAT, tokens, iterator))
-    {
-        result->qualifiedType.typeDeclaration = &floatTypeDeclaration;
-    }
-    else
-    {
-        std::cerr << "Expected a type name" << std::endl;
         return nullptr;
     }
 
-    ++iterator;
+    if (result->qualifiedType.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::STRUCT)
+    {
+        StructDeclaration* structDeclaration = static_cast<StructDeclaration*>(result->qualifiedType.typeDeclaration);
+
+        if (!structDeclaration->hasDefinition)
+        {
+            std::cerr << "Incomplete type " << result->qualifiedType.typeDeclaration->name << std::endl;
+            return nullptr;
+        }
+    }
 
     specifiers = parseSpecifiers(tokens, iterator);
 
@@ -1080,29 +1061,6 @@ ParameterDeclaration* ASTContext::parseParameterDeclaration(const std::vector<To
     std::cerr << "Typedef is not supported" << std::endl;
     return nullptr;
 
-    if (checkToken(Token::Type::IDENTIFIER, tokens, iterator))
-    {
-        std::cerr << "Expected a type name" << std::endl;
-        return nullptr;
-    }
-    else if (checkToken(Token::Type::KEYWORD_BOOL, tokens, iterator))
-    {
-        result->qualifiedType.typeDeclaration = &boolTypeDeclaration;
-    }
-    else if (checkToken(Token::Type::KEYWORD_INT, tokens, iterator))
-    {
-        result->qualifiedType.typeDeclaration = &intTypeDeclaration;
-    }
-    else if (checkToken(Token::Type::KEYWORD_FLOAT, tokens, iterator))
-    {
-        result->qualifiedType.typeDeclaration = &floatTypeDeclaration;
-    }
-    else
-    {
-        std::cerr << "Expected a type name" << std::endl;
-        return nullptr;
-    }
-
     TypeDefinitionDeclaration* result = new TypeDefinitionDeclaration();
     constructs.push_back(std::unique_ptr<Construct>(result));
     result->parent = parent;
@@ -1111,13 +1069,21 @@ ParameterDeclaration* ASTContext::parseParameterDeclaration(const std::vector<To
     result->typeKind = TypeDeclaration::Kind::TYPE_DEFINITION;
     result->Declaration = findTypeDeclaration(iterator->value, declarationScopes);
 
-    if (!result->type)
+    if (!(result->qualifiedType.typeDeclaration = parseType(tokens, iterator, declarationScopes)))
     {
-        std::cerr << "Invalid type: " << iterator->value << std::endl;
         return nullptr;
     }
 
-    ++iterator;
+    if (result->qualifiedType.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::STRUCT)
+    {
+        StructDeclaration* structDeclaration = static_cast<StructDeclaration*>(result->qualifiedType.typeDeclaration);
+
+        if (!structDeclaration->hasDefinition)
+        {
+            std::cerr << "Incomplete type " << result->qualifiedType.typeDeclaration->name << std::endl;
+            return nullptr;
+        }
+    }
 
     if (!checkToken(Token::Type::IDENTIFIER, tokens, iterator))
     {

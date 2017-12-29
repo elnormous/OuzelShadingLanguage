@@ -888,9 +888,17 @@ private:
         return nullptr;
     }
 
-    static bool isDeclaration(const std::vector<Token>& tokens,
+    static bool isType(const std::vector<Token>& tokens,
                        std::vector<Token>::const_iterator iterator,
                        std::vector<std::vector<Declaration*>>& declarationScopes);
+
+    TypeDeclaration* parseType(const std::vector<Token>& tokens,
+                               std::vector<Token>::const_iterator& iterator,
+                               std::vector<std::vector<Declaration*>>& declarationScopes);
+
+    static bool isDeclaration(const std::vector<Token>& tokens,
+                              std::vector<Token>::const_iterator iterator,
+                              std::vector<std::vector<Declaration*>>& declarationScopes);
 
     Declaration* parseTopLevelDeclaration(const std::vector<Token>& tokens,
                                           std::vector<Token>::const_iterator& iterator,
