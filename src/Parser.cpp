@@ -317,32 +317,36 @@ Declaration* ASTContext::parseTopLevelDeclaration(const std::vector<Token>& toke
     return declaration;
 }
 
-ASTContext::Specifiers ASTContext::parseSpecifiers(const std::vector<Token>& tokens,
-                                                   std::vector<Token>::const_iterator& iterator)
+bool ASTContext::parseSpecifiers(const std::vector<Token>& tokens,
+                                 std::vector<Token>::const_iterator& iterator,
+                                 Specifiers& specifiers)
 {
-    ASTContext::Specifiers result;
+    specifiers.isConst = false;
+    specifiers.isInline = false;
+    specifiers.isStatic = false;
+    specifiers.attributes.clear();
 
     for (;;)
     {
         if (checkToken(Token::Type::KEYWORD_CONST, tokens, iterator))
         {
             ++iterator;
-            result.isConst = true;
+            specifiers.isConst = true;
         }
         else if (checkToken(Token::Type::KEYWORD_STATIC, tokens, iterator))
         {
             ++iterator;
-            result.isStatic = true;
+            specifiers.isStatic = true;
         }
         else if (checkToken(Token::Type::KEYWORD_INLINE, tokens, iterator))
         {
             ++iterator;
-            result.isInline = true;
+            specifiers.isInline = true;
         }
         else break;
     }
 
-    return result;
+    return true;
 }
 
 Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
@@ -385,7 +389,8 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
     }*/
     else
     {
-        ASTContext::Specifiers specifiers = parseSpecifiers(tokens, iterator);
+        ASTContext::Specifiers specifiers;
+        if (!parseSpecifiers(tokens, iterator, specifiers)) return nullptr;
 
         bool isStatic = specifiers.isStatic;
         bool isInline = specifiers.isInline;
@@ -416,7 +421,7 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
             }
         }
 
-        specifiers = parseSpecifiers(tokens, iterator);
+        if (!parseSpecifiers(tokens, iterator, specifiers)) return nullptr;
 
         if (specifiers.isStatic) isStatic = true;
         if (specifiers.isInline) isInline = true;
@@ -792,7 +797,8 @@ Declaration* ASTContext::parseMemberDeclaration(const std::vector<Token>& tokens
         constructs.push_back(std::unique_ptr<Construct>(result));
         result->parent = parent;
 
-        ASTContext::Specifiers specifiers = parseSpecifiers(tokens, iterator);
+        ASTContext::Specifiers specifiers;
+        if (!parseSpecifiers(tokens, iterator, specifiers)) return nullptr;
 
         bool isStatic = specifiers.isStatic;
         bool isInline = specifiers.isInline;
@@ -813,7 +819,7 @@ Declaration* ASTContext::parseMemberDeclaration(const std::vector<Token>& tokens
             }
         }
 
-        specifiers = parseSpecifiers(tokens, iterator);
+        if (!parseSpecifiers(tokens, iterator, specifiers)) return nullptr;
 
         if (specifiers.isStatic) isStatic = true;
         if (specifiers.isInline) isInline = true;
@@ -969,7 +975,8 @@ ParameterDeclaration* ASTContext::parseParameterDeclaration(const std::vector<To
     constructs.push_back(std::unique_ptr<Construct>(result));
     result->parent = parent;
 
-    ASTContext::Specifiers specifiers = parseSpecifiers(tokens, iterator);
+    ASTContext::Specifiers specifiers;
+    if (!parseSpecifiers(tokens, iterator, specifiers)) return nullptr;
 
     bool isStatic = specifiers.isStatic;
     bool isInline = specifiers.isInline;
@@ -990,7 +997,7 @@ ParameterDeclaration* ASTContext::parseParameterDeclaration(const std::vector<To
         }
     }
 
-    specifiers = parseSpecifiers(tokens, iterator);
+    if (!parseSpecifiers(tokens, iterator, specifiers)) return nullptr;
 
     if (specifiers.isStatic) isStatic = true;
     if (specifiers.isInline) isInline = true;

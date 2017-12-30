@@ -909,10 +909,12 @@ private:
         bool isConst = false;
         bool isInline = false;
         bool isStatic = false;
+        std::vector<std::pair<std::string, std::vector<std::string>>> attributes;
     };
 
-    static Specifiers parseSpecifiers(const std::vector<Token>& tokens,
-                                      std::vector<Token>::const_iterator& iterator);
+    static bool parseSpecifiers(const std::vector<Token>& tokens,
+                                std::vector<Token>::const_iterator& iterator,
+                                Specifiers& specifiers);
 
     Declaration* parseDeclaration(const std::vector<Token>& tokens,
                                   std::vector<Token>::const_iterator& iterator,
