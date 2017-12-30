@@ -909,7 +909,6 @@ private:
         bool isConst = false;
         bool isInline = false;
         bool isStatic = false;
-        std::vector<std::pair<std::string, std::vector<std::string>>> attributes;
     };
 
     static bool parseSpecifiers(const std::vector<Token>& tokens,

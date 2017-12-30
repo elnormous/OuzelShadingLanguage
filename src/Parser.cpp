@@ -324,7 +324,6 @@ bool ASTContext::parseSpecifiers(const std::vector<Token>& tokens,
     specifiers.isConst = false;
     specifiers.isInline = false;
     specifiers.isStatic = false;
-    specifiers.attributes.clear();
 
     for (;;)
     {
