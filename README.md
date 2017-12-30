@@ -88,3 +88,13 @@ OSL has the following operators (in the order of precedence):
 | += -= | additive assignment |
 | += -= | multiplicative assignment |
 | , | sequence |
+
+## 2.4 Other tokens
+
+{ } [ ] . : \' \"
+
+## 2.5 Literals
+
+## 2.6 Comments
+
+# 3 Values and Data Types
