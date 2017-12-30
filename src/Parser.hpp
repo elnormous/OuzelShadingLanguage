@@ -790,16 +790,16 @@ public:
     std::vector<Declaration*> declarations;
 
 private:
-    static bool checkToken(Token::Type tokenType,
-                           const std::vector<Token>& tokens,
-                           std::vector<Token>::const_iterator iterator)
+    static bool isToken(Token::Type tokenType,
+                        const std::vector<Token>& tokens,
+                        std::vector<Token>::const_iterator iterator)
     {
         return (iterator != tokens.end() && iterator->type == tokenType);
     }
 
-    static bool checkTokens(const std::vector<Token::Type>& tokenTypes,
-                            const std::vector<Token>& tokens,
-                            std::vector<Token>::const_iterator iterator)
+    static bool isToken(const std::vector<Token::Type>& tokenTypes,
+                        const std::vector<Token>& tokens,
+                        std::vector<Token>::const_iterator iterator)
     {
         if (iterator == tokens.end()) return false;
 
