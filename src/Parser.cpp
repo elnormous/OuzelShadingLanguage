@@ -348,6 +348,83 @@ bool ASTContext::parseSpecifiers(const std::vector<Token>& tokens,
     return true;
 }
 
+bool ASTContext::parseAttributes(const std::vector<Token>& tokens,
+                                 std::vector<Token>::const_iterator& iterator,
+                                 std::vector<std::pair<std::string, std::vector<std::string>>>& attributes)
+{
+    while (isToken(Token::Type::LEFT_BRACKET, tokens, iterator) &&
+           isToken(Token::Type::LEFT_BRACKET, tokens, iterator + 1))
+    {
+        ++iterator;
+        ++iterator;
+
+        if (!isToken(Token::Type::IDENTIFIER, tokens, iterator))
+        {
+            std::cerr << "Expected an identifier" << std::endl;
+            return nullptr;
+        }
+
+        std::pair<std::string, std::vector<std::string>> attribute;
+
+        attribute.first = iterator->value;
+
+        ++iterator;
+
+        if (isToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
+        {
+            ++iterator;
+
+            for (;;)
+            {
+                if (isToken(Token::Type::LITERAL_INT, tokens, iterator) ||
+                    isToken(Token::Type::LITERAL_FLOAT, tokens, iterator) ||
+                    isToken(Token::Type::LITERAL_CHAR, tokens, iterator) ||
+                    isToken(Token::Type::LITERAL_STRING, tokens, iterator))
+                {
+                    attribute.second.push_back(iterator->value);
+                    ++iterator;
+                }
+                else
+                {
+                    std::cerr << "Unexpected token" << std::endl;
+                    return false;
+                }
+
+                if (!isToken(Token::Type::COMMA, tokens, iterator))
+                {
+                    break;
+                }
+            }
+
+            if (!isToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
+            {
+                std::cerr << "Expected a right parenthesis" << std::endl;
+                return false;
+            }
+
+            ++iterator;
+        }
+
+        if (!isToken(Token::Type::RIGHT_BRACKET, tokens, iterator))
+        {
+            std::cerr << "Expected a right bracket" << std::endl;
+            return false;
+        }
+
+        ++iterator;
+
+        if (!isToken(Token::Type::RIGHT_BRACKET, tokens, iterator))
+        {
+            std::cerr << "Expected a right bracket" << std::endl;
+            return false;
+        }
+
+        ++iterator;
+    }
+
+    return true;
+}
+
 Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
                                           std::vector<Token>::const_iterator& iterator,
                                           std::vector<std::vector<Declaration*>>& declarationScopes,

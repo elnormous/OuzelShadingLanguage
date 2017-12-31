@@ -915,6 +915,10 @@ private:
                                 std::vector<Token>::const_iterator& iterator,
                                 Specifiers& specifiers);
 
+    static bool parseAttributes(const std::vector<Token>& tokens,
+                                std::vector<Token>::const_iterator& iterator,
+                                std::vector<std::pair<std::string, std::vector<std::string>>>& attributes);
+
     Declaration* parseDeclaration(const std::vector<Token>& tokens,
                                   std::vector<Token>::const_iterator& iterator,
                                   std::vector<std::vector<Declaration*>>& declarationScopes,
