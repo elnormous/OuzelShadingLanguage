@@ -420,6 +420,8 @@ bool ASTContext::parseAttributes(const std::vector<Token>& tokens,
         }
 
         ++iterator;
+
+        attributes.push_back(attribute);
     }
 
     return true;
@@ -567,96 +569,38 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
 
             result->previousDeclaration = findFunctionDeclaration(name, declarationScopes, parameters);
 
-            while (isToken(Token::Type::LEFT_BRACKET, tokens, iterator))
+            std::vector<std::pair<std::string, std::vector<std::string>>> attributes;
+            if (!parseAttributes(tokens, iterator, attributes))
             {
-                ++iterator;
+                return nullptr;
+            }
 
-                if (isToken(Token::Type::LEFT_BRACKET, tokens, iterator))
+            for (std::pair<std::string, std::vector<std::string>>& attribute : attributes)
+            {
+                if (attribute.first == "program")
                 {
-                    ++iterator;
-
-                    if (!isToken(Token::Type::IDENTIFIER, tokens, iterator))
+                    if (attribute.second.size() == 1)
                     {
-                        std::cerr << "Expected an identifier" << std::endl;
-                        return nullptr;
+                        FunctionDeclaration::Program program = FunctionDeclaration::Program::NONE;
+
+                        if (attribute.second.front() == "fragment") program = FunctionDeclaration::Program::FRAGMENT;
+                        else if (attribute.second.front() == "vertex") program = FunctionDeclaration::Program::VERTEX;
+                        else
+                        {
+                            std::cerr << "Invalid program" << attribute.second.front() << std::endl;
+                        }
+
+                        result->program = program;
                     }
-
-                    std::string attribute = iterator->value;
-
-                    ++iterator;
-
-                    if (isToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
+                    else
                     {
-                        ++iterator;
-
-                        if (attribute != "program")
-                        {
-                            std::cerr << "Invalid attribute " << attribute << std::endl;
-                        }
-
-                        if (isToken(Token::Type::LITERAL_INT, tokens, iterator))
-                        {
-                            ++iterator;
-                        }
-                        else if (isToken(Token::Type::LITERAL_FLOAT, tokens, iterator))
-                        {
-                            ++iterator;
-                        }
-                        else if (isToken(Token::Type::LITERAL_CHAR, tokens, iterator))
-                        {
-                            ++iterator;
-                        }
-                        else if (isToken(Token::Type::LITERAL_STRING, tokens, iterator))
-                        {
-                            if (attribute == "program")
-                            {
-                                FunctionDeclaration::Program program = FunctionDeclaration::Program::NONE;
-
-                                // TODO: find slot number
-                                if (iterator->value == "fragment") program = FunctionDeclaration::Program::FRAGMENT;
-                                else if (iterator->value == "vertex") program = FunctionDeclaration::Program::VERTEX;
-                                else
-                                {
-                                    std::cerr << "Invalid program" << std::endl;
-                                    return nullptr;
-                                }
-
-                                result->program = program;
-                            }
-
-                            ++iterator;
-                        }
-
-                        if (!isToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
-                        {
-                            std::cerr << "Expected a right parenthesis" << std::endl;
-                            return nullptr;
-                        }
-
-                        ++iterator;
+                        std::cerr << "Invalid parameters for attribute " << attribute.first << std::endl;
                     }
-
-                    if (!isToken(Token::Type::RIGHT_BRACKET, tokens, iterator))
-                    {
-                        std::cerr << "Expected a right bracket" << std::endl;
-                        return nullptr;
-                    }
-
-                    ++iterator;
                 }
                 else
                 {
-                    std::cerr << "Expected a right bracket" << std::endl;
-                    return nullptr;
+                    std::cerr << "Invalid attribute " << attribute.first << std::endl;
                 }
-
-                if (!isToken(Token::Type::RIGHT_BRACKET, tokens, iterator))
-                {
-                    std::cerr << "Expected a right bracket" << std::endl;
-                    return nullptr;
-                }
-
-                ++iterator;
             }
 
             declarationScopes.back().push_back(result);
@@ -922,92 +866,17 @@ Declaration* ASTContext::parseMemberDeclaration(const std::vector<Token>& tokens
 
         ++iterator;
 
+        std::vector<std::pair<std::string, std::vector<std::string>>> attributes;
+        if (!parseAttributes(tokens, iterator, attributes))
+        {
+            return nullptr;
+        }
+
         while (isToken(Token::Type::LEFT_BRACKET, tokens, iterator))
         {
             ++iterator;
 
-            if (isToken(Token::Type::LEFT_BRACKET, tokens, iterator))
-            {
-                ++iterator;
-
-                if (!isToken(Token::Type::IDENTIFIER, tokens, iterator))
-                {
-                    std::cerr << "Expected an identifier" << std::endl;
-                    return nullptr;
-                }
-
-                std::string attribute = iterator->value;
-
-                ++iterator;
-
-                if (isToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
-                {
-                    ++iterator;
-
-                    if (attribute != "semantic")
-                    {
-                        std::cerr << "Invalid attribute " << attribute << std::endl;
-                    }
-
-                    if (isToken(Token::Type::LITERAL_INT, tokens, iterator))
-                    {
-                        ++iterator;
-                    }
-                    else if (isToken(Token::Type::LITERAL_FLOAT, tokens, iterator))
-                    {
-                        ++iterator;
-                    }
-                    else if (isToken(Token::Type::LITERAL_CHAR, tokens, iterator))
-                    {
-                        ++iterator;
-                    }
-                    else if (isToken(Token::Type::LITERAL_STRING, tokens, iterator))
-                    {
-                        if (attribute == "semantic")
-                        {
-                            Semantic semantic = Semantic::NONE;
-
-                            // TODO: find slot number
-                            if (iterator->value == "binormal") semantic = Semantic::BINORMAL;
-                            else if (iterator->value == "blend_indices") semantic = Semantic::BLEND_INDICES;
-                            else if (iterator->value == "blend_weight") semantic = Semantic::BLEND_WEIGHT;
-                            else if (iterator->value == "color") semantic = Semantic::COLOR;
-                            else if (iterator->value == "normal") semantic = Semantic::NORMAL;
-                            else if (iterator->value == "position") semantic = Semantic::POSITION;
-                            else if (iterator->value == "position_transformed") semantic = Semantic::POSITION_TRANSFORMED;
-                            else if (iterator->value == "point_size") semantic = Semantic::POINT_SIZE;
-                            else if (iterator->value == "tangent") semantic = Semantic::TANGENT;
-                            else if (iterator->value == "texture_coordinates") semantic = Semantic::TEXTURE_COORDINATES;
-                            else
-                            {
-                                std::cerr << "Invalid semantic" << std::endl;
-                                return nullptr;
-                            }
-
-                            result->semantic = semantic;
-                        }
-
-                        ++iterator;
-                    }
-
-                    if (!isToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
-                    {
-                        std::cerr << "Expected a right parenthesis" << std::endl;
-                        return nullptr;
-                    }
-
-                    ++iterator;
-                }
-
-                if (!isToken(Token::Type::RIGHT_BRACKET, tokens, iterator))
-                {
-                    std::cerr << "Expected a right bracket" << std::endl;
-                    return nullptr;
-                }
-
-                ++iterator;
-            }
-            else if (isToken(Token::Type::LITERAL_INT, tokens, iterator))
+            if (isToken(Token::Type::LITERAL_INT, tokens, iterator))
             {
                 int size = std::stoi(iterator->value);
 
@@ -1034,6 +903,48 @@ Declaration* ASTContext::parseMemberDeclaration(const std::vector<Token>& tokens
             }
 
             ++iterator;
+        }
+
+        if (!parseAttributes(tokens, iterator, attributes))
+        {
+            return nullptr;
+        }
+
+        for (std::pair<std::string, std::vector<std::string>>& attribute : attributes)
+        {
+            if (attribute.first == "semantic")
+            {
+                if (attribute.second.size() == 1)
+                {
+                    Semantic semantic = Semantic::NONE;
+
+                    // TODO: find slot number
+                    if (attribute.second.front() == "binormal") semantic = Semantic::BINORMAL;
+                    else if (attribute.second.front() == "blend_indices") semantic = Semantic::BLEND_INDICES;
+                    else if (attribute.second.front() == "blend_weight") semantic = Semantic::BLEND_WEIGHT;
+                    else if (attribute.second.front() == "color") semantic = Semantic::COLOR;
+                    else if (attribute.second.front() == "normal") semantic = Semantic::NORMAL;
+                    else if (attribute.second.front() == "position") semantic = Semantic::POSITION;
+                    else if (attribute.second.front() == "position_transformed") semantic = Semantic::POSITION_TRANSFORMED;
+                    else if (attribute.second.front() == "point_size") semantic = Semantic::POINT_SIZE;
+                    else if (attribute.second.front() == "tangent") semantic = Semantic::TANGENT;
+                    else if (attribute.second.front() == "texture_coordinates") semantic = Semantic::TEXTURE_COORDINATES;
+                    else
+                    {
+                        std::cerr << "Invalid semantic " << attribute.second.front() << std::endl;
+                    }
+
+                    result->semantic = semantic;
+                }
+                else
+                {
+                    std::cerr << "Invalid parameters for attribute " << attribute.first << std::endl;
+                }
+            }
+            else
+            {
+                std::cerr << "Invalid attribute " << attribute.first << std::endl;
+            }
         }
 
         return result;
