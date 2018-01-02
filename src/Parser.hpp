@@ -342,8 +342,6 @@ public:
 
     std::vector<Declaration*> memberDeclarations;
 
-    bool hasDefinition = false;
-
     StructDeclaration* previousDeclaration = nullptr;
     StructDeclaration* definition = nullptr;
 };
@@ -393,6 +391,7 @@ public:
     Program program = Program::NONE;
 
     FunctionDeclaration* previousDeclaration = nullptr;
+    FunctionDeclaration* definition = nullptr;
 };
 
 inline std::string programToString(FunctionDeclaration::Program program)

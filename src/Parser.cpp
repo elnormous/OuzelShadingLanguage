@@ -26,15 +26,15 @@ ASTContext::ASTContext()
 
     float2TypeDeclaration.name = "float2";
     float2TypeDeclaration.isBuiltin = true;
-    float2TypeDeclaration.hasDefinition = true;
+    float2TypeDeclaration.definition = &float2TypeDeclaration;
 
     float3TypeDeclaration.name = "float3";
     float3TypeDeclaration.isBuiltin = true;
-    float3TypeDeclaration.hasDefinition = true;
+    float3TypeDeclaration.definition = &float3TypeDeclaration;
 
     float4TypeDeclaration.name = "float4";
     float4TypeDeclaration.isBuiltin = true;
-    float4TypeDeclaration.hasDefinition = true;
+    float4TypeDeclaration.definition = &float4TypeDeclaration;
 
     std::vector<std::pair<StructDeclaration*, std::vector<TypeDeclaration*>>> constructors = {
         {&float2TypeDeclaration, {&floatTypeDeclaration}},
@@ -135,27 +135,27 @@ ASTContext::ASTContext()
 
     float2x2TypeDeclaration.name = "float2x2";
     float2x2TypeDeclaration.isBuiltin = true;
-    float2x2TypeDeclaration.hasDefinition = true;
+    float2x2TypeDeclaration.definition = &float2x2TypeDeclaration;
 
     float3x3TypeDeclaration.name = "float3x3";
     float3x3TypeDeclaration.isBuiltin = true;
-    float3x3TypeDeclaration.hasDefinition = true;
+    float3x3TypeDeclaration.definition = &float3x3TypeDeclaration;
 
     float4x4TypeDeclaration.name = "float4x4";
     float4x4TypeDeclaration.isBuiltin = true;
-    float4x4TypeDeclaration.hasDefinition = true;
+    float4x4TypeDeclaration.definition = &float4x4TypeDeclaration;
 
     stringTypeDeclaration.name = "string";
     stringTypeDeclaration.isBuiltin = true;
-    stringTypeDeclaration.hasDefinition = true;
+    stringTypeDeclaration.definition = &stringTypeDeclaration;
 
     samplerStateTypeDeclaration.name = "SamplerState";
     samplerStateTypeDeclaration.isBuiltin = true;
-    samplerStateTypeDeclaration.hasDefinition = true;
+    samplerStateTypeDeclaration.definition = &samplerStateTypeDeclaration;
 
     texture2DTypeDeclaration.name = "Texture2D";
     texture2DTypeDeclaration.isBuiltin = true;
-    texture2DTypeDeclaration.hasDefinition = true;
+    texture2DTypeDeclaration.definition = &texture2DTypeDeclaration;
 
     samplerParameterDeclaration.name = "sampler";
     samplerParameterDeclaration.qualifiedType.typeDeclaration = &samplerStateTypeDeclaration;
@@ -494,7 +494,7 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
             {
                 StructDeclaration* structDeclaration = static_cast<StructDeclaration*>(qualifiedType.typeDeclaration);
 
-                if (!structDeclaration->hasDefinition)
+                if (!structDeclaration->definition)
                 {
                     std::cerr << "Incomplete type " << qualifiedType.typeDeclaration->name << std::endl;
                     return nullptr;
@@ -531,8 +531,6 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
             result->isStatic = isStatic;
             result->isInline = isInline;
             result->name = name;
-
-            // TODO: check if only one definition exists
 
             std::vector<QualifiedType> parameters;
 
@@ -572,6 +570,13 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
 
             result->previousDeclaration = findFunctionDeclaration(name, declarationScopes, parameters);
 
+            // check if only one definition exists
+            if (result->previousDeclaration && result->previousDeclaration->definition)
+            {
+                std::cerr << "Redefinition of " << result->name << std::endl;
+                return nullptr;
+            }
+
             if (!parseAttributes(tokens, iterator, attributes)) return nullptr;
 
             for (std::pair<std::string, std::vector<std::string>>& attribute : attributes)
@@ -606,6 +611,14 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
 
             if (isToken(Token::Type::LEFT_BRACE, tokens, iterator))
             {
+                // set the definition pointer of all previous declarations
+                FunctionDeclaration* previousDeclaration = result->previousDeclaration;
+                while (previousDeclaration)
+                {
+                    previousDeclaration->definition = result;
+                    previousDeclaration = previousDeclaration->previousDeclaration;
+                }
+
                 declarationScopes.push_back(std::vector<Declaration*>()); // add scope for parameters
 
                 for (ParameterDeclaration* parameterDeclaration : result->parameterDeclarations)
@@ -744,7 +757,12 @@ StructDeclaration* ASTContext::parseStructDeclaration(const std::vector<Token>& 
     result->name = iterator->value;
     result->previousDeclaration = findStructDeclaration(iterator->value, declarationScopes);
 
-    // TODO: check if only one definition exists
+    // check if only one definition exists
+    if (result->previousDeclaration && result->previousDeclaration->definition)
+    {
+        std::cerr << "Redefinition of " << result->name << std::endl;
+        return nullptr;
+    }
 
     ++iterator;
 
@@ -752,7 +770,15 @@ StructDeclaration* ASTContext::parseStructDeclaration(const std::vector<Token>& 
     {
         ++iterator;
 
-        result->hasDefinition = true;
+        result->definition = result;
+
+        // set the definition pointer of all previous declarations
+        StructDeclaration* previousDeclaration = result->previousDeclaration;
+        while (previousDeclaration)
+        {
+            previousDeclaration->definition = result;
+            previousDeclaration = previousDeclaration->previousDeclaration;
+        }
 
         for (;;)
         {
@@ -834,7 +860,7 @@ Declaration* ASTContext::parseMemberDeclaration(const std::vector<Token>& tokens
         {
             StructDeclaration* structDeclaration = static_cast<StructDeclaration*>(result->qualifiedType.typeDeclaration);
 
-            if (!structDeclaration->hasDefinition)
+            if (!structDeclaration->definition)
             {
                 std::cerr << "Incomplete type " << result->qualifiedType.typeDeclaration->name << std::endl;
                 return nullptr;
@@ -972,7 +998,7 @@ ParameterDeclaration* ASTContext::parseParameterDeclaration(const std::vector<To
     {
         StructDeclaration* structDeclaration = static_cast<StructDeclaration*>(result->qualifiedType.typeDeclaration);
 
-        if (!structDeclaration->hasDefinition)
+        if (!structDeclaration->definition)
         {
             std::cerr << "Incomplete type " << result->qualifiedType.typeDeclaration->name << std::endl;
             return nullptr;
