@@ -65,7 +65,8 @@ bool OutputHLSL::printDeclaration(const Declaration* declaration, Options option
             const StructDeclaration* structDeclaration = static_cast<const StructDeclaration*>(declaration);
             code += "struct " + structDeclaration->name;
 
-            if (!structDeclaration->memberDeclarations.empty())
+            // if this is the definition
+            if (structDeclaration->definition == structDeclaration)
             {
                 code.append(options.indentation, ' ');
                 code += "\n{\n";
