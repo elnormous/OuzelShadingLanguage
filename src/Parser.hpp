@@ -331,11 +331,21 @@ public:
         return nullptr;
     }
 
+    const StructDeclaration* getFirstDeclaration() const
+    {
+        const StructDeclaration* result = this;
+
+        while (result->previousDeclaration) result = result->previousDeclaration;
+
+        return result;
+    }
+
     std::vector<Declaration*> memberDeclarations;
 
     bool hasDefinition = false;
 
     StructDeclaration* previousDeclaration = nullptr;
+    StructDeclaration* definition = nullptr;
 };
 
 inline std::string declarationKindToString(Declaration::Kind kind)
