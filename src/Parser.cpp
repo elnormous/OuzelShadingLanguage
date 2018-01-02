@@ -467,6 +467,9 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
     }*/
     else
     {
+        std::vector<std::pair<std::string, std::vector<std::string>>> attributes;
+        if (!parseAttributes(tokens, iterator, attributes)) return nullptr;
+
         ASTContext::Specifiers specifiers;
         if (!parseSpecifiers(tokens, iterator, specifiers)) return nullptr;
 
@@ -569,11 +572,7 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
 
             result->previousDeclaration = findFunctionDeclaration(name, declarationScopes, parameters);
 
-            std::vector<std::pair<std::string, std::vector<std::string>>> attributes;
-            if (!parseAttributes(tokens, iterator, attributes))
-            {
-                return nullptr;
-            }
+            if (!parseAttributes(tokens, iterator, attributes)) return nullptr;
 
             for (std::pair<std::string, std::vector<std::string>>& attribute : attributes)
             {
@@ -817,6 +816,9 @@ Declaration* ASTContext::parseMemberDeclaration(const std::vector<Token>& tokens
         constructs.push_back(std::unique_ptr<Construct>(result));
         result->parent = parent;
 
+        std::vector<std::pair<std::string, std::vector<std::string>>> attributes;
+        if (!parseAttributes(tokens, iterator, attributes)) return nullptr;
+
         ASTContext::Specifiers specifiers;
         if (!parseSpecifiers(tokens, iterator, specifiers)) return nullptr;
 
@@ -866,11 +868,7 @@ Declaration* ASTContext::parseMemberDeclaration(const std::vector<Token>& tokens
 
         ++iterator;
 
-        std::vector<std::pair<std::string, std::vector<std::string>>> attributes;
-        if (!parseAttributes(tokens, iterator, attributes))
-        {
-            return nullptr;
-        }
+        if (!parseAttributes(tokens, iterator, attributes)) return nullptr;
 
         while (isToken(Token::Type::LEFT_BRACKET, tokens, iterator))
         {
@@ -905,10 +903,7 @@ Declaration* ASTContext::parseMemberDeclaration(const std::vector<Token>& tokens
             ++iterator;
         }
 
-        if (!parseAttributes(tokens, iterator, attributes))
-        {
-            return nullptr;
-        }
+        if (!parseAttributes(tokens, iterator, attributes)) return nullptr;
 
         for (std::pair<std::string, std::vector<std::string>>& attribute : attributes)
         {
