@@ -10,18 +10,18 @@ static const std::vector<std::string> builtinTypes = {
     "vec2", "vec3", "vec4", "mat3", "mat4"
 };
 
-ASTContext::ASTContext()
+ASTContext::ASTContext():
+    boolTypeDeclaration(ScalarTypeDeclaration::Kind::BOOLEAN),
+    intTypeDeclaration(ScalarTypeDeclaration::Kind::INTEGER),
+    floatTypeDeclaration(ScalarTypeDeclaration::Kind::FLOATING_POINT)
 {
     boolTypeDeclaration.name = "bool";
-    boolTypeDeclaration.scalar = true;
     boolTypeDeclaration.isBuiltin = true;
 
     intTypeDeclaration.name = "int";
-    intTypeDeclaration.scalar = true;
     intTypeDeclaration.isBuiltin = true;
 
     floatTypeDeclaration.name = "float";
-    floatTypeDeclaration.scalar = true;
     floatTypeDeclaration.isBuiltin = true;
 
     float2TypeDeclaration.name = "float2";
@@ -3079,10 +3079,10 @@ void ASTContext::dumpDeclaration(const Declaration* declaration, std::string ind
                     break;
                 }
 
-                case TypeDeclaration::Kind::SIMPLE:
+                case TypeDeclaration::Kind::SCALAR:
                 {
-                    const SimpleTypeDeclaration* simpleTypeDeclaration = static_cast<const SimpleTypeDeclaration*>(typeDeclaration);
-                    std::cout << ", name: " << simpleTypeDeclaration->name << ", scalar: " << simpleTypeDeclaration->scalar << std::endl;
+                    const ScalarTypeDeclaration* scalarTypeDeclaration = static_cast<const ScalarTypeDeclaration*>(typeDeclaration);
+                    std::cout << ", name: " << scalarTypeDeclaration->name << ", scalar type kind: " << scalarTypeKindToString(scalarTypeDeclaration->getScalarTypeKind());
                     break;
                 }
             }

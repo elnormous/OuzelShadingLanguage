@@ -236,7 +236,7 @@ public:
     enum class Kind
     {
         NONE,
-        SIMPLE,
+        SCALAR,
         STRUCT,
         //TYPE_DEFINITION, // typedef is not supported in GLSL
     };
@@ -256,7 +256,7 @@ inline std::string typeKindToString(TypeDeclaration::Kind kind)
     switch (kind)
     {
         case TypeDeclaration::Kind::NONE: return "NONE";
-        case TypeDeclaration::Kind::SIMPLE: return "SIMPLE";
+        case TypeDeclaration::Kind::SCALAR: return "SCALAR";
         case TypeDeclaration::Kind::STRUCT: return "STRUCT";
         //case TypeDeclaration::Kind::TYPE_DEFINITION: return "TYPE_DEFINITION";
     }
@@ -264,16 +264,40 @@ inline std::string typeKindToString(TypeDeclaration::Kind kind)
     return "unknown";
 }
 
-class SimpleTypeDeclaration: public TypeDeclaration
+class ScalarTypeDeclaration: public TypeDeclaration
 {
 public:
-    SimpleTypeDeclaration(): TypeDeclaration(TypeDeclaration::Kind::SIMPLE)
+    enum class Kind
+    {
+        NONE,
+        BOOLEAN,
+        INTEGER,
+        FLOATING_POINT
+    };
+
+    ScalarTypeDeclaration(Kind initScalarTypeKind): TypeDeclaration(TypeDeclaration::Kind::SCALAR), scalarTypeKind(initScalarTypeKind)
     {
         definition = this;
     }
 
-    bool scalar = false;
+    inline Kind getScalarTypeKind() const { return scalarTypeKind; }
+
+protected:
+    Kind scalarTypeKind;
 };
+
+inline std::string scalarTypeKindToString(ScalarTypeDeclaration::Kind kind)
+{
+    switch (kind)
+    {
+        case ScalarTypeDeclaration::Kind::NONE: return "NONE";
+        case ScalarTypeDeclaration::Kind::BOOLEAN: return "BOOLEAN";
+        case ScalarTypeDeclaration::Kind::INTEGER: return "INTEGER";
+        case ScalarTypeDeclaration::Kind::FLOATING_POINT: return "FLOATING_POINT";
+    }
+
+    return "unknown";
+}
 
 class FieldDeclaration: public Declaration
 {
@@ -1098,9 +1122,9 @@ private:
 
     std::vector<std::unique_ptr<Construct>> constructs;
 
-    SimpleTypeDeclaration boolTypeDeclaration;
-    SimpleTypeDeclaration intTypeDeclaration;
-    SimpleTypeDeclaration floatTypeDeclaration;
+    ScalarTypeDeclaration boolTypeDeclaration;
+    ScalarTypeDeclaration intTypeDeclaration;
+    ScalarTypeDeclaration floatTypeDeclaration;
     StructDeclaration float2TypeDeclaration;
     StructDeclaration float3TypeDeclaration;
     StructDeclaration float4TypeDeclaration;
