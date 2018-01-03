@@ -213,7 +213,18 @@ public:
 
     inline Kind getDeclarationKind() const { return declarationKind; }
 
+    const Declaration* getFirstDeclaration() const
+    {
+        const Declaration* result = this;
+
+        while (result->previousDeclaration) result = result->previousDeclaration;
+
+        return result;
+    }
+
     std::string name;
+    Declaration* previousDeclaration = nullptr;
+    Declaration* definition = nullptr;
 
 protected:
     Kind declarationKind = Kind::NONE;
@@ -256,7 +267,10 @@ inline std::string typeKindToString(TypeDeclaration::Kind kind)
 class SimpleTypeDeclaration: public TypeDeclaration
 {
 public:
-    SimpleTypeDeclaration(): TypeDeclaration(TypeDeclaration::Kind::SIMPLE) {}
+    SimpleTypeDeclaration(): TypeDeclaration(TypeDeclaration::Kind::SIMPLE)
+    {
+        definition = this;
+    }
 
     bool scalar = false;
 };
@@ -264,7 +278,10 @@ public:
 class FieldDeclaration: public Declaration
 {
 public:
-    FieldDeclaration(): Declaration(Declaration::Kind::FIELD) {}
+    FieldDeclaration(): Declaration(Declaration::Kind::FIELD)
+    {
+        definition = this;
+    }
 
     QualifiedType qualifiedType;
 
@@ -274,7 +291,10 @@ public:
 class ParameterDeclaration: public Declaration
 {
 public:
-    ParameterDeclaration(): Declaration(Declaration::Kind::PARAMETER) {}
+    ParameterDeclaration(): Declaration(Declaration::Kind::PARAMETER)
+    {
+        definition = this;
+    }
 
     QualifiedType qualifiedType;
 };
@@ -308,7 +328,7 @@ public:
                                    constructorDeclaration->parameterDeclarations.begin(),
                                    [](const QualifiedType& qualifiedType,
                                       const ParameterDeclaration* parameterDeclaration) {
-                                       return qualifiedType.typeDeclaration == parameterDeclaration->qualifiedType.typeDeclaration && // TODO: check for forward declarations
+                                       return qualifiedType.typeDeclaration->getFirstDeclaration() == parameterDeclaration->qualifiedType.typeDeclaration->getFirstDeclaration() && // TODO: type promotion
                                         qualifiedType.dimensions == parameterDeclaration->qualifiedType.dimensions;
                                    }))
                     {
@@ -331,19 +351,7 @@ public:
         return nullptr;
     }
 
-    const StructDeclaration* getFirstDeclaration() const
-    {
-        const StructDeclaration* result = this;
-
-        while (result->previousDeclaration) result = result->previousDeclaration;
-
-        return result;
-    }
-
     std::vector<Declaration*> memberDeclarations;
-
-    StructDeclaration* previousDeclaration = nullptr;
-    StructDeclaration* definition = nullptr;
 };
 
 inline std::string declarationKindToString(Declaration::Kind kind)
@@ -389,9 +397,6 @@ public:
     bool isStatic = false;
     bool isBuiltin = false;
     Program program = Program::NONE;
-
-    FunctionDeclaration* previousDeclaration = nullptr;
-    FunctionDeclaration* definition = nullptr;
 };
 
 inline std::string programToString(FunctionDeclaration::Program program)
@@ -409,7 +414,10 @@ inline std::string programToString(FunctionDeclaration::Program program)
 class VariableDeclaration: public Declaration
 {
 public:
-    VariableDeclaration(): Declaration(Declaration::Kind::VARIABLE) {}
+    VariableDeclaration(): Declaration(Declaration::Kind::VARIABLE)
+    {
+        definition = this;
+    }
 
     QualifiedType qualifiedType;
     Expression* initialization = nullptr;
@@ -864,8 +872,8 @@ private:
     }
 
     static FunctionDeclaration* findFunctionDeclaration(const std::string& name,
-                                                 const std::vector<std::vector<Declaration*>>& declarationScopes,
-                                                 const std::vector<QualifiedType>& parameters)
+                                                        const std::vector<std::vector<Declaration*>>& declarationScopes,
+                                                        const std::vector<QualifiedType>& parameters)
     {
         for (auto scopeIterator = declarationScopes.crbegin(); scopeIterator != declarationScopes.crend(); ++scopeIterator)
         {
@@ -883,7 +891,7 @@ private:
                                        functionDeclaration->parameterDeclarations.begin(),
                                        [](const QualifiedType& qualifiedType,
                                           const ParameterDeclaration* parameterDeclaration) {
-                                           return qualifiedType.typeDeclaration == parameterDeclaration->qualifiedType.typeDeclaration && // TODO: check for forward declarations
+                                           return qualifiedType.typeDeclaration->getFirstDeclaration() == parameterDeclaration->qualifiedType.typeDeclaration->getFirstDeclaration() && // TODO: type promotion
                                             qualifiedType.dimensions == parameterDeclaration->qualifiedType.dimensions;
                                        }))
                         {

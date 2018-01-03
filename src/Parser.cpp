@@ -51,6 +51,7 @@ ASTContext::ASTContext()
     for (auto& constructor : constructors)
     {
         constructorDeclaration->parent = constructor.first;
+        constructorDeclaration->definition = constructorDeclaration;
 
         for (auto& parameter : constructor.second)
         {
@@ -615,7 +616,7 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
                 }
 
                 // set the definition pointer of all previous declarations
-                FunctionDeclaration* previousDeclaration = result->previousDeclaration;
+                Declaration* previousDeclaration = result->previousDeclaration;
                 while (previousDeclaration)
                 {
                     previousDeclaration->definition = result;
@@ -779,7 +780,7 @@ StructDeclaration* ASTContext::parseStructDeclaration(const std::vector<Token>& 
         result->definition = result;
 
         // set the definition pointer of all previous declarations
-        StructDeclaration* previousDeclaration = result->previousDeclaration;
+        Declaration* previousDeclaration = result->previousDeclaration;
         while (previousDeclaration)
         {
             previousDeclaration->definition = result;
