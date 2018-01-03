@@ -3073,7 +3073,7 @@ void ASTContext::dumpDeclaration(const Declaration* declaration, std::string ind
 
                     for (const Declaration* memberDeclaration : structDeclaration->memberDeclarations)
                     {
-                        dumpConstruct(memberDeclaration, indent + " ");
+                        dumpConstruct(memberDeclaration, indent + "  ");
                     }
 
                     break;
