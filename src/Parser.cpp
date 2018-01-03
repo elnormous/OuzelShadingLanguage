@@ -570,13 +570,6 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
 
             result->previousDeclaration = findFunctionDeclaration(name, declarationScopes, parameters);
 
-            // check if only one definition exists
-            if (result->previousDeclaration && result->previousDeclaration->definition)
-            {
-                std::cerr << "Redefinition of " << result->name << std::endl;
-                return nullptr;
-            }
-
             if (!parseAttributes(tokens, iterator, attributes)) return nullptr;
 
             for (std::pair<std::string, std::vector<std::string>>& attribute : attributes)
@@ -609,8 +602,18 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
 
             declarationScopes.back().push_back(result);
 
+            // set the definition of the previous declaration
+            if (result->previousDeclaration) result->definition = result->previousDeclaration->definition;
+
             if (isToken(Token::Type::LEFT_BRACE, tokens, iterator))
             {
+                // check if only one definition exists
+                if (result->definition)
+                {
+                    std::cerr << "Redefinition of " << result->name << std::endl;
+                    return nullptr;
+                }
+
                 // set the definition pointer of all previous declarations
                 FunctionDeclaration* previousDeclaration = result->previousDeclaration;
                 while (previousDeclaration)
@@ -757,18 +760,21 @@ StructDeclaration* ASTContext::parseStructDeclaration(const std::vector<Token>& 
     result->name = iterator->value;
     result->previousDeclaration = findStructDeclaration(iterator->value, declarationScopes);
 
-    // check if only one definition exists
-    if (result->previousDeclaration && result->previousDeclaration->definition)
-    {
-        std::cerr << "Redefinition of " << result->name << std::endl;
-        return nullptr;
-    }
-
     ++iterator;
+
+    // set the definition of the previous declaration
+    if (result->previousDeclaration) result->definition = result->previousDeclaration->definition;
 
     if (isToken(Token::Type::LEFT_BRACE, tokens, iterator))
     {
         ++iterator;
+
+        // check if only one definition exists
+        if (result->definition)
+        {
+            std::cerr << "Redefinition of " << result->name << std::endl;
+            return nullptr;
+        }
 
         result->definition = result;
 
