@@ -3057,6 +3057,11 @@ void ASTContext::dumpDeclaration(const Declaration* declaration, std::string ind
                         std::cout << ", previous declaration: " << structDeclaration->previousDeclaration;
                     }
 
+                    if (structDeclaration->definition)
+                    {
+                        std::cout << ", definition: " << structDeclaration->definition;
+                    }
+
                     std::cout << std::endl;
 
                     for (const Declaration* memberDeclaration : structDeclaration->memberDeclarations)
@@ -3130,6 +3135,11 @@ void ASTContext::dumpDeclaration(const Declaration* declaration, std::string ind
             if (functionDeclaration->previousDeclaration)
             {
                 std::cout << ", previous declaration: " << functionDeclaration->previousDeclaration;
+            }
+
+            if (functionDeclaration->definition)
+            {
+                std::cout << ", definition: " << functionDeclaration->definition;
             }
 
             std::cout << std::endl;
