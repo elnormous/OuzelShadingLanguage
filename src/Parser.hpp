@@ -1030,6 +1030,9 @@ private:
                                   std::vector<std::vector<Declaration*>>& declarationScopes,
                                   Construct* parent);
 
+    CastExpression* addImplicitCast(Expression* expression,
+                                    TypeDeclaration* typeDeclaration);
+
     Expression* parsePrimaryExpression(const std::vector<Token>& tokens,
                                        std::vector<Token>::const_iterator& iterator,
                                        std::vector<std::vector<Declaration*>>& declarationScopes,

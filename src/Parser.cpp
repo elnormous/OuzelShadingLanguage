@@ -1830,6 +1830,20 @@ DoStatement* ASTContext::parseDoStatement(const std::vector<Token>& tokens,
     return result;
 }
 
+CastExpression* ASTContext::addImplicitCast(Expression* expression,
+                                            TypeDeclaration* typeDeclaration)
+{
+    CastExpression* result = new CastExpression(CastExpression::Kind::IMPLICIT);
+    constructs.push_back(std::unique_ptr<Construct>(result));
+    result->parent = expression->parent;
+    result->qualifiedType.typeDeclaration = typeDeclaration;
+
+    result->expression = expression;
+    expression->parent = result;
+
+    return result;
+}
+
 Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
                                                std::vector<Token>::const_iterator& iterator,
                                                std::vector<std::vector<Declaration*>>& declarationScopes,
@@ -2342,14 +2356,7 @@ Expression* ASTContext::parseSignExpression(const std::vector<Token>& tokens,
 
         if (result->expression->qualifiedType.typeDeclaration == &boolTypeDeclaration)
         {
-            CastExpression* castExpression = new CastExpression(CastExpression::Kind::IMPLICIT);
-            constructs.push_back(std::unique_ptr<Construct>(castExpression));
-            castExpression->parent = result;
-            castExpression->qualifiedType.typeDeclaration = &intTypeDeclaration;
-
-            castExpression->expression = result->expression;
-            result->expression->parent = castExpression;
-            result->expression = castExpression;
+            result->expression = addImplicitCast(result->expression, &intTypeDeclaration);
         }
 
         result->qualifiedType = result->expression->qualifiedType;
@@ -2394,17 +2401,9 @@ Expression* ASTContext::parseNotExpression(const std::vector<Token>& tokens,
             return nullptr;
         }
 
-        if (result->expression->qualifiedType.typeDeclaration == &intTypeDeclaration ||
-            result->expression->qualifiedType.typeDeclaration == &floatTypeDeclaration)
+        if (result->expression->qualifiedType.typeDeclaration != &boolTypeDeclaration)
         {
-            CastExpression* castExpression = new CastExpression(CastExpression::Kind::IMPLICIT);
-            constructs.push_back(std::unique_ptr<Construct>(castExpression));
-            castExpression->parent = result;
-            castExpression->qualifiedType.typeDeclaration = &boolTypeDeclaration;
-
-            castExpression->expression = result->expression;
-            result->expression->parent = castExpression;
-            result->expression = castExpression;
+            result->expression = addImplicitCast(result->expression, &boolTypeDeclaration);
         }
 
         result->qualifiedType.typeDeclaration = &boolTypeDeclaration;
