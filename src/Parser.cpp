@@ -2239,6 +2239,27 @@ Expression* ASTContext::parseSubscriptExpression(const std::vector<Token>& token
             return nullptr;
         }
 
+        if (!expression->subscript->qualifiedType.typeDeclaration ||
+            expression->subscript->qualifiedType.typeDeclaration->getTypeKind() != TypeDeclaration::Kind::SCALAR)
+        {
+            std::cerr << "Subscript is not an integer" << std::endl;
+            return nullptr;
+        }
+
+        ScalarTypeDeclaration* scalarType = static_cast<ScalarTypeDeclaration*>(expression->subscript->qualifiedType.typeDeclaration);
+
+        if (scalarType->getScalarTypeKind() != ScalarTypeDeclaration::Kind::BOOLEAN &&
+            scalarType->getScalarTypeKind() != ScalarTypeDeclaration::Kind::INTEGER)
+        {
+            std::cerr << "Subscript is not an integer" << std::endl;
+            return nullptr;
+        }
+
+        if (scalarType->getScalarTypeKind() != ScalarTypeDeclaration::Kind::INTEGER)
+        {
+            expression->subscript = addImplicitCast(expression->subscript, &intTypeDeclaration);
+        }
+
         if (!isToken(Token::Type::RIGHT_BRACKET, tokens, iterator))
         {
             std::cerr << "Expected a right brace" << std::endl;
