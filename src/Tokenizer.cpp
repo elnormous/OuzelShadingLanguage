@@ -110,11 +110,10 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
         else if ((*i >= '0' && *i <= '9') ||  // number
                  (*i == '.' && (i + 1) != code.end() && *(i + 1) >= '0' && *(i + 1) <= '9')) // starts with a dot
         {
+            bool decimal = true;
             token.kind = Token::Kind::LITERAL;
-            token.type = Token::Type::LITERAL_INT;
 
-            while (i != code.end() &&
-                   ((*i >= '0' && *i <= '9')))
+            while (i != code.end() && (*i >= '0' && *i <= '9'))
             {
                 token.value.push_back(*i);
                 ++i;
@@ -122,13 +121,12 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
 
             if (i != code.end() && *i == '.')
             {
-                token.type = Token::Type::LITERAL_FLOAT;
+                decimal = false;
 
                 token.value.push_back(*i);
                 ++i;
 
-                while (i != code.end() &&
-                       ((*i >= '0' && *i <= '9')))
+                while (i != code.end() && (*i >= '0' && *i <= '9'))
                 {
                     token.value.push_back(*i);
                     ++i;
@@ -139,6 +137,8 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
             if (i != code.end() &&
                 (*i == 'e' || *i == 'E'))
             {
+                decimal = false;
+
                 token.value.push_back(*i);
                 ++i;
 
@@ -157,12 +157,39 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
                     return false;
                 }
 
-                while (i != code.end() &&
-                       ((*i >= '0' && *i <= '9')))
+                while (i != code.end() && (*i >= '0' && *i <= '9'))
                 {
                     token.value.push_back(*i);
                     ++i;
                 }
+            }
+
+            std::string suffix;
+
+            while (i != code.end() && ((*i >= 'a' && *i <= 'z') || (*i >= 'A' && *i <= 'Z')))
+            {
+                suffix.push_back(*i);
+                ++i;
+            }
+
+            if (suffix.empty())
+            {
+                if (decimal) token.type = Token::Type::LITERAL_INT;
+                else token.type = Token::Type::LITERAL_DOUBLE;
+            }
+            else if (suffix == "f" || suffix == "F")
+            {
+                if (decimal)
+                {
+                    std::cerr << "Invalid decimal constant" << std::endl;
+                    return false;
+                }
+                else token.type = Token::Type::LITERAL_FLOAT;
+            }
+            else
+            {
+                std::cerr << "Invalid suffix " << suffix << std::endl;
+                return false;
             }
         }
         else if (*i == '"') // string literal

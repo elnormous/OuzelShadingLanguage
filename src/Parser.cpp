@@ -379,6 +379,7 @@ bool ASTContext::parseAttributes(const std::vector<Token>& tokens,
             {
                 if (isToken(Token::Type::LITERAL_INT, tokens, iterator) ||
                     isToken(Token::Type::LITERAL_FLOAT, tokens, iterator) ||
+                    isToken(Token::Type::LITERAL_DOUBLE, tokens, iterator) ||
                     isToken(Token::Type::LITERAL_CHAR, tokens, iterator) ||
                     isToken(Token::Type::LITERAL_STRING, tokens, iterator))
                 {
@@ -1874,6 +1875,11 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
         ++iterator;
 
         return result;
+    }
+    else if (isToken(Token::Type::LITERAL_DOUBLE, tokens, iterator))
+    {
+        std::cerr << "Double precision floating point numbers are not supported" << std ::endl;
+        return nullptr;
     }
     else if (isToken(Token::Type::LITERAL_STRING, tokens, iterator))
     {

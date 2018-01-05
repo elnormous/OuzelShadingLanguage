@@ -25,6 +25,7 @@ struct Token
         LITERAL_CHAR, // char
         LITERAL_INT, // int
         LITERAL_FLOAT, // float
+        LITERAL_DOUBLE, // double
         LITERAL_STRING, // string
         KEYWORD_AUTO, // auto
         KEYWORD_BOOL, // bool
@@ -155,6 +156,7 @@ inline std::string tokenTypeToString(Token::Type type)
         case Token::Type::NONE: return "NONE";
         case Token::Type::LITERAL_INT: return "LITERAL_INT";
         case Token::Type::LITERAL_FLOAT: return "LITERAL_FLOAT";
+        case Token::Type::LITERAL_DOUBLE: return "LITERAL_DOUBLE";
         case Token::Type::LITERAL_CHAR: return "LITERAL_CHAR";
         case Token::Type::LITERAL_STRING: return "LITERAL_STRING";
         case Token::Type::KEYWORD_AUTO: return "KEYWORD_AUTO";
