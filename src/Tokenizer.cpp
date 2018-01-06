@@ -110,7 +110,7 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
         else if ((*i >= '0' && *i <= '9') ||  // number
                  (*i == '.' && (i + 1) != code.end() && *(i + 1) >= '0' && *(i + 1) <= '9')) // starts with a dot
         {
-            bool decimal = true;
+            bool integer = true;
             token.kind = Token::Kind::LITERAL;
 
             while (i != code.end() && (*i >= '0' && *i <= '9'))
@@ -121,7 +121,7 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
 
             if (i != code.end() && *i == '.')
             {
-                decimal = false;
+                integer = false;
 
                 token.value.push_back(*i);
                 ++i;
@@ -137,7 +137,7 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
             if (i != code.end() &&
                 (*i == 'e' || *i == 'E'))
             {
-                decimal = false;
+                integer = false;
 
                 token.value.push_back(*i);
                 ++i;
@@ -174,14 +174,14 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
 
             if (suffix.empty())
             {
-                if (decimal) token.type = Token::Type::LITERAL_INT;
+                if (integer) token.type = Token::Type::LITERAL_INT;
                 else token.type = Token::Type::LITERAL_DOUBLE;
             }
             else if (suffix == "f" || suffix == "F")
             {
-                if (decimal)
+                if (integer)
                 {
-                    std::cerr << "Invalid decimal constant" << std::endl;
+                    std::cerr << "Invalid integer constant" << std::endl;
                     return false;
                 }
                 else token.type = Token::Type::LITERAL_FLOAT;
