@@ -149,6 +149,7 @@ bool OutputHLSL::printDeclaration(const Declaration* declaration, Options option
 
             const FunctionDeclaration* functionDeclaration = static_cast<const FunctionDeclaration*>(declaration);
 
+            if (functionDeclaration->isStatic) code += "static ";
             if (functionDeclaration->isInline) code += "inline ";
 
             if (functionDeclaration->qualifiedType.typeDeclaration)
@@ -191,6 +192,7 @@ bool OutputHLSL::printDeclaration(const Declaration* declaration, Options option
             code.append(options.indentation, ' ');
 
             const VariableDeclaration* variableDeclaration = static_cast<const VariableDeclaration*>(declaration);
+            if (variableDeclaration->isStatic) code += "static ";
             code += variableDeclaration->qualifiedType.typeDeclaration->name + " " + variableDeclaration->name;
 
             if (variableDeclaration->initialization)
