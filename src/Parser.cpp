@@ -269,6 +269,7 @@ bool ASTContext::isDeclaration(const std::vector<Token>& tokens,
 
     return iterator->type == Token::Type::KEYWORD_CONST ||
         iterator->type == Token::Type::KEYWORD_STATIC ||
+        iterator->type == Token::Type::KEYWORD_VOLATILE ||
         iterator->type == Token::Type::KEYWORD_INLINE ||
         iterator->type == Token::Type::KEYWORD_STRUCT ||
         iterator->type == Token::Type::KEYWORD_BOOL ||
@@ -325,6 +326,7 @@ bool ASTContext::parseSpecifiers(const std::vector<Token>& tokens,
     specifiers.isConst = false;
     specifiers.isInline = false;
     specifiers.isStatic = false;
+    specifiers.isVolatile = false;
 
     for (;;)
     {
@@ -333,15 +335,20 @@ bool ASTContext::parseSpecifiers(const std::vector<Token>& tokens,
             ++iterator;
             specifiers.isConst = true;
         }
+        else if (isToken(Token::Type::KEYWORD_INLINE, tokens, iterator))
+        {
+            ++iterator;
+            specifiers.isInline = true;
+        }
         else if (isToken(Token::Type::KEYWORD_STATIC, tokens, iterator))
         {
             ++iterator;
             specifiers.isStatic = true;
         }
-        else if (isToken(Token::Type::KEYWORD_INLINE, tokens, iterator))
+        else if (isToken(Token::Type::KEYWORD_VOLATILE, tokens, iterator))
         {
             ++iterator;
-            specifiers.isInline = true;
+            specifiers.isVolatile = true;
         }
         else break;
     }
@@ -475,11 +482,12 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
         ASTContext::Specifiers specifiers;
         if (!parseSpecifiers(tokens, iterator, specifiers)) return nullptr;
 
-        bool isStatic = specifiers.isStatic;
-        bool isInline = specifiers.isInline;
-
         QualifiedType qualifiedType;
         qualifiedType.isConst = specifiers.isConst;
+        qualifiedType.isVolatile = specifiers.isVolatile;
+
+        bool isStatic = specifiers.isStatic;
+        bool isInline = specifiers.isInline;
 
         if (isToken(Token::Type::KEYWORD_VOID, tokens, iterator))
         {
@@ -505,6 +513,9 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
         }
 
         if (!parseSpecifiers(tokens, iterator, specifiers)) return nullptr;
+
+        if (specifiers.isConst) qualifiedType.isConst = true;
+        if (specifiers.isVolatile) qualifiedType.isVolatile = true;
 
         if (specifiers.isStatic) isStatic = true;
         if (specifiers.isInline) isInline = true;
@@ -856,6 +867,9 @@ Declaration* ASTContext::parseMemberDeclaration(const std::vector<Token>& tokens
         ASTContext::Specifiers specifiers;
         if (!parseSpecifiers(tokens, iterator, specifiers)) return nullptr;
 
+        result->qualifiedType.isConst = specifiers.isConst;
+        result->qualifiedType.isVolatile = specifiers.isVolatile;
+
         bool isStatic = specifiers.isStatic;
         bool isInline = specifiers.isInline;
 
@@ -876,6 +890,9 @@ Declaration* ASTContext::parseMemberDeclaration(const std::vector<Token>& tokens
         }
 
         if (!parseSpecifiers(tokens, iterator, specifiers)) return nullptr;
+
+        if (specifiers.isConst) result->qualifiedType.isConst = true;
+        if (specifiers.isVolatile) result->qualifiedType.isVolatile = true;
 
         if (specifiers.isStatic) isStatic = true;
         if (specifiers.isInline) isInline = true;
@@ -994,6 +1011,9 @@ ParameterDeclaration* ASTContext::parseParameterDeclaration(const std::vector<To
     ASTContext::Specifiers specifiers;
     if (!parseSpecifiers(tokens, iterator, specifiers)) return nullptr;
 
+    result->qualifiedType.isConst = specifiers.isConst;
+    result->qualifiedType.isVolatile = specifiers.isVolatile;
+
     bool isStatic = specifiers.isStatic;
     bool isInline = specifiers.isInline;
 
@@ -1014,6 +1034,9 @@ ParameterDeclaration* ASTContext::parseParameterDeclaration(const std::vector<To
     }
 
     if (!parseSpecifiers(tokens, iterator, specifiers)) return nullptr;
+
+    if (specifiers.isConst) result->qualifiedType.isConst = true;
+    if (specifiers.isVolatile) result->qualifiedType.isVolatile = true;
 
     if (specifiers.isStatic) isStatic = true;
     if (specifiers.isInline) isInline = true;

@@ -84,6 +84,7 @@ class QualifiedType
 public:
     TypeDeclaration* typeDeclaration = nullptr;
     bool isConst = false;
+    bool isVolatile = false;
     std::vector<uint32_t> dimensions;
 };
 
@@ -950,6 +951,7 @@ private:
         bool isConst = false;
         bool isInline = false;
         bool isStatic = false;
+        bool isVolatile = false;
     };
 
     static bool parseSpecifiers(const std::vector<Token>& tokens,
