@@ -39,6 +39,35 @@ bool OutputHLSL::output(const ASTContext& context, const std::string& outputFile
     return true;
 }
 
+static std::pair<std::string, std::string> getPrintableTypeName(const QualifiedType& qualifiedType)
+{
+    std::pair<std::string, std::string> result;
+
+    if (qualifiedType.isVolatile) result.first += "volatile ";
+    if (qualifiedType.isConst) result.first += "const ";
+
+    if (!qualifiedType.typeDeclaration)
+    {
+        result.first += "void";
+    }
+    else
+    {
+        TypeDeclaration* typeDeclaration = qualifiedType.typeDeclaration;
+        while (typeDeclaration->getTypeKind() == TypeDeclaration::Kind::ARRAY)
+        {
+            ArrayTypeDeclaration* arrayTypeDeclaration = static_cast<ArrayTypeDeclaration*>(typeDeclaration);
+
+            result.second = "[" + std::to_string(arrayTypeDeclaration->size) + "]" + result.second;
+
+            typeDeclaration = arrayTypeDeclaration->elementType.typeDeclaration;
+        }
+
+        result.first = typeDeclaration->name;
+    }
+
+    return result;
+}
+
 bool OutputHLSL::printDeclaration(const Declaration* declaration, Options options, std::string& code)
 {
     switch (declaration->getDeclarationKind())
@@ -93,7 +122,10 @@ bool OutputHLSL::printDeclaration(const Declaration* declaration, Options option
             code.append(options.indentation, ' ');
 
             const FieldDeclaration* fieldDeclaration = static_cast<const FieldDeclaration*>(declaration);
-            code += fieldDeclaration->qualifiedType.typeDeclaration->name + " " + fieldDeclaration->name;
+
+            std::pair<std::string, std::string> printableTypeName = getPrintableTypeName(fieldDeclaration->qualifiedType);
+
+            code += printableTypeName.first + " " + fieldDeclaration->name + printableTypeName.second;
 
             if (fieldDeclaration->semantic != Semantic::NONE)
             {
@@ -152,12 +184,9 @@ bool OutputHLSL::printDeclaration(const Declaration* declaration, Options option
             if (functionDeclaration->isStatic) code += "static ";
             if (functionDeclaration->isInline) code += "inline ";
 
-            if (functionDeclaration->qualifiedType.typeDeclaration)
-                code += functionDeclaration->qualifiedType.typeDeclaration->name;
-            else
-                code += "void";
+            std::pair<std::string, std::string> printableTypeName = getPrintableTypeName(functionDeclaration->qualifiedType);
 
-            code += " " + functionDeclaration->name + "(";
+            code += printableTypeName.first + " " + functionDeclaration->name + "(";
 
             bool firstParameter = true;
 
@@ -193,7 +222,10 @@ bool OutputHLSL::printDeclaration(const Declaration* declaration, Options option
 
             const VariableDeclaration* variableDeclaration = static_cast<const VariableDeclaration*>(declaration);
             if (variableDeclaration->isStatic) code += "static ";
-            code += variableDeclaration->qualifiedType.typeDeclaration->name + " " + variableDeclaration->name;
+
+            std::pair<std::string, std::string> printableTypeName = getPrintableTypeName(variableDeclaration->qualifiedType);
+
+            code += printableTypeName.first + " " + variableDeclaration->name + printableTypeName.second;
 
             if (variableDeclaration->initialization)
             {
@@ -212,7 +244,10 @@ bool OutputHLSL::printDeclaration(const Declaration* declaration, Options option
             code.append(options.indentation, ' ');
 
             const ParameterDeclaration* parameterDeclaration = static_cast<const ParameterDeclaration*>(declaration);
-            code += parameterDeclaration->qualifiedType.typeDeclaration->name + " " + parameterDeclaration->name;
+
+            std::pair<std::string, std::string> printableTypeName = getPrintableTypeName(parameterDeclaration->qualifiedType);
+
+            code += printableTypeName.first + " " + parameterDeclaration->name + printableTypeName.second;
             break;
         }
     }
