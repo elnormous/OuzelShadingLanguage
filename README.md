@@ -31,6 +31,7 @@ The following are the language's keywords and can only be used as described in t
 * switch
 * true
 * void
+* volatile
 * while
 
 The following are the keywords reserved for future use. Using them will result in a compile-time error:
@@ -66,7 +67,6 @@ The following are the keywords reserved for future use. Using them will result i
 * unsigned
 * using
 * virtual
-* volatile
 
 ## 2.3 Operators
 
