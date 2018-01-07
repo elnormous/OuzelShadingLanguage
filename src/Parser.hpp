@@ -214,9 +214,9 @@ public:
 
     inline Kind getDeclarationKind() const { return declarationKind; }
 
-    const Declaration* getFirstDeclaration() const
+    Declaration* getFirstDeclaration()
     {
-        const Declaration* result = this;
+        Declaration* result = this;
 
         while (result->previousDeclaration) result = result->previousDeclaration;
 
@@ -238,8 +238,8 @@ public:
     {
         NONE,
         SCALAR,
-        STRUCT,
-        //TYPE_DEFINITION, // typedef is not supported in GLSL
+        STRUCT
+        //TYPE_DEFINITION // typedef is not supported in GLSL
     };
 
     TypeDeclaration(Kind initTypeKind): Declaration(Declaration::Kind::TYPE), typeKind(initTypeKind) {}
@@ -916,7 +916,7 @@ private:
                                        functionDeclaration->parameterDeclarations.begin(),
                                        [](const QualifiedType& qualifiedType,
                                           const ParameterDeclaration* parameterDeclaration) {
-                                           return qualifiedType.typeDeclaration->getFirstDeclaration() == parameterDeclaration->qualifiedType.typeDeclaration->getFirstDeclaration() && // TODO: type promotion
+                                           return qualifiedType.typeDeclaration->getFirstDeclaration() == parameterDeclaration->qualifiedType.typeDeclaration->getFirstDeclaration() &&
                                             qualifiedType.dimensions == parameterDeclaration->qualifiedType.dimensions;
                                        }))
                         {
