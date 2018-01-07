@@ -66,6 +66,7 @@ The following are the keywords reserved for future use. Using them will result i
 * unsigned
 * using
 * virtual
+* volatile
 
 ## 2.3 Operators
 

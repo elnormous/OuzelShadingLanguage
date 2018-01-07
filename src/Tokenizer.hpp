@@ -78,6 +78,7 @@ struct Token
         KEYWORD_USING, // using
         KEYWORD_VIRTUAL, // virtual
         KEYWORD_VOID, // void
+        KEYWORD_VOLATILE, // volatile
         KEYWORD_WHILE, // while
         LEFT_PARENTHESIS, // (
         RIGHT_PARENTHESIS, // )
@@ -210,6 +211,7 @@ inline std::string tokenTypeToString(Token::Type type)
         case Token::Type::KEYWORD_USING: return "KEYWORD_USING";
         case Token::Type::KEYWORD_VIRTUAL: return "KEYWORD_VIRTUAL";
         case Token::Type::KEYWORD_VOID: return "KEYWORD_VOID";
+        case Token::Type::KEYWORD_VOLATILE: return "KEYWORD_VOLATILE";
         case Token::Type::KEYWORD_WHILE: return "KEYWORD_WHILE";
         case Token::Type::LEFT_PARENTHESIS: return "LEFT_PARENTHESIS";
         case Token::Type::RIGHT_PARENTHESIS: return "RIGHT_PARENTHESIS";

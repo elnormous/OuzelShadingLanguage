@@ -73,6 +73,7 @@ static const std::map<std::string, Token::Type> keywordMap = {
     {"using", Token::Type::KEYWORD_USING},
     {"virtual", Token::Type::KEYWORD_VIRTUAL},
     {"void", Token::Type::KEYWORD_VOID},
+    {"volatile", Token::Type::KEYWORD_VOLATILE},
     {"while", Token::Type::KEYWORD_WHILE}
 };
 
