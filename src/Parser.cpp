@@ -209,6 +209,26 @@ bool ASTContext::parse(const std::vector<Token>& tokens)
     return true;
 }
 
+ArrayTypeDeclaration* ASTContext::getArrayTypeDeclaration(QualifiedType qualifiedType, uint32_t size)
+{
+    auto i = arrayTypeDeclarations.find(std::make_pair(qualifiedType, size));
+
+    if (i != arrayTypeDeclarations.end())
+    {
+        return i->second;
+    }
+    else
+    {
+        ArrayTypeDeclaration* result = new ArrayTypeDeclaration();
+        constructs.push_back(std::unique_ptr<Construct>(result));
+        result->elementType = qualifiedType;
+        result->size = size;
+
+        arrayTypeDeclarations[std::make_pair(qualifiedType, size)] = result;
+        return result;
+    }
+}
+
 bool ASTContext::isType(const std::vector<Token>& tokens,
                         std::vector<Token>::const_iterator iterator,
                         std::vector<std::vector<Declaration*>>& declarationScopes)
@@ -689,7 +709,7 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
                         return nullptr;
                     }
 
-                    result->qualifiedType.dimensions.push_back(static_cast<uint32_t>(size));
+                    result->qualifiedType.typeDeclaration = getArrayTypeDeclaration(result->qualifiedType, static_cast<uint32_t>(size));
                 }
                 else
                 {
@@ -937,7 +957,7 @@ Declaration* ASTContext::parseMemberDeclaration(const std::vector<Token>& tokens
                     return nullptr;
                 }
 
-                result->qualifiedType.dimensions.push_back(static_cast<uint32_t>(size));
+                result->qualifiedType.typeDeclaration = getArrayTypeDeclaration(result->qualifiedType, static_cast<uint32_t>(size));
             }
             else
             {
@@ -1079,7 +1099,7 @@ ParameterDeclaration* ASTContext::parseParameterDeclaration(const std::vector<To
                 return nullptr;
             }
 
-            result->qualifiedType.dimensions.push_back(static_cast<uint32_t>(size));
+            result->qualifiedType.typeDeclaration = getArrayTypeDeclaration(result->qualifiedType, static_cast<uint32_t>(size));
         }
         else
         {
@@ -1970,42 +1990,38 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
         InitializerListExpression* result = new InitializerListExpression();
         constructs.push_back(std::unique_ptr<Construct>(result));
 
-        if (!isToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
+        QualifiedType qualifiedType;
+
+        for (;;)
         {
-            for (;;)
+            Expression* expression;
+            if (!(expression = parseMultiplicationAssignmentExpression(tokens, iterator, declarationScopes, result)))
             {
-                Expression* expression;
-                if (!(expression = parseMultiplicationAssignmentExpression(tokens, iterator, declarationScopes, result)))
+                return nullptr;
+            }
+
+            if (!qualifiedType.typeDeclaration)
+            {
+                qualifiedType.typeDeclaration = expression->qualifiedType.typeDeclaration;
+            }
+            else
+            {
+                if (qualifiedType.typeDeclaration != expression->qualifiedType.typeDeclaration)
                 {
+                    // TODO: implement type narrowing
+                    std::cerr << "Expression type does not match previous expressions in initializer list" << std ::endl;
                     return nullptr;
                 }
-
-                if (!result->qualifiedType.typeDeclaration)
-                {
-                    result->qualifiedType.typeDeclaration = expression->qualifiedType.typeDeclaration;
-                    result->qualifiedType.dimensions.push_back(0);
-                }
-                else
-                {
-                    if (result->qualifiedType.typeDeclaration != expression->qualifiedType.typeDeclaration)
-                    {
-                        // TODO: implement type narrowing
-                        std::cerr << "Expression type does not match previous expressions in initializer list" << std ::endl;
-                        return nullptr;
-                    }
-
-                    ++result->qualifiedType.dimensions.back();
-                }
-
-                result->expressions.push_back(expression);
-
-                if (!isToken(Token::Type::COMMA, tokens, iterator))
-                {
-                    break;
-                }
-
-                ++iterator;
             }
+
+            result->expressions.push_back(expression);
+
+            if (!isToken(Token::Type::COMMA, tokens, iterator))
+            {
+                break;
+            }
+
+            ++iterator;
         }
 
         if (!isToken(Token::Type::RIGHT_BRACE, tokens, iterator))
@@ -2013,6 +2029,8 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
             std::cerr << "Expected a right brace" << std ::endl;
             return nullptr;
         }
+
+        result->qualifiedType.typeDeclaration = getArrayTypeDeclaration(qualifiedType, static_cast<uint32_t>(result->expressions.size()));
 
         ++iterator;
 
@@ -2257,7 +2275,7 @@ Expression* ASTContext::parseSubscriptExpression(const std::vector<Token>& token
             return nullptr;
         }
 
-        if (result->qualifiedType.dimensions.empty())
+        if (result->qualifiedType.typeDeclaration->getTypeKind() != TypeDeclaration::Kind::ARRAY)
         {
             std::cerr << "Subscript value is not an array" << std::endl;
             return nullptr;
@@ -2297,8 +2315,9 @@ Expression* ASTContext::parseSubscriptExpression(const std::vector<Token>& token
 
         ++iterator;
 
-        expression->qualifiedType = result->qualifiedType;
-        expression->qualifiedType.dimensions.erase(expression->qualifiedType.dimensions.begin());
+        ArrayTypeDeclaration* arrayTypeDeclaration = static_cast<ArrayTypeDeclaration*>(result->qualifiedType.typeDeclaration);
+
+        expression->qualifiedType = arrayTypeDeclaration->elementType;
         expression->isLValue = true;
 
         result->parent = expression;
@@ -3073,6 +3092,35 @@ void ASTContext::dump() const
     }
 }
 
+static std::string getPrintableTypeName(const QualifiedType& qualifiedType)
+{
+    std::string result;
+
+    if (qualifiedType.isVolatile) result += "volatile ";
+    if (qualifiedType.isConst) result += "const ";
+
+    if (!qualifiedType.typeDeclaration)
+    {
+        result += "void";
+    }
+    else
+    {
+        TypeDeclaration* typeDeclaration = qualifiedType.typeDeclaration;
+        while (typeDeclaration->getTypeKind() == TypeDeclaration::Kind::ARRAY)
+        {
+            ArrayTypeDeclaration* arrayTypeDeclaration = static_cast<ArrayTypeDeclaration*>(typeDeclaration);
+
+            result = "[" + std::to_string(arrayTypeDeclaration->size) + "]" + result;
+
+            typeDeclaration = arrayTypeDeclaration->elementType.typeDeclaration;
+        }
+
+        result = typeDeclaration->name + result;
+    }
+
+    return result;
+}
+
 void ASTContext::dumpDeclaration(const Declaration* declaration, std::string indent) const
 {
     std::cout << " " << declarationKindToString(declaration->getDeclarationKind());
@@ -3099,6 +3147,11 @@ void ASTContext::dumpDeclaration(const Declaration* declaration, std::string ind
             switch (typeDeclaration->getTypeKind())
             {
                 case TypeDeclaration::Kind::NONE:
+                {
+                    break;
+                }
+
+                case TypeDeclaration::Kind::ARRAY: // array types can not be declared in code
                 {
                     break;
                 }
@@ -3142,7 +3195,7 @@ void ASTContext::dumpDeclaration(const Declaration* declaration, std::string ind
         {
             const FieldDeclaration* fieldDeclaration = static_cast<const FieldDeclaration*>(declaration);
 
-            std::cout << ", name: " << fieldDeclaration->name << ", type: " << fieldDeclaration->qualifiedType.typeDeclaration->name;
+            std::cout << ", name: " << fieldDeclaration->name << ", type: " << getPrintableTypeName(fieldDeclaration->qualifiedType);
 
             if (fieldDeclaration->semantic != Semantic::NONE)
             {
@@ -3167,18 +3220,7 @@ void ASTContext::dumpDeclaration(const Declaration* declaration, std::string ind
         {
             const FunctionDeclaration* functionDeclaration = static_cast<const FunctionDeclaration*>(declaration);
 
-            std::cout << ", name: " << functionDeclaration->name;
-
-            std::cout << ", result type: ";
-
-            if (functionDeclaration->qualifiedType.typeDeclaration)
-            {
-                std::cout << functionDeclaration->qualifiedType.typeDeclaration->name;
-            }
-            else
-            {
-                std::cout << "void";
-            }
+            std::cout << ", name: " << functionDeclaration->name << ", result type: " << getPrintableTypeName(functionDeclaration->qualifiedType);
 
             if (functionDeclaration->isStatic) std::cout << " static";
             if (functionDeclaration->isInline) std::cout << " inline";
@@ -3215,7 +3257,7 @@ void ASTContext::dumpDeclaration(const Declaration* declaration, std::string ind
         case Declaration::Kind::VARIABLE:
         {
             const VariableDeclaration* variableDeclaration = static_cast<const VariableDeclaration*>(declaration);
-            std::cout << ", name: " << variableDeclaration->name << ", type: " << variableDeclaration->qualifiedType.typeDeclaration->name << std::endl;
+            std::cout << ", name: " << variableDeclaration->name << ", type: " << getPrintableTypeName(variableDeclaration->qualifiedType) << std::endl;
 
             if (variableDeclaration->initialization)
             {
@@ -3228,7 +3270,7 @@ void ASTContext::dumpDeclaration(const Declaration* declaration, std::string ind
         case Declaration::Kind::PARAMETER:
         {
             const ParameterDeclaration* parameterDeclaration = static_cast<const ParameterDeclaration*>(declaration);
-            std::cout << ", name: " << parameterDeclaration->name << ", type: " << parameterDeclaration->qualifiedType.typeDeclaration->name << std::endl;
+            std::cout << ", name: " << parameterDeclaration->name << ", type: " << getPrintableTypeName(parameterDeclaration->qualifiedType) << std::endl;
             break;
         }
 

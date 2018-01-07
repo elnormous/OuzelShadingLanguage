@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>
@@ -82,10 +83,20 @@ class TypeDeclaration;
 class QualifiedType
 {
 public:
+    bool operator<(const QualifiedType& other) const
+    {
+        if (typeDeclaration != other.typeDeclaration)
+            return typeDeclaration < other.typeDeclaration;
+        else if (isConst != other.isConst)
+            return isConst < other.isConst;
+        else if (isVolatile != other.isVolatile)
+            return isVolatile < other.isVolatile;
+        else return true;
+    }
+
     TypeDeclaration* typeDeclaration = nullptr;
     bool isConst = false;
     bool isVolatile = false;
-    std::vector<uint32_t> dimensions;
 };
 
 class Statement: public Construct
@@ -237,6 +248,7 @@ public:
     enum class Kind
     {
         NONE,
+        ARRAY,
         SCALAR,
         STRUCT
         //TYPE_DEFINITION // typedef is not supported in GLSL
@@ -257,6 +269,7 @@ inline std::string typeKindToString(TypeDeclaration::Kind kind)
     switch (kind)
     {
         case TypeDeclaration::Kind::NONE: return "NONE";
+        case TypeDeclaration::Kind::ARRAY: return "ARRAY";
         case TypeDeclaration::Kind::SCALAR: return "SCALAR";
         case TypeDeclaration::Kind::STRUCT: return "STRUCT";
         //case TypeDeclaration::Kind::TYPE_DEFINITION: return "TYPE_DEFINITION";
@@ -264,6 +277,18 @@ inline std::string typeKindToString(TypeDeclaration::Kind kind)
 
     return "unknown";
 }
+
+class ArrayTypeDeclaration: public TypeDeclaration
+{
+public:
+    ArrayTypeDeclaration(): TypeDeclaration(TypeDeclaration::Kind::ARRAY)
+    {
+        definition = this;
+    }
+
+    QualifiedType elementType;
+    uint32_t size = 0;
+};
 
 class ScalarTypeDeclaration: public TypeDeclaration
 {
@@ -353,8 +378,8 @@ public:
                                    constructorDeclaration->parameterDeclarations.begin(),
                                    [](const QualifiedType& qualifiedType,
                                       const ParameterDeclaration* parameterDeclaration) {
-                                       return qualifiedType.typeDeclaration->getFirstDeclaration() == parameterDeclaration->qualifiedType.typeDeclaration->getFirstDeclaration() && // TODO: type promotion
-                                        qualifiedType.dimensions == parameterDeclaration->qualifiedType.dimensions;
+                                       return qualifiedType.typeDeclaration->getFirstDeclaration() == parameterDeclaration->qualifiedType.typeDeclaration->getFirstDeclaration(); // TODO: type promotion
+                                        //qualifiedType.dimensions == parameterDeclaration->qualifiedType.dimensions;
                                    }))
                     {
                         return constructorDeclaration;
@@ -916,8 +941,8 @@ private:
                                        functionDeclaration->parameterDeclarations.begin(),
                                        [](const QualifiedType& qualifiedType,
                                           const ParameterDeclaration* parameterDeclaration) {
-                                           return qualifiedType.typeDeclaration->getFirstDeclaration() == parameterDeclaration->qualifiedType.typeDeclaration->getFirstDeclaration() &&
-                                            qualifiedType.dimensions == parameterDeclaration->qualifiedType.dimensions;
+                                           return qualifiedType.typeDeclaration->getFirstDeclaration() == parameterDeclaration->qualifiedType.typeDeclaration->getFirstDeclaration();
+                                            //qualifiedType.dimensions == parameterDeclaration->qualifiedType.dimensions;
                                        }))
                         {
                             return functionDeclaration;
@@ -930,6 +955,8 @@ private:
         return nullptr;
     }
 
+    ArrayTypeDeclaration* getArrayTypeDeclaration(QualifiedType qualifiedType, uint32_t size);
+    
     static bool isType(const std::vector<Token>& tokens,
                        std::vector<Token>::const_iterator iterator,
                        std::vector<std::vector<Declaration*>>& declarationScopes);
@@ -1126,6 +1153,8 @@ private:
     void dumpConstruct(const Construct* construct, std::string indent = std::string()) const;
 
     std::vector<std::unique_ptr<Construct>> constructs;
+
+    std::map<std::pair<QualifiedType, uint32_t>, ArrayTypeDeclaration*> arrayTypeDeclarations;
 
     ScalarTypeDeclaration boolTypeDeclaration;
     ScalarTypeDeclaration intTypeDeclaration;
