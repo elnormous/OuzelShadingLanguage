@@ -6,6 +6,7 @@
 
 #include <map>
 #include <memory>
+#include <set>
 #include <string>
 #include <vector>
 #include "Tokenizer.hpp"
@@ -948,6 +949,94 @@ private:
                     }
                 }
             }
+        }
+
+        return nullptr;
+    }
+
+    static FunctionDeclaration* resolveFunction(const std::string& name,
+                                                const std::vector<std::vector<Declaration*>>& declarationScopes,
+                                                const std::vector<QualifiedType>& parameters)
+    {
+        std::set<FunctionDeclaration*> candidateFunctionDeclarations;
+
+        for (auto scopeIterator = declarationScopes.crbegin(); scopeIterator != declarationScopes.crend(); ++scopeIterator)
+        {
+            for (auto declarationIterator = scopeIterator->crbegin(); declarationIterator != scopeIterator->crend(); ++declarationIterator)
+            {
+                if ((*declarationIterator)->name == name)
+                {
+                    if ((*declarationIterator)->getDeclarationKind() != Declaration::Kind::FUNCTION) return nullptr;
+
+                    FunctionDeclaration* functionDeclaration = static_cast<FunctionDeclaration*>(*declarationIterator);
+
+                    candidateFunctionDeclarations.insert(static_cast<FunctionDeclaration*>(functionDeclaration->getFirstDeclaration()));
+                }
+            }
+        }
+
+        std::set<FunctionDeclaration*> viableFunctionDeclarations;
+
+        for (FunctionDeclaration* functionDeclaration : candidateFunctionDeclarations)
+        {
+            if (functionDeclaration->parameterDeclarations.size() == parameters.size())
+            {
+                if (std::equal(parameters.begin(), parameters.end(),
+                               functionDeclaration->parameterDeclarations.begin(),
+                               [](const QualifiedType& qualifiedType,
+                                  const ParameterDeclaration* parameterDeclaration) {
+                                   bool scalar = qualifiedType.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::SCALAR &&
+                                        qualifiedType.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::SCALAR;
+
+                                   return (scalar || qualifiedType.typeDeclaration->getFirstDeclaration() == parameterDeclaration->qualifiedType.typeDeclaration->getFirstDeclaration());
+                               }))
+                {
+                    viableFunctionDeclarations.insert(static_cast<FunctionDeclaration*>(functionDeclaration->getFirstDeclaration()));
+                }
+            }
+        }
+
+        if (viableFunctionDeclarations.empty())
+        {
+            std::cerr << "No matching function to call " << name << "  found" << std::endl;
+            return nullptr;
+        }
+        else
+        {
+            FunctionDeclaration* result = nullptr;
+            result = *viableFunctionDeclarations.begin();
+
+            for (uint32_t i = 0; i < parameters.size(); ++i)
+            {
+                const QualifiedType& parameter = parameters[i];
+
+                FunctionDeclaration* currentBest = nullptr;
+
+                for (FunctionDeclaration* functionDeclaration : candidateFunctionDeclarations)
+                {
+                    ParameterDeclaration* parameterDeclaration = functionDeclaration->parameterDeclarations[i];
+
+                    if (parameter.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::ARRAY &&
+                        parameterDeclaration->qualifiedType.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::ARRAY)
+                    {
+                    }
+                    else
+                    {
+                    }
+                };
+            }
+
+            // go through all arguments, compare function declarations in pairs
+            // if any is better match than others, store it in result, but if result is already set, return error
+            // if result is not set, return error
+
+            if (!result)
+            {
+                std::cerr << "Ambiguous call" << std::endl;
+                return nullptr;
+            }
+
+            return result;
         }
 
         return nullptr;
