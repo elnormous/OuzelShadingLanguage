@@ -379,7 +379,6 @@ public:
                                    [](const QualifiedType& qualifiedType,
                                       const ParameterDeclaration* parameterDeclaration) {
                                        return qualifiedType.typeDeclaration->getFirstDeclaration() == parameterDeclaration->qualifiedType.typeDeclaration->getFirstDeclaration(); // TODO: type promotion
-                                        //qualifiedType.dimensions == parameterDeclaration->qualifiedType.dimensions;
                                    }))
                     {
                         return constructorDeclaration;
@@ -942,7 +941,6 @@ private:
                                        [](const QualifiedType& qualifiedType,
                                           const ParameterDeclaration* parameterDeclaration) {
                                            return qualifiedType.typeDeclaration->getFirstDeclaration() == parameterDeclaration->qualifiedType.typeDeclaration->getFirstDeclaration();
-                                            //qualifiedType.dimensions == parameterDeclaration->qualifiedType.dimensions;
                                        }))
                         {
                             return functionDeclaration;
