@@ -1033,6 +1033,12 @@ private:
         }
         else
         {
+            if (parameters.empty()) // two or more functions with zero parameters
+            {
+                std::cerr << "Ambiguous call" << std::endl;
+                return nullptr;
+            }
+
             FunctionDeclaration* result = nullptr;
 
             // go through all arguments, compare function declarations in pairs
