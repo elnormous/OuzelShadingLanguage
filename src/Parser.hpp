@@ -954,6 +954,32 @@ private:
         return nullptr;
     }
 
+    static FunctionDeclaration* getBestFunction(FunctionDeclaration* functionDeclaration1,
+                                                FunctionDeclaration* functionDeclaration2,
+                                                const std::vector<QualifiedType>& parameters)
+    {
+        if (!parameters.empty()) // both functions should have arguments
+        {
+            for (uint32_t i = 0; i < parameters.size(); ++i)
+            {
+                const QualifiedType& parameter = parameters[i];
+
+                if (parameter.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::ARRAY &&
+                    functionDeclaration1->parameterDeclarations[i]->qualifiedType.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::ARRAY &&
+                    functionDeclaration1->parameterDeclarations[i]->qualifiedType.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::ARRAY)
+                {
+                }
+                else
+                {
+                }
+
+
+            }
+        }
+
+        return nullptr;
+    }
+
     static FunctionDeclaration* resolveFunction(const std::string& name,
                                                 const std::vector<std::vector<Declaration*>>& declarationScopes,
                                                 const std::vector<QualifiedType>& parameters)
@@ -1001,34 +1027,19 @@ private:
             std::cerr << "No matching function to call " << name << "  found" << std::endl;
             return nullptr;
         }
+        else if (viableFunctionDeclarations.size() == 1)
+        {
+            return *viableFunctionDeclarations.begin();
+        }
         else
         {
             FunctionDeclaration* result = nullptr;
-            result = *viableFunctionDeclarations.begin();
-
-            for (uint32_t i = 0; i < parameters.size(); ++i)
-            {
-                const QualifiedType& parameter = parameters[i];
-
-                FunctionDeclaration* currentBest = nullptr;
-
-                for (FunctionDeclaration* functionDeclaration : candidateFunctionDeclarations)
-                {
-                    ParameterDeclaration* parameterDeclaration = functionDeclaration->parameterDeclarations[i];
-
-                    if (parameter.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::ARRAY &&
-                        parameterDeclaration->qualifiedType.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::ARRAY)
-                    {
-                    }
-                    else
-                    {
-                    }
-                };
-            }
 
             // go through all arguments, compare function declarations in pairs
-            // if any is better match than others, store it in result, but if result is already set, return error
-            // if result is not set, return error
+            for (FunctionDeclaration* functionDeclaration : candidateFunctionDeclarations)
+            {
+
+            };
 
             if (!result)
             {
