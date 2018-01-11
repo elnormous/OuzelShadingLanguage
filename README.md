@@ -42,9 +42,12 @@ The following are the keywords reserved for future use. Using them will result i
 
 * and_eq
 * auto
+* bitand
+* bitor
 * catch
 * char
 * class
+* compl
 * delete
 * double
 * enum
@@ -74,6 +77,8 @@ The following are the keywords reserved for future use. Using them will result i
 * unsigned
 * using
 * virtual
+* xor
+* xor_eq
 
 ## 2.3 Operators
 

@@ -6,32 +6,21 @@
 #include <map>
 #include "Tokenizer.hpp"
 
-static const std::map<std::string, Token::Type> operatorMap = {
-    {"and_eq", Token::Type::OPERATOR_BITWISE_AND_ASSIGNMENT},
-    {"or_eq", Token::Type::OPERATOR_BITWISE_OR_ASSIGNMENT},
-    {"xor_eq", Token::Type::OPERATOR_BITWISE_XOR_ASSIGNMENT},
-    {"compl", Token::Type::OPERATOR_BITWISE_NOT},
-    {"bitand", Token::Type::OPERATOR_BITWISE_AND},
-    {"bitor", Token::Type::OPERATOR_BITWISE_OR},
-    {"xor", Token::Type::OPERATOR_BITWISE_XOR},
-    {"not_eq", Token::Type::OPERATOR_NOT_EQUAL},
-    {"and", Token::Type::OPERATOR_AND},
-    {"or", Token::Type::OPERATOR_OR},
-    {"not", Token::Type::OPERATOR_NOT}
-};
-
 static const std::map<std::string, Token::Type> keywordMap = {
     {"and", Token::Type::KEYWORD_AND},
     {"and_eq", Token::Type::KEYWORD_AND},
     {"auto", Token::Type::KEYWORD_AUTO},
+    {"bitand", Token::Type::KEYWORD_BITAND},
+    {"bitor", Token::Type::KEYWORD_BITOR},
     {"bool", Token::Type::KEYWORD_BOOL},
     {"break", Token::Type::KEYWORD_BREAK},
     {"case", Token::Type::KEYWORD_CASE},
     {"catch", Token::Type::KEYWORD_CATCH},
     {"char", Token::Type::KEYWORD_CHAR},
     {"class", Token::Type::KEYWORD_CLASS},
-    {"continue", Token::Type::KEYWORD_CONTINUE},
+    {"compl", Token::Type::KEYWORD_COMPL},
     {"const", Token::Type::KEYWORD_CONST},
+    {"continue", Token::Type::KEYWORD_CONTINUE},
     {"default", Token::Type::KEYWORD_DEFAULT},
     {"delete", Token::Type::KEYWORD_DELETE},
     {"do", Token::Type::KEYWORD_DO},
@@ -80,7 +69,9 @@ static const std::map<std::string, Token::Type> keywordMap = {
     {"virtual", Token::Type::KEYWORD_VIRTUAL},
     {"void", Token::Type::KEYWORD_VOID},
     {"volatile", Token::Type::KEYWORD_VOLATILE},
-    {"while", Token::Type::KEYWORD_WHILE}
+    {"while", Token::Type::KEYWORD_WHILE},
+    {"xor", Token::Type::KEYWORD_XOR},
+    {"xor_eq", Token::Type::KEYWORD_XOR_EQ}
 };
 
 bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
@@ -322,14 +313,9 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
                 ++i;
             }
 
-            std::map<std::string, Token::Type>::const_iterator keywordIterator;
+            std::map<std::string, Token::Type>::const_iterator keywordIterator = keywordMap.find(token.value);
 
-            if ((keywordIterator = operatorMap.find(token.value)) != operatorMap.end())
-            {
-                token.kind = Token::Kind::OPERATOR;
-                token.type = keywordIterator->second;
-            }
-            else if ((keywordIterator = keywordMap.find(token.value)) != keywordMap.end())
+            if (keywordIterator != keywordMap.end())
             {
                 token.kind = Token::Kind::KEYWORD;
                 token.type = keywordIterator->second;

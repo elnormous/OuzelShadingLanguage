@@ -30,12 +30,15 @@ struct Token
         KEYWORD_AND, // and
         KEYWORD_AND_EQ, // and_eq
         KEYWORD_AUTO, // auto
+        KEYWORD_BITAND, // bitand
+        KEYWORD_BITOR, // bitor
         KEYWORD_BOOL, // bool
         KEYWORD_BREAK, // break
         KEYWORD_CASE, // case
         KEYWORD_CATCH, // catch
         KEYWORD_CHAR, // char
         KEYWORD_CLASS, // class
+        KEYWORD_COMPL, // compl
         KEYWORD_CONST, // const
         KEYWORD_CONTINUE, // continue
         KEYWORD_DEFAULT, // default
@@ -87,6 +90,8 @@ struct Token
         KEYWORD_VOID, // void
         KEYWORD_VOLATILE, // volatile
         KEYWORD_WHILE, // while
+        KEYWORD_XOR, // xor
+        KEYWORD_XOR_EQ, // xor_eq
         LEFT_PARENTHESIS, // (
         RIGHT_PARENTHESIS, // )
         LEFT_BRACE, // {
@@ -170,12 +175,15 @@ inline std::string tokenTypeToString(Token::Type type)
         case Token::Type::KEYWORD_AND: return "KEYWORD_AND";
         case Token::Type::KEYWORD_AND_EQ: return "KEYWORD_AND_EQ";
         case Token::Type::KEYWORD_AUTO: return "KEYWORD_AUTO";
+        case Token::Type::KEYWORD_BITAND: return "KEYWORD_BITAND";
+        case Token::Type::KEYWORD_BITOR: return "KEYWORD_BITOR";
         case Token::Type::KEYWORD_BOOL: return "KEYWORD_BOOL";
         case Token::Type::KEYWORD_BREAK: return "KEYWORD_BREAK";
         case Token::Type::KEYWORD_CASE: return "KEYWORD_CASE";
         case Token::Type::KEYWORD_CATCH: return "KEYWORD_CATCH";
         case Token::Type::KEYWORD_CHAR: return "KEYWORD_CHAR";
         case Token::Type::KEYWORD_CLASS: return "KEYWORD_CLASS";
+        case Token::Type::KEYWORD_COMPL: return "KEYWORD_COMPL";
         case Token::Type::KEYWORD_CONST: return "KEYWORD_CONST";
         case Token::Type::KEYWORD_CONTINUE: return "KEYWORD_CONTINUE";
         case Token::Type::KEYWORD_DEFAULT: return "KEYWORD_DEFAULT";
@@ -227,6 +235,8 @@ inline std::string tokenTypeToString(Token::Type type)
         case Token::Type::KEYWORD_VOID: return "KEYWORD_VOID";
         case Token::Type::KEYWORD_VOLATILE: return "KEYWORD_VOLATILE";
         case Token::Type::KEYWORD_WHILE: return "KEYWORD_WHILE";
+        case Token::Type::KEYWORD_XOR: return "KEYWORD_XOR";
+        case Token::Type::KEYWORD_XOR_EQ: return "KEYWORD_XOR_EQ";
         case Token::Type::LEFT_PARENTHESIS: return "LEFT_PARENTHESIS";
         case Token::Type::RIGHT_PARENTHESIS: return "RIGHT_PARENTHESIS";
         case Token::Type::LEFT_BRACE: return "LEFT_BRACE";
