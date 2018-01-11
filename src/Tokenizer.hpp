@@ -46,6 +46,7 @@ struct Token
         KEYWORD_FALSE, // false
         KEYWORD_FLOAT, // float
         KEYWORD_FOR, // for
+        KEYWORD_FRIEND, // friend
         KEYWORD_GOTO, // goto
         KEYWORD_IF, // if
         KEYWORD_INLINE, // inline
@@ -179,6 +180,7 @@ inline std::string tokenTypeToString(Token::Type type)
         case Token::Type::KEYWORD_FALSE: return "KEYWORD_FALSE";
         case Token::Type::KEYWORD_FLOAT: return "KEYWORD_FLOAT";
         case Token::Type::KEYWORD_FOR: return "KEYWORD_FOR";
+        case Token::Type::KEYWORD_FRIEND: return "KEYWORD_FRIEND";
         case Token::Type::KEYWORD_GOTO: return "KEYWORD_GOTO";
         case Token::Type::KEYWORD_IF: return "KEYWORD_IF";
         case Token::Type::KEYWORD_INLINE: return "KEYWORD_INLINE";

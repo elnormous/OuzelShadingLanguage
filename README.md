@@ -44,6 +44,7 @@ The following are the keywords reserved for future use. Using them will result i
 * double
 * enum
 * extern
+* friend
 * goto
 * long
 * mutable

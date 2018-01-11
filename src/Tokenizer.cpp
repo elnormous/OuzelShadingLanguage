@@ -41,6 +41,7 @@ static const std::map<std::string, Token::Type> keywordMap = {
     {"false", Token::Type::KEYWORD_FALSE},
     {"float", Token::Type::KEYWORD_FLOAT},
     {"for", Token::Type::KEYWORD_FOR},
+    {"friend", Token::Type::KEYWORD_FRIEND},
     {"goto", Token::Type::KEYWORD_GOTO},
     {"if", Token::Type::KEYWORD_IF},
     {"inline", Token::Type::KEYWORD_INLINE},
