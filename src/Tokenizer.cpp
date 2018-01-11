@@ -21,7 +21,8 @@ static const std::map<std::string, Token::Type> operatorMap = {
 };
 
 static const std::map<std::string, Token::Type> keywordMap = {
-
+    {"and", Token::Type::KEYWORD_AND},
+    {"and_eq", Token::Type::KEYWORD_AND},
     {"auto", Token::Type::KEYWORD_AUTO},
     {"bool", Token::Type::KEYWORD_BOOL},
     {"break", Token::Type::KEYWORD_BREAK},
@@ -51,7 +52,11 @@ static const std::map<std::string, Token::Type> keywordMap = {
     {"namespace", Token::Type::KEYWORD_NAMESPACE},
     {"new", Token::Type::KEYWORD_NEW},
     {"noexcept", Token::Type::KEYWORD_NOEXCEPT},
+    {"not", Token::Type::KEYWORD_NOT},
+    {"not_eq", Token::Type::KEYWORD_NOT_EQ},
     {"operator", Token::Type::KEYWORD_OPERATOR},
+    {"or", Token::Type::KEYWORD_OR},
+    {"or_eq", Token::Type::KEYWORD_OR_EQ},
     {"private", Token::Type::KEYWORD_PRIVATE},
     {"protected", Token::Type::KEYWORD_PROTECTED},
     {"public", Token::Type::KEYWORD_PUBLIC},

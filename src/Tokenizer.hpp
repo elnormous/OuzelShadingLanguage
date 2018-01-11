@@ -27,6 +27,8 @@ struct Token
         LITERAL_FLOAT, // float
         LITERAL_DOUBLE, // double
         LITERAL_STRING, // string
+        KEYWORD_AND, // and
+        KEYWORD_AND_EQ, // and_eq
         KEYWORD_AUTO, // auto
         KEYWORD_BOOL, // bool
         KEYWORD_BREAK, // break
@@ -56,7 +58,11 @@ struct Token
         KEYWORD_NAMESPACE, // namespace
         KEYWORD_NEW, // new
         KEYWORD_NOEXCEPT, // noexcept
+        KEYWORD_NOT, // not
+        KEYWORD_NOT_EQ, // not_eq
         KEYWORD_OPERATOR, // operator
+        KEYWORD_OR, // or
+        KEYWORD_OR_EQ, // or_eq
         KEYWORD_PRIVATE, // private
         KEYWORD_PROTECTED, // protected
         KEYWORD_PUBLIC, // public
@@ -161,6 +167,8 @@ inline std::string tokenTypeToString(Token::Type type)
         case Token::Type::LITERAL_DOUBLE: return "LITERAL_DOUBLE";
         case Token::Type::LITERAL_CHAR: return "LITERAL_CHAR";
         case Token::Type::LITERAL_STRING: return "LITERAL_STRING";
+        case Token::Type::KEYWORD_AND: return "KEYWORD_AND";
+        case Token::Type::KEYWORD_AND_EQ: return "KEYWORD_AND_EQ";
         case Token::Type::KEYWORD_AUTO: return "KEYWORD_AUTO";
         case Token::Type::KEYWORD_BOOL: return "KEYWORD_BOOL";
         case Token::Type::KEYWORD_BREAK: return "KEYWORD_BREAK";
@@ -190,7 +198,11 @@ inline std::string tokenTypeToString(Token::Type type)
         case Token::Type::KEYWORD_NAMESPACE: return "KEYWORD_NAMESPACE";
         case Token::Type::KEYWORD_NEW: return "KEYWORD_NEW";
         case Token::Type::KEYWORD_NOEXCEPT: return "KEYWORD_NOEXCEPT";
+        case Token::Type::KEYWORD_NOT: return "KEYWORD_NOT";
+        case Token::Type::KEYWORD_NOT_EQ: return "KEYWORD_NOT_EQ";
         case Token::Type::KEYWORD_OPERATOR: return "KEYWORD_OPERATOR";
+        case Token::Type::KEYWORD_OR: return "KEYWORD_OR";
+        case Token::Type::KEYWORD_OR_EQ: return "KEYWORD_OR_EQ";
         case Token::Type::KEYWORD_PRIVATE: return "KEYWORD_PRIVATE";
         case Token::Type::KEYWORD_PROTECTED: return "KEYWORD_PROTECTED";
         case Token::Type::KEYWORD_PUBLIC: return "KEYWORD_PUBLIC";

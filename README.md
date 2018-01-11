@@ -11,6 +11,7 @@ Identifiers start with a alphabetic character or underscore (_) followed by any 
 
 The following are the language's keywords and can only be used as described in this specification, or a compile-time error results:
 
+* and
 * bool
 * break
 * case
@@ -25,6 +26,9 @@ The following are the language's keywords and can only be used as described in t
 * if
 * inline
 * int
+* not
+* not_eq
+* or
 * return
 * static
 * struct
@@ -36,6 +40,7 @@ The following are the language's keywords and can only be used as described in t
 
 The following are the keywords reserved for future use. Using them will result in a compile-time error:
 
+* and_eq
 * auto
 * catch
 * char
@@ -52,6 +57,7 @@ The following are the keywords reserved for future use. Using them will result i
 * new
 * noexcept
 * operator
+* or_eq
 * private
 * protected
 * public

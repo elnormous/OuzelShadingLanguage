@@ -2450,7 +2450,7 @@ Expression* ASTContext::parseNotExpression(const std::vector<Token>& tokens,
                                            std::vector<std::vector<Declaration*>>& declarationScopes,
                                            Construct* parent)
 {
-    if (isToken(Token::Type::OPERATOR_NOT, tokens, iterator))
+    if (isToken({Token::Type::OPERATOR_NOT, Token::Type::KEYWORD_NOT}, tokens, iterator))
     {
         UnaryOperatorExpression* result = new UnaryOperatorExpression();
         constructs.push_back(std::unique_ptr<Construct>(result));
@@ -2691,14 +2691,14 @@ Expression* ASTContext::parseEqualityExpression(const std::vector<Token>& tokens
         return nullptr;
     }
 
-    while (isToken({Token::Type::OPERATOR_EQUAL, Token::Type::OPERATOR_NOT_EQUAL}, tokens, iterator))
+    while (isToken({Token::Type::OPERATOR_EQUAL, Token::Type::OPERATOR_NOT_EQUAL, Token::Type::KEYWORD_NOT_EQ}, tokens, iterator))
     {
         BinaryOperatorExpression* expression = new BinaryOperatorExpression();
         constructs.push_back(std::unique_ptr<Construct>(expression));
         expression->parent = parent;
 
         if (iterator->type == Token::Type::OPERATOR_EQUAL) expression->operatorKind = BinaryOperatorExpression::Kind::EQUALITY;
-        else if (iterator->type == Token::Type::OPERATOR_NOT_EQUAL) expression->operatorKind = BinaryOperatorExpression::Kind::INEQUALITY;
+        else if (iterator->type == Token::Type::OPERATOR_NOT_EQUAL || iterator->type == Token::Type::KEYWORD_NOT_EQ) expression->operatorKind = BinaryOperatorExpression::Kind::INEQUALITY;
 
         ++iterator;
 
@@ -2738,7 +2738,7 @@ Expression* ASTContext::parseLogicalAndExpression(const std::vector<Token>& toke
         return nullptr;
     }
 
-    while (isToken(Token::Type::OPERATOR_AND, tokens, iterator))
+    while (isToken({Token::Type::OPERATOR_AND, Token::Type::KEYWORD_AND}, tokens, iterator))
     {
         ++iterator;
 
@@ -2783,7 +2783,7 @@ Expression* ASTContext::parseLogicalOrExpression(const std::vector<Token>& token
         return nullptr;
     }
 
-    while (isToken(Token::Type::OPERATOR_OR, tokens, iterator))
+    while (isToken({Token::Type::OPERATOR_OR, Token::Type::KEYWORD_OR}, tokens, iterator))
     {
         ++iterator;
 
