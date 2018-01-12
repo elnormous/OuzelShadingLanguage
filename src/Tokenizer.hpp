@@ -47,7 +47,9 @@ struct Token
         KEYWORD_DOUBLE, // double
         KEYWORD_ELSE, // else
         KEYWORD_ENUM, // enum
-        KEYWORD_EXTERN, // extern
+        KEYWORD_EXPLICIT, // extern
+        KEYWORD_EXPORT, // explicit
+        KEYWORD_EXTERN, // export
         KEYWORD_FALSE, // false
         KEYWORD_FLOAT, // float
         KEYWORD_FOR, // for
@@ -192,6 +194,8 @@ inline std::string tokenTypeToString(Token::Type type)
         case Token::Type::KEYWORD_DOUBLE: return "KEYWORD_DOUBLE";
         case Token::Type::KEYWORD_ELSE: return "KEYWORD_ELSE";
         case Token::Type::KEYWORD_ENUM: return "KEYWORD_ENUM";
+        case Token::Type::KEYWORD_EXPLICIT: return "KEYWORD_EXPLICIT";
+        case Token::Type::KEYWORD_EXPORT: return "KEYWORD_EXPORT";
         case Token::Type::KEYWORD_EXTERN: return "KEYWORD_EXTERN";
         case Token::Type::KEYWORD_FALSE: return "KEYWORD_FALSE";
         case Token::Type::KEYWORD_FLOAT: return "KEYWORD_FLOAT";

@@ -27,6 +27,8 @@ static const std::map<std::string, Token::Type> keywordMap = {
     {"double", Token::Type::KEYWORD_DOUBLE},
     {"else", Token::Type::KEYWORD_ELSE},
     {"enum", Token::Type::KEYWORD_ENUM},
+    {"explicit", Token::Type::KEYWORD_EXPLICIT},
+    {"export", Token::Type::KEYWORD_EXPORT},
     {"extern", Token::Type::KEYWORD_EXTERN},
     {"false", Token::Type::KEYWORD_FALSE},
     {"float", Token::Type::KEYWORD_FLOAT},

@@ -51,6 +51,8 @@ The following are the keywords reserved for future use. Using them will result i
 * delete
 * double
 * enum
+* explicit
+* export
 * extern
 * friend
 * goto
