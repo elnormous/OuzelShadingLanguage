@@ -2338,8 +2338,14 @@ Expression* ASTContext::parseMemberExpression(const std::vector<Token>& tokens,
         return nullptr;
     }
 
-    while (isToken(Token::Type::OPERATOR_DOT, tokens, iterator))
+    while (isToken({Token::Type::OPERATOR_DOT, Token::Type::OPERATOR_ARROW}, tokens, iterator))
     {
+        if (isToken(Token::Type::OPERATOR_ARROW, tokens, iterator))
+        {
+            std::cerr << "Pointer member access is not supported" << std::endl;
+            return nullptr;
+        }
+
         ++iterator;
 
         MemberExpression* expression = new MemberExpression();
