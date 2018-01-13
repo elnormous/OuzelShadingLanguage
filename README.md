@@ -61,6 +61,7 @@ The following are the keywords reserved for future use. Using them will result i
 * namespace
 * new
 * noexcept
+* nullptr
 * operator
 * or_eq
 * private
@@ -73,8 +74,9 @@ The following are the keywords reserved for future use. Using them will result i
 * this
 * throw
 * try
-* type
 * typedef
+* typeid
+* typename
 * union
 * unsigned
 * using

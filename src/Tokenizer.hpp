@@ -65,6 +65,7 @@ struct Token
         KEYWORD_NOEXCEPT, // noexcept
         KEYWORD_NOT, // not
         KEYWORD_NOT_EQ, // not_eq
+        KEYWORD_NULLPTR, // nullptr
         KEYWORD_OPERATOR, // operator
         KEYWORD_OR, // or
         KEYWORD_OR_EQ, // or_eq
@@ -83,8 +84,9 @@ struct Token
         KEYWORD_THROW, // throw
         KEYWORD_TRUE, // true
         KEYWORD_TRY, // try
-        KEYWORD_TYPE, // type
         KEYWORD_TYPEDEF, // typedef
+        KEYWORD_TYPEID, // typeid
+        KEYWORD_TYPENAME, // typename
         KEYWORD_UNION, // union
         KEYWORD_UNSIGNED, // unsigned
         KEYWORD_USING, // using
@@ -212,6 +214,7 @@ inline std::string tokenTypeToString(Token::Type type)
         case Token::Type::KEYWORD_NOEXCEPT: return "KEYWORD_NOEXCEPT";
         case Token::Type::KEYWORD_NOT: return "KEYWORD_NOT";
         case Token::Type::KEYWORD_NOT_EQ: return "KEYWORD_NOT_EQ";
+        case Token::Type::KEYWORD_NULLPTR: return "KEYWORD_NULLPTR";
         case Token::Type::KEYWORD_OPERATOR: return "KEYWORD_OPERATOR";
         case Token::Type::KEYWORD_OR: return "KEYWORD_OR";
         case Token::Type::KEYWORD_OR_EQ: return "KEYWORD_OR_EQ";
@@ -230,8 +233,9 @@ inline std::string tokenTypeToString(Token::Type type)
         case Token::Type::KEYWORD_THROW: return "KEYWORD_THROW";
         case Token::Type::KEYWORD_TRUE: return "KEYWORD_TRUE";
         case Token::Type::KEYWORD_TRY: return "KEYWORD_TRY";
-        case Token::Type::KEYWORD_TYPE: return "KEYWORD_TYPE";
         case Token::Type::KEYWORD_TYPEDEF: return "KEYWORD_TYPEDEF";
+        case Token::Type::KEYWORD_TYPEID: return "KEYWORD_TYPEID";
+        case Token::Type::KEYWORD_TYPENAME: return "KEYWORD_TYPENAME";
         case Token::Type::KEYWORD_UNION: return "KEYWORD_UNION";
         case Token::Type::KEYWORD_UNSIGNED: return "KEYWORD_UNSIGNED";
         case Token::Type::KEYWORD_USING: return "KEYWORD_USING";
