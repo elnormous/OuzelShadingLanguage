@@ -142,6 +142,7 @@ struct Token
         OPERATOR_CONDITIONAL, // ?
         OPERATOR_DOT, // .
         OPERATOR_ARROW, // ->
+        OPERATOR_ELLIPSIS, // ...
         IDENTIFIER
     };
 

@@ -682,10 +682,24 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
             }
             else if (*i == '.')
             {
-                token.kind = Token::Kind::OPERATOR;
-                token.type = Token::Type::OPERATOR_DOT;
                 token.value.push_back(*i);
                 ++i;
+
+                if (i != code.end() && *i == '.' &&
+                    (i + 1) != code.end() && *(i + 1) == '.')
+                {
+                    token.kind = Token::Kind::OPERATOR;
+                    token.type = Token::Type::OPERATOR_ELLIPSIS;
+                    token.value.push_back(*i);
+                    ++i;
+                    token.value.push_back(*i);
+                    ++i;
+                }
+                else
+                {
+                    token.kind = Token::Kind::OPERATOR;
+                    token.type = Token::Type::OPERATOR_DOT;
+                }
             }
         }
         else if (*i == '\n')
