@@ -984,7 +984,7 @@ private:
                                                 const std::vector<std::vector<Declaration*>>& declarationScopes,
                                                 const std::vector<QualifiedType>& parameters)
     {
-        std::set<FunctionDeclaration*> candidateFunctionDeclarations;
+        std::vector<FunctionDeclaration*> candidateFunctionDeclarations;
 
         for (auto scopeIterator = declarationScopes.crbegin(); scopeIterator != declarationScopes.crend(); ++scopeIterator)
         {
@@ -994,14 +994,17 @@ private:
                 {
                     if ((*declarationIterator)->getDeclarationKind() != Declaration::Kind::FUNCTION) return nullptr;
 
-                    FunctionDeclaration* functionDeclaration = static_cast<FunctionDeclaration*>(*declarationIterator);
+                    FunctionDeclaration* functionDeclaration = static_cast<FunctionDeclaration*>((*declarationIterator)->getFirstDeclaration());
 
-                    candidateFunctionDeclarations.insert(static_cast<FunctionDeclaration*>(functionDeclaration->getFirstDeclaration()));
+                    if (std::find(candidateFunctionDeclarations.begin(), candidateFunctionDeclarations.end(), functionDeclaration) == candidateFunctionDeclarations.end())
+                    {
+                        candidateFunctionDeclarations.push_back(functionDeclaration);
+                    }
                 }
             }
         }
 
-        std::set<FunctionDeclaration*> viableFunctionDeclarations;
+        std::vector<FunctionDeclaration*> viableFunctionDeclarations;
 
         for (FunctionDeclaration* functionDeclaration : candidateFunctionDeclarations)
         {
@@ -1017,7 +1020,7 @@ private:
                                    return (scalar || qualifiedType.typeDeclaration->getFirstDeclaration() == parameterDeclaration->qualifiedType.typeDeclaration->getFirstDeclaration());
                                }))
                 {
-                    viableFunctionDeclarations.insert(static_cast<FunctionDeclaration*>(functionDeclaration->getFirstDeclaration()));
+                    viableFunctionDeclarations.push_back(functionDeclaration);
                 }
             }
         }
@@ -1042,9 +1045,13 @@ private:
             FunctionDeclaration* result = nullptr;
 
             // go through all arguments, compare function declarations in pairs
-            for (FunctionDeclaration* functionDeclaration : candidateFunctionDeclarations)
+            //for (FunctionDeclaration* functionDeclaration : candidateFunctionDeclarations)
+            for (auto first = viableFunctionDeclarations.cbegin(); first != viableFunctionDeclarations.cend(); ++first)
             {
-
+                for (auto second = (first + 1); second != viableFunctionDeclarations.cend(); ++second)
+                {
+                    FunctionDeclaration* bestFunction = getBestFunction(*first, *second, parameters);
+                }
             };
 
             if (!result)
