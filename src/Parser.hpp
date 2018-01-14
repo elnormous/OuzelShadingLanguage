@@ -1055,13 +1055,9 @@ private:
                 return nullptr;
             }
 
-            FunctionDeclaration* result = nullptr;
-
-            // go through all arguments, compare function declarations in pairs
-            //for (FunctionDeclaration* functionDeclaration : candidateFunctionDeclarations)
             for (auto first = viableFunctionDeclarations.begin(); first != viableFunctionDeclarations.end(); ++first)
             {
-                result = *first;
+                FunctionDeclaration* result = *first;
                 for (auto second = (first + 1); second != viableFunctionDeclarations.end(); ++second)
                 {
                     if (getBestFunction(*first, *second, parameters) != *first)
@@ -1070,15 +1066,12 @@ private:
                         break;
                     }
                 }
+
+                if (result) return result;
             };
 
-            if (!result)
-            {
-                std::cerr << "Ambiguous call" << std::endl;
-                return nullptr;
-            }
-
-            return result;
+            std::cerr << "Ambiguous call" << std::endl;
+            return nullptr;
         }
 
         return nullptr;
