@@ -964,16 +964,27 @@ private:
             {
                 const QualifiedType& parameter = parameters[i];
 
-                if (parameter.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::ARRAY &&
-                    functionDeclaration1->parameterDeclarations[i]->qualifiedType.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::ARRAY &&
-                    functionDeclaration1->parameterDeclarations[i]->qualifiedType.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::ARRAY)
+                if (functionDeclaration1->parameterDeclarations[i]->qualifiedType.typeDeclaration->getTypeKind() == parameter.typeDeclaration->getTypeKind() &&
+                    functionDeclaration2->parameterDeclarations[i]->qualifiedType.typeDeclaration->getTypeKind() == parameter.typeDeclaration->getTypeKind())
                 {
+                    if (parameter.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::ARRAY)
+                    {
+                    }
+                    else if (parameter.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::SCALAR)
+                    {
+                    }
+                    else if (parameter.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::STRUCT)
+                    {
+                    }
                 }
-                else
+                else if (functionDeclaration1->parameterDeclarations[i]->qualifiedType.typeDeclaration->getTypeKind() == parameter.typeDeclaration->getTypeKind())
                 {
+                    return functionDeclaration1;
                 }
-
-
+                else if (functionDeclaration2->parameterDeclarations[i]->qualifiedType.typeDeclaration->getTypeKind() == parameter.typeDeclaration->getTypeKind())
+                {
+                    return functionDeclaration2;
+                }
             }
         }
 
