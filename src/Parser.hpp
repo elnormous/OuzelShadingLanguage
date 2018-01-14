@@ -972,9 +972,11 @@ private:
                     }
                     else if (parameter.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::SCALAR)
                     {
+                        // TODO: promotion and conversion
                     }
                     else if (parameter.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::STRUCT)
                     {
+
                     }
                 }
                 else if (functionDeclaration1->parameterDeclarations[i]->qualifiedType.typeDeclaration->getTypeKind() == parameter.typeDeclaration->getTypeKind())
@@ -1057,11 +1059,16 @@ private:
 
             // go through all arguments, compare function declarations in pairs
             //for (FunctionDeclaration* functionDeclaration : candidateFunctionDeclarations)
-            for (auto first = viableFunctionDeclarations.cbegin(); first != viableFunctionDeclarations.cend(); ++first)
+            for (auto first = viableFunctionDeclarations.begin(); first != viableFunctionDeclarations.end(); ++first)
             {
-                for (auto second = (first + 1); second != viableFunctionDeclarations.cend(); ++second)
+                result = *first;
+                for (auto second = (first + 1); second != viableFunctionDeclarations.end(); ++second)
                 {
-                    FunctionDeclaration* bestFunction = getBestFunction(*first, *second, parameters);
+                    if (getBestFunction(*first, *second, parameters) != *first)
+                    {
+                        result = nullptr;
+                        break;
+                    }
                 }
             };
 
