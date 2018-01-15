@@ -958,7 +958,8 @@ private:
                                                 FunctionDeclaration* functionDeclaration2,
                                                 const std::vector<QualifiedType>& parameters)
     {
-        if (!parameters.empty()) // both functions should have arguments
+        if (!parameters.empty() && // both functions should have arguments
+            parameters.size() == functionDeclaration1->parameterDeclarations.size() == functionDeclaration2->parameterDeclarations.size()) // they should have the same number of parameters
         {
             for (uint32_t i = 0; i < parameters.size(); ++i)
             {
