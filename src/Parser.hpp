@@ -1057,17 +1057,18 @@ private:
 
             for (auto first = viableFunctionDeclarations.begin(); first != viableFunctionDeclarations.end(); ++first)
             {
-                FunctionDeclaration* result = *first;
-                for (auto second = (first + 1); second != viableFunctionDeclarations.end(); ++second)
+                bool best = true;
+                for (auto second = viableFunctionDeclarations.begin(); second != viableFunctionDeclarations.end(); ++second)
                 {
-                    if (getBestFunction(*first, *second, parameters) != *first)
+                    if (first != second &&
+                        getBestFunction(*first, *second, parameters) != *first)
                     {
-                        result = nullptr;
+                        best = false;
                         break;
                     }
                 }
 
-                if (result) return result;
+                if (best) return *first;
             };
 
             std::cerr << "Ambiguous call" << std::endl;
