@@ -954,9 +954,9 @@ private:
         return nullptr;
     }
 
-    static FunctionDeclaration* getBestFunction(FunctionDeclaration* functionDeclaration1,
-                                                FunctionDeclaration* functionDeclaration2,
-                                                const std::vector<QualifiedType>& parameters)
+    static FunctionDeclaration* getBestFunctionDeclaration(FunctionDeclaration* functionDeclaration1,
+                                                           FunctionDeclaration* functionDeclaration2,
+                                                           const std::vector<QualifiedType>& parameters)
     {
         FunctionDeclaration* result = nullptr;
 
@@ -1028,9 +1028,9 @@ private:
         return result;
     }
 
-    static FunctionDeclaration* resolveFunction(const std::string& name,
-                                                const std::vector<std::vector<Declaration*>>& declarationScopes,
-                                                const std::vector<QualifiedType>& parameters)
+    static FunctionDeclaration* resolveFunctionDeclaration(const std::string& name,
+                                                           const std::vector<std::vector<Declaration*>>& declarationScopes,
+                                                           const std::vector<QualifiedType>& parameters)
     {
         std::vector<FunctionDeclaration*> candidateFunctionDeclarations;
 
@@ -1096,7 +1096,7 @@ private:
                 for (auto second = viableFunctionDeclarations.begin(); second != viableFunctionDeclarations.end(); ++second)
                 {
                     if (first != second &&
-                        getBestFunction(*first, *second, parameters) != *first)
+                        getBestFunctionDeclaration(*first, *second, parameters) != *first)
                     {
                         best = false;
                         break;

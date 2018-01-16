@@ -2152,7 +2152,7 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
                 constructs.push_back(std::unique_ptr<Construct>(declRefExpression));
                 declRefExpression->parent = result;
 
-                FunctionDeclaration* functionDeclaration = findFunctionDeclaration(name, declarationScopes, parameters);
+                FunctionDeclaration* functionDeclaration = resolveFunctionDeclaration(name, declarationScopes, parameters);
 
                 if (!functionDeclaration)
                 {
