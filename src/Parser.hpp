@@ -991,29 +991,24 @@ private:
                     {
                         if (parameter.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::ARRAY)
                         {
+                            ArrayTypeDeclaration* arrayTypeDeclaration = static_cast<ArrayTypeDeclaration*>(parameter.typeDeclaration);
+                            ArrayTypeDeclaration* arrayTypeDeclaration1 = static_cast<ArrayTypeDeclaration*>(parameter1.typeDeclaration);
+                            ArrayTypeDeclaration* arrayTypeDeclaration2 = static_cast<ArrayTypeDeclaration*>(parameter2.typeDeclaration);
 
-                        }
-                        else if (parameter.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::SCALAR)
-                        {
-                            ScalarTypeDeclaration* scalarTypeDeclaration = static_cast<ScalarTypeDeclaration*>(parameter.typeDeclaration);
-                            ScalarTypeDeclaration* scalarTypeDeclaration1 = static_cast<ScalarTypeDeclaration*>(parameter1.typeDeclaration);
-                            ScalarTypeDeclaration* scalarTypeDeclaration2 = static_cast<ScalarTypeDeclaration*>(parameter2.typeDeclaration);
-
-                            if (parameter1.typeDeclaration == parameter.typeDeclaration)
+                            if (arrayTypeDeclaration1->size == arrayTypeDeclaration->size &&
+                                arrayTypeDeclaration2->size == arrayTypeDeclaration->size)
                             {
                             }
-                            else if (parameter1.typeDeclaration == parameter.typeDeclaration)
+                            else if (arrayTypeDeclaration1->size == arrayTypeDeclaration->size)
                             {
-
+                                if (result == functionDeclaration2) return nullptr;
+                                result = functionDeclaration1;
                             }
-                            else
+                            else if (arrayTypeDeclaration2->size == arrayTypeDeclaration->size)
                             {
-                                // TODO: promotion and conversion
+                                if (result == functionDeclaration1) return nullptr;
+                                result = functionDeclaration2;
                             }
-                        }
-                        else if (parameter.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::STRUCT)
-                        {
-
                         }
                     }
                 }
