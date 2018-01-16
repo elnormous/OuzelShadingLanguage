@@ -958,40 +958,79 @@ private:
                                                 FunctionDeclaration* functionDeclaration2,
                                                 const std::vector<QualifiedType>& parameters)
     {
+        FunctionDeclaration* result = nullptr;
+
         if (!parameters.empty() && // both functions should have arguments
             parameters.size() == functionDeclaration1->parameterDeclarations.size() == functionDeclaration2->parameterDeclarations.size()) // they should have the same number of parameters
         {
             for (uint32_t i = 0; i < parameters.size(); ++i)
             {
                 const QualifiedType& parameter = parameters[i];
+                const QualifiedType& parameter1 = functionDeclaration1->parameterDeclarations[i]->qualifiedType;
+                const QualifiedType& parameter2 = functionDeclaration2->parameterDeclarations[i]->qualifiedType;
 
-                if (functionDeclaration1->parameterDeclarations[i]->qualifiedType.typeDeclaration->getTypeKind() == parameter.typeDeclaration->getTypeKind() &&
-                    functionDeclaration2->parameterDeclarations[i]->qualifiedType.typeDeclaration->getTypeKind() == parameter.typeDeclaration->getTypeKind())
+                if (parameter1.typeDeclaration->getTypeKind() == parameter.typeDeclaration->getTypeKind() &&
+                    parameter2.typeDeclaration->getTypeKind() == parameter.typeDeclaration->getTypeKind())
                 {
-                    if (parameter.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::ARRAY)
+                    if (parameter1.typeDeclaration == parameter.typeDeclaration &&
+                        parameter2.typeDeclaration == parameter.typeDeclaration)
                     {
+                        continue;
                     }
-                    else if (parameter.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::SCALAR)
+                    else if (parameter1.typeDeclaration == parameter.typeDeclaration)
                     {
-                        // TODO: promotion and conversion
+                        if (result == functionDeclaration2) return nullptr;
+                        result = functionDeclaration1;
                     }
-                    else if (parameter.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::STRUCT)
+                    else if (parameter2.typeDeclaration == parameter.typeDeclaration)
                     {
+                        if (result == functionDeclaration1) return nullptr;
+                        result = functionDeclaration2;
+                    }
+                    else
+                    {
+                        if (parameter.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::ARRAY)
+                        {
 
+                        }
+                        else if (parameter.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::SCALAR)
+                        {
+                            ScalarTypeDeclaration* scalarTypeDeclaration = static_cast<ScalarTypeDeclaration*>(parameter.typeDeclaration);
+                            ScalarTypeDeclaration* scalarTypeDeclaration1 = static_cast<ScalarTypeDeclaration*>(parameter1.typeDeclaration);
+                            ScalarTypeDeclaration* scalarTypeDeclaration2 = static_cast<ScalarTypeDeclaration*>(parameter2.typeDeclaration);
+
+                            if (parameter1.typeDeclaration == parameter.typeDeclaration)
+                            {
+                            }
+                            else if (parameter1.typeDeclaration == parameter.typeDeclaration)
+                            {
+
+                            }
+                            else
+                            {
+                                // TODO: promotion and conversion
+                            }
+                        }
+                        else if (parameter.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::STRUCT)
+                        {
+
+                        }
                     }
                 }
-                else if (functionDeclaration1->parameterDeclarations[i]->qualifiedType.typeDeclaration->getTypeKind() == parameter.typeDeclaration->getTypeKind())
+                else if (parameter1.typeDeclaration->getTypeKind() == parameter.typeDeclaration->getTypeKind())
                 {
-                    return functionDeclaration1;
+                    if (result == functionDeclaration2) return nullptr;
+                    result = functionDeclaration1;
                 }
-                else if (functionDeclaration2->parameterDeclarations[i]->qualifiedType.typeDeclaration->getTypeKind() == parameter.typeDeclaration->getTypeKind())
+                else if (parameter2.typeDeclaration->getTypeKind() == parameter.typeDeclaration->getTypeKind())
                 {
-                    return functionDeclaration2;
+                    if (result == functionDeclaration1) return nullptr;
+                    result = functionDeclaration2;
                 }
             }
         }
 
-        return nullptr;
+        return result;
     }
 
     static FunctionDeclaration* resolveFunction(const std::string& name,
