@@ -295,9 +295,13 @@ FunctionDeclaration* ASTContext::resolveFunctionDeclaration(const std::string& n
         {
             if ((*declarationIterator)->name == name)
             {
-                if ((*declarationIterator)->getDeclarationKind() != Declaration::Kind::FUNCTION) return nullptr;
+                if ((*declarationIterator)->getDeclarationKind() != Declaration::Kind::CALLABLE) return nullptr;
 
-                FunctionDeclaration* functionDeclaration = static_cast<FunctionDeclaration*>((*declarationIterator)->getFirstDeclaration());
+                CallableDeclaration* callableDeclaration = static_cast<CallableDeclaration*>(*declarationIterator);
+
+                if (callableDeclaration->getCallableDeclarationKind() != CallableDeclaration::Kind::FUNCTION) return nullptr;
+
+                FunctionDeclaration* functionDeclaration = static_cast<FunctionDeclaration*>(callableDeclaration->getFirstDeclaration());
 
                 if (std::find(candidateFunctionDeclarations.begin(), candidateFunctionDeclarations.end(), functionDeclaration) == candidateFunctionDeclarations.end())
                 {
@@ -468,12 +472,12 @@ Declaration* ASTContext::parseTopLevelDeclaration(const std::vector<Token>& toke
         return nullptr;
     }
 
-    if (declaration->getDeclarationKind() == Declaration::Kind::FUNCTION)
+    if (declaration->getDeclarationKind() == Declaration::Kind::CALLABLE)
     {
-        FunctionDeclaration* functionDeclaration = static_cast<FunctionDeclaration*>(declaration);
+        CallableDeclaration* callableDeclaration = static_cast<CallableDeclaration*>(declaration);
 
         // semicolon is not needed after a function definition
-        if (!functionDeclaration->body)
+        if (!callableDeclaration->body)
         {
             if (!isToken(Token::Type::SEMICOLON, tokens, iterator))
             {
@@ -3371,50 +3375,45 @@ void ASTContext::dumpDeclaration(const Declaration* declaration, std::string ind
             break;
         }
 
-        case Declaration::Kind::CONSTRUCTOR:
+        case Declaration::Kind::CALLABLE:
         {
-            const ConstructorDeclaration* constructorDeclaration = static_cast<const ConstructorDeclaration*>(declaration);
+            const CallableDeclaration* callableDeclaration = static_cast<const CallableDeclaration*>(declaration);
 
-            for (ParameterDeclaration* parameter : constructorDeclaration->parameterDeclarations)
+            std::cout << ", callable kind: " << callableDeclarationKindToString(callableDeclaration->getCallableDeclarationKind()) << ", name: " << callableDeclaration->name << ", result type: " << getPrintableTypeName(callableDeclaration->qualifiedType);
+
+            if (callableDeclaration->getCallableDeclarationKind() == CallableDeclaration::Kind::FUNCTION)
             {
-                dumpConstruct(parameter, indent + "  ");
-            }
-        }
+                const FunctionDeclaration* functionDeclaration = static_cast<const FunctionDeclaration*>(callableDeclaration);
 
-        case Declaration::Kind::FUNCTION:
-        {
-            const FunctionDeclaration* functionDeclaration = static_cast<const FunctionDeclaration*>(declaration);
+                if (functionDeclaration->isStatic) std::cout << " static";
+                if (functionDeclaration->isInline) std::cout << " inline";
 
-            std::cout << ", name: " << functionDeclaration->name << ", result type: " << getPrintableTypeName(functionDeclaration->qualifiedType);
-
-            if (functionDeclaration->isStatic) std::cout << " static";
-            if (functionDeclaration->isInline) std::cout << " inline";
-
-            if (functionDeclaration->program != FunctionDeclaration::Program::NONE)
-            {
-                std::cout << ", program: " << programToString(functionDeclaration->program);
+                if (functionDeclaration->program != FunctionDeclaration::Program::NONE)
+                {
+                    std::cout << ", program: " << programToString(functionDeclaration->program);
+                }
             }
 
-            if (functionDeclaration->previousDeclaration)
+            if (callableDeclaration->previousDeclaration)
             {
-                std::cout << ", previous declaration: " << functionDeclaration->previousDeclaration;
+                std::cout << ", previous declaration: " << callableDeclaration->previousDeclaration;
             }
 
-            if (functionDeclaration->definition)
+            if (callableDeclaration->definition)
             {
-                std::cout << ", definition: " << functionDeclaration->definition;
+                std::cout << ", definition: " << callableDeclaration->definition;
             }
 
             std::cout << std::endl;
 
-            for (ParameterDeclaration* parameter : functionDeclaration->parameterDeclarations)
+            for (ParameterDeclaration* parameter : callableDeclaration->parameterDeclarations)
             {
                 dumpConstruct(parameter, indent + "  ");
             }
 
-            if (functionDeclaration->body)
+            if (callableDeclaration->body)
             {
-                dumpConstruct(functionDeclaration->body, indent + "  ");
+                dumpConstruct(callableDeclaration->body, indent + "  ");
             }
             break;
         }

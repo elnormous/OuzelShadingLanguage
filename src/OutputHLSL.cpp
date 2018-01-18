@@ -25,8 +25,8 @@ bool OutputHLSL::output(const ASTContext& context, const std::string& outputFile
             return false;
         }
 
-        if (declaration->getDeclarationKind() != Declaration::Kind::FUNCTION ||
-            !static_cast<const FunctionDeclaration*>(declaration)->body) // function doesn't have a body
+        if (declaration->getDeclarationKind() != Declaration::Kind::CALLABLE ||
+            !static_cast<const CallableDeclaration*>(declaration)->body) // function doesn't have a body
         {
             code += ";";
         }
@@ -170,46 +170,46 @@ bool OutputHLSL::printDeclaration(const Declaration* declaration, Options option
             break;
         }
 
-        case Declaration::Kind::CONSTRUCTOR:
-        {
-            break;
-        }
-
-        case Declaration::Kind::FUNCTION:
+        case Declaration::Kind::CALLABLE:
         {
             code.append(options.indentation, ' ');
 
-            const FunctionDeclaration* functionDeclaration = static_cast<const FunctionDeclaration*>(declaration);
+            const CallableDeclaration* callableDeclaration = static_cast<const CallableDeclaration*>(declaration);
 
-            if (functionDeclaration->isStatic) code += "static ";
-            if (functionDeclaration->isInline) code += "inline ";
-
-            std::pair<std::string, std::string> printableTypeName = getPrintableTypeName(functionDeclaration->qualifiedType);
-
-            code += printableTypeName.first + " " + functionDeclaration->name + "(";
-
-            bool firstParameter = true;
-
-            for (ParameterDeclaration* parameter : functionDeclaration->parameterDeclarations)
+            if (callableDeclaration->getCallableDeclarationKind() == CallableDeclaration::Kind::FUNCTION)
             {
-                if (!firstParameter) code += ", ";
-                firstParameter = false;
+                const FunctionDeclaration* functionDeclaration = static_cast<const FunctionDeclaration*>(callableDeclaration);
 
-                if (!printConstruct(parameter, Options(0), code))
+                if (functionDeclaration->isStatic) code += "static ";
+                if (functionDeclaration->isInline) code += "inline ";
+
+                std::pair<std::string, std::string> printableTypeName = getPrintableTypeName(functionDeclaration->qualifiedType);
+
+                code += printableTypeName.first + " " + functionDeclaration->name + "(";
+
+                bool firstParameter = true;
+
+                for (ParameterDeclaration* parameter : functionDeclaration->parameterDeclarations)
                 {
-                    return false;
+                    if (!firstParameter) code += ", ";
+                    firstParameter = false;
+
+                    if (!printConstruct(parameter, Options(0), code))
+                    {
+                        return false;
+                    }
                 }
-            }
 
-            code += ")";
+                code += ")";
 
-            if (functionDeclaration->body)
-            {
-                code += "\n";
-
-                if (!printConstruct(functionDeclaration->body, options, code))
+                if (functionDeclaration->body)
                 {
-                    return false;
+                    code += "\n";
+
+                    if (!printConstruct(functionDeclaration->body, options, code))
+                    {
+                        return false;
+                    }
                 }
             }
 
@@ -709,10 +709,15 @@ bool OutputHLSL::printExpression(const Expression* expression, Options options, 
 
             switch (declaration->getDeclarationKind())
             {
-                case Declaration::Kind::FUNCTION:
+                case Declaration::Kind::CALLABLE:
                 {
-                    const FunctionDeclaration* functionDeclaration = static_cast<const FunctionDeclaration*>(declaration);
-                    code += functionDeclaration->name;
+                    const CallableDeclaration* callableDeclaration = static_cast<const CallableDeclaration*>(declaration);
+
+                    if (callableDeclaration->getCallableDeclarationKind() == CallableDeclaration::Kind::FUNCTION)
+                    {
+                        const FunctionDeclaration* functionDeclaration = static_cast<const FunctionDeclaration*>(callableDeclaration);
+                        code += functionDeclaration->name;
+                    }
                     break;
                 }
                 case Declaration::Kind::VARIABLE:

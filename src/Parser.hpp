@@ -216,8 +216,7 @@ public:
         EMPTY,
         TYPE,
         FIELD,
-        CONSTRUCTOR,
-        FUNCTION,
+        CALLABLE,
         VARIABLE,
         PARAMETER
     };
@@ -242,6 +241,22 @@ public:
 protected:
     Kind declarationKind = Kind::NONE;
 };
+
+inline std::string declarationKindToString(Declaration::Kind kind)
+{
+    switch (kind)
+    {
+        case Declaration::Kind::NONE: return "NONE";
+        case Declaration::Kind::EMPTY: return "EMPTY";
+        case Declaration::Kind::TYPE: return "TYPE";
+        case Declaration::Kind::FIELD: return "FIELD";
+        case Declaration::Kind::CALLABLE: return "CALLABLE";
+        case Declaration::Kind::VARIABLE: return "VARIABLE";
+        case Declaration::Kind::PARAMETER: return "PARAMETER";
+    }
+
+    return "unknown";
+}
 
 class TypeDeclaration: public Declaration
 {
@@ -350,12 +365,82 @@ public:
     QualifiedType qualifiedType;
 };
 
-class ConstructorDeclaration: public Declaration
+/*class TypeDefinitionDeclaration: public TypeDeclaration
 {
 public:
-    ConstructorDeclaration(): Declaration(Declaration::Kind::CONSTRUCTOR) {}
+    QualifiedType qualifiedType;
+};*/
 
+class CallableDeclaration: public Declaration
+{
+public:
+    enum Kind
+    {
+        NONE,
+        FUNCTION,
+        CONSTRUCTOR,
+        METHOD
+    };
+
+    CallableDeclaration(Kind initCallableDeclarationKind): Declaration(Declaration::Kind::CALLABLE), callableDeclarationKind(initCallableDeclarationKind) {}
+
+    inline Kind getCallableDeclarationKind() const { return callableDeclarationKind; }
+
+    QualifiedType qualifiedType;
     std::vector<ParameterDeclaration*> parameterDeclarations;
+    Statement* body = nullptr;
+
+protected:
+    Kind callableDeclarationKind;
+};
+
+inline std::string callableDeclarationKindToString(CallableDeclaration::Kind kind)
+{
+    switch (kind)
+    {
+        case CallableDeclaration::Kind::NONE: return "NONE";
+        case CallableDeclaration::Kind::FUNCTION: return "FUNCTION";
+        case CallableDeclaration::Kind::CONSTRUCTOR: return "CONSTRUCTOR";
+        case CallableDeclaration::Kind::METHOD: return "METHOD";
+    }
+
+    return "unknown";
+}
+
+class FunctionDeclaration: public CallableDeclaration
+{
+public:
+    enum class Program
+    {
+        NONE,
+        FRAGMENT,
+        VERTEX
+    };
+
+    FunctionDeclaration(): CallableDeclaration(CallableDeclaration::Kind::FUNCTION) {}
+
+    bool isInline = false;
+    bool isStatic = false;
+    bool isBuiltin = false;
+    Program program = Program::NONE;
+};
+
+inline std::string programToString(FunctionDeclaration::Program program)
+{
+    switch (program)
+    {
+        case FunctionDeclaration::Program::NONE: return "NONE";
+        case FunctionDeclaration::Program::FRAGMENT: return "FRAGMENT";
+        case FunctionDeclaration::Program::VERTEX: return "VERTEX";
+    }
+
+    return "unknown";
+}
+
+class ConstructorDeclaration: public CallableDeclaration
+{
+public:
+    ConstructorDeclaration(): CallableDeclaration(CallableDeclaration::Kind::CONSTRUCTOR) {}
 };
 
 class StructDeclaration: public TypeDeclaration
@@ -367,20 +452,25 @@ public:
     {
         for (Declaration* declaration : memberDeclarations)
         {
-            if (declaration->getDeclarationKind() == Declaration::Kind::CONSTRUCTOR)
+            if (declaration->getDeclarationKind() == Declaration::Kind::CALLABLE)
             {
-                ConstructorDeclaration* constructorDeclaration = static_cast<ConstructorDeclaration*>(declaration);
+                CallableDeclaration* callableDeclaration = static_cast<CallableDeclaration*>(declaration);
 
-                if (constructorDeclaration->parameterDeclarations.size() == parameters.size())
+                if (callableDeclaration->getCallableDeclarationKind() == CallableDeclaration::Kind::CONSTRUCTOR)
                 {
-                    if (std::equal(parameters.begin(), parameters.end(),
-                                   constructorDeclaration->parameterDeclarations.begin(),
-                                   [](const QualifiedType& qualifiedType,
-                                      const ParameterDeclaration* parameterDeclaration) {
-                                       return qualifiedType.typeDeclaration->getFirstDeclaration() == parameterDeclaration->qualifiedType.typeDeclaration->getFirstDeclaration(); // TODO: type promotion
-                                   }))
+                    ConstructorDeclaration* constructorDeclaration = static_cast<ConstructorDeclaration*>(callableDeclaration);
+
+                    if (constructorDeclaration->parameterDeclarations.size() == parameters.size())
                     {
-                        return constructorDeclaration;
+                        if (std::equal(parameters.begin(), parameters.end(),
+                                       constructorDeclaration->parameterDeclarations.begin(),
+                                       [](const QualifiedType& qualifiedType,
+                                          const ParameterDeclaration* parameterDeclaration) {
+                                           return qualifiedType.typeDeclaration->getFirstDeclaration() == parameterDeclaration->qualifiedType.typeDeclaration->getFirstDeclaration(); // TODO: type promotion
+                                       }))
+                        {
+                            return constructorDeclaration;
+                        }
                     }
                 }
             }
@@ -401,63 +491,6 @@ public:
 
     std::vector<Declaration*> memberDeclarations;
 };
-
-inline std::string declarationKindToString(Declaration::Kind kind)
-{
-    switch (kind)
-    {
-        case Declaration::Kind::NONE: return "NONE";
-        case Declaration::Kind::EMPTY: return "EMPTY";
-        case Declaration::Kind::TYPE: return "TYPE";
-        case Declaration::Kind::FIELD: return "FIELD";
-        case Declaration::Kind::CONSTRUCTOR: return "CONSTRUCTOR";
-        case Declaration::Kind::FUNCTION: return "FUNCTION";
-        case Declaration::Kind::VARIABLE: return "VARIABLE";
-        case Declaration::Kind::PARAMETER: return "PARAMETER";
-    }
-
-    return "unknown";
-}
-
-/*class TypeDefinitionDeclaration: public TypeDeclaration
-{
-public:
-    QualifiedType qualifiedType;
-};*/
-
-class FunctionDeclaration: public Declaration
-{
-public:
-    enum class Program
-    {
-        NONE,
-        FRAGMENT,
-        VERTEX
-    };
-
-    FunctionDeclaration(): Declaration(Declaration::Kind::FUNCTION) {}
-
-    QualifiedType qualifiedType;
-    std::vector<ParameterDeclaration*> parameterDeclarations;
-    Statement* body = nullptr;
-
-    bool isInline = false;
-    bool isStatic = false;
-    bool isBuiltin = false;
-    Program program = Program::NONE;
-};
-
-inline std::string programToString(FunctionDeclaration::Program program)
-{
-    switch (program)
-    {
-        case FunctionDeclaration::Program::NONE: return "NONE";
-        case FunctionDeclaration::Program::FRAGMENT: return "FRAGMENT";
-        case FunctionDeclaration::Program::VERTEX: return "VERTEX";
-    }
-
-    return "unknown";
-}
 
 class VariableDeclaration: public Declaration
 {
@@ -929,9 +962,13 @@ private:
             {
                 if ((*declarationIterator)->name == name)
                 {
-                    if ((*declarationIterator)->getDeclarationKind() != Declaration::Kind::FUNCTION) return nullptr;
+                    if ((*declarationIterator)->getDeclarationKind() != Declaration::Kind::CALLABLE) return nullptr;
 
-                    FunctionDeclaration* functionDeclaration = static_cast<FunctionDeclaration*>(*declarationIterator);
+                    CallableDeclaration* callableDeclaration = static_cast<CallableDeclaration*>(*declarationIterator);
+
+                    if (callableDeclaration->getCallableDeclarationKind() != CallableDeclaration::Kind::FUNCTION) return nullptr;
+
+                    FunctionDeclaration* functionDeclaration = static_cast<FunctionDeclaration*>(callableDeclaration);
 
                     if (functionDeclaration->parameterDeclarations.size() == parameters.size())
                     {
