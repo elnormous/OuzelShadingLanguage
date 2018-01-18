@@ -293,6 +293,7 @@ inline std::string tokenTypeToString(Token::Type type)
         case Token::Type::OPERATOR_CONDITIONAL: return "OPERATOR_CONDITIONAL";
         case Token::Type::OPERATOR_DOT: return "OPERATOR_DOT";
         case Token::Type::OPERATOR_ARROW: return "OPERATOR_ARROW";
+        case Token::Type::OPERATOR_ELLIPSIS: return "OPERATOR_ELLIPSIS";
     }
 
     return "unknown";
