@@ -209,9 +209,9 @@ bool ASTContext::parse(const std::vector<Token>& tokens)
     return true;
 }
 
-FunctionDeclaration* ASTContext::getBestFunctionDeclaration(FunctionDeclaration* functionDeclaration1,
-                                                            FunctionDeclaration* functionDeclaration2,
-                                                            const std::vector<QualifiedType>& parameters)
+FunctionDeclaration* ASTContext::compareFunctionDeclarations(FunctionDeclaration* functionDeclaration1,
+                                                             FunctionDeclaration* functionDeclaration2,
+                                                             const std::vector<QualifiedType>& parameters)
 {
     FunctionDeclaration* result = nullptr;
 
@@ -351,7 +351,7 @@ FunctionDeclaration* ASTContext::resolveFunctionDeclaration(const std::string& n
             for (auto second = viableFunctionDeclarations.begin(); second != viableFunctionDeclarations.end(); ++second)
             {
                 if (first != second &&
-                    getBestFunctionDeclaration(*first, *second, parameters) != *first)
+                    compareFunctionDeclarations(*first, *second, parameters) != *first)
                 {
                     best = false;
                     break;

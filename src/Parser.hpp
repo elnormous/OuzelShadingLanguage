@@ -358,8 +358,6 @@ public:
     std::vector<ParameterDeclaration*> parameterDeclarations;
 };
 
-#include <iostream>
-
 class StructDeclaration: public TypeDeclaration
 {
 public:
@@ -954,9 +952,9 @@ private:
         return nullptr;
     }
 
-    static FunctionDeclaration* getBestFunctionDeclaration(FunctionDeclaration* functionDeclaration1,
-                                                           FunctionDeclaration* functionDeclaration2,
-                                                           const std::vector<QualifiedType>& parameters);
+    static FunctionDeclaration* compareFunctionDeclarations(FunctionDeclaration* functionDeclaration1,
+                                                            FunctionDeclaration* functionDeclaration2,
+                                                            const std::vector<QualifiedType>& parameters);
 
     static FunctionDeclaration* resolveFunctionDeclaration(const std::string& name,
                                                            const std::vector<std::vector<Declaration*>>& declarationScopes,
