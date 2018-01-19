@@ -47,38 +47,6 @@ protected:
     Kind kind = Kind::NONE;
 };
 
-inline std::string constructKindToString(Construct::Kind kind)
-{
-    switch (kind)
-    {
-        case Construct::Kind::NONE: return "NONE";
-        case Construct::Kind::DECLARATION: return "DECLARATION";
-        case Construct::Kind::STATEMENT: return "STATEMENT";
-        case Construct::Kind::EXPRESSION: return "EXPRESSION";
-    }
-
-    return "unknown";
-}
-
-inline std::string semanticToString(Semantic semantic)
-{
-    switch (semantic)
-    {
-        case Semantic::NONE: return "NONE";
-        case Semantic::BINORMAL: return "BINORMAL";
-        case Semantic::BLEND_INDICES: return "BLEND_INDICES";
-        case Semantic::BLEND_WEIGHT: return "BLEND_WEIGHT";
-        case Semantic::COLOR: return "COLOR";
-        case Semantic::NORMAL: return "NORMAL";
-        case Semantic::POSITION: return "POSITION";
-        case Semantic::POSITION_TRANSFORMED: return "POSITION_TRANSFORMED";
-        case Semantic::POINT_SIZE: return "POINT_SIZE";
-        case Semantic::TANGENT: return "TANGENT";
-        case Semantic::TEXTURE_COORDINATES: return "TEXTURE_COORDINATES";
-        default: return "unknown";
-    }
-}
-
 class TypeDeclaration;
 
 class QualifiedType
@@ -130,30 +98,6 @@ protected:
     Kind statementKind = Kind::NONE;
 };
 
-inline std::string statementKindToString(Statement::Kind kind)
-{
-    switch (kind)
-    {
-        case Statement::Kind::NONE: return "NONE";
-        case Statement::Kind::EMPTY: return "EMPTY";
-        case Statement::Kind::EXPRESSION: return "EXPRESSION";
-        case Statement::Kind::DECLARATION: return "DECLARATION";
-        case Statement::Kind::COMPOUND: return "COMPOUND";
-        case Statement::Kind::IF: return "IF";
-        case Statement::Kind::FOR: return "FOR";
-        case Statement::Kind::SWITCH: return "SWITCH";
-        case Statement::Kind::CASE: return "CASE";
-        case Statement::Kind::DEFAULT: return "DEFAULT";
-        case Statement::Kind::WHILE: return "WHILE";
-        case Statement::Kind::DO: return "DO";
-        case Statement::Kind::BREAK: return "BREAK";
-        case Statement::Kind::CONTINUE: return "CONTINUE";
-        case Statement::Kind::RETURN: return "RETURN";
-    }
-
-    return "unknown";
-}
-
 class Expression: public Construct
 {
 public:
@@ -184,28 +128,6 @@ public:
 protected:
     Kind expressionKind = Kind::NONE;
 };
-
-inline std::string expressionKindToString(Expression::Kind kind)
-{
-    switch (kind)
-    {
-        case Expression::Kind::NONE: return "NONE";
-        case Expression::Kind::CALL: return "CALL";
-        case Expression::Kind::LITERAL: return "LITERAL";
-        case Expression::Kind::DECLARATION_REFERENCE: return "DECLARATION_REFERENCE";
-        case Expression::Kind::PAREN: return "PAREN";
-        case Expression::Kind::MEMBER: return "MEMBER";
-        case Expression::Kind::ARRAY_SUBSCRIPT: return "ARRAY_SUBSCRIPT";
-        case Expression::Kind::UNARY: return "UNARY";
-        case Expression::Kind::BINARY: return "BINARY";
-        case Expression::Kind::TERNARY: return "TERNARY";
-        case Expression::Kind::TEMPORARY_OBJECT: return "TEMPORARY_OBJECT";
-        case Expression::Kind::INITIALIZER_LIST: return "INITIALIZER_LIST";
-        case Expression::Kind::CAST: return "CAST";
-    }
-
-    return "unknown";
-}
 
 class Declaration: public Construct
 {
@@ -242,22 +164,6 @@ protected:
     Kind declarationKind = Kind::NONE;
 };
 
-inline std::string declarationKindToString(Declaration::Kind kind)
-{
-    switch (kind)
-    {
-        case Declaration::Kind::NONE: return "NONE";
-        case Declaration::Kind::EMPTY: return "EMPTY";
-        case Declaration::Kind::TYPE: return "TYPE";
-        case Declaration::Kind::FIELD: return "FIELD";
-        case Declaration::Kind::CALLABLE: return "CALLABLE";
-        case Declaration::Kind::VARIABLE: return "VARIABLE";
-        case Declaration::Kind::PARAMETER: return "PARAMETER";
-    }
-
-    return "unknown";
-}
-
 class TypeDeclaration: public Declaration
 {
 public:
@@ -279,20 +185,6 @@ public:
 protected:
     Kind typeKind = Kind::NONE;
 };
-
-inline std::string typeKindToString(TypeDeclaration::Kind kind)
-{
-    switch (kind)
-    {
-        case TypeDeclaration::Kind::NONE: return "NONE";
-        case TypeDeclaration::Kind::ARRAY: return "ARRAY";
-        case TypeDeclaration::Kind::SCALAR: return "SCALAR";
-        case TypeDeclaration::Kind::STRUCT: return "STRUCT";
-        //case TypeDeclaration::Kind::TYPE_DEFINITION: return "TYPE_DEFINITION";
-    }
-
-    return "unknown";
-}
 
 class ArrayTypeDeclaration: public TypeDeclaration
 {
@@ -327,19 +219,6 @@ public:
 protected:
     Kind scalarTypeKind;
 };
-
-inline std::string scalarTypeKindToString(ScalarTypeDeclaration::Kind kind)
-{
-    switch (kind)
-    {
-        case ScalarTypeDeclaration::Kind::NONE: return "NONE";
-        case ScalarTypeDeclaration::Kind::BOOLEAN: return "BOOLEAN";
-        case ScalarTypeDeclaration::Kind::INTEGER: return "INTEGER";
-        case ScalarTypeDeclaration::Kind::FLOATING_POINT: return "FLOATING_POINT";
-    }
-
-    return "unknown";
-}
 
 class FieldDeclaration: public Declaration
 {
@@ -394,19 +273,6 @@ protected:
     Kind callableDeclarationKind;
 };
 
-inline std::string callableDeclarationKindToString(CallableDeclaration::Kind kind)
-{
-    switch (kind)
-    {
-        case CallableDeclaration::Kind::NONE: return "NONE";
-        case CallableDeclaration::Kind::FUNCTION: return "FUNCTION";
-        case CallableDeclaration::Kind::CONSTRUCTOR: return "CONSTRUCTOR";
-        case CallableDeclaration::Kind::METHOD: return "METHOD";
-    }
-
-    return "unknown";
-}
-
 class FunctionDeclaration: public CallableDeclaration
 {
 public:
@@ -424,18 +290,6 @@ public:
     bool isBuiltin = false;
     Program program = Program::NONE;
 };
-
-inline std::string programToString(FunctionDeclaration::Program program)
-{
-    switch (program)
-    {
-        case FunctionDeclaration::Program::NONE: return "NONE";
-        case FunctionDeclaration::Program::FRAGMENT: return "FRAGMENT";
-        case FunctionDeclaration::Program::VERTEX: return "VERTEX";
-    }
-
-    return "unknown";
-}
 
 class ConstructorDeclaration: public CallableDeclaration
 {
@@ -637,20 +491,6 @@ protected:
     Kind literalKind = Kind::NONE;
 };
 
-inline std::string literalKindToString(LiteralExpression::Kind kind)
-{
-    switch (kind)
-    {
-        case LiteralExpression::Kind::NONE: return "NONE";
-        case LiteralExpression::Kind::BOOLEAN: return "BOOLEAN";
-        case LiteralExpression::Kind::INTEGER: return "INTEGER";
-        case LiteralExpression::Kind::FLOATING_POINT: return "FLOATING_POINT";
-        case LiteralExpression::Kind::STRING: return "STRING";
-    }
-
-    return "unknown";
-}
-
 class BooleanLiteralExpression: public LiteralExpression
 {
 public:
@@ -743,19 +583,6 @@ public:
     Kind operatorKind = Kind::NONE;
 };
 
-inline std::string unaryOperatorKindToString(UnaryOperatorExpression::Kind kind)
-{
-    switch (kind)
-    {
-        case UnaryOperatorExpression::Kind::NONE: return "NONE";
-        case UnaryOperatorExpression::Kind::NEGATION: return "NEGATION";
-        case UnaryOperatorExpression::Kind::POSITIVE: return "POSITIVE";
-        case UnaryOperatorExpression::Kind::NEGATIVE: return "NEGATIVE";
-    }
-
-    return "unknown";
-}
-
 class BinaryOperatorExpression: public Expression
 {
 public:
@@ -789,34 +616,6 @@ public:
 
     Kind operatorKind = Kind::NONE;
 };
-
-inline std::string binaryOperatorKindToString(BinaryOperatorExpression::Kind kind)
-{
-    switch (kind)
-    {
-        case BinaryOperatorExpression::Kind::NONE: return "NONE";
-        case BinaryOperatorExpression::Kind::ADDITION: return "ADDITION";
-        case BinaryOperatorExpression::Kind::SUBTRACTION: return "SUBTRACTION";
-        case BinaryOperatorExpression::Kind::MULTIPLICATION: return "MULTIPLICATION";
-        case BinaryOperatorExpression::Kind::DIVISION: return "DIVISION";
-        case BinaryOperatorExpression::Kind::ADDITION_ASSIGNMENT: return "ADDITION_ASSIGNMENT";
-        case BinaryOperatorExpression::Kind::SUBTRACTION_ASSIGNMENT: return "SUBTRACTION_ASSIGNMENT";
-        case BinaryOperatorExpression::Kind::MULTIPLICATION_ASSIGNMENT: return "MULTIPLICATION_ASSIGNMENT";
-        case BinaryOperatorExpression::Kind::DIVISION_ASSIGNMENT: return "DIVISION_ASSIGNMENT";
-        case BinaryOperatorExpression::Kind::LESS_THAN: return "LESS_THAN";
-        case BinaryOperatorExpression::Kind::LESS_THAN_EQUAL: return "LESS_THAN_EQUAL";
-        case BinaryOperatorExpression::Kind::GREATER_THAN: return "GREATER_THAN";
-        case BinaryOperatorExpression::Kind::GREATER_THAN_EQUAL: return "GREATER_THAN_EQUAL";
-        case BinaryOperatorExpression::Kind::EQUALITY: return "EQUALITY";
-        case BinaryOperatorExpression::Kind::INEQUALITY: return "INEQUALITY";
-        case BinaryOperatorExpression::Kind::ASSIGNMENT: return "ASSIGNMENT";
-        case BinaryOperatorExpression::Kind::OR: return "OR";
-        case BinaryOperatorExpression::Kind::AND: return "AND";
-        case BinaryOperatorExpression::Kind::COMMA: return "COMMA";
-    }
-
-    return "unknown";
-}
 
 class TernaryOperatorExpression: public Expression
 {
@@ -864,18 +663,6 @@ public:
 protected:
     Kind castKind;
 };
-
-inline std::string castKindToString(CastExpression::Kind kind)
-{
-    switch (kind)
-    {
-        case CastExpression::Kind::NONE: return "NONE";
-        case CastExpression::Kind::IMPLICIT: return "IMPLICIT";
-        case CastExpression::Kind::EXPLICIT: return "EXPLICIT";
-    }
-
-    return "unknown";
-}
 
 class ASTContext
 {
