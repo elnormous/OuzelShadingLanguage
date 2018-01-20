@@ -3253,7 +3253,7 @@ Expression* ASTContext::parseCommaExpression(const std::vector<Token>& tokens,
     return result;
 }
 
-inline std::string constructKindToString(Construct::Kind kind)
+static std::string toString(Construct::Kind kind)
 {
     switch (kind)
     {
@@ -3266,7 +3266,7 @@ inline std::string constructKindToString(Construct::Kind kind)
     return "unknown";
 }
 
-inline std::string semanticToString(Semantic semantic)
+static std::string toString(Semantic semantic)
 {
     switch (semantic)
     {
@@ -3285,7 +3285,7 @@ inline std::string semanticToString(Semantic semantic)
     }
 }
 
-inline std::string statementKindToString(Statement::Kind kind)
+static std::string toString(Statement::Kind kind)
 {
     switch (kind)
     {
@@ -3309,7 +3309,7 @@ inline std::string statementKindToString(Statement::Kind kind)
     return "unknown";
 }
 
-inline std::string expressionKindToString(Expression::Kind kind)
+static std::string toString(Expression::Kind kind)
 {
     switch (kind)
     {
@@ -3331,7 +3331,7 @@ inline std::string expressionKindToString(Expression::Kind kind)
     return "unknown";
 }
 
-inline std::string declarationKindToString(Declaration::Kind kind)
+static std::string toString(Declaration::Kind kind)
 {
     switch (kind)
     {
@@ -3347,7 +3347,7 @@ inline std::string declarationKindToString(Declaration::Kind kind)
     return "unknown";
 }
 
-inline std::string typeKindToString(TypeDeclaration::Kind kind)
+static std::string toString(TypeDeclaration::Kind kind)
 {
     switch (kind)
     {
@@ -3361,7 +3361,7 @@ inline std::string typeKindToString(TypeDeclaration::Kind kind)
     return "unknown";
 }
 
-inline std::string scalarTypeKindToString(ScalarTypeDeclaration::Kind kind)
+static std::string toString(ScalarTypeDeclaration::Kind kind)
 {
     switch (kind)
     {
@@ -3374,7 +3374,7 @@ inline std::string scalarTypeKindToString(ScalarTypeDeclaration::Kind kind)
     return "unknown";
 }
 
-inline std::string callableDeclarationKindToString(CallableDeclaration::Kind kind)
+static std::string toString(CallableDeclaration::Kind kind)
 {
     switch (kind)
     {
@@ -3387,7 +3387,7 @@ inline std::string callableDeclarationKindToString(CallableDeclaration::Kind kin
     return "unknown";
 }
 
-inline std::string programToString(FunctionDeclaration::Program program)
+static std::string toString(FunctionDeclaration::Program program)
 {
     switch (program)
     {
@@ -3399,7 +3399,7 @@ inline std::string programToString(FunctionDeclaration::Program program)
     return "unknown";
 }
 
-inline std::string literalKindToString(LiteralExpression::Kind kind)
+static std::string toString(LiteralExpression::Kind kind)
 {
     switch (kind)
     {
@@ -3413,7 +3413,7 @@ inline std::string literalKindToString(LiteralExpression::Kind kind)
     return "unknown";
 }
 
-inline std::string unaryOperatorKindToString(UnaryOperatorExpression::Kind kind)
+static std::string toString(UnaryOperatorExpression::Kind kind)
 {
     switch (kind)
     {
@@ -3426,7 +3426,7 @@ inline std::string unaryOperatorKindToString(UnaryOperatorExpression::Kind kind)
     return "unknown";
 }
 
-inline std::string binaryOperatorKindToString(BinaryOperatorExpression::Kind kind)
+static std::string toString(BinaryOperatorExpression::Kind kind)
 {
     switch (kind)
     {
@@ -3454,7 +3454,7 @@ inline std::string binaryOperatorKindToString(BinaryOperatorExpression::Kind kin
     return "unknown";
 }
 
-inline std::string castKindToString(CastExpression::Kind kind)
+static std::string toString(CastExpression::Kind kind)
 {
     switch (kind)
     {
@@ -3505,7 +3505,7 @@ static std::string getPrintableTypeName(const QualifiedType& qualifiedType)
 
 void ASTContext::dumpDeclaration(const Declaration* declaration, std::string indent) const
 {
-    std::cout << " " << declarationKindToString(declaration->getDeclarationKind());
+    std::cout << " " << toString(declaration->getDeclarationKind());
 
     switch (declaration->getDeclarationKind())
     {
@@ -3524,7 +3524,7 @@ void ASTContext::dumpDeclaration(const Declaration* declaration, std::string ind
         {
             const TypeDeclaration* typeDeclaration = static_cast<const TypeDeclaration*>(declaration);
 
-            std::cout << " " << typeKindToString(typeDeclaration->getTypeKind());
+            std::cout << " " << toString(typeDeclaration->getTypeKind());
 
             switch (typeDeclaration->getTypeKind())
             {
@@ -3566,7 +3566,7 @@ void ASTContext::dumpDeclaration(const Declaration* declaration, std::string ind
                 case TypeDeclaration::Kind::SCALAR:
                 {
                     const ScalarTypeDeclaration* scalarTypeDeclaration = static_cast<const ScalarTypeDeclaration*>(typeDeclaration);
-                    std::cout << ", name: " << scalarTypeDeclaration->name << ", scalar type kind: " << scalarTypeKindToString(scalarTypeDeclaration->getScalarTypeKind());
+                    std::cout << ", name: " << scalarTypeDeclaration->name << ", scalar type kind: " << toString(scalarTypeDeclaration->getScalarTypeKind());
                     break;
                 }
             }
@@ -3581,7 +3581,7 @@ void ASTContext::dumpDeclaration(const Declaration* declaration, std::string ind
 
             if (fieldDeclaration->semantic != Semantic::NONE)
             {
-                std::cout << ", semantic: " << semanticToString(fieldDeclaration->semantic);
+                std::cout << ", semantic: " << toString(fieldDeclaration->semantic);
             }
 
             std::cout << std::endl;
@@ -3592,7 +3592,7 @@ void ASTContext::dumpDeclaration(const Declaration* declaration, std::string ind
         {
             const CallableDeclaration* callableDeclaration = static_cast<const CallableDeclaration*>(declaration);
 
-            std::cout << ", callable kind: " << callableDeclarationKindToString(callableDeclaration->getCallableDeclarationKind()) << ", name: " << callableDeclaration->name << ", result type: " << getPrintableTypeName(callableDeclaration->qualifiedType);
+            std::cout << ", callable kind: " << toString(callableDeclaration->getCallableDeclarationKind()) << ", name: " << callableDeclaration->name << ", result type: " << getPrintableTypeName(callableDeclaration->qualifiedType);
 
             if (callableDeclaration->getCallableDeclarationKind() == CallableDeclaration::Kind::FUNCTION)
             {
@@ -3603,7 +3603,7 @@ void ASTContext::dumpDeclaration(const Declaration* declaration, std::string ind
 
                 if (functionDeclaration->program != FunctionDeclaration::Program::NONE)
                 {
-                    std::cout << ", program: " << programToString(functionDeclaration->program);
+                    std::cout << ", program: " << toString(functionDeclaration->program);
                 }
             }
 
@@ -3658,7 +3658,7 @@ void ASTContext::dumpDeclaration(const Declaration* declaration, std::string ind
 
 void ASTContext::dumpStatement(const Statement* statement, std::string indent) const
 {
-    std::cout << " " << statementKindToString(statement->getStatementKind());
+    std::cout << " " << toString(statement->getStatementKind());
 
     switch (statement->getStatementKind())
     {
@@ -3817,7 +3817,7 @@ void ASTContext::dumpStatement(const Statement* statement, std::string indent) c
 
 void ASTContext::dumpExpression(const Expression* expression, std::string indent) const
 {
-    std::cout << " " << expressionKindToString(expression->getExpressionKind()) << ", lvalue: " << (expression->isLValue ? "true" : "false");
+    std::cout << " " << toString(expression->getExpressionKind()) << ", lvalue: " << (expression->isLValue ? "true" : "false");
 
     switch (expression->getExpressionKind())
     {
@@ -3846,7 +3846,7 @@ void ASTContext::dumpExpression(const Expression* expression, std::string indent
         {
             const LiteralExpression* literalExpression = static_cast<const LiteralExpression*>(expression);
 
-            std::cout << ", literal kind: " << literalKindToString(literalExpression->getLiteralKind()) << ", value: ";
+            std::cout << ", literal kind: " << toString(literalExpression->getLiteralKind()) << ", value: ";
 
             switch (literalExpression->getLiteralKind())
             {
@@ -3926,7 +3926,7 @@ void ASTContext::dumpExpression(const Expression* expression, std::string indent
         {
             const UnaryOperatorExpression* unaryOperatorExpression = static_cast<const UnaryOperatorExpression*>(expression);
 
-            std::cout <<", operator: " << unaryOperatorKindToString(unaryOperatorExpression->operatorKind) << std::endl;
+            std::cout <<", operator: " << toString(unaryOperatorExpression->operatorKind) << std::endl;
 
             dumpConstruct(unaryOperatorExpression->expression, indent + "  ");
             break;
@@ -3936,7 +3936,7 @@ void ASTContext::dumpExpression(const Expression* expression, std::string indent
         {
             const BinaryOperatorExpression* binaryOperatorExpression = static_cast<const BinaryOperatorExpression*>(expression);
 
-            std::cout << ", operator: " << binaryOperatorKindToString(binaryOperatorExpression->operatorKind) << std::endl;
+            std::cout << ", operator: " << toString(binaryOperatorExpression->operatorKind) << std::endl;
 
             dumpConstruct(binaryOperatorExpression->leftExpression, indent + "  ");
             dumpConstruct(binaryOperatorExpression->rightExpression, indent + "  ");
@@ -3989,7 +3989,7 @@ void ASTContext::dumpExpression(const Expression* expression, std::string indent
         {
             const CastExpression* castExpression = static_cast<const CastExpression*>(expression);
 
-            std::cout << " " << castKindToString(castExpression->getCastKind()) << " " <<
+            std::cout << " " << toString(castExpression->getCastKind()) << " " <<
                 castExpression->expression->qualifiedType.typeDeclaration->name << " to " <<
                 castExpression->qualifiedType.typeDeclaration->name << std::endl;
 
@@ -4004,7 +4004,7 @@ void ASTContext::dumpConstruct(const Construct* construct, std::string indent) c
 {
     std::cout << indent << construct;
     if (construct->parent) std::cout << ", parent: " << construct->parent;
-    std::cout << " " << constructKindToString(construct->getKind());
+    std::cout << " " << toString(construct->getKind());
 
     switch (construct->getKind())
     {

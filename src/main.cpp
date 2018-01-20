@@ -70,14 +70,7 @@ int main(int argc, const char * argv[])
 
     if (printTokens)
     {
-        for (const Token& token : tokens)
-        {
-            std::cout << "Token, kind: " << tokenKindToString(token.kind) <<
-                ", type: " << tokenTypeToString(token.type) <<
-                ", value: " << token.value <<
-                ", line: " << token.line <<
-                ", column: " << token.column << std::endl;
-        }
+        dump(tokens);
     }
 
     ASTContext context;
