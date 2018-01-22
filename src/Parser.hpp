@@ -258,7 +258,8 @@ public:
         NONE,
         FUNCTION,
         CONSTRUCTOR,
-        METHOD
+        METHOD,
+        OPERATOR
     };
 
     CallableDeclaration(Kind initCallableDeclarationKind): Declaration(Declaration::Kind::CALLABLE), callableDeclarationKind(initCallableDeclarationKind) {}
@@ -295,6 +296,12 @@ class ConstructorDeclaration: public CallableDeclaration
 {
 public:
     ConstructorDeclaration(): CallableDeclaration(CallableDeclaration::Kind::CONSTRUCTOR) {}
+};
+
+class OperatorDeclaration: public CallableDeclaration
+{
+public:
+    OperatorDeclaration(): CallableDeclaration(CallableDeclaration::Kind::OPERATOR) {}
 };
 
 class StructDeclaration: public TypeDeclaration

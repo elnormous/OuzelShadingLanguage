@@ -3382,6 +3382,7 @@ static std::string toString(CallableDeclaration::Kind kind)
         case CallableDeclaration::Kind::FUNCTION: return "FUNCTION";
         case CallableDeclaration::Kind::CONSTRUCTOR: return "CONSTRUCTOR";
         case CallableDeclaration::Kind::METHOD: return "METHOD";
+        case CallableDeclaration::Kind::OPERATOR: return "OPERATOR";
     }
 
     return "unknown";
