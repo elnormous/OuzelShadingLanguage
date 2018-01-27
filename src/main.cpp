@@ -92,6 +92,14 @@ int main(int argc, const char * argv[])
 
     if (!format.empty())
     {
+        std::ofstream file(outputFile, std::ios::binary);
+
+        if (!file)
+        {
+            std::cerr << "Failed to open file " << outputFile << std::endl;
+            return EXIT_FAILURE;
+        }
+
         std::unique_ptr<Output> output;
 
         if (outputFile.empty())
@@ -118,11 +126,15 @@ int main(int argc, const char * argv[])
             return EXIT_FAILURE;
         }
 
-        if (!output->output(context, outputFile))
+        std::string code;
+
+        if (!output->output(context, code))
         {
             std::cerr << "Failed to output code" << std::endl;
             return EXIT_FAILURE;
         }
+
+        file << code;
     }
 
     return EXIT_SUCCESS;

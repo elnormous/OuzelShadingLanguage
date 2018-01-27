@@ -2,22 +2,11 @@
 //  OSL
 //
 
-#include <fstream>
 #include <iostream>
 #include "OutputHLSL.hpp"
 
-bool OutputHLSL::output(const ASTContext& context, const std::string& outputFile)
+bool OutputHLSL::output(const ASTContext& context, std::string& code)
 {
-    std::string code;
-
-    std::ofstream file(outputFile, std::ios::binary);
-
-    if (!file)
-    {
-        std::cerr << "Failed to open file " << outputFile << std::endl;
-        return EXIT_FAILURE;
-    }
-
     for (Declaration* declaration : context.declarations)
     {
         if (!printConstruct(declaration, Options(0), code))
@@ -33,8 +22,6 @@ bool OutputHLSL::output(const ASTContext& context, const std::string& outputFile
 
         code += "\n";
     }
-
-    file << code;
 
     return true;
 }

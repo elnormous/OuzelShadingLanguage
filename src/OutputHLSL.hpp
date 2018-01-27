@@ -9,7 +9,7 @@
 class OutputHLSL: public Output
 {
 public:
-    virtual bool output(const ASTContext& context, const std::string& outputFile);
+    virtual bool output(const ASTContext& context, std::string& code);
 
 private:
     struct Options
