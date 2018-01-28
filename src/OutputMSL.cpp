@@ -5,6 +5,11 @@
 #include <iostream>
 #include "OutputMSL.hpp"
 
+OutputMSL::OutputMSL(const std::map<Semantic, uint32_t>& initSemantics):
+    semantics(initSemantics)
+{
+}
+
 bool OutputMSL::output(const ASTContext& context, std::string& code)
 {
     for (Declaration* declaration : context.declarations)

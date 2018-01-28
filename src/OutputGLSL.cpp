@@ -5,6 +5,12 @@
 #include <iostream>
 #include "OutputGLSL.hpp"
 
+OutputGLSL::OutputGLSL(uint32_t initGlslVersion,
+                       const std::map<Semantic, uint32_t>& initSemantics):
+    glslVersion(initGlslVersion), semantics(initSemantics)
+{
+}
+
 bool OutputGLSL::output(const ASTContext& context, std::string& code)
 {
     for (Declaration* declaration : context.declarations)

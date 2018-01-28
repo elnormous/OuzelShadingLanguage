@@ -114,11 +114,11 @@ int main(int argc, const char * argv[])
         }
         else if (format == "glsl")
         {
-            output.reset(new OutputGLSL());
+            output.reset(new OutputGLSL(110, {}));
         }
         else if (format == "msl")
         {
-            output.reset(new OutputMSL());
+            output.reset(new OutputMSL({}));
         }
         else
         {

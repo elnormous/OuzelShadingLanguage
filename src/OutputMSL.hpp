@@ -4,11 +4,13 @@
 
 #pragma once
 
+#include <map>
 #include "Output.hpp"
 
 class OutputMSL: public Output
 {
 public:
+    OutputMSL(const std::map<Semantic, uint32_t>& initSemantics);
     virtual bool output(const ASTContext& context, std::string& code);
 
 private:
@@ -22,4 +24,6 @@ private:
     bool printStatement(const Statement* statement, Options options, std::string& code);
     bool printExpression(const Expression* expression, Options options, std::string& code);
     bool printConstruct(const Construct* construct, Options options, std::string& code);
+
+    const std::map<Semantic, uint32_t> semantics;
 };
