@@ -121,42 +121,15 @@ bool OutputMSL::printDeclaration(const Declaration* declaration, Options options
 
             if (fieldDeclaration->semantic != Semantic::NONE)
             {
-                code += ":";
+                auto attribute = semantics.find(fieldDeclaration->semantic);
 
-                switch (fieldDeclaration->semantic)
+                if (attribute == semantics.end())
                 {
-                    case Semantic::NONE: break;
-                    case Semantic::BINORMAL:
-                        code += "BINORMAL";
-                        break;
-                    case Semantic::BLEND_INDICES:
-                        code += "BLEND_INDICES";
-                        break;
-                    case Semantic::BLEND_WEIGHT:
-                        code += "BLEND_WEIGHT";
-                        break;
-                    case Semantic::COLOR:
-                        code += "COLOR";
-                        break;
-                    case Semantic::NORMAL:
-                        code += "NORMAL";
-                        break;
-                    case Semantic::POSITION:
-                        code += "POSITION";
-                        break;
-                    case Semantic::POSITION_TRANSFORMED:
-                        code += "POSITION_TRANSFORMED";
-                        break;
-                    case Semantic::POINT_SIZE:
-                        code += "POINT_SIZE";
-                        break;
-                    case Semantic::TANGENT:
-                        code += "TANGENT";
-                        break;
-                    case Semantic::TEXTURE_COORDINATES:
-                        code += "TEXTURE_COORDINATES";
-                        break;
+                    std::cerr << "Invalid semantic";
+                    return false;
                 }
+
+                code += " [[attribute(" + std::to_string(attribute->second) + ")]]";
             }
 
             break;
