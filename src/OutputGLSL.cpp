@@ -6,7 +6,7 @@
 #include "OutputGLSL.hpp"
 
 OutputGLSL::OutputGLSL(uint32_t initGlslVersion,
-                       const std::map<Semantic, uint32_t>& initSemantics):
+                       const std::map<Semantic, std::string>& initSemantics):
     glslVersion(initGlslVersion), semantics(initSemantics)
 {
 }

@@ -5,13 +5,14 @@
 #pragma once
 
 #include <map>
+#include <string>
 #include "Output.hpp"
 
 class OutputGLSL: public Output
 {
 public:
     OutputGLSL(uint32_t initGlslVersion,
-               const std::map<Semantic, uint32_t>& initSemantics);
+               const std::map<Semantic, std::string>& initSemantics);
     virtual bool output(const ASTContext& context, std::string& code);
 
 private:
@@ -27,5 +28,5 @@ private:
     bool printConstruct(const Construct* construct, Options options, std::string& code);
 
     uint32_t glslVersion;
-    const std::map<Semantic, uint32_t> semantics;
+    const std::map<Semantic, std::string> semantics;
 };
