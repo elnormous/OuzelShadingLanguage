@@ -5,9 +5,10 @@
 #include <iostream>
 #include "OutputGLSL.hpp"
 
-OutputGLSL::OutputGLSL(uint32_t initGlslVersion,
+OutputGLSL::OutputGLSL(Program initProgram,
+                       uint32_t initGlslVersion,
                        const std::map<Semantic, std::string>& initSemantics):
-    glslVersion(initGlslVersion), semantics(initSemantics)
+    program(initProgram), glslVersion(initGlslVersion), semantics(initSemantics)
 {
 }
 
@@ -763,7 +764,7 @@ bool OutputGLSL::printExpression(const Expression* expression, Options options, 
 
             if (!memberExpression->fieldDeclaration)
             {
-                std::cerr << "Field does not exist";
+                std::cerr << "Field does not exist" << std::endl;
                 return false;
             }
 
@@ -807,7 +808,7 @@ bool OutputGLSL::printExpression(const Expression* expression, Options options, 
                 case UnaryOperatorExpression::Kind::POSITIVE: code += "+"; break;
                 case UnaryOperatorExpression::Kind::NEGATIVE: code += "-"; break;
                 default:
-                    std::cerr << "Unknown operator";
+                    std::cerr << "Unknown operator" << std::endl;
                     return false;
             }
 
@@ -849,7 +850,7 @@ bool OutputGLSL::printExpression(const Expression* expression, Options options, 
                 case BinaryOperatorExpression::Kind::AND: code += " && "; break;
                 case BinaryOperatorExpression::Kind::COMMA: code += ", "; break;
                 default:
-                    std::cerr << "Unknown operator";
+                    std::cerr << "Unknown operator" << std::endl;
                     return false;
             }
 

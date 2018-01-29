@@ -6,8 +6,9 @@
 #include "OutputMSL.hpp"
 #include "Semantic.hpp"
 
-OutputMSL::OutputMSL(const std::map<Semantic, uint32_t>& initSemantics):
-    semantics(initSemantics)
+OutputMSL::OutputMSL(Program initProgram,
+                     const std::map<Semantic, uint32_t>& initSemantics):
+    program(initProgram), semantics(initSemantics)
 {
 }
 
@@ -126,7 +127,7 @@ bool OutputMSL::printDeclaration(const Declaration* declaration, Options options
 
                 if (attribute == semantics.end())
                 {
-                    std::cerr << "Invalid semantic " << toString(fieldDeclaration->semantic);
+                    std::cerr << "Invalid semantic " << toString(fieldDeclaration->semantic) << std::endl;
                     return false;
                 }
 
@@ -736,7 +737,7 @@ bool OutputMSL::printExpression(const Expression* expression, Options options, s
 
             if (!memberExpression->fieldDeclaration)
             {
-                std::cerr << "Field does not exist";
+                std::cerr << "Field does not exist" << std::endl;
                 return false;
             }
 
@@ -780,7 +781,7 @@ bool OutputMSL::printExpression(const Expression* expression, Options options, s
                 case UnaryOperatorExpression::Kind::POSITIVE: code += "+"; break;
                 case UnaryOperatorExpression::Kind::NEGATIVE: code += "-"; break;
                 default:
-                    std::cerr << "Unknown operator";
+                    std::cerr << "Unknown operator" << std::endl;
                     return false;
             }
 
@@ -822,7 +823,7 @@ bool OutputMSL::printExpression(const Expression* expression, Options options, s
                 case BinaryOperatorExpression::Kind::AND: code += " && "; break;
                 case BinaryOperatorExpression::Kind::COMMA: code += ", "; break;
                 default:
-                    std::cerr << "Unknown operator";
+                    std::cerr << "Unknown operator" << std::endl;
                     return false;
             }
 

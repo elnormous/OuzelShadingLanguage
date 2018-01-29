@@ -17,12 +17,18 @@ int main(int argc, const char * argv[])
     bool printAST = false;
     std::string format;
     std::string outputFile;
+    Program program = Program::NONE;
 
     for (int i = 0; i < argc; ++i)
     {
         if (std::string(argv[i]) == "--input")
         {
             if (++i < argc) inputFile = argv[i];
+            else
+            {
+                std::cerr << "Argument to " << argv[i] << " is missing" << std::endl;
+                return EXIT_FAILURE;
+            }
         }
         else if (std::string(argv[i]) == "--print-tokens")
         {
@@ -35,10 +41,38 @@ int main(int argc, const char * argv[])
         else if (std::string(argv[i]) == "--format")
         {
             if (++i < argc) format = argv[i];
+            else
+            {
+                std::cerr << "Argument to " << argv[i] << " is missing" << std::endl;
+                return EXIT_FAILURE;
+            }
         }
         else if (std::string(argv[i]) == "--output")
         {
             if (++i < argc) outputFile = argv[i];
+            else
+            {
+                std::cerr << "Argument to " << argv[i] << " is missing" << std::endl;
+                return EXIT_FAILURE;
+            }
+        }
+        else if (std::string(argv[i]) == "--program")
+        {
+            if (++i < argc)
+            {
+                if (std::string(argv[i]) == "fragment") program = Program::FRAGMENT;
+                else if (std::string(argv[i]) == "fragment") program = Program::VERTEX;
+                else
+                {
+                    std::cerr << "Invalid program " << argv[i] << std::endl;
+                    return EXIT_FAILURE;
+                }
+            }
+            else
+            {
+                std::cerr << "Argument to " << argv[i] << " is missing" << std::endl;
+                return EXIT_FAILURE;
+            }
         }
     }
 
@@ -92,6 +126,12 @@ int main(int argc, const char * argv[])
 
     if (!format.empty())
     {
+        if (program == Program::NONE)
+        {
+            std::cerr << "No program" << std::endl;
+            return EXIT_FAILURE;
+        }
+
         std::ofstream file(outputFile, std::ios::binary);
 
         if (!file)
@@ -110,15 +150,15 @@ int main(int argc, const char * argv[])
 
         if (format == "hlsl")
         {
-            output.reset(new OutputHLSL());
+            output.reset(new OutputHLSL(program));
         }
         else if (format == "glsl")
         {
-            output.reset(new OutputGLSL(110, {}));
+            output.reset(new OutputGLSL(program, 110, {}));
         }
         else if (format == "msl")
         {
-            output.reset(new OutputMSL({}));
+            output.reset(new OutputMSL(program, {}));
         }
         else
         {

@@ -5,10 +5,12 @@
 #pragma once
 
 #include "Output.hpp"
+#include "Program.hpp"
 
 class OutputHLSL: public Output
 {
 public:
+    OutputHLSL(Program initProgram);
     virtual bool output(const ASTContext& context, std::string& code);
 
 private:
@@ -22,4 +24,6 @@ private:
     bool printStatement(const Statement* statement, Options options, std::string& code);
     bool printExpression(const Expression* expression, Options options, std::string& code);
     bool printConstruct(const Construct* construct, Options options, std::string& code);
+
+    Program program;
 };

@@ -5,7 +5,13 @@
 #include <iostream>
 #include "OutputHLSL.hpp"
 
-bool OutputHLSL::output(const ASTContext& context, std::string& code)
+OutputHLSL::OutputHLSL(Program initProgram):
+    program(initProgram)
+{
+}
+
+bool OutputHLSL::output(const ASTContext& context,
+                        std::string& code)
 {
     for (Declaration* declaration : context.declarations)
     {
@@ -757,7 +763,7 @@ bool OutputHLSL::printExpression(const Expression* expression, Options options, 
 
             if (!memberExpression->fieldDeclaration)
             {
-                std::cerr << "Field does not exist";
+                std::cerr << "Field does not exist" << std::endl;
                 return false;
             }
 
@@ -801,7 +807,7 @@ bool OutputHLSL::printExpression(const Expression* expression, Options options, 
                 case UnaryOperatorExpression::Kind::POSITIVE: code += "+"; break;
                 case UnaryOperatorExpression::Kind::NEGATIVE: code += "-"; break;
                 default:
-                    std::cerr << "Unknown operator";
+                    std::cerr << "Unknown operator" << std::endl;
                     return false;
             }
 
@@ -843,7 +849,7 @@ bool OutputHLSL::printExpression(const Expression* expression, Options options, 
                 case BinaryOperatorExpression::Kind::AND: code += " && "; break;
                 case BinaryOperatorExpression::Kind::COMMA: code += ", "; break;
                 default:
-                    std::cerr << "Unknown operator";
+                    std::cerr << "Unknown operator" << std::endl;
                     return false;
             }
 

@@ -7,11 +7,13 @@
 #include <map>
 #include <string>
 #include "Output.hpp"
+#include "Program.hpp"
 
 class OutputGLSL: public Output
 {
 public:
-    OutputGLSL(uint32_t initGlslVersion,
+    OutputGLSL(Program initProgram,
+               uint32_t initGlslVersion,
                const std::map<Semantic, std::string>& initSemantics);
     virtual bool output(const ASTContext& context, std::string& code);
 
@@ -27,6 +29,7 @@ private:
     bool printExpression(const Expression* expression, Options options, std::string& code);
     bool printConstruct(const Construct* construct, Options options, std::string& code);
 
+    Program program;
     uint32_t glslVersion;
     const std::map<Semantic, std::string> semantics;
 };
