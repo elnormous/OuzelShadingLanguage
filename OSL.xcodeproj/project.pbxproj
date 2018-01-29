@@ -88,10 +88,10 @@
 				308340DF1F923900000AE853 /* OutputMSL.hpp */,
 				30DD174A1EAF96CE004CAD77 /* Parser.cpp */,
 				30DD174B1EAF96CE004CAD77 /* Parser.hpp */,
+				3093EE6F201FB362006D1667 /* Program.hpp */,
+				3093EE6E201FB2E7006D1667 /* Semantic.hpp */,
 				30DD17471EAF967B004CAD77 /* Tokenizer.cpp */,
 				30DD17481EAF967B004CAD77 /* Tokenizer.hpp */,
-				3093EE6E201FB2E7006D1667 /* Semantic.hpp */,
-				3093EE6F201FB362006D1667 /* Program.hpp */,
 			);
 			path = src;
 			sourceTree = "<group>";

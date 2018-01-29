@@ -61,7 +61,7 @@ int main(int argc, const char * argv[])
             if (++i < argc)
             {
                 if (std::string(argv[i]) == "fragment") program = Program::FRAGMENT;
-                else if (std::string(argv[i]) == "fragment") program = Program::VERTEX;
+                else if (std::string(argv[i]) == "vertex") program = Program::VERTEX;
                 else
                 {
                     std::cerr << "Invalid program " << argv[i] << std::endl;
