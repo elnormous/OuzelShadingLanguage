@@ -10,21 +10,8 @@
 #include <string>
 #include <vector>
 #include "Tokenizer.hpp"
-
-enum class Semantic
-{
-    NONE,
-    BINORMAL,
-    BLEND_INDICES,
-    BLEND_WEIGHT,
-    COLOR,
-    NORMAL,
-    POSITION,
-    POSITION_TRANSFORMED,
-    POINT_SIZE,
-    TANGENT,
-    TEXTURE_COORDINATES
-};
+#include "Program.hpp"
+#include "Semantic.hpp"
 
 class Construct
 {
@@ -277,13 +264,6 @@ protected:
 class FunctionDeclaration: public CallableDeclaration
 {
 public:
-    enum class Program
-    {
-        NONE,
-        FRAGMENT,
-        VERTEX
-    };
-
     FunctionDeclaration(): CallableDeclaration(CallableDeclaration::Kind::FUNCTION) {}
 
     bool isInline = false;

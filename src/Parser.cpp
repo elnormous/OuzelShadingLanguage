@@ -774,10 +774,10 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
                 {
                     if (attribute.second.size() == 1)
                     {
-                        FunctionDeclaration::Program program = FunctionDeclaration::Program::NONE;
+                        Program program = Program::NONE;
 
-                        if (attribute.second.front() == "fragment") program = FunctionDeclaration::Program::FRAGMENT;
-                        else if (attribute.second.front() == "vertex") program = FunctionDeclaration::Program::VERTEX;
+                        if (attribute.second.front() == "fragment") program = Program::FRAGMENT;
+                        else if (attribute.second.front() == "vertex") program = Program::VERTEX;
                         else
                         {
                             std::cerr << "Invalid program" << attribute.second.front() << std::endl;
@@ -3266,25 +3266,6 @@ static std::string toString(Construct::Kind kind)
     return "unknown";
 }
 
-static std::string toString(Semantic semantic)
-{
-    switch (semantic)
-    {
-        case Semantic::NONE: return "NONE";
-        case Semantic::BINORMAL: return "BINORMAL";
-        case Semantic::BLEND_INDICES: return "BLEND_INDICES";
-        case Semantic::BLEND_WEIGHT: return "BLEND_WEIGHT";
-        case Semantic::COLOR: return "COLOR";
-        case Semantic::NORMAL: return "NORMAL";
-        case Semantic::POSITION: return "POSITION";
-        case Semantic::POSITION_TRANSFORMED: return "POSITION_TRANSFORMED";
-        case Semantic::POINT_SIZE: return "POINT_SIZE";
-        case Semantic::TANGENT: return "TANGENT";
-        case Semantic::TEXTURE_COORDINATES: return "TEXTURE_COORDINATES";
-        default: return "unknown";
-    }
-}
-
 static std::string toString(Statement::Kind kind)
 {
     switch (kind)
@@ -3383,18 +3364,6 @@ static std::string toString(CallableDeclaration::Kind kind)
         case CallableDeclaration::Kind::CONSTRUCTOR: return "CONSTRUCTOR";
         case CallableDeclaration::Kind::METHOD: return "METHOD";
         case CallableDeclaration::Kind::OPERATOR: return "OPERATOR";
-    }
-
-    return "unknown";
-}
-
-static std::string toString(FunctionDeclaration::Program program)
-{
-    switch (program)
-    {
-        case FunctionDeclaration::Program::NONE: return "NONE";
-        case FunctionDeclaration::Program::FRAGMENT: return "FRAGMENT";
-        case FunctionDeclaration::Program::VERTEX: return "VERTEX";
     }
 
     return "unknown";
@@ -3602,7 +3571,7 @@ void ASTContext::dumpDeclaration(const Declaration* declaration, std::string ind
                 if (functionDeclaration->isStatic) std::cout << " static";
                 if (functionDeclaration->isInline) std::cout << " inline";
 
-                if (functionDeclaration->program != FunctionDeclaration::Program::NONE)
+                if (functionDeclaration->program != Program::NONE)
                 {
                     std::cout << ", program: " << toString(functionDeclaration->program);
                 }

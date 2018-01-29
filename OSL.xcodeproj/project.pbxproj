@@ -37,6 +37,8 @@
 		308340DC1F9238F2000AE853 /* OutputGLSL.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = OutputGLSL.hpp; sourceTree = "<group>"; };
 		308340DE1F923900000AE853 /* OutputMSL.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OutputMSL.cpp; sourceTree = "<group>"; };
 		308340DF1F923900000AE853 /* OutputMSL.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = OutputMSL.hpp; sourceTree = "<group>"; };
+		3093EE6E201FB2E7006D1667 /* Semantic.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Semantic.hpp; sourceTree = "<group>"; };
+		3093EE6F201FB362006D1667 /* Program.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Program.hpp; sourceTree = "<group>"; };
 		30DD173D1EAE944F004CAD77 /* OSL */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = OSL; sourceTree = BUILT_PRODUCTS_DIR; };
 		30DD17401EAE944F004CAD77 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		30DD17471EAF967B004CAD77 /* Tokenizer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Tokenizer.cpp; sourceTree = "<group>"; };
@@ -88,6 +90,8 @@
 				30DD174B1EAF96CE004CAD77 /* Parser.hpp */,
 				30DD17471EAF967B004CAD77 /* Tokenizer.cpp */,
 				30DD17481EAF967B004CAD77 /* Tokenizer.hpp */,
+				3093EE6E201FB2E7006D1667 /* Semantic.hpp */,
+				3093EE6F201FB362006D1667 /* Program.hpp */,
 			);
 			path = src;
 			sourceTree = "<group>";

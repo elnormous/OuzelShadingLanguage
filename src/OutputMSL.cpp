@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include "OutputMSL.hpp"
+#include "Semantic.hpp"
 
 OutputMSL::OutputMSL(const std::map<Semantic, uint32_t>& initSemantics):
     semantics(initSemantics)
@@ -125,7 +126,7 @@ bool OutputMSL::printDeclaration(const Declaration* declaration, Options options
 
                 if (attribute == semantics.end())
                 {
-                    std::cerr << "Invalid semantic";
+                    std::cerr << "Invalid semantic " << toString(fieldDeclaration->semantic);
                     return false;
                 }
 
