@@ -164,11 +164,32 @@ ASTContext::ASTContext():
     coordParameterDeclaration.name = "coord";
     coordParameterDeclaration.qualifiedType.typeDeclaration = &float2TypeDeclaration;
 
-    mulFunctionDeclaration.name = "texture2D";
-    mulFunctionDeclaration.qualifiedType.typeDeclaration = &float4TypeDeclaration;
-    mulFunctionDeclaration.parameterDeclarations.push_back(&samplerParameterDeclaration);
-    mulFunctionDeclaration.parameterDeclarations.push_back(&coordParameterDeclaration);
-    mulFunctionDeclaration.isBuiltin = true;
+    matParameterDeclaration.name = "mat";
+    matParameterDeclaration.qualifiedType.typeDeclaration = &float4x4TypeDeclaration;
+
+    vec2ParameterDeclaration.name = "vec";
+    vec2ParameterDeclaration.qualifiedType.typeDeclaration = &float2TypeDeclaration;
+
+    vec4ParameterDeclaration.name = "vec";
+    vec4ParameterDeclaration.qualifiedType.typeDeclaration = &float4TypeDeclaration;
+
+    texture2DFunctionDeclaration.name = "texture2D";
+    texture2DFunctionDeclaration.qualifiedType.typeDeclaration = &float4TypeDeclaration;
+    texture2DFunctionDeclaration.parameterDeclarations.push_back(&samplerParameterDeclaration);
+    texture2DFunctionDeclaration.parameterDeclarations.push_back(&vec2ParameterDeclaration);
+    texture2DFunctionDeclaration.isBuiltin = true;
+
+    mulMatMatFunctionDeclaration.name = "mul";
+    mulMatMatFunctionDeclaration.qualifiedType.typeDeclaration = &float4x4TypeDeclaration;
+    mulMatMatFunctionDeclaration.parameterDeclarations.push_back(&matParameterDeclaration);
+    mulMatMatFunctionDeclaration.parameterDeclarations.push_back(&matParameterDeclaration);
+    mulMatMatFunctionDeclaration.isBuiltin = true;
+
+    mulMatVecFunctionDeclaration.name = "mul";
+    mulMatVecFunctionDeclaration.qualifiedType.typeDeclaration = &float4TypeDeclaration;
+    mulMatVecFunctionDeclaration.parameterDeclarations.push_back(&matParameterDeclaration);
+    mulMatVecFunctionDeclaration.parameterDeclarations.push_back(&vec4ParameterDeclaration);
+    mulMatVecFunctionDeclaration.isBuiltin = true;
 }
 
 bool ASTContext::parse(const std::vector<Token>& tokens)
@@ -193,7 +214,9 @@ bool ASTContext::parse(const std::vector<Token>& tokens)
     declarationScopes.back().push_back(&stringTypeDeclaration);
     declarationScopes.back().push_back(&samplerStateTypeDeclaration);
     declarationScopes.back().push_back(&texture2DTypeDeclaration);
-    declarationScopes.back().push_back(&mulFunctionDeclaration);
+    declarationScopes.back().push_back(&texture2DFunctionDeclaration);
+    declarationScopes.back().push_back(&mulMatMatFunctionDeclaration);
+    declarationScopes.back().push_back(&mulMatVecFunctionDeclaration);
 
     while (iterator != tokens.end())
     {

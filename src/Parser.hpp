@@ -990,5 +990,10 @@ private:
 
     ParameterDeclaration samplerParameterDeclaration;
     ParameterDeclaration coordParameterDeclaration;
-    FunctionDeclaration mulFunctionDeclaration;
+    ParameterDeclaration matParameterDeclaration;
+    ParameterDeclaration vec2ParameterDeclaration;
+    ParameterDeclaration vec4ParameterDeclaration;
+    FunctionDeclaration texture2DFunctionDeclaration;
+    FunctionDeclaration mulMatMatFunctionDeclaration;
+    FunctionDeclaration mulMatVecFunctionDeclaration;
 };
