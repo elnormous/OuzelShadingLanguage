@@ -6,6 +6,14 @@
 #include "OutputMSL.hpp"
 #include "Semantic.hpp"
 
+struct BuiltinFunction
+{
+    BuiltinFunction(const std::string& initName): name(initName) {}
+    std::string name;
+};
+
+static std::map<std::string, BuiltinFunction> builtinFunctions;
+
 OutputMSL::OutputMSL(Program initProgram,
                      const std::map<Semantic, uint32_t>& initSemantics):
     program(initProgram), semantics(initSemantics)

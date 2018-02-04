@@ -5,6 +5,14 @@
 #include <iostream>
 #include "OutputHLSL.hpp"
 
+struct BuiltinFunction
+{
+    BuiltinFunction(const std::string& initName): name(initName) {}
+    std::string name;
+};
+
+static std::map<std::string, BuiltinFunction> builtinFunctions;
+
 OutputHLSL::OutputHLSL(Program initProgram):
     program(initProgram)
 {

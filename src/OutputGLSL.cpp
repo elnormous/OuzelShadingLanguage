@@ -5,6 +5,14 @@
 #include <iostream>
 #include "OutputGLSL.hpp"
 
+struct BuiltinFunction
+{
+    BuiltinFunction(const std::string& initName): name(initName) {}
+    std::string name;
+};
+
+static std::map<std::string, BuiltinFunction> builtinFunctions;
+
 OutputGLSL::OutputGLSL(Program initProgram,
                        uint32_t initGlslVersion,
                        const std::map<Semantic, std::string>& initSemantics):
