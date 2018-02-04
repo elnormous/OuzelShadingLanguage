@@ -996,4 +996,5 @@ private:
     FunctionDeclaration texture2DFunctionDeclaration;
     FunctionDeclaration mulMatMatFunctionDeclaration;
     FunctionDeclaration mulMatVecFunctionDeclaration;
+    FunctionDeclaration mulVecMatFunctionDeclaration;
 };

@@ -190,6 +190,12 @@ ASTContext::ASTContext():
     mulMatVecFunctionDeclaration.parameterDeclarations.push_back(&matParameterDeclaration);
     mulMatVecFunctionDeclaration.parameterDeclarations.push_back(&vec4ParameterDeclaration);
     mulMatVecFunctionDeclaration.isBuiltin = true;
+
+    mulMatVecFunctionDeclaration.name = "mul";
+    mulMatVecFunctionDeclaration.qualifiedType.typeDeclaration = &float4TypeDeclaration;
+    mulMatVecFunctionDeclaration.parameterDeclarations.push_back(&vec4ParameterDeclaration);
+    mulMatVecFunctionDeclaration.parameterDeclarations.push_back(&matParameterDeclaration);
+    mulMatVecFunctionDeclaration.isBuiltin = true;
 }
 
 bool ASTContext::parse(const std::vector<Token>& tokens)
