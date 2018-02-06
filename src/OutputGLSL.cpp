@@ -131,40 +131,38 @@ bool OutputGLSL::printDeclaration(const Declaration* declaration, Options option
 
             if (fieldDeclaration->semantic != Semantic::NONE)
             {
-                code += ":";
-
                 switch (fieldDeclaration->semantic)
                 {
                     case Semantic::NONE: break;
                     case Semantic::BINORMAL:
-                        code += "BINORMAL";
+                        // TODO: implement
                         break;
                     case Semantic::BLEND_INDICES:
-                        code += "BLEND_INDICES";
+                        // TODO: implement
                         break;
                     case Semantic::BLEND_WEIGHT:
-                        code += "BLEND_WEIGHT";
+                        // TODO: implement
                         break;
                     case Semantic::COLOR:
-                        code += "COLOR";
+                        // TODO: implement
                         break;
                     case Semantic::NORMAL:
-                        code += "NORMAL";
+                        // TODO: implement
                         break;
                     case Semantic::POSITION:
-                        code += "POSITION";
+                        // TODO: implement
                         break;
                     case Semantic::POSITION_TRANSFORMED:
-                        code += "POSITION_TRANSFORMED";
+                        // TODO: implement
                         break;
                     case Semantic::POINT_SIZE:
-                        code += "POINT_SIZE";
+                        // TODO: implement
                         break;
                     case Semantic::TANGENT:
-                        code += "TANGENT";
+                        // TODO: implement
                         break;
                     case Semantic::TEXTURE_COORDINATES:
-                        code += "TEXTURE_COORDINATES";
+                        // TODO: implement
                         break;
                 }
             }
