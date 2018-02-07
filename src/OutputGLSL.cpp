@@ -125,10 +125,6 @@ bool OutputGLSL::printDeclaration(const Declaration* declaration, Options option
 
             const FieldDeclaration* fieldDeclaration = static_cast<const FieldDeclaration*>(declaration);
 
-            std::pair<std::string, std::string> printableTypeName = getPrintableTypeName(fieldDeclaration->qualifiedType);
-
-            code += printableTypeName.first + " " + fieldDeclaration->name + printableTypeName.second;
-
             if (fieldDeclaration->semantic != Semantic::NONE)
             {
                 switch (fieldDeclaration->semantic)
