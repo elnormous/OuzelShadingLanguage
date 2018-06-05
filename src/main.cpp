@@ -90,14 +90,16 @@ int main(int argc, const char * argv[])
 
         ASTContext context;
 
-        if (!context.parse(tokens))
+        try
+        {
+            context.parse(tokens);
+        }
+        catch (const std::exception& e)
         {
             std::cout << "Parsed so far:" << std::endl;
             context.dump();
 
-            throw std::runtime_error("Failed to parse");
-
-            return EXIT_FAILURE;
+            throw std::runtime_error(std::string("Failed to parse: ") + e.what());
         }
 
         if (printAST) context.dump();

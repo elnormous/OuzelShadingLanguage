@@ -198,7 +198,7 @@ ASTContext::ASTContext():
     mulMatVecFunctionDeclaration.isBuiltin = true;
 }
 
-bool ASTContext::parse(const std::vector<Token>& tokens)
+void ASTContext::parse(const std::vector<Token>& tokens)
 {
     constructs.clear();
     declarations.clear();
@@ -226,14 +226,9 @@ bool ASTContext::parse(const std::vector<Token>& tokens)
 
     while (iterator != tokens.end())
     {
-        Declaration* declaration;
-        if (!(declaration = parseTopLevelDeclaration(tokens, iterator, declarationScopes)))
-            return false;
-
+        Declaration* declaration = parseTopLevelDeclaration(tokens, iterator, declarationScopes);
         declarations.push_back(declaration);
     }
-
-    return true;
 }
 
 FunctionDeclaration* ASTContext::compareFunctionDeclarations(FunctionDeclaration* functionDeclaration1,

@@ -655,7 +655,7 @@ class ASTContext
 {
 public:
     ASTContext();
-    bool parse(const std::vector<Token>& tokens);
+    void parse(const std::vector<Token>& tokens);
 
     void dump() const;
 
