@@ -78,8 +78,9 @@ static const std::map<std::string, Token::Type> keywordMap = {
     {"xor_eq", Token::Type::KEYWORD_XOR_EQ}
 };
 
-bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
+std::vector<Token> tokenize(const std::vector<char>& code)
 {
+    std::vector<Token> tokens;
     uint32_t line = 1;
     std::vector<char>::const_iterator lineStart = code.begin();
 
@@ -145,19 +146,13 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
                 ++i;
 
                 if (i == code.end() || *i != '+' || *i != '-')
-                {
-                    std::cerr << "Invalid exponent" << std::endl;
-                    return false;
-                }
+                    throw std::runtime_error("Invalid exponent");
 
                 token.value.push_back(*i);
                 ++i;
 
                 if (i == code.end() || *i < '0' || *i > '9')
-                {
-                    std::cerr << "Invalid exponent" << std::endl;
-                    return false;
-                }
+                    throw std::runtime_error("Invalid exponent");
 
                 while (i != code.end() && (*i >= '0' && *i <= '9'))
                 {
@@ -181,18 +176,10 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
             }
             else if (suffix == "f" || suffix == "F")
             {
-                if (integer)
-                {
-                    std::cerr << "Invalid integer constant" << std::endl;
-                    return false;
-                }
+                if (integer) throw std::runtime_error("Invalid integer constant");
                 else token.type = Token::Type::LITERAL_FLOAT;
             }
-            else
-            {
-                std::cerr << "Invalid suffix " << suffix << std::endl;
-                return false;
-            }
+            else throw std::runtime_error("Invalid suffix " + suffix);
         }
         else if (*i == '"') // string literal
         {
@@ -202,10 +189,7 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
             for (;;)
             {
                 if (++i == code.end())
-                {
-                    std::cerr << "Unterminated string literal" << std::endl;
-                    return false;
-                }
+                    throw std::runtime_error("Unterminated string literal");
 
                 if (*i == '"')
                 {
@@ -215,10 +199,7 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
                 else if (*i == '\\')
                 {
                     if (++i == code.end())
-                    {
-                        std::cerr << "Unterminated string literal" << std::endl;
-                        return false;
-                    }
+                        throw std::runtime_error("Unterminated string literal");
 
                     if (*i == 'a') token.value.push_back('\a');
                     else if (*i == 'b') token.value.push_back('\b');
@@ -231,21 +212,13 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
                     else if (*i == '\?') token.value.push_back('\?');
                     else if (*i == '\\') token.value.push_back('\\');
                     else
-                    {
-                        std::cerr << "Unrecognized escape character" << std::endl;
-                        return false;
-                    }
+                        throw std::runtime_error("Unrecognized escape character");
                     // TODO: handle numeric character references
                 }
                 else if (*i == '\n' || *i == '\r')
-                {
-                    std::cerr << "Unterminated string literal" << std::endl;
-                    return false;
-                }
+                    throw std::runtime_error("Unterminated string literal");
                 else
-                {
                     token.value.push_back(*i);
-                }
             }
         }
         else if (*i == '\'') // char literal
@@ -254,18 +227,12 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
             token.type = Token::Type::LITERAL_CHAR;
 
             if (++i == code.end()) // reached end of file
-            {
-                std::cerr << "Unterminated char literal" << std::endl;
-                return false;
-            }
+                throw std::runtime_error("Unterminated char literal");
 
             if (*i == '\\')
             {
                 if (++i == code.end())
-                {
-                    std::cerr << "Unterminated char literal" << std::endl;
-                    return false;
-                }
+                    throw std::runtime_error("Unterminated char literal");
 
                 if (*i == 'a') token.value.push_back('\a');
                 else if (*i == 'b') token.value.push_back('\b');
@@ -278,10 +245,7 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
                 else if (*i == '\?') token.value.push_back('\?');
                 else if (*i == '\\') token.value.push_back('\\');
                 else
-                {
-                    std::cerr << "Unrecognized escape character" << std::endl;
-                    return false;
-                }
+                    throw std::runtime_error("Unrecognized escape character");
                 // TODO: handle numeric character references
             }
             else
@@ -290,16 +254,10 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
             }
 
             if (++i == code.end()) // reached end of file
-            {
-                std::cerr << "Unterminated char literal" << std::endl;
-                return false;
-            }
+                throw std::runtime_error("Unterminated char literal");
 
             if (*i != '\'')
-            {
-                std::cerr << "Invalid char literal" << std::endl;
-                return false;
-            }
+                throw std::runtime_error("Invalid char literal");
 
             ++i;
         }
@@ -467,10 +425,7 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
                         }
 
                         if (!terminated)
-                        {
-                            std::cerr << "Unterminated block comment" << std::endl;
-                            return false;
-                        }
+                            throw std::runtime_error("Unterminated block comment");
 
                         continue; // skip this token
                     }
@@ -715,15 +670,12 @@ bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens)
             continue;
         }
         else
-        {
-            std::cerr << "Unknown character" << std::endl;
-            return false;
-        }
+            throw std::runtime_error("Unknown character");
 
         tokens.push_back(token);
     }
 
-    return true;
+    return tokens;
 }
 
 static std::string toString(Token::Kind kind)
@@ -877,9 +829,9 @@ void dump(const std::vector<Token>& tokens)
     for (const Token& token : tokens)
     {
         std::cout << "Token, kind: " << toString(token.kind) <<
-        ", type: " << toString(token.type) <<
-        ", value: " << token.value <<
-        ", line: " << token.line <<
-        ", column: " << token.column << std::endl;
+            ", type: " << toString(token.type) <<
+            ", value: " << token.value <<
+            ", line: " << token.line <<
+            ", column: " << token.column << std::endl;
     }
 }

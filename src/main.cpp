@@ -19,162 +19,131 @@ int main(int argc, const char * argv[])
     std::string outputFile;
     Program program = Program::NONE;
 
-    for (int i = 0; i < argc; ++i)
+    try
     {
-        if (std::string(argv[i]) == "--input")
+        for (int i = 0; i < argc; ++i)
         {
-            if (++i < argc) inputFile = argv[i];
-            else
+            if (std::string(argv[i]) == "--input")
             {
-                std::cerr << "Argument to " << argv[i] << " is missing" << std::endl;
-                return EXIT_FAILURE;
-            }
-        }
-        else if (std::string(argv[i]) == "--print-tokens")
-        {
-            printTokens = true;
-        }
-        else if (std::string(argv[i]) == "--print-ast")
-        {
-            printAST = true;
-        }
-        else if (std::string(argv[i]) == "--format")
-        {
-            if (++i < argc) format = argv[i];
-            else
-            {
-                std::cerr << "Argument to " << argv[i] << " is missing" << std::endl;
-                return EXIT_FAILURE;
-            }
-        }
-        else if (std::string(argv[i]) == "--output")
-        {
-            if (++i < argc) outputFile = argv[i];
-            else
-            {
-                std::cerr << "Argument to " << argv[i] << " is missing" << std::endl;
-                return EXIT_FAILURE;
-            }
-        }
-        else if (std::string(argv[i]) == "--program")
-        {
-            if (++i < argc)
-            {
-                if (std::string(argv[i]) == "fragment") program = Program::FRAGMENT;
-                else if (std::string(argv[i]) == "vertex") program = Program::VERTEX;
+                if (++i < argc) inputFile = argv[i];
                 else
-                {
-                    std::cerr << "Invalid program " << argv[i] << std::endl;
-                    return EXIT_FAILURE;
-                }
+                    throw std::runtime_error("Argument to " + std::string(argv[i]) + " is missing");
             }
-            else
+            else if (std::string(argv[i]) == "--print-tokens")
             {
-                std::cerr << "Argument to " << argv[i] << " is missing" << std::endl;
-                return EXIT_FAILURE;
+                printTokens = true;
+            }
+            else if (std::string(argv[i]) == "--print-ast")
+            {
+                printAST = true;
+            }
+            else if (std::string(argv[i]) == "--format")
+            {
+                if (++i < argc) format = argv[i];
+                else
+                    throw std::runtime_error("Argument to " + std::string(argv[i]) + " is missing");
+            }
+            else if (std::string(argv[i]) == "--output")
+            {
+                if (++i < argc) outputFile = argv[i];
+                else
+                    throw std::runtime_error("Argument to " + std::string(argv[i]) + " is missing");
+            }
+            else if (std::string(argv[i]) == "--program")
+            {
+                if (++i < argc)
+                {
+                    if (std::string(argv[i]) == "fragment") program = Program::FRAGMENT;
+                    else if (std::string(argv[i]) == "vertex") program = Program::VERTEX;
+                    else
+                        throw std::runtime_error("Invalid program: " + std::string(argv[i]));
+                }
+                else
+                    throw std::runtime_error("Argument to " + std::string(argv[i]) + " is missing");
             }
         }
-    }
 
-    if (inputFile.empty())
-    {
-        std::cerr << "No input file" << std::endl;
-        return EXIT_FAILURE;
-    }
+        if (inputFile.empty())
+            throw std::runtime_error("No input file");
 
-    std::vector<char> code;
+        std::vector<char> code;
 
-    std::ifstream file(inputFile, std::ios::binary);
-
-    if (!file)
-    {
-        std::cerr << "Failed to open file " << inputFile << std::endl;
-        return EXIT_FAILURE;
-    }
-
-    code.assign(std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>());
-
-    std::vector<Token> tokens;
-
-    if (!tokenize(code, tokens))
-    {
-        std::cerr << "Failed to tokenize" << std::endl;
-        return EXIT_FAILURE;
-    }
-
-    if (printTokens)
-    {
-        dump(tokens);
-    }
-
-    ASTContext context;
-
-    if (!context.parse(tokens))
-    {
-        std::cerr << "Failed to parse" << std::endl;
-
-        std::cout << "Parsed so far:" << std::endl;
-        context.dump();
-
-        return EXIT_FAILURE;
-    }
-
-    if (printAST)
-    {
-        context.dump();
-    }
-
-    if (!format.empty())
-    {
-        if (program == Program::NONE)
-        {
-            std::cerr << "No program" << std::endl;
-            return EXIT_FAILURE;
-        }
-
-        std::ofstream file(outputFile, std::ios::binary);
+        std::ifstream file(inputFile, std::ios::binary);
 
         if (!file)
+            throw std::runtime_error("Failed to open file " + inputFile);
+
+        code.assign(std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>());
+
+        std::vector<Token> tokens;
+
+        try
         {
-            std::cerr << "Failed to open file " << outputFile << std::endl;
+            tokens = tokenize(code);
+        }
+        catch (const std::exception& e)
+        {
+            throw std::runtime_error(std::string("Failed to tokenize: ") + e.what());
+        }
+
+        if (printTokens) dump(tokens);
+
+        ASTContext context;
+
+        if (!context.parse(tokens))
+        {
+            std::cerr << "Failed to parse" << std::endl;
+
+            std::cout << "Parsed so far:" << std::endl;
+            context.dump();
+
             return EXIT_FAILURE;
         }
 
-        std::unique_ptr<Output> output;
+        if (printAST) context.dump();
 
-        if (outputFile.empty())
+        if (!format.empty())
         {
-            std::cerr << "No output file" << std::endl;
-            return EXIT_FAILURE;
-        }
+            if (program == Program::NONE)
+                throw std::runtime_error("No program");
 
-        if (format == "hlsl")
-        {
-            output.reset(new OutputHLSL(program));
-        }
-        else if (format == "glsl")
-        {
-            output.reset(new OutputGLSL(program, 110, {}));
-        }
-        else if (format == "msl")
-        {
-            output.reset(new OutputMSL(program, {}));
-        }
-        else
-        {
-            std::cerr << "Invalid format" << std::endl;
-            return EXIT_FAILURE;
-        }
+            std::ofstream file(outputFile, std::ios::binary);
 
-        std::string code;
+            if (!file)
+                throw std::runtime_error("Failed to open file " + outputFile);
 
-        if (!output->output(context, code))
-        {
-            std::cerr << "Failed to output code" << std::endl;
-            return EXIT_FAILURE;
+            std::unique_ptr<Output> output;
+
+            if (outputFile.empty())
+                throw std::runtime_error("No output file");
+
+            if (format == "hlsl")
+            {
+                output.reset(new OutputHLSL(program));
+            }
+            else if (format == "glsl")
+            {
+                output.reset(new OutputGLSL(program, 110, {}));
+            }
+            else if (format == "msl")
+            {
+                output.reset(new OutputMSL(program, {}));
+            }
+            else
+                throw std::runtime_error("Invalid format");
+
+            std::string code;
+
+            if (!output->output(context, code))
+                throw std::runtime_error("Failed to output code");
+
+            file << code;
         }
-
-        file << code;
+    }
+    catch (const std::exception& e)
+    {
+        std::cerr << e.what() << std::endl;
+        return EXIT_FAILURE;
     }
 
     return EXIT_SUCCESS;

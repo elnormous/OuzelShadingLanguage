@@ -153,5 +153,5 @@ struct Token
     uint32_t column = 0;
 };
 
-bool tokenize(const std::vector<char>& code, std::vector<Token>& tokens);
+std::vector<Token> tokenize(const std::vector<char>& code);
 void dump(const std::vector<Token>& tokens);
