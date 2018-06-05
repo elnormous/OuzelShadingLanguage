@@ -10,5 +10,5 @@
 class Output
 {
 public:
-    virtual bool output(const ASTContext& context, std::string& code) = 0;
+    virtual void output(const ASTContext& context, std::string& code) = 0;
 };

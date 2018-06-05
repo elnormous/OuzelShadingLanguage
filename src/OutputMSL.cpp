@@ -20,25 +20,18 @@ OutputMSL::OutputMSL(Program initProgram,
 {
 }
 
-bool OutputMSL::output(const ASTContext& context, std::string& code)
+void OutputMSL::output(const ASTContext& context, std::string& code)
 {
     for (Declaration* declaration : context.declarations)
     {
-        if (!printConstruct(declaration, Options(0), code))
-        {
-            return false;
-        }
+        printConstruct(declaration, Options(0), code);
 
         if (declaration->getDeclarationKind() != Declaration::Kind::CALLABLE ||
             !static_cast<const CallableDeclaration*>(declaration)->body) // function doesn't have a body
-        {
             code += ";";
-        }
 
         code += "\n";
     }
-
-    return true;
 }
 
 static std::pair<std::string, std::string> getPrintableTypeName(const QualifiedType& qualifiedType)
@@ -70,7 +63,7 @@ static std::pair<std::string, std::string> getPrintableTypeName(const QualifiedT
     return result;
 }
 
-bool OutputMSL::printDeclaration(const Declaration* declaration, Options options, std::string& code)
+void OutputMSL::printDeclaration(const Declaration* declaration, Options options, std::string& code)
 {
     switch (declaration->getDeclarationKind())
     {
@@ -91,7 +84,8 @@ bool OutputMSL::printDeclaration(const Declaration* declaration, Options options
 
             const TypeDeclaration* typeDeclaration = static_cast<const TypeDeclaration*>(declaration);
 
-            if (typeDeclaration->getTypeKind() != TypeDeclaration::Kind::STRUCT) return false;
+            if (typeDeclaration->getTypeKind() != TypeDeclaration::Kind::STRUCT)
+                throw std::runtime_error("Type declaration must be a struct");
 
             const StructDeclaration* structDeclaration = static_cast<const StructDeclaration*>(declaration);
             code += "struct " + structDeclaration->name;
@@ -104,10 +98,7 @@ bool OutputMSL::printDeclaration(const Declaration* declaration, Options options
 
                 for (const Declaration* memberDeclaration : structDeclaration->memberDeclarations)
                 {
-                    if (!printConstruct(memberDeclaration, Options(options.indentation + 4), code))
-                    {
-                        return false;
-                    }
+                    printConstruct(memberDeclaration, Options(options.indentation + 4), code);
 
                     code += ";\n";
                 }
@@ -134,10 +125,7 @@ bool OutputMSL::printDeclaration(const Declaration* declaration, Options options
                 auto attribute = semantics.find(fieldDeclaration->semantic);
 
                 if (attribute == semantics.end())
-                {
-                    std::cerr << "Invalid semantic " << toString(fieldDeclaration->semantic) << std::endl;
-                    return false;
-                }
+                    throw std::runtime_error("Invalid semantic " + toString(fieldDeclaration->semantic));
 
                 code += " [[attribute(" + std::to_string(attribute->second) + ")]]";
             }
@@ -169,10 +157,7 @@ bool OutputMSL::printDeclaration(const Declaration* declaration, Options options
                     if (!firstParameter) code += ", ";
                     firstParameter = false;
 
-                    if (!printConstruct(parameter, Options(0), code))
-                    {
-                        return false;
-                    }
+                    printConstruct(parameter, Options(0), code);
                 }
 
                 code += ")";
@@ -181,10 +166,7 @@ bool OutputMSL::printDeclaration(const Declaration* declaration, Options options
                 {
                     code += "\n";
 
-                    if (!printConstruct(functionDeclaration->body, options, code))
-                    {
-                        return false;
-                    }
+                    printConstruct(functionDeclaration->body, options, code);
                 }
             }
 
@@ -205,10 +187,7 @@ bool OutputMSL::printDeclaration(const Declaration* declaration, Options options
             if (variableDeclaration->initialization)
             {
                 code += " = ";
-                if (!printConstruct(variableDeclaration->initialization, Options(0), code))
-                {
-                    return false;
-                }
+                printConstruct(variableDeclaration->initialization, Options(0), code);
             }
 
             break;
@@ -226,11 +205,9 @@ bool OutputMSL::printDeclaration(const Declaration* declaration, Options options
             break;
         }
     }
-
-    return true;
 }
 
-bool OutputMSL::printStatement(const Statement* statement, Options options, std::string& code)
+void OutputMSL::printStatement(const Statement* statement, Options options, std::string& code)
 {
     switch (statement->getStatementKind())
     {
@@ -251,10 +228,7 @@ bool OutputMSL::printStatement(const Statement* statement, Options options, std:
             code.append(options.indentation, ' ');
 
             const ExpressionStatement* expressionStatement = static_cast<const ExpressionStatement*>(statement);
-            if (!printConstruct(expressionStatement->expression, Options(0), code))
-            {
-                return false;
-            }
+            printConstruct(expressionStatement->expression, Options(0), code);
 
             code += ";";
             break;
@@ -265,10 +239,7 @@ bool OutputMSL::printStatement(const Statement* statement, Options options, std:
             code.append(options.indentation, ' ');
 
             const DeclarationStatement* declarationStatement = static_cast<const DeclarationStatement*>(statement);
-            if (!printConstruct(declarationStatement->declaration, Options(0), code))
-            {
-                return false;
-            }
+            printConstruct(declarationStatement->declaration, Options(0), code);
 
             code += ";";
             break;
@@ -283,10 +254,7 @@ bool OutputMSL::printStatement(const Statement* statement, Options options, std:
 
             for (Statement* statement : compoundStatement->statements)
             {
-                if (!printConstruct(statement, Options(options.indentation + 4), code))
-                {
-                    return false;
-                }
+                printConstruct(statement, Options(options.indentation + 4), code);
 
                 code += "\n";
             }
@@ -303,27 +271,14 @@ bool OutputMSL::printStatement(const Statement* statement, Options options, std:
             const IfStatement* ifStatement = static_cast<const IfStatement*>(statement);
             code += "if (";
 
-            if (!printConstruct(ifStatement->condition, Options(0), code))
-            {
-                return false;
-            }
+            printConstruct(ifStatement->condition, Options(0), code);
 
             code += ")\n";
 
             if (ifStatement->body->getStatementKind() == Statement::Kind::COMPOUND)
-            {
-                if (!printConstruct(ifStatement->body, options, code))
-                {
-                    return false;
-                }
-            }
+                printConstruct(ifStatement->body, options, code);
             else
-            {
-                if (!printConstruct(ifStatement->body, Options(options.indentation + 4), code))
-                {
-                    return false;
-                }
-            }
+                printConstruct(ifStatement->body, Options(options.indentation + 4), code);
 
             if (ifStatement->elseBody)
             {
@@ -332,19 +287,9 @@ bool OutputMSL::printStatement(const Statement* statement, Options options, std:
                 code += "else\n";
 
                 if (ifStatement->elseBody->getStatementKind() == Statement::Kind::COMPOUND)
-                {
-                    if (!printConstruct(ifStatement->elseBody, options, code))
-                    {
-                        return false;
-                    }
-                }
+                    printConstruct(ifStatement->elseBody, options, code);
                 else
-                {
-                    if (!printConstruct(ifStatement->elseBody, Options(options.indentation + 4), code))
-                    {
-                        return false;
-                    }
-                }
+                    printConstruct(ifStatement->elseBody, Options(options.indentation + 4), code);
             }
             break;
         }
@@ -357,49 +302,24 @@ bool OutputMSL::printStatement(const Statement* statement, Options options, std:
             code += "for (";
 
             if (forStatement->initialization)
-            {
-                if (!printConstruct(forStatement->initialization, Options(0), code))
-                {
-                    return false;
-                }
-            }
+                printConstruct(forStatement->initialization, Options(0), code);
 
             code += "; ";
 
             if (forStatement->condition)
-            {
-                if (!printConstruct(forStatement->condition, Options(0), code))
-                {
-                    return false;
-                }
-            }
+                printConstruct(forStatement->condition, Options(0), code);
 
             code += "; ";
 
             if (forStatement->increment)
-            {
-                if (!printConstruct(forStatement->increment, Options(0), code))
-                {
-                    return false;
-                }
-            }
+                printConstruct(forStatement->increment, Options(0), code);
 
             code += ")\n";
 
             if (forStatement->body->getStatementKind() == Statement::Kind::COMPOUND)
-            {
-                if (!printConstruct(forStatement->body, options, code))
-                {
-                    return false;
-                }
-            }
+                printConstruct(forStatement->body, options, code);
             else
-            {
-                if (!printConstruct(forStatement->body, Options(options.indentation + 4), code))
-                {
-                    return false;
-                }
-            }
+                printConstruct(forStatement->body, Options(options.indentation + 4), code);
             break;
         }
 
@@ -410,27 +330,14 @@ bool OutputMSL::printStatement(const Statement* statement, Options options, std:
             const SwitchStatement* switchStatement = static_cast<const SwitchStatement*>(statement);
             code += "switch (";
 
-            if (!printConstruct(switchStatement->condition, Options(0), code))
-            {
-                return false;
-            }
+            printConstruct(switchStatement->condition, Options(0), code);
 
             code += ")\n";
 
             if (switchStatement->body->getStatementKind() == Statement::Kind::COMPOUND)
-            {
-                if (!printConstruct(switchStatement->body, options, code))
-                {
-                    return false;
-                }
-            }
+                printConstruct(switchStatement->body, options, code);
             else
-            {
-                if (!printConstruct(switchStatement->body, Options(options.indentation + 4), code))
-                {
-                    return false;
-                }
-            }
+                printConstruct(switchStatement->body, Options(options.indentation + 4), code);
 
             break;
         }
@@ -442,27 +349,14 @@ bool OutputMSL::printStatement(const Statement* statement, Options options, std:
             const CaseStatement* caseStatement = static_cast<const CaseStatement*>(statement);
             code += "case ";
 
-            if (!printConstruct(caseStatement->condition, Options(0), code))
-            {
-                return false;
-            }
+            printConstruct(caseStatement->condition, Options(0), code);
 
             code += ":\n";
 
             if (caseStatement->body->getStatementKind() == Statement::Kind::COMPOUND)
-            {
-                if (!printConstruct(caseStatement->body, options, code))
-                {
-                    return false;
-                }
-            }
+                printConstruct(caseStatement->body, options, code);
             else
-            {
-                if (!printConstruct(caseStatement->body, Options(options.indentation + 4), code))
-                {
-                    return false;
-                }
-            }
+                printConstruct(caseStatement->body, Options(options.indentation + 4), code);
 
             break;
         }
@@ -475,19 +369,9 @@ bool OutputMSL::printStatement(const Statement* statement, Options options, std:
             code += "default:\n";
 
             if (defaultStatement->body->getStatementKind() == Statement::Kind::COMPOUND)
-            {
-                if (!printConstruct(defaultStatement->body, options, code))
-                {
-                    return false;
-                }
-            }
+                printConstruct(defaultStatement->body, options, code);
             else
-            {
-                if (!printConstruct(defaultStatement->body, Options(options.indentation + 4), code))
-                {
-                    return false;
-                }
-            }
+                printConstruct(defaultStatement->body, Options(options.indentation + 4), code);
 
             break;
         }
@@ -499,27 +383,14 @@ bool OutputMSL::printStatement(const Statement* statement, Options options, std:
             const WhileStatement* whileStatement = static_cast<const WhileStatement*>(statement);
             code += "while (";
 
-            if (!printConstruct(whileStatement->condition, Options(0), code))
-            {
-                return false;
-            }
+            printConstruct(whileStatement->condition, Options(0), code);
 
             code += ")\n";
 
             if (whileStatement->body->getStatementKind() == Statement::Kind::COMPOUND)
-            {
-                if (!printConstruct(whileStatement->body, options, code))
-                {
-                    return false;
-                }
-            }
+                printConstruct(whileStatement->body, options, code);
             else
-            {
-                if (!printConstruct(whileStatement->body, Options(options.indentation + 4), code))
-                {
-                    return false;
-                }
-            }
+                printConstruct(whileStatement->body, Options(options.indentation + 4), code);
             break;
         }
 
@@ -531,29 +402,16 @@ bool OutputMSL::printStatement(const Statement* statement, Options options, std:
             code += "do\n";
 
             if (doStatement->body->getStatementKind() == Statement::Kind::COMPOUND)
-            {
-                if (!printConstruct(doStatement->body, options, code))
-                {
-                    return false;
-                }
-            }
+                printConstruct(doStatement->body, options, code);
             else
-            {
-                if (!printConstruct(doStatement->body, Options(options.indentation + 4), code))
-                {
-                    return false;
-                }
-            }
+                printConstruct(doStatement->body, Options(options.indentation + 4), code);
 
             code += "\n";
 
             code.append(options.indentation, ' ');
             code += "while (";
 
-            if (!printConstruct(doStatement->condition, Options(0), code))
-            {
-                return false;
-            }
+            printConstruct(doStatement->condition, Options(0), code);
 
             code += ");";
 
@@ -585,21 +443,16 @@ bool OutputMSL::printStatement(const Statement* statement, Options options, std:
             {
                 code += " ";
 
-                if (!printConstruct(returnStatement->result, Options(0), code))
-                {
-                    return false;
-                }
+                printConstruct(returnStatement->result, Options(0), code);
             }
 
             code += ";";
             break;
         }
     }
-
-    return true;
 }
 
-bool OutputMSL::printExpression(const Expression* expression, Options options, std::string& code)
+void OutputMSL::printExpression(const Expression* expression, Options options, std::string& code)
 {
     switch (expression->getExpressionKind())
     {
@@ -614,10 +467,7 @@ bool OutputMSL::printExpression(const Expression* expression, Options options, s
 
             const CallExpression* callExpression = static_cast<const CallExpression*>(expression);
 
-            if (!printConstruct(callExpression->declarationReference, Options(0), code))
-            {
-                return false;
-            }
+            printConstruct(callExpression->declarationReference, Options(0), code);
 
             code += "(";
 
@@ -628,10 +478,7 @@ bool OutputMSL::printExpression(const Expression* expression, Options options, s
                 if (!firstParameter) code += ", ";
                 firstParameter = false;
 
-                if (!printConstruct(parameter, Options(0), code))
-                {
-                    return false;
-                }
+                printConstruct(parameter, Options(0), code);
             }
 
             code += ")";
@@ -708,7 +555,7 @@ bool OutputMSL::printExpression(const Expression* expression, Options options, s
                     break;
                 }
                 default:
-                    return false;
+                    throw std::runtime_error("Unknown declaration type");
             }
 
             break;
@@ -721,10 +568,7 @@ bool OutputMSL::printExpression(const Expression* expression, Options options, s
             const ParenExpression* parenExpression = static_cast<const ParenExpression*>(expression);
             code += "(";
 
-            if (!printConstruct(parenExpression->expression, Options(0), code))
-            {
-                return false;
-            }
+            printConstruct(parenExpression->expression, Options(0), code);
 
             code += ")";
             break;
@@ -736,18 +580,12 @@ bool OutputMSL::printExpression(const Expression* expression, Options options, s
 
             const MemberExpression* memberExpression = static_cast<const MemberExpression*>(expression);
 
-            if (!printConstruct(memberExpression->expression, Options(0), code))
-            {
-                return false;
-            }
+            printConstruct(memberExpression->expression, Options(0), code);
 
             code += ".";
 
             if (!memberExpression->fieldDeclaration)
-            {
-                std::cerr << "Field does not exist" << std::endl;
-                return false;
-            }
+                throw std::runtime_error("Field does not exist");
 
             code += memberExpression->fieldDeclaration->name;
 
@@ -760,17 +598,11 @@ bool OutputMSL::printExpression(const Expression* expression, Options options, s
 
             const ArraySubscriptExpression* arraySubscriptExpression = static_cast<const ArraySubscriptExpression*>(expression);
 
-            if (!printConstruct(arraySubscriptExpression->expression, Options(0), code))
-            {
-                return false;
-            }
+            printConstruct(arraySubscriptExpression->expression, Options(0), code);
 
             code += "[";
 
-            if (!printConstruct(arraySubscriptExpression->subscript, Options(0), code))
-            {
-                return false;
-            }
+            printConstruct(arraySubscriptExpression->subscript, Options(0), code);
 
             code += "]";
 
@@ -789,14 +621,10 @@ bool OutputMSL::printExpression(const Expression* expression, Options options, s
                 case UnaryOperatorExpression::Kind::POSITIVE: code += "+"; break;
                 case UnaryOperatorExpression::Kind::NEGATIVE: code += "-"; break;
                 default:
-                    std::cerr << "Unknown operator" << std::endl;
-                    return false;
+                    throw std::runtime_error("Unknown operator");
             }
 
-            if (!printConstruct(unaryOperatorExpression->expression, Options(0), code))
-            {
-                return false;
-            }
+            printConstruct(unaryOperatorExpression->expression, Options(0), code);
             break;
         }
 
@@ -805,10 +633,7 @@ bool OutputMSL::printExpression(const Expression* expression, Options options, s
             code.append(options.indentation, ' ');
 
             const BinaryOperatorExpression* binaryOperatorExpression = static_cast<const BinaryOperatorExpression*>(expression);
-            if (!printConstruct(binaryOperatorExpression->leftExpression, Options(0), code))
-            {
-                return false;
-            }
+            printConstruct(binaryOperatorExpression->leftExpression, Options(0), code);
 
             switch (binaryOperatorExpression->operatorKind)
             {
@@ -831,14 +656,10 @@ bool OutputMSL::printExpression(const Expression* expression, Options options, s
                 case BinaryOperatorExpression::Kind::AND: code += " && "; break;
                 case BinaryOperatorExpression::Kind::COMMA: code += ", "; break;
                 default:
-                    std::cerr << "Unknown operator" << std::endl;
-                    return false;
+                    throw std::runtime_error("Unknown operator");
             }
 
-            if (!printConstruct(binaryOperatorExpression->rightExpression, Options(0), code))
-            {
-                return false;
-            }
+            printConstruct(binaryOperatorExpression->rightExpression, Options(0), code);
             break;
         }
 
@@ -848,24 +669,15 @@ bool OutputMSL::printExpression(const Expression* expression, Options options, s
 
             const TernaryOperatorExpression* ternaryOperatorExpression = static_cast<const TernaryOperatorExpression*>(expression);
 
-            if (!printConstruct(ternaryOperatorExpression->condition, Options(0), code))
-            {
-                return false;
-            }
+            printConstruct(ternaryOperatorExpression->condition, Options(0), code);
 
             code += " ? ";
 
-            if (!printConstruct(ternaryOperatorExpression->leftExpression, Options(0), code))
-            {
-                return false;
-            }
+            printConstruct(ternaryOperatorExpression->leftExpression, Options(0), code);
 
             code += " : ";
 
-            if (!printConstruct(ternaryOperatorExpression->rightExpression, Options(0), code))
-            {
-                return false;
-            }
+            printConstruct(ternaryOperatorExpression->rightExpression, Options(0), code);
             break;
         }
 
@@ -877,7 +689,8 @@ bool OutputMSL::printExpression(const Expression* expression, Options options, s
 
             const TypeDeclaration* typeDeclaration = static_cast<const TypeDeclaration*>(temporaryObjectExpression->constructorDeclaration->parent);
 
-            if (typeDeclaration->getTypeKind() != TypeDeclaration::Kind::STRUCT) return false;
+            if (typeDeclaration->getTypeKind() != TypeDeclaration::Kind::STRUCT)
+                throw std::runtime_error("Temporary object must be a struct");
 
             const StructDeclaration* structDeclaration = static_cast<const StructDeclaration*>(typeDeclaration);
 
@@ -890,10 +703,7 @@ bool OutputMSL::printExpression(const Expression* expression, Options options, s
                 if (!firstParameter) code += ", ";
                 firstParameter = false;
 
-                if (!printConstruct(parameter, Options(0), code))
-                {
-                    return false;
-                }
+                printConstruct(parameter, Options(0), code);
             }
 
             code += ")";
@@ -916,10 +726,7 @@ bool OutputMSL::printExpression(const Expression* expression, Options options, s
                 if (!firstExpression) code += ", ";
                 firstExpression = false;
 
-                if (!printConstruct(expression, Options(0), code))
-                {
-                    return false;
-                }
+                printConstruct(expression, Options(0), code);
             }
 
             code += "}";
@@ -937,27 +744,19 @@ bool OutputMSL::printExpression(const Expression* expression, Options options, s
             {
                 code += castExpression->qualifiedType.typeDeclaration->name + "(";
 
-                if (!printConstruct(castExpression->expression, Options(0), code))
-                {
-                    return false;
-                }
+                printConstruct(castExpression->expression, Options(0), code);
 
                 code += ")";
             }
             else
             {
-                if (!printConstruct(castExpression->expression, Options(0), code))
-                {
-                    return false;
-                }
+                printConstruct(castExpression->expression, Options(0), code);
             }
         }
     }
-
-    return true;
 }
 
-bool OutputMSL::printConstruct(const Construct* construct, Options options, std::string& code)
+void OutputMSL::printConstruct(const Construct* construct, Options options, std::string& code)
 {
     switch (construct->getKind())
     {
@@ -987,7 +786,5 @@ bool OutputMSL::printConstruct(const Construct* construct, Options options, std:
             break;
         }
     }
-
-    return true;
 }
 

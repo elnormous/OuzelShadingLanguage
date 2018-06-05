@@ -134,8 +134,14 @@ int main(int argc, const char * argv[])
 
             std::string code;
 
-            if (!output->output(context, code))
-                throw std::runtime_error("Failed to output code");
+            try
+            {
+                output->output(context, code);
+            }
+            catch (const std::exception& e)
+            {
+                throw std::runtime_error(std::string("Failed to output code: ") + e.what());
+            }
 
             file << code;
         }

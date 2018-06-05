@@ -13,7 +13,7 @@ class OutputMSL: public Output
 public:
     OutputMSL(Program initProgram,
               const std::map<Semantic, uint32_t>& initSemantics);
-    virtual bool output(const ASTContext& context, std::string& code);
+    virtual void output(const ASTContext& context, std::string& code);
 
 private:
     struct Options
@@ -22,10 +22,10 @@ private:
 
         uint32_t indentation = 0;
     };
-    bool printDeclaration(const Declaration* declaration, Options options, std::string& code);
-    bool printStatement(const Statement* statement, Options options, std::string& code);
-    bool printExpression(const Expression* expression, Options options, std::string& code);
-    bool printConstruct(const Construct* construct, Options options, std::string& code);
+    void printDeclaration(const Declaration* declaration, Options options, std::string& code);
+    void printStatement(const Statement* statement, Options options, std::string& code);
+    void printExpression(const Expression* expression, Options options, std::string& code);
+    void printConstruct(const Construct* construct, Options options, std::string& code);
 
     Program program;
     const std::map<Semantic, uint32_t> semantics;
