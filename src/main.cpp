@@ -95,7 +95,7 @@ int main(int argc, const char * argv[])
             std::cout << "Parsed so far:" << std::endl;
             context.dump();
 
-           throw std::runtime_error("Failed to parse");
+            throw std::runtime_error("Failed to parse");
 
             return EXIT_FAILURE;
         }

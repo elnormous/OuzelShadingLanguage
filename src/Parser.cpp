@@ -228,9 +228,7 @@ bool ASTContext::parse(const std::vector<Token>& tokens)
     {
         Declaration* declaration;
         if (!(declaration = parseTopLevelDeclaration(tokens, iterator, declarationScopes)))
-        {
             return false;
-        }
 
         declarations.push_back(declaration);
     }
@@ -361,7 +359,7 @@ FunctionDeclaration* ASTContext::resolveFunctionDeclaration(const std::string& n
 
     if (viableFunctionDeclarations.empty())
     {
-        std::cerr << "No matching function to call " << name << "  found" << std::endl;
+        throw std::runtime_error("No matching function to call " + name + "  found");
         return nullptr;
     }
     else if (viableFunctionDeclarations.size() == 1)
@@ -372,7 +370,7 @@ FunctionDeclaration* ASTContext::resolveFunctionDeclaration(const std::string& n
     {
         if (parameters.empty()) // two or more functions with zero parameters
         {
-            std::cerr << "Ambiguous call" << std::endl;
+            throw std::runtime_error("Ambiguous call");
             return nullptr;
         }
 
@@ -392,7 +390,7 @@ FunctionDeclaration* ASTContext::resolveFunctionDeclaration(const std::string& n
             if (best) return *first;
         };
 
-        std::cerr << "Ambiguous call" << std::endl;
+        throw std::runtime_error("Ambiguous call");
         return nullptr;
     }
 
@@ -456,13 +454,13 @@ TypeDeclaration* ASTContext::parseType(const std::vector<Token>& tokens,
     {
         if (!(result = findTypeDeclaration(iterator->value, declarationScopes)))
         {
-            std::cerr << "Invalid type: " << iterator->value << std::endl;
+            throw std::runtime_error("Invalid type: " + iterator->value);
             return nullptr;
         }
     }
     else
     {
-        std::cerr << "Expected a type name" << std::endl;
+        throw std::runtime_error("Expected a type name");
         return nullptr;
     }
 
@@ -495,7 +493,7 @@ Declaration* ASTContext::parseTopLevelDeclaration(const std::vector<Token>& toke
     Declaration* declaration;
     if (!(declaration = parseDeclaration(tokens, iterator, declarationScopes, nullptr)))
     {
-        std::cerr << "Failed to parse a declaration" << std::endl;
+        throw std::runtime_error("Failed to parse a declaration");
         return nullptr;
     }
 
@@ -508,7 +506,7 @@ Declaration* ASTContext::parseTopLevelDeclaration(const std::vector<Token>& toke
         {
             if (!isToken(Token::Type::SEMICOLON, tokens, iterator))
             {
-                std::cerr << "Expected a semicolon" << std::endl;
+                throw std::runtime_error("Expected a semicolon");
                 return nullptr;
             }
 
@@ -519,7 +517,7 @@ Declaration* ASTContext::parseTopLevelDeclaration(const std::vector<Token>& toke
     {
         if (!isToken(Token::Type::SEMICOLON, tokens, iterator))
         {
-            std::cerr << "Expected a semicolon" << std::endl;
+            throw std::runtime_error("Expected a semicolon");
             return nullptr;
         }
 
@@ -578,7 +576,7 @@ bool ASTContext::parseAttributes(const std::vector<Token>& tokens,
 
         if (!isToken(Token::Type::IDENTIFIER, tokens, iterator))
         {
-            std::cerr << "Expected an identifier" << std::endl;
+            throw std::runtime_error("Expected an identifier");
             return nullptr;
         }
 
@@ -605,7 +603,7 @@ bool ASTContext::parseAttributes(const std::vector<Token>& tokens,
                 }
                 else
                 {
-                    std::cerr << "Unexpected token" << std::endl;
+                    throw std::runtime_error("Unexpected token");
                     return false;
                 }
 
@@ -617,7 +615,7 @@ bool ASTContext::parseAttributes(const std::vector<Token>& tokens,
 
             if (!isToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
             {
-                std::cerr << "Expected a right parenthesis" << std::endl;
+                throw std::runtime_error("Expected a right parenthesis");
                 return false;
             }
 
@@ -626,7 +624,7 @@ bool ASTContext::parseAttributes(const std::vector<Token>& tokens,
 
         if (!isToken(Token::Type::RIGHT_BRACKET, tokens, iterator))
         {
-            std::cerr << "Expected a right bracket" << std::endl;
+            throw std::runtime_error("Expected a right bracket");
             return false;
         }
 
@@ -634,7 +632,7 @@ bool ASTContext::parseAttributes(const std::vector<Token>& tokens,
 
         if (!isToken(Token::Type::RIGHT_BRACKET, tokens, iterator))
         {
-            std::cerr << "Expected a right bracket" << std::endl;
+            throw std::runtime_error("Expected a right bracket");
             return false;
         }
 
@@ -665,7 +663,7 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
         StructDeclaration* declaration;
         if (!(declaration = parseStructDeclaration(tokens, iterator, declarationScopes, parent)))
         {
-            std::cerr << "Failed to parse a structure declaration" << std::endl;
+            throw std::runtime_error("Failed to parse a structure declaration");
             return nullptr;
         }
 
@@ -678,7 +676,7 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
         TypeDefinitionDeclaration* declaration;
         if (!(declaration = parseTypeDefinitionDeclaration(tokens, iterator, declarationScopes, parent)))
         {
-            std::cerr << "Failed to parse a type definition declaration" << std::endl;
+            throw std::runtime_error("Failed to parse a type definition declaration");
             return nullptr;
         }
 
@@ -716,7 +714,7 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
 
                 if (!structDeclaration->definition)
                 {
-                    std::cerr << "Incomplete type " << qualifiedType.typeDeclaration->name << std::endl;
+                    throw std::runtime_error("Incomplete type " + qualifiedType.typeDeclaration->name);
                     return nullptr;
                 }
             }
@@ -732,7 +730,7 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
 
         if (!isToken(Token::Type::IDENTIFIER, tokens, iterator))
         {
-            std::cerr << "Expected an identifier" << std::endl;
+            throw std::runtime_error("Expected an identifier");
             return nullptr;
         }
 
@@ -785,7 +783,7 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
 
             if (!isToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
             {
-                std::cerr << "Expected a right parenthesis" << std::endl;
+                throw std::runtime_error("Expected a right parenthesis");
                 return nullptr;
             }
 
@@ -806,21 +804,15 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
                         if (attribute.second.front() == "fragment") program = Program::FRAGMENT;
                         else if (attribute.second.front() == "vertex") program = Program::VERTEX;
                         else
-                        {
-                            std::cerr << "Invalid program" << attribute.second.front() << std::endl;
-                        }
+                            std::cout << "Invalid program" << attribute.second.front() << std::endl;
 
                         result->program = program;
                     }
                     else
-                    {
-                        std::cerr << "Invalid parameters for attribute " << attribute.first << std::endl;
-                    }
+                        std::cout << "Invalid parameters for attribute " << attribute.first << std::endl;
                 }
                 else
-                {
-                    std::cerr << "Invalid attribute " << attribute.first << std::endl;
-                }
+                    std::cout << "Invalid attribute " << attribute.first << std::endl;
             }
 
             declarationScopes.back().push_back(result);
@@ -833,7 +825,7 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
                 // check if only one definition exists
                 if (result->definition)
                 {
-                    std::cerr << "Redefinition of " << result->name << std::endl;
+                    throw std::runtime_error("Redefinition of " + result->name);
                     return nullptr;
                 }
 
@@ -853,7 +845,7 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
                 // parse body
                 if (!(result->body = parseCompoundStatement(tokens, iterator, declarationScopes, result)))
                 {
-                    std::cerr << "Failed to parse a compound statement" << std::endl;
+                    throw std::runtime_error("Failed to parse a compound statement");
                     return nullptr;
                 }
 
@@ -866,13 +858,13 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
         {
             if (isInline)
             {
-                std::cerr << "Variables can not be inline" << std::endl;
+                throw std::runtime_error("Variables can not be inline");
                 return nullptr;
             }
 
             if (findDeclaration(name, declarationScopes.back()))
             {
-                std::cerr << "Redefinition of " << name << std::endl;
+                throw std::runtime_error("Redefinition of " + name);
                 return nullptr;
             }
 
@@ -895,7 +887,7 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
 
                     if (size <= 0)
                     {
-                        std::cerr << "Array size must be greater than zero" << std::endl;
+                        throw std::runtime_error("Array size must be greater than zero");
                         return nullptr;
                     }
 
@@ -903,13 +895,13 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
                 }
                 else
                 {
-                    std::cerr << "Expected an integer literal" << std::endl;
+                    throw std::runtime_error("Expected an integer literal");
                     return nullptr;
                 }
 
                 if (!isToken(Token::Type::RIGHT_BRACKET, tokens, iterator))
                 {
-                    std::cerr << "Expected a right bracket" << std::endl;
+                    throw std::runtime_error("Expected a right bracket");
                     return nullptr;
                 }
 
@@ -927,7 +919,7 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
 
                 if (!result->initialization->qualifiedType.typeDeclaration)
                 {
-                    std::cerr << "Initialization with a void type" << std::endl;
+                    throw std::runtime_error("Initialization with a void type");
                     return nullptr;
                 }
 
@@ -935,7 +927,7 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
 
                 if (!isToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
                 {
-                    std::cerr << "Expected a right parenthesis" << std::endl;
+                    throw std::runtime_error("Expected a right parenthesis");
                     return nullptr;
                 }
 
@@ -952,7 +944,7 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
 
                 if (!result->initialization->qualifiedType.typeDeclaration)
                 {
-                    std::cerr << "Initialization with a void type" << std::endl;
+                    throw std::runtime_error("Initialization with a void type");
                     return nullptr;
                 }
             }
@@ -973,7 +965,7 @@ StructDeclaration* ASTContext::parseStructDeclaration(const std::vector<Token>& 
 {
     if (!isToken(Token::Type::IDENTIFIER, tokens, iterator))
     {
-        std::cerr << "Expected an identifier" << std::endl;
+        throw std::runtime_error("Expected an identifier");
         return nullptr;
     }
 
@@ -995,7 +987,7 @@ StructDeclaration* ASTContext::parseStructDeclaration(const std::vector<Token>& 
         // check if only one definition exists
         if (result->definition)
         {
-            std::cerr << "Redefinition of " << result->name << std::endl;
+            throw std::runtime_error("Redefinition of " + result->name);
             return nullptr;
         }
 
@@ -1028,13 +1020,13 @@ StructDeclaration* ASTContext::parseStructDeclaration(const std::vector<Token>& 
 
                 if (!isToken(Token::Type::SEMICOLON, tokens, iterator))
                 {
-                    std::cerr << "Expected a semicolon" << std::endl;
+                    throw std::runtime_error("Expected a semicolon");
                     return nullptr;
                 }
 
                 if (result->findMemberDeclaration(memberDeclaration->name))
                 {
-                    std::cerr << "Redefinition of member " << memberDeclaration->name << std::endl;
+                    throw std::runtime_error("Redefinition of member " + memberDeclaration->name);
                     return nullptr;
                 }
 
@@ -1094,7 +1086,7 @@ Declaration* ASTContext::parseMemberDeclaration(const std::vector<Token>& tokens
 
             if (!structDeclaration->definition)
             {
-                std::cerr << "Incomplete type " << result->qualifiedType.typeDeclaration->name << std::endl;
+                throw std::runtime_error("Incomplete type " + result->qualifiedType.typeDeclaration->name);
                 return nullptr;
             }
         }
@@ -1109,19 +1101,19 @@ Declaration* ASTContext::parseMemberDeclaration(const std::vector<Token>& tokens
 
         if (isStatic)
         {
-            std::cerr << "Members can not be static" << std::endl;
+            throw std::runtime_error("Members can not be static");
             return nullptr;
         }
 
         if (isInline)
         {
-            std::cerr << "Members can not be inline" << std::endl;
+            throw std::runtime_error("Members can not be inline");
             return nullptr;
         }
 
         if (!isToken(Token::Type::IDENTIFIER, tokens, iterator))
         {
-            std::cerr << "Expected an identifier" << std::endl;
+            throw std::runtime_error("Expected an identifier");
             return nullptr;
         }
 
@@ -1143,7 +1135,7 @@ Declaration* ASTContext::parseMemberDeclaration(const std::vector<Token>& tokens
 
                 if (size <= 0)
                 {
-                    std::cerr << "Array size must be greater than zero" << std::endl;
+                    throw std::runtime_error("Array size must be greater than zero");
                     return nullptr;
                 }
 
@@ -1151,13 +1143,13 @@ Declaration* ASTContext::parseMemberDeclaration(const std::vector<Token>& tokens
             }
             else
             {
-                std::cerr << "Expected an integer literal" << std::endl;
+                throw std::runtime_error("Expected an integer literal");
                 return nullptr;
             }
 
             if (!isToken(Token::Type::RIGHT_BRACKET, tokens, iterator))
             {
-                std::cerr << "Expected a right bracket" << std::endl;
+                throw std::runtime_error("Expected a right bracket");
                 return nullptr;
             }
 
@@ -1186,21 +1178,15 @@ Declaration* ASTContext::parseMemberDeclaration(const std::vector<Token>& tokens
                     else if (attribute.second.front() == "tangent") semantic = Semantic::TANGENT;
                     else if (attribute.second.front() == "texture_coordinates") semantic = Semantic::TEXTURE_COORDINATES;
                     else
-                    {
-                        std::cerr << "Invalid semantic " << attribute.second.front() << std::endl;
-                    }
+                        std::cout << "Invalid semantic " << attribute.second.front() << std::endl;
 
                     result->semantic = semantic;
                 }
                 else
-                {
-                    std::cerr << "Invalid parameters for attribute " << attribute.first << std::endl;
-                }
+                    std::cout << "Invalid parameters for attribute " << attribute.first << std::endl;
             }
             else
-            {
-                std::cerr << "Invalid attribute " << attribute.first << std::endl;
-            }
+                std::cout << "Invalid attribute " << attribute.first << std::endl;
         }
 
         return result;
@@ -1238,7 +1224,7 @@ ParameterDeclaration* ASTContext::parseParameterDeclaration(const std::vector<To
 
         if (!structDeclaration->definition)
         {
-            std::cerr << "Incomplete type " << result->qualifiedType.typeDeclaration->name << std::endl;
+            throw std::runtime_error("Incomplete type " + result->qualifiedType.typeDeclaration->name);
             return nullptr;
         }
     }
@@ -1253,19 +1239,19 @@ ParameterDeclaration* ASTContext::parseParameterDeclaration(const std::vector<To
 
     if (isStatic)
     {
-        std::cerr << "Parameters can not be static" << std::endl;
+        throw std::runtime_error("Parameters can not be static");
         return nullptr;
     }
 
     if (isInline)
     {
-        std::cerr << "Parameters can not be inline" << std::endl;
+        throw std::runtime_error("Parameters can not be inline");
         return nullptr;
     }
 
     if (!isToken(Token::Type::IDENTIFIER, tokens, iterator))
     {
-        std::cerr << "Expected an identifier" << std::endl;
+        throw std::runtime_error("Expected an identifier");
         return nullptr;
     }
 
@@ -1285,7 +1271,7 @@ ParameterDeclaration* ASTContext::parseParameterDeclaration(const std::vector<To
 
             if (size <= 0)
             {
-                std::cerr << "Array size must be greater than zero" << std::endl;
+                throw std::runtime_error("Array size must be greater than zero");
                 return nullptr;
             }
 
@@ -1293,13 +1279,13 @@ ParameterDeclaration* ASTContext::parseParameterDeclaration(const std::vector<To
         }
         else
         {
-            std::cerr << "Expected an integer literal" << std::endl;
+            throw std::runtime_error("Expected an integer literal");
             return nullptr;
         }
 
         if (!isToken(Token::Type::RIGHT_BRACKET, tokens, iterator))
         {
-            std::cerr << "Expected a right bracket" << std::endl;
+            throw std::runtime_error("Expected a right bracket");
             return nullptr;
         }
 
@@ -1314,7 +1300,7 @@ ParameterDeclaration* ASTContext::parseParameterDeclaration(const std::vector<To
                                                                         std::vector<std::vector<Declaration*>>& declarationScopes,
                                                                         Construct* parent)
 {
-    std::cerr << "Typedef is not supported" << std::endl;
+    throw std::runtime_error("Typedef is not supported");
     return nullptr;
 
     TypeDefinitionDeclaration* result = new TypeDefinitionDeclaration();
@@ -1336,14 +1322,14 @@ ParameterDeclaration* ASTContext::parseParameterDeclaration(const std::vector<To
 
         if (!structDeclaration->hasDefinition)
         {
-            std::cerr << "Incomplete type " << result->qualifiedType.typeDeclaration->name << std::endl;
+            throw std::runtime_error("Incomplete type " + result->qualifiedType.typeDeclaration->name);
             return nullptr;
         }
     }
 
     if (!isToken(Token::Type::IDENTIFIER, tokens, iterator))
     {
-        std::cerr << "Expected a type name" << std::endl;
+        throw std::runtime_error("Expected a type name");
         return nullptr;
     }
 
@@ -1353,7 +1339,7 @@ ParameterDeclaration* ASTContext::parseParameterDeclaration(const std::vector<To
 
     if (!isToken(Token::Type::SEMICOLON, tokens, iterator))
     {
-        std::cerr << "Expected a semicolon" << std::endl;
+        throw std::runtime_error("Expected a semicolon");
         return nullptr;
     }
 
@@ -1409,7 +1395,7 @@ Statement* ASTContext::parseStatement(const std::vector<Token>& tokens,
 
         if (!isToken(Token::Type::SEMICOLON, tokens, iterator))
         {
-            std::cerr << "Expected a semicolon" << std::endl;
+            throw std::runtime_error("Expected a semicolon");
             return nullptr;
         }
 
@@ -1427,7 +1413,7 @@ Statement* ASTContext::parseStatement(const std::vector<Token>& tokens,
 
         if (!isToken(Token::Type::SEMICOLON, tokens, iterator))
         {
-            std::cerr << "Expected a semicolon" << std::endl;
+            throw std::runtime_error("Expected a semicolon");
             return nullptr;
         }
 
@@ -1445,13 +1431,13 @@ Statement* ASTContext::parseStatement(const std::vector<Token>& tokens,
 
         if (!(result->result = parseCommaExpression(tokens, iterator, declarationScopes, result)))
         {
-            std::cerr << "Expected an expression" << std::endl;
+            throw std::runtime_error("Expected an expression");
             return nullptr;
         }
 
         if (!isToken(Token::Type::SEMICOLON, tokens, iterator))
         {
-            std::cerr << "Expected a semicolon" << std::endl;
+            throw std::runtime_error("Expected a semicolon");
             return nullptr;
         }
 
@@ -1472,13 +1458,13 @@ Statement* ASTContext::parseStatement(const std::vector<Token>& tokens,
 
         if (result->declaration->getDeclarationKind() != Declaration::Kind::VARIABLE)
         {
-            std::cerr << "Expected a variable declaration" << std::endl;
+            throw std::runtime_error("Expected a variable declaration");
             return nullptr;
         }
 
         if (!isToken(Token::Type::SEMICOLON, tokens, iterator))
         {
-            std::cerr << "Expected a semicolon" << std::endl;
+            throw std::runtime_error("Expected a semicolon");
             return nullptr;
         }
 
@@ -1509,7 +1495,7 @@ Statement* ASTContext::parseStatement(const std::vector<Token>& tokens,
 
         if (!isToken(Token::Type::SEMICOLON, tokens, iterator))
         {
-            std::cerr << "Expected a semicolon" << std::endl;
+            throw std::runtime_error("Expected a semicolon");
             return nullptr;
         }
 
@@ -1528,7 +1514,7 @@ CompoundStatement* ASTContext::parseCompoundStatement(const std::vector<Token>& 
 {
     if (!isToken(Token::Type::LEFT_BRACE, tokens, iterator))
     {
-        std::cerr << "Expected a left brace" << std::endl;
+        throw std::runtime_error("Expected a left brace");
         return nullptr;
     }
 
@@ -1552,7 +1538,7 @@ CompoundStatement* ASTContext::parseCompoundStatement(const std::vector<Token>& 
             Statement* statement;
             if (!(statement = parseStatement(tokens, iterator, declarationScopes, result)))
             {
-                std::cerr << "Failed to parse a statement" << std::endl;
+                throw std::runtime_error("Failed to parse a statement");
                 return nullptr;
             }
 
@@ -1572,7 +1558,7 @@ IfStatement* ASTContext::parseIfStatement(const std::vector<Token>& tokens,
 {
     if (!isToken(Token::Type::KEYWORD_IF, tokens, iterator))
     {
-        std::cerr << "Expected the if keyword" << std::endl;
+        throw std::runtime_error("Expected the if keyword");
         return nullptr;
     }
 
@@ -1584,7 +1570,7 @@ IfStatement* ASTContext::parseIfStatement(const std::vector<Token>& tokens,
 
     if (!isToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
     {
-        std::cerr << "Expected a left parenthesis" << std::endl;
+        throw std::runtime_error("Expected a left parenthesis");
         return nullptr;
     }
 
@@ -1601,7 +1587,7 @@ IfStatement* ASTContext::parseIfStatement(const std::vector<Token>& tokens,
         if (declaration->getDeclarationKind() != Declaration::Kind::VARIABLE &&
             declaration->getDeclarationKind() != Declaration::Kind::PARAMETER)
         {
-            std::cerr << "Expected a variable declaration" << std::endl;
+            throw std::runtime_error("Expected a variable declaration");
             return nullptr;
         }
 
@@ -1617,7 +1603,7 @@ IfStatement* ASTContext::parseIfStatement(const std::vector<Token>& tokens,
 
     if (!isToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
     {
-        std::cerr << "Expected a right parenthesis" << std::endl;
+        throw std::runtime_error("Expected a right parenthesis");
         return nullptr;
     }
 
@@ -1626,7 +1612,7 @@ IfStatement* ASTContext::parseIfStatement(const std::vector<Token>& tokens,
     Statement* statement;
     if (!(statement = parseStatement(tokens, iterator, declarationScopes, result)))
     {
-        std::cerr << "Failed to parse the statement" << std::endl;
+        throw std::runtime_error("Failed to parse the statement");
         return nullptr;
     }
 
@@ -1638,7 +1624,7 @@ IfStatement* ASTContext::parseIfStatement(const std::vector<Token>& tokens,
 
         if (!(statement = parseStatement(tokens, iterator, declarationScopes, result)))
         {
-            std::cerr << "Failed to parse the statement" << std::endl;
+            throw std::runtime_error("Failed to parse the statement");
             return nullptr;
         }
 
@@ -1655,7 +1641,7 @@ ForStatement* ASTContext::parseForStatement(const std::vector<Token>& tokens,
 {
     if (!isToken(Token::Type::KEYWORD_FOR, tokens, iterator))
     {
-        std::cerr << "Expected the for keyword" << std::endl;
+        throw std::runtime_error("Expected the for keyword");
         return nullptr;
     }
 
@@ -1667,7 +1653,7 @@ ForStatement* ASTContext::parseForStatement(const std::vector<Token>& tokens,
 
     if (!isToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
     {
-        std::cerr << "Expected a left parenthesis" << std::endl;
+        throw std::runtime_error("Expected a left parenthesis");
         return nullptr;
     }
 
@@ -1684,7 +1670,7 @@ ForStatement* ASTContext::parseForStatement(const std::vector<Token>& tokens,
         if (declaration->getDeclarationKind() != Declaration::Kind::VARIABLE &&
             declaration->getDeclarationKind() != Declaration::Kind::PARAMETER)
         {
-            std::cerr << "Expected a variable declaration" << std::endl;
+            throw std::runtime_error("Expected a variable declaration");
             return nullptr;
         }
 
@@ -1692,7 +1678,7 @@ ForStatement* ASTContext::parseForStatement(const std::vector<Token>& tokens,
 
         if (!isToken(Token::Type::SEMICOLON, tokens, iterator))
         {
-            std::cerr << "Expected a semicolon" << std::endl;
+            throw std::runtime_error("Expected a semicolon");
             return nullptr;
         }
 
@@ -1713,7 +1699,7 @@ ForStatement* ASTContext::parseForStatement(const std::vector<Token>& tokens,
 
         if (!isToken(Token::Type::SEMICOLON, tokens, iterator))
         {
-            std::cerr << "Expected a semicolon" << std::endl;
+            throw std::runtime_error("Expected a semicolon");
             return nullptr;
         }
 
@@ -1731,7 +1717,7 @@ ForStatement* ASTContext::parseForStatement(const std::vector<Token>& tokens,
         if (declaration->getDeclarationKind() != Declaration::Kind::VARIABLE &&
             declaration->getDeclarationKind() != Declaration::Kind::PARAMETER)
         {
-            std::cerr << "Expected a variable declaration" << std::endl;
+            throw std::runtime_error("Expected a variable declaration");
             return nullptr;
         }
 
@@ -1739,7 +1725,7 @@ ForStatement* ASTContext::parseForStatement(const std::vector<Token>& tokens,
 
         if (!isToken(Token::Type::SEMICOLON, tokens, iterator))
         {
-            std::cerr << "Expected a semicolon" << std::endl;
+            throw std::runtime_error("Expected a semicolon");
             return nullptr;
         }
 
@@ -1760,7 +1746,7 @@ ForStatement* ASTContext::parseForStatement(const std::vector<Token>& tokens,
 
         if (!isToken(Token::Type::SEMICOLON, tokens, iterator))
         {
-            std::cerr << "Expected a semicolon" << std::endl;
+            throw std::runtime_error("Expected a semicolon");
             return nullptr;
         }
 
@@ -1782,7 +1768,7 @@ ForStatement* ASTContext::parseForStatement(const std::vector<Token>& tokens,
 
         if (!isToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
         {
-            std::cerr << "Expected a right parenthesis" << std::endl;
+            throw std::runtime_error("Expected a right parenthesis");
             return nullptr;
         }
 
@@ -1804,7 +1790,7 @@ SwitchStatement* ASTContext::parseSwitchStatement(const std::vector<Token>& toke
 {
     if (!isToken(Token::Type::KEYWORD_SWITCH, tokens, iterator))
     {
-        std::cerr << "Expected the switch keyword" << std::endl;
+        throw std::runtime_error("Expected the switch keyword");
         return nullptr;
     }
 
@@ -1816,7 +1802,7 @@ SwitchStatement* ASTContext::parseSwitchStatement(const std::vector<Token>& toke
 
     if (!isToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
     {
-        std::cerr << "Expected a left parenthesis" << std::endl;
+        throw std::runtime_error("Expected a left parenthesis");
         return nullptr;
     }
 
@@ -1833,7 +1819,7 @@ SwitchStatement* ASTContext::parseSwitchStatement(const std::vector<Token>& toke
         if (declaration->getDeclarationKind() != Declaration::Kind::VARIABLE &&
             declaration->getDeclarationKind() != Declaration::Kind::PARAMETER)
         {
-            std::cerr << "Expected a variable declaration" << std::endl;
+            throw std::runtime_error("Expected a variable declaration");
             return nullptr;
         }
 
@@ -1849,7 +1835,7 @@ SwitchStatement* ASTContext::parseSwitchStatement(const std::vector<Token>& toke
 
     if (!isToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
     {
-        std::cerr << "Expected a right parenthesis" << std::endl;
+        throw std::runtime_error("Expected a right parenthesis");
         return nullptr;
     }
 
@@ -1870,7 +1856,7 @@ CaseStatement* ASTContext::parseCaseStatement(const std::vector<Token>& tokens,
 {
     if (!isToken(Token::Type::KEYWORD_CASE, tokens, iterator))
     {
-        std::cerr << "Expected the case keyword" << std::endl;
+        throw std::runtime_error("Expected the case keyword");
         return nullptr;
     }
 
@@ -1882,13 +1868,13 @@ CaseStatement* ASTContext::parseCaseStatement(const std::vector<Token>& tokens,
 
     if (!(result->condition = parseCommaExpression(tokens, iterator, declarationScopes, result)))
     {
-        std::cerr << "Expected an expression" << std::endl;
+        throw std::runtime_error("Expected an expression");
         return nullptr;
     }
 
     if (!isToken(Token::Type::COLON, tokens, iterator))
     {
-        std::cerr << "Expected a colon" << std::endl;
+        throw std::runtime_error("Expected a colon");
         return nullptr;
     }
 
@@ -1909,7 +1895,7 @@ DefaultStatement* ASTContext::parseDefaultStatement(const std::vector<Token>& to
 {
     if (!isToken(Token::Type::KEYWORD_DEFAULT, tokens, iterator))
     {
-        std::cerr << "Expected the default keyword" << std::endl;
+        throw std::runtime_error("Expected the default keyword");
         return nullptr;
     }
 
@@ -1921,7 +1907,7 @@ DefaultStatement* ASTContext::parseDefaultStatement(const std::vector<Token>& to
 
     if (!isToken(Token::Type::COLON, tokens, iterator))
     {
-        std::cerr << "Expected a colon" << std::endl;
+        throw std::runtime_error("Expected a colon");
         return nullptr;
     }
 
@@ -1942,7 +1928,7 @@ WhileStatement* ASTContext::parseWhileStatement(const std::vector<Token>& tokens
 {
     if (!isToken(Token::Type::KEYWORD_WHILE, tokens, iterator))
     {
-        std::cerr << "Expected the while keyword" << std::endl;
+        throw std::runtime_error("Expected the while keyword");
         return nullptr;
     }
 
@@ -1954,7 +1940,7 @@ WhileStatement* ASTContext::parseWhileStatement(const std::vector<Token>& tokens
 
     if (!isToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
     {
-        std::cerr << "Expected a left parenthesis" << std::endl;
+        throw std::runtime_error("Expected a left parenthesis");
         return nullptr;
     }
 
@@ -1971,7 +1957,7 @@ WhileStatement* ASTContext::parseWhileStatement(const std::vector<Token>& tokens
         if (declaration->getDeclarationKind() != Declaration::Kind::VARIABLE &&
             declaration->getDeclarationKind() != Declaration::Kind::PARAMETER)
         {
-            std::cerr << "Expected a variable declaration" << std::endl;
+            throw std::runtime_error("Expected a variable declaration");
             return nullptr;
         }
 
@@ -1987,7 +1973,7 @@ WhileStatement* ASTContext::parseWhileStatement(const std::vector<Token>& tokens
 
     if (!isToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
     {
-        std::cerr << "Expected a right parenthesis" << std::endl;
+        throw std::runtime_error("Expected a right parenthesis");
         return nullptr;
     }
 
@@ -2008,7 +1994,7 @@ DoStatement* ASTContext::parseDoStatement(const std::vector<Token>& tokens,
 {
     if (!isToken(Token::Type::KEYWORD_DO, tokens, iterator))
     {
-        std::cerr << "Expected the do keyword" << std::endl;
+        throw std::runtime_error("Expected the do keyword");
         return nullptr;
     }
 
@@ -2025,7 +2011,7 @@ DoStatement* ASTContext::parseDoStatement(const std::vector<Token>& tokens,
 
     if (!isToken(Token::Type::KEYWORD_WHILE, tokens, iterator))
     {
-        std::cerr << "Expected a \"while\" keyword" << std::endl;
+        throw std::runtime_error("Expected a \"while\" keyword");
         return nullptr;
     }
 
@@ -2033,7 +2019,7 @@ DoStatement* ASTContext::parseDoStatement(const std::vector<Token>& tokens,
 
     if (!isToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
     {
-        std::cerr << "Expected a left parenthesis" << std::endl;
+        throw std::runtime_error("Expected a left parenthesis");
         return nullptr;
     }
 
@@ -2047,7 +2033,7 @@ DoStatement* ASTContext::parseDoStatement(const std::vector<Token>& tokens,
 
     if (!isToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
     {
-        std::cerr << "Expected a right parenthesis" << std::endl;
+        throw std::runtime_error("Expected a right parenthesis");
         return nullptr;
     }
 
@@ -2055,7 +2041,7 @@ DoStatement* ASTContext::parseDoStatement(const std::vector<Token>& tokens,
 
     if (!isToken(Token::Type::SEMICOLON, tokens, iterator))
     {
-        std::cerr << "Expected a semicolon" << std::endl;
+        throw std::runtime_error("Expected a semicolon");
         return nullptr;
     }
 
@@ -2111,7 +2097,7 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
     }
     else if (isToken(Token::Type::LITERAL_DOUBLE, tokens, iterator))
     {
-        std::cerr << "Double precision floating point numbers are not supported" << std ::endl;
+        throw std::runtime_error("Double precision floating point numbers are not supported");
         return nullptr;
     }
     else if (isToken(Token::Type::LITERAL_STRING, tokens, iterator))
@@ -2155,7 +2141,7 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
 
         if (!isToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
         {
-            std::cerr << "Expected a left parenthesis" << std ::endl;
+            throw std::runtime_error("Expected a left parenthesis");
             return nullptr;
         }
 
@@ -2165,7 +2151,7 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
 
         if (!isToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
         {
-            std::cerr << "Expected a right parenthesis" << std ::endl;
+            throw std::runtime_error("Expected a right parenthesis");
             return nullptr;
         }
 
@@ -2199,7 +2185,7 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
                 if (qualifiedType.typeDeclaration != expression->qualifiedType.typeDeclaration)
                 {
                     // TODO: implement type narrowing
-                    std::cerr << "Expression type does not match previous expressions in initializer list" << std ::endl;
+                    throw std::runtime_error("Expression type does not match previous expressions in initializer list");
                     return nullptr;
                 }
             }
@@ -2216,7 +2202,7 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
 
         if (!isToken(Token::Type::RIGHT_BRACE, tokens, iterator))
         {
-            std::cerr << "Expected a right brace" << std ::endl;
+            throw std::runtime_error("Expected a right brace");
             return nullptr;
         }
 
@@ -2274,7 +2260,7 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
 
                     if (!isToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
                     {
-                        std::cerr << "Expected a right parenthesis" << std::endl;
+                        throw std::runtime_error("Expected a right parenthesis");
                         return nullptr;
                     }
 
@@ -2283,7 +2269,7 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
 
                 if (typeDeclaration->getTypeKind() != TypeDeclaration::Kind::STRUCT)
                 {
-                    std::cerr << "Expected a struct type" << std::endl;
+                    throw std::runtime_error("Expected a struct type");
                     return nullptr;
                 }
 
@@ -2291,7 +2277,7 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
 
                 if (!(result->constructorDeclaration = structDeclaration->findConstructorDeclaration(parameters)))
                 {
-                    std::cerr << "No matching constructor found" << std::endl;
+                    throw std::runtime_error("No matching constructor found");
                     return nullptr;
                 }
 
@@ -2331,7 +2317,7 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
 
                     if (!isToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
                     {
-                        std::cerr << "Expected a right parenthesis" << std::endl;
+                        throw std::runtime_error("Expected a right parenthesis");
                         return nullptr;
                     }
 
@@ -2346,7 +2332,7 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
 
                 if (!functionDeclaration)
                 {
-                    std::cerr << "Invalid function reference: " << name << std::endl;
+                    throw std::runtime_error("Invalid function reference: " + name);
                     return nullptr;
                 }
 
@@ -2369,7 +2355,7 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
 
             if (!result->declaration)
             {
-                std::cerr << "Invalid declaration reference: " << name << std::endl;
+                throw std::runtime_error("Invalid declaration reference: " + name);
                 return nullptr;
             }
 
@@ -2397,7 +2383,7 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
                     break;
                 }
                 default:
-                    std::cerr << "Invalid declaration reference " << name << std::endl;
+                    throw std::runtime_error("Invalid declaration reference " + name);
                     return nullptr;
             }
 
@@ -2419,7 +2405,7 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
 
         if (!isToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
         {
-            std::cerr << "Expected a right parenthesis" << std::endl;
+            throw std::runtime_error("Expected a right parenthesis");
             return nullptr;
         }
 
@@ -2432,7 +2418,7 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
     }
     else
     {
-        std::cerr << "Expected an expression" << std::endl;
+        throw std::runtime_error("Expected an expression");
         return nullptr;
     }
 
@@ -2461,13 +2447,13 @@ Expression* ASTContext::parseSubscriptExpression(const std::vector<Token>& token
 
         if (!result->qualifiedType.typeDeclaration)
         {
-            std::cerr << "Subscript expression with a void type" << std::endl;
+            throw std::runtime_error("Subscript expression with a void type");
             return nullptr;
         }
 
         if (result->qualifiedType.typeDeclaration->getTypeKind() != TypeDeclaration::Kind::ARRAY)
         {
-            std::cerr << "Subscript value is not an array" << std::endl;
+            throw std::runtime_error("Subscript value is not an array");
             return nullptr;
         }
 
@@ -2479,7 +2465,7 @@ Expression* ASTContext::parseSubscriptExpression(const std::vector<Token>& token
         if (!expression->subscript->qualifiedType.typeDeclaration ||
             expression->subscript->qualifiedType.typeDeclaration->getTypeKind() != TypeDeclaration::Kind::SCALAR)
         {
-            std::cerr << "Subscript is not an integer" << std::endl;
+            throw std::runtime_error("Subscript is not an integer");
             return nullptr;
         }
 
@@ -2488,7 +2474,7 @@ Expression* ASTContext::parseSubscriptExpression(const std::vector<Token>& token
         if (scalarType->getScalarTypeKind() != ScalarTypeDeclaration::Kind::BOOLEAN &&
             scalarType->getScalarTypeKind() != ScalarTypeDeclaration::Kind::INTEGER)
         {
-            std::cerr << "Subscript is not an integer" << std::endl;
+            throw std::runtime_error("Subscript is not an integer");
             return nullptr;
         }
 
@@ -2499,7 +2485,7 @@ Expression* ASTContext::parseSubscriptExpression(const std::vector<Token>& token
 
         if (!isToken(Token::Type::RIGHT_BRACKET, tokens, iterator))
         {
-            std::cerr << "Expected a right brace" << std::endl;
+            throw std::runtime_error("Expected a right brace");
             return nullptr;
         }
 
@@ -2532,7 +2518,7 @@ Expression* ASTContext::parseMemberExpression(const std::vector<Token>& tokens,
     {
         if (isToken(Token::Type::OPERATOR_ARROW, tokens, iterator))
         {
-            std::cerr << "Pointer member access is not supported" << std::endl;
+            throw std::runtime_error("Pointer member access is not supported");
             return nullptr;
         }
 
@@ -2545,13 +2531,13 @@ Expression* ASTContext::parseMemberExpression(const std::vector<Token>& tokens,
 
         if (!result->qualifiedType.typeDeclaration)
         {
-            std::cerr << "Expression has a void type" << std::endl;
+            throw std::runtime_error("Expression has a void type");
             return nullptr;
         }
 
         if (result->qualifiedType.typeDeclaration->getTypeKind() != TypeDeclaration::Kind::STRUCT)
         {
-            std::cerr << result->qualifiedType.typeDeclaration->name << " is not a structure" << std::endl;
+            throw std::runtime_error(result->qualifiedType.typeDeclaration->name + " is not a structure");
             return nullptr;
         }
 
@@ -2559,7 +2545,7 @@ Expression* ASTContext::parseMemberExpression(const std::vector<Token>& tokens,
 
         if (!isToken(Token::Type::IDENTIFIER, tokens, iterator))
         {
-            std::cerr << "Expected an identifier" << std::endl;
+            throw std::runtime_error("Expected an identifier");
             return nullptr;
         }
 
@@ -2567,13 +2553,13 @@ Expression* ASTContext::parseMemberExpression(const std::vector<Token>& tokens,
 
         if (!memberDeclaration)
         {
-            std::cerr << "Structure " << structDeclaration->name <<  " has no member " << iterator->value << std::endl;
+            throw std::runtime_error("Structure " + structDeclaration->name +  " has no member " + iterator->value);
             return nullptr;
         }
 
         if (memberDeclaration->getDeclarationKind() != Declaration::Kind::FIELD)
         {
-            std::cerr << iterator->value << " is not a field" << std::endl;
+            throw std::runtime_error(iterator->value + " is not a field");
             return nullptr;
         }
 
@@ -2615,7 +2601,7 @@ Expression* ASTContext::parseSignExpression(const std::vector<Token>& tokens,
 
         if (!result->expression->qualifiedType.typeDeclaration)
         {
-            std::cerr << "Unary expression with a void type" << std::endl;
+            throw std::runtime_error("Unary expression with a void type");
             return nullptr;
         }
 
@@ -2662,7 +2648,7 @@ Expression* ASTContext::parseNotExpression(const std::vector<Token>& tokens,
 
         if (!result->expression->qualifiedType.typeDeclaration)
         {
-            std::cerr << "Unary expression with a void type" << std::endl;
+            throw std::runtime_error("Unary expression with a void type");
             return nullptr;
         }
 
@@ -2720,7 +2706,7 @@ Expression* ASTContext::parseMultiplicationExpression(const std::vector<Token>& 
         if (!expression->leftExpression->qualifiedType.typeDeclaration ||
             !expression->rightExpression->qualifiedType.typeDeclaration)
         {
-            std::cerr << "Binary expression with a void type" << std::endl;
+            throw std::runtime_error("Binary expression with a void type");
             return nullptr;
         }
 
@@ -2767,7 +2753,7 @@ Expression* ASTContext::parseAdditionExpression(const std::vector<Token>& tokens
         if (!expression->leftExpression->qualifiedType.typeDeclaration ||
             !expression->rightExpression->qualifiedType.typeDeclaration)
         {
-            std::cerr << "Binary expression with a void type" << std::endl;
+            throw std::runtime_error("Binary expression with a void type");
             return nullptr;
         }
 
@@ -2814,7 +2800,7 @@ Expression* ASTContext::parseLessThanExpression(const std::vector<Token>& tokens
         if (!expression->leftExpression->qualifiedType.typeDeclaration ||
             !expression->rightExpression->qualifiedType.typeDeclaration)
         {
-            std::cerr << "Binary expression with a void type" << std::endl;
+            throw std::runtime_error("Binary expression with a void type");
             return nullptr;
         }
 
@@ -2861,7 +2847,7 @@ Expression* ASTContext::parseGreaterThanExpression(const std::vector<Token>& tok
         if (!expression->leftExpression->qualifiedType.typeDeclaration ||
             !expression->rightExpression->qualifiedType.typeDeclaration)
         {
-            std::cerr << "Binary expression with a void type" << std::endl;
+            throw std::runtime_error("Binary expression with a void type");
             return nullptr;
         }
 
@@ -2908,7 +2894,7 @@ Expression* ASTContext::parseEqualityExpression(const std::vector<Token>& tokens
         if (!expression->leftExpression->qualifiedType.typeDeclaration ||
             !expression->rightExpression->qualifiedType.typeDeclaration)
         {
-            std::cerr << "Binary expression with a void type" << std::endl;
+            throw std::runtime_error("Binary expression with a void type");
             return nullptr;
         }
 
@@ -2953,7 +2939,7 @@ Expression* ASTContext::parseLogicalAndExpression(const std::vector<Token>& toke
         if (!expression->leftExpression->qualifiedType.typeDeclaration ||
             !expression->rightExpression->qualifiedType.typeDeclaration)
         {
-            std::cerr << "Binary expression with a void type" << std::endl;
+            throw std::runtime_error("Binary expression with a void type");
             return nullptr;
         }
 
@@ -2998,7 +2984,7 @@ Expression* ASTContext::parseLogicalOrExpression(const std::vector<Token>& token
         if (!expression->leftExpression->qualifiedType.typeDeclaration ||
             !expression->rightExpression->qualifiedType.typeDeclaration)
         {
-            std::cerr << "Binary expression with a void type" << std::endl;
+            throw std::runtime_error("Binary expression with a void type");
             return nullptr;
         }
 
@@ -3035,7 +3021,7 @@ Expression* ASTContext::parseTernaryExpression(const std::vector<Token>& tokens,
 
         if (!expression->condition->qualifiedType.typeDeclaration)
         {
-            std::cerr << "Ternary expression with a void condition" << std::endl;
+            throw std::runtime_error("Ternary expression with a void condition");
             return nullptr;
         }
 
@@ -3046,7 +3032,7 @@ Expression* ASTContext::parseTernaryExpression(const std::vector<Token>& tokens,
 
         if (!isToken(Token::Type::COLON, tokens, iterator))
         {
-            std::cerr << "Expected a colon" << std::endl;
+            throw std::runtime_error("Expected a colon");
             return nullptr;
         }
 
@@ -3091,13 +3077,13 @@ Expression* ASTContext::parseAssignmentExpression(const std::vector<Token>& toke
 
         if (expression->leftExpression->qualifiedType.isConst)
         {
-            std::cerr << "Cannot assign to const variable" << std::endl;
+            throw std::runtime_error("Cannot assign to const variable");
             return nullptr;
         }
 
         if (!expression->leftExpression->isLValue)
         {
-            std::cerr << "Expression is not assignable" << std::endl;
+            throw std::runtime_error("Expression is not assignable");
             return nullptr;
         }
 
@@ -3109,7 +3095,7 @@ Expression* ASTContext::parseAssignmentExpression(const std::vector<Token>& toke
         if (!expression->leftExpression->qualifiedType.typeDeclaration ||
             !expression->rightExpression->qualifiedType.typeDeclaration)
         {
-            std::cerr << "Binary expression with a void type" << std::endl;
+            throw std::runtime_error("Binary expression with a void type");
             return nullptr;
         }
 
@@ -3150,13 +3136,13 @@ Expression* ASTContext::parseAdditionAssignmentExpression(const std::vector<Toke
 
         if (expression->leftExpression->qualifiedType.isConst)
         {
-            std::cerr << "Cannot assign to const variable" << std::endl;
+            throw std::runtime_error("Cannot assign to const variable");
             return nullptr;
         }
 
         if (!expression->leftExpression->isLValue)
         {
-            std::cerr << "Expression is not assignable" << std::endl;
+            throw std::runtime_error("Expression is not assignable");
             return nullptr;
         }
 
@@ -3168,7 +3154,7 @@ Expression* ASTContext::parseAdditionAssignmentExpression(const std::vector<Toke
         if (!expression->leftExpression->qualifiedType.typeDeclaration ||
             !expression->rightExpression->qualifiedType.typeDeclaration)
         {
-            std::cerr << "Binary expression with a void type" << std::endl;
+            throw std::runtime_error("Binary expression with a void type");
             return nullptr;
         }
 
@@ -3209,13 +3195,13 @@ Expression* ASTContext::parseMultiplicationAssignmentExpression(const std::vecto
 
         if (expression->leftExpression->qualifiedType.isConst)
         {
-            std::cerr << "Cannot assign to const variable" << std::endl;
+            throw std::runtime_error("Cannot assign to const variable");
             return nullptr;
         }
 
         if (!expression->leftExpression->isLValue)
         {
-            std::cerr << "Expression is not assignable" << std::endl;
+            throw std::runtime_error("Expression is not assignable");
             return nullptr;
         }
 
@@ -3228,7 +3214,7 @@ Expression* ASTContext::parseMultiplicationAssignmentExpression(const std::vecto
         if (!expression->leftExpression->qualifiedType.typeDeclaration ||
             !expression->rightExpression->qualifiedType.typeDeclaration)
         {
-            std::cerr << "Binary expression with a void type" << std::endl;
+            throw std::runtime_error("Binary expression with a void type");
             return nullptr;
         }
 
