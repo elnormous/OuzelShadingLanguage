@@ -333,9 +333,7 @@ FunctionDeclaration* ASTContext::resolveFunctionDeclaration(const std::string& n
                 FunctionDeclaration* functionDeclaration = static_cast<FunctionDeclaration*>(callableDeclaration->getFirstDeclaration());
 
                 if (std::find(candidateFunctionDeclarations.begin(), candidateFunctionDeclarations.end(), functionDeclaration) == candidateFunctionDeclarations.end())
-                {
                     candidateFunctionDeclarations.push_back(functionDeclaration);
-                }
             }
         }
     }

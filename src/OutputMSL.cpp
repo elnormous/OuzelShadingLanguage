@@ -2,7 +2,6 @@
 //  OSL
 //
 
-#include <iostream>
 #include "OutputMSL.hpp"
 #include "Semantic.hpp"
 

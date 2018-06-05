@@ -2,7 +2,6 @@
 //  OSL
 //
 
-#include <iostream>
 #include "OutputHLSL.hpp"
 
 struct BuiltinFunction
