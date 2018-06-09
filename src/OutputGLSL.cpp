@@ -21,7 +21,7 @@ OutputGLSL::OutputGLSL(Program initProgram,
 
 void OutputGLSL::output(const ASTContext& context, std::string& code)
 {
-    code += "#version " + std::to_string(glslVersion);
+    code += "#version " + std::to_string(glslVersion) + "\n";
 
     for (Declaration* declaration : context.declarations)
     {
