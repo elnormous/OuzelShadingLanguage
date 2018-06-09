@@ -13,14 +13,16 @@ struct BuiltinFunction
 static std::map<std::string, BuiltinFunction> builtinFunctions;
 
 OutputGLSL::OutputGLSL(Program initProgram,
-                       uint32_t initGlslVersion,
+                       uint32_t initGLSLVersion,
                        const std::map<Semantic, std::string>& initSemantics):
-    program(initProgram), glslVersion(initGlslVersion), semantics(initSemantics)
+    program(initProgram), glslVersion(initGLSLVersion), semantics(initSemantics)
 {
 }
 
 void OutputGLSL::output(const ASTContext& context, std::string& code)
 {
+    code += "#version " + std::to_string(glslVersion);
+
     for (Declaration* declaration : context.declarations)
     {
         printConstruct(declaration, Options(0), code);
