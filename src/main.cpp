@@ -88,64 +88,53 @@ int main(int argc, const char * argv[])
 
         if (printTokens) dump(tokens);
 
-        ASTContext context;
-
         try
         {
-            context.parse(tokens);
+            ASTContext context(tokens);
+
+            if (printAST) context.dump();
+
+            if (!format.empty())
+            {
+                if (program == Program::NONE)
+                    throw std::runtime_error("No program");
+
+                std::ofstream file(outputFile, std::ios::binary);
+
+                if (!file)
+                    throw std::runtime_error("Failed to open file " + outputFile);
+
+                std::unique_ptr<Output> output;
+
+                if (outputFile.empty())
+                    throw std::runtime_error("No output file");
+
+                if (format == "hlsl")
+                    output.reset(new OutputHLSL(program));
+                else if (format == "glsl")
+                    output.reset(new OutputGLSL(program, 110, {}));
+                else if (format == "msl")
+                    output.reset(new OutputMSL(program, {}));
+                else
+                    throw std::runtime_error("Invalid format");
+
+                std::string code;
+
+                try
+                {
+                    output->output(context, code);
+                }
+                catch (const std::exception& e)
+                {
+                    throw std::runtime_error(std::string("Failed to output code: ") + e.what());
+                }
+
+                file << code;
+            }
         }
         catch (const std::exception& e)
         {
-            std::cout << "Parsed so far:" << std::endl;
-            context.dump();
-
             throw std::runtime_error(std::string("Failed to parse: ") + e.what());
-        }
-
-        if (printAST) context.dump();
-
-        if (!format.empty())
-        {
-            if (program == Program::NONE)
-                throw std::runtime_error("No program");
-
-            std::ofstream file(outputFile, std::ios::binary);
-
-            if (!file)
-                throw std::runtime_error("Failed to open file " + outputFile);
-
-            std::unique_ptr<Output> output;
-
-            if (outputFile.empty())
-                throw std::runtime_error("No output file");
-
-            if (format == "hlsl")
-            {
-                output.reset(new OutputHLSL(program));
-            }
-            else if (format == "glsl")
-            {
-                output.reset(new OutputGLSL(program, 110, {}));
-            }
-            else if (format == "msl")
-            {
-                output.reset(new OutputMSL(program, {}));
-            }
-            else
-                throw std::runtime_error("Invalid format");
-
-            std::string code;
-
-            try
-            {
-                output->output(context, code);
-            }
-            catch (const std::exception& e)
-            {
-                throw std::runtime_error(std::string("Failed to output code: ") + e.what());
-            }
-
-            file << code;
         }
     }
     catch (const std::exception& e)

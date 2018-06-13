@@ -15,6 +15,14 @@ ASTContext::ASTContext():
     intTypeDeclaration(ScalarTypeDeclaration::Kind::INTEGER),
     floatTypeDeclaration(ScalarTypeDeclaration::Kind::FLOATING_POINT)
 {
+
+}
+
+ASTContext::ASTContext(const std::vector<Token>& tokens):
+    boolTypeDeclaration(ScalarTypeDeclaration::Kind::BOOLEAN),
+    intTypeDeclaration(ScalarTypeDeclaration::Kind::INTEGER),
+    floatTypeDeclaration(ScalarTypeDeclaration::Kind::FLOATING_POINT)
+{
     boolTypeDeclaration.name = "bool";
     boolTypeDeclaration.isBuiltin = true;
 
@@ -196,12 +204,6 @@ ASTContext::ASTContext():
     mulMatVecFunctionDeclaration.parameterDeclarations.push_back(&vec4ParameterDeclaration);
     mulMatVecFunctionDeclaration.parameterDeclarations.push_back(&matParameterDeclaration);
     mulMatVecFunctionDeclaration.isBuiltin = true;
-}
-
-void ASTContext::parse(const std::vector<Token>& tokens)
-{
-    constructs.clear();
-    declarations.clear();
 
     auto iterator = tokens.cbegin();
 
