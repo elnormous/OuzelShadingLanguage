@@ -15,7 +15,6 @@ ASTContext::ASTContext():
     intTypeDeclaration(ScalarTypeDeclaration::Kind::INTEGER),
     floatTypeDeclaration(ScalarTypeDeclaration::Kind::FLOATING_POINT)
 {
-
 }
 
 ASTContext::ASTContext(const std::vector<Token>& tokens):
@@ -419,6 +418,7 @@ bool ASTContext::isType(const std::vector<Token>& tokens,
     return iterator->type == Token::Type::KEYWORD_BOOL ||
         iterator->type == Token::Type::KEYWORD_INT ||
         iterator->type == Token::Type::KEYWORD_FLOAT ||
+        iterator->type == Token::Type::KEYWORD_DOUBLE ||
         (iterator->type == Token::Type::IDENTIFIER &&
          findTypeDeclaration(iterator->value, declarationScopes));
 }
@@ -433,17 +433,13 @@ TypeDeclaration* ASTContext::parseType(const std::vector<Token>& tokens,
     TypeDeclaration* result;
 
     if (iterator->type == Token::Type::KEYWORD_BOOL)
-    {
         result = &boolTypeDeclaration;
-    }
     else if (iterator->type == Token::Type::KEYWORD_INT)
-    {
         result = &intTypeDeclaration;
-    }
     else if (iterator->type == Token::Type::KEYWORD_FLOAT)
-    {
         result = &floatTypeDeclaration;
-    }
+    else if (iterator->type == Token::Type::KEYWORD_DOUBLE)
+        throw std::runtime_error("Double precision floating point numbers are not supported");
     else if (iterator->type == Token::Type::IDENTIFIER)
     {
         if (!(result = findTypeDeclaration(iterator->value, declarationScopes)))
@@ -472,6 +468,7 @@ bool ASTContext::isDeclaration(const std::vector<Token>& tokens,
         iterator->type == Token::Type::KEYWORD_BOOL ||
         iterator->type == Token::Type::KEYWORD_INT ||
         iterator->type == Token::Type::KEYWORD_FLOAT ||
+        iterator->type == Token::Type::KEYWORD_DOUBLE ||
         isType(tokens, iterator, declarationScopes);
 }
 
@@ -1695,7 +1692,7 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
 
         return result;
     }
-    else if (isToken(Token::Type::LITERAL_DOUBLE, tokens, iterator))
+    else if (isToken({Token::Type::LITERAL_DOUBLE, Token::Type::KEYWORD_DOUBLE}, tokens, iterator))
     {
         throw std::runtime_error("Double precision floating point numbers are not supported");
     }
