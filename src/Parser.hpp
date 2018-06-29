@@ -669,6 +669,16 @@ private:
         return (iterator != tokens.end() && iterator->type == tokenType);
     }
 
+    static void expectToken(Token::Type tokenType,
+                            const std::vector<Token>& tokens,
+                            std::vector<Token>::const_iterator iterator)
+    {
+        if (iterator == tokens.end())
+            throw std::runtime_error("Unexpected end of file");
+        if (iterator->type != tokenType)
+            throw std::runtime_error("Expected " + toString(tokenType));
+    }
+
     static bool isToken(const std::vector<Token::Type>& tokenTypes,
                         const std::vector<Token>& tokens,
                         std::vector<Token>::const_iterator iterator)
@@ -679,6 +689,26 @@ private:
             if (iterator->type == tokenType) return true;
 
         return false;
+    }
+
+    static void expectToken(const std::vector<Token::Type>& tokenTypes,
+                            const std::vector<Token>& tokens,
+                            std::vector<Token>::const_iterator iterator)
+    {
+        if (iterator == tokens.end())
+            throw std::runtime_error("Unexpected end of file");
+
+        for (Token::Type tokenType : tokenTypes)
+            if (iterator->type == tokenType) return;
+
+        std::string str;
+        for (Token::Type tokenType : tokenTypes)
+        {
+            if (!str.empty()) str += "or ";
+            str += toString(tokenType);
+        }
+
+        throw std::runtime_error("Expected " + str);
     }
 
     static Declaration* findDeclaration(const std::string& name, const std::vector<Declaration*>& declarationScope)

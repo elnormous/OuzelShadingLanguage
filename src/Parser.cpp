@@ -414,7 +414,7 @@ bool ASTContext::isType(const std::vector<Token>& tokens,
                         std::vector<std::vector<Declaration*>>& declarationScopes)
 {
     if (iterator == tokens.end())
-        throw std::runtime_error("Unexpected ned of file");
+        throw std::runtime_error("Unexpected end of file");
 
     return iterator->type == Token::Type::KEYWORD_BOOL ||
         iterator->type == Token::Type::KEYWORD_INT ||
@@ -428,7 +428,7 @@ TypeDeclaration* ASTContext::parseType(const std::vector<Token>& tokens,
                                        std::vector<std::vector<Declaration*>>& declarationScopes)
 {
     if (iterator == tokens.end())
-        throw std::runtime_error("Unexpected ned of file");
+        throw std::runtime_error("Unexpected end of file");
 
     TypeDeclaration* result;
 
@@ -462,7 +462,7 @@ bool ASTContext::isDeclaration(const std::vector<Token>& tokens,
                                std::vector<std::vector<Declaration*>>& declarationScopes)
 {
     if (iterator == tokens.end())
-        throw std::runtime_error("Unexpected ned of file");
+        throw std::runtime_error("Unexpected end of file");
 
     return iterator->type == Token::Type::KEYWORD_CONST ||
         iterator->type == Token::Type::KEYWORD_STATIC ||
@@ -490,16 +490,14 @@ Declaration* ASTContext::parseTopLevelDeclaration(const std::vector<Token>& toke
         // semicolon is not needed after a function definition
         if (!callableDeclaration->body)
         {
-            if (!isToken(Token::Type::SEMICOLON, tokens, iterator))
-                throw std::runtime_error("Expected a semicolon");
+            expectToken(Token::Type::SEMICOLON, tokens, iterator);
 
             ++iterator;
         }
     }
     else
     {
-        if (!isToken(Token::Type::SEMICOLON, tokens, iterator))
-            throw std::runtime_error("Expected a semicolon");
+        expectToken(Token::Type::SEMICOLON, tokens, iterator);
 
         ++iterator;
     }
@@ -555,8 +553,7 @@ std::vector<std::pair<std::string, std::vector<std::string>>> ASTContext::parseA
         ++iterator;
         ++iterator;
 
-        if (!isToken(Token::Type::IDENTIFIER, tokens, iterator))
-            throw std::runtime_error("Expected an identifier");
+        expectToken(Token::Type::IDENTIFIER, tokens, iterator);
 
         std::pair<std::string, std::vector<std::string>> attribute;
 
@@ -570,35 +567,25 @@ std::vector<std::pair<std::string, std::vector<std::string>>> ASTContext::parseA
 
             for (;;)
             {
-                if (isToken(Token::Type::LITERAL_INT, tokens, iterator) ||
-                    isToken(Token::Type::LITERAL_FLOAT, tokens, iterator) ||
-                    isToken(Token::Type::LITERAL_DOUBLE, tokens, iterator) ||
-                    isToken(Token::Type::LITERAL_CHAR, tokens, iterator) ||
-                    isToken(Token::Type::LITERAL_STRING, tokens, iterator))
-                {
-                    attribute.second.push_back(iterator->value);
-                    ++iterator;
-                }
-                else
-                    throw std::runtime_error("Unexpected token");
+                expectToken({Token::Type::LITERAL_INT, Token::Type::LITERAL_FLOAT, Token::Type::LITERAL_DOUBLE, Token::Type::LITERAL_CHAR, Token::Type::LITERAL_STRING}, tokens, iterator);
+
+                attribute.second.push_back(iterator->value);
+                ++iterator;
 
                 if (!isToken(Token::Type::COMMA, tokens, iterator))
                     break;
             }
 
-            if (!isToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
-                throw std::runtime_error("Expected a right parenthesis");
+            expectToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator);
 
             ++iterator;
         }
 
-        if (!isToken(Token::Type::RIGHT_BRACKET, tokens, iterator))
-            throw std::runtime_error("Expected a right bracket");
+        expectToken(Token::Type::RIGHT_BRACKET, tokens, iterator);
 
         ++iterator;
 
-        if (!isToken(Token::Type::RIGHT_BRACKET, tokens, iterator))
-            throw std::runtime_error("Expected a right bracket");
+        expectToken(Token::Type::RIGHT_BRACKET, tokens, iterator);
 
         ++iterator;
 
@@ -678,8 +665,7 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
         if (specifiers.isStatic) isStatic = true;
         if (specifiers.isInline) isInline = true;
 
-        if (!isToken(Token::Type::IDENTIFIER, tokens, iterator))
-            throw std::runtime_error("Expected an identifier");
+        expectToken(Token::Type::IDENTIFIER, tokens, iterator);
 
         std::string name = iterator->value;
 
@@ -718,16 +704,13 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
                     parameters.push_back(parameterDeclaration->qualifiedType);
 
                     if (!isToken(Token::Type::COMMA, tokens, iterator))
-                    {
                         break;
-                    }
 
                     ++iterator;
                 }
             }
 
-            if (!isToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
-                throw std::runtime_error("Expected a right parenthesis");
+            expectToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator);
 
             ++iterator;
 
@@ -809,22 +792,18 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
             {
                 ++iterator;
 
-                if (isToken(Token::Type::LITERAL_INT, tokens, iterator))
-                {
-                    int size = std::stoi(iterator->value);
+                expectToken(Token::Type::LITERAL_INT, tokens, iterator);
 
-                    ++iterator;
+                int size = std::stoi(iterator->value);
 
-                    if (size <= 0)
-                        throw std::runtime_error("Array size must be greater than zero");
+                ++iterator;
 
-                    result->qualifiedType.typeDeclaration = getArrayTypeDeclaration(result->qualifiedType, static_cast<uint32_t>(size));
-                }
-                else
-                    throw std::runtime_error("Expected an integer literal");
+                if (size <= 0)
+                    throw std::runtime_error("Array size must be greater than zero");
 
-                if (!isToken(Token::Type::RIGHT_BRACKET, tokens, iterator))
-                    throw std::runtime_error("Expected a right bracket");
+                result->qualifiedType.typeDeclaration = getArrayTypeDeclaration(result->qualifiedType, static_cast<uint32_t>(size));
+
+                expectToken(Token::Type::RIGHT_BRACKET, tokens, iterator);
 
                 ++iterator;
             }
@@ -841,8 +820,7 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
 
                 // TODO: check for comma and parse multiple expressions
 
-                if (!isToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
-                    throw std::runtime_error("Expected a right parenthesis");
+                expectToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator);
 
                 ++iterator;
             }
@@ -871,8 +849,7 @@ StructDeclaration* ASTContext::parseStructDeclaration(const std::vector<Token>& 
                                                       std::vector<std::vector<Declaration*>>& declarationScopes,
                                                       Construct* parent)
 {
-    if (!isToken(Token::Type::IDENTIFIER, tokens, iterator))
-        throw std::runtime_error("Expected an identifier");
+    expectToken(Token::Type::IDENTIFIER, tokens, iterator);
 
     StructDeclaration* result = new StructDeclaration();
     constructs.push_back(std::unique_ptr<Construct>(result));
@@ -918,8 +895,7 @@ StructDeclaration* ASTContext::parseStructDeclaration(const std::vector<Token>& 
                 if (!(memberDeclaration = parseMemberDeclaration(tokens, iterator, declarationScopes, result)))
                     return nullptr;
 
-                if (!isToken(Token::Type::SEMICOLON, tokens, iterator))
-                    throw std::runtime_error("Expected a semicolon");
+                expectToken(Token::Type::SEMICOLON, tokens, iterator);
 
                 if (result->findMemberDeclaration(memberDeclaration->name))
                     throw std::runtime_error("Redefinition of member " + memberDeclaration->name);
@@ -991,8 +967,7 @@ Declaration* ASTContext::parseMemberDeclaration(const std::vector<Token>& tokens
         if (isInline)
             throw std::runtime_error("Members can not be inline");
 
-        if (!isToken(Token::Type::IDENTIFIER, tokens, iterator))
-            throw std::runtime_error("Expected an identifier");
+        expectToken(Token::Type::IDENTIFIER, tokens, iterator);
 
         result->name = iterator->value;
 
@@ -1004,22 +979,18 @@ Declaration* ASTContext::parseMemberDeclaration(const std::vector<Token>& tokens
         {
             ++iterator;
 
-            if (isToken(Token::Type::LITERAL_INT, tokens, iterator))
-            {
-                int size = std::stoi(iterator->value);
+            expectToken(Token::Type::LITERAL_INT, tokens, iterator);
 
-                ++iterator;
+            int size = std::stoi(iterator->value);
 
-                if (size <= 0)
-                    throw std::runtime_error("Array size must be greater than zero");
+            ++iterator;
 
-                result->qualifiedType.typeDeclaration = getArrayTypeDeclaration(result->qualifiedType, static_cast<uint32_t>(size));
-            }
-            else
-                throw std::runtime_error("Expected an integer literal");
+            if (size <= 0)
+                throw std::runtime_error("Array size must be greater than zero");
 
-            if (!isToken(Token::Type::RIGHT_BRACKET, tokens, iterator))
-                throw std::runtime_error("Expected a right bracket");
+            result->qualifiedType.typeDeclaration = getArrayTypeDeclaration(result->qualifiedType, static_cast<uint32_t>(size));
+
+            expectToken(Token::Type::RIGHT_BRACKET, tokens, iterator);
 
             ++iterator;
         }
@@ -1105,8 +1076,7 @@ ParameterDeclaration* ASTContext::parseParameterDeclaration(const std::vector<To
     if (isInline)
         throw std::runtime_error("Parameters can not be inline");
 
-    if (!isToken(Token::Type::IDENTIFIER, tokens, iterator))
-        throw std::runtime_error("Expected an identifier");
+    expectToken(Token::Type::IDENTIFIER, tokens, iterator);
 
     result->name = iterator->value;
 
@@ -1116,22 +1086,18 @@ ParameterDeclaration* ASTContext::parseParameterDeclaration(const std::vector<To
     {
         ++iterator;
 
-        if (isToken(Token::Type::LITERAL_INT, tokens, iterator))
-        {
-            int size = std::stoi(iterator->value);
+        expectToken(Token::Type::LITERAL_INT, tokens, iterator);
 
-            ++iterator;
+        int size = std::stoi(iterator->value);
 
-            if (size <= 0)
-                throw std::runtime_error("Array size must be greater than zero");
+        ++iterator;
 
-            result->qualifiedType.typeDeclaration = getArrayTypeDeclaration(result->qualifiedType, static_cast<uint32_t>(size));
-        }
-        else
-            throw std::runtime_error("Expected an integer literal");
+        if (size <= 0)
+            throw std::runtime_error("Array size must be greater than zero");
 
-        if (!isToken(Token::Type::RIGHT_BRACKET, tokens, iterator))
-            throw std::runtime_error("Expected a right bracket");
+        result->qualifiedType.typeDeclaration = getArrayTypeDeclaration(result->qualifiedType, static_cast<uint32_t>(size));
+
+        expectToken(Token::Type::RIGHT_BRACKET, tokens, iterator);
 
         ++iterator;
     }
@@ -1166,15 +1132,13 @@ ParameterDeclaration* ASTContext::parseParameterDeclaration(const std::vector<To
             throw std::runtime_error("Incomplete type " + result->qualifiedType.typeDeclaration->name);
     }
 
-    if (!isToken(Token::Type::IDENTIFIER, tokens, iterator))
-        throw std::runtime_error("Expected a type name");
+    expectToken(Token::Type::IDENTIFIER, tokens, iterator);
 
     result->name = iterator->value;
 
     ++iterator;
 
-    if (!isToken(Token::Type::SEMICOLON, tokens, iterator))
-        throw std::runtime_error("Expected a semicolon");
+    expectToken(Token::Type::SEMICOLON, tokens, iterator);
 
     ++iterator;
 
@@ -1226,8 +1190,7 @@ Statement* ASTContext::parseStatement(const std::vector<Token>& tokens,
         constructs.push_back(std::unique_ptr<Construct>(result));
         result->parent = parent;
 
-        if (!isToken(Token::Type::SEMICOLON, tokens, iterator))
-            throw std::runtime_error("Expected a semicolon");
+        expectToken(Token::Type::SEMICOLON, tokens, iterator);
 
         ++iterator;
 
@@ -1241,8 +1204,7 @@ Statement* ASTContext::parseStatement(const std::vector<Token>& tokens,
         constructs.push_back(std::unique_ptr<Construct>(result));
         result->parent = parent;
 
-        if (!isToken(Token::Type::SEMICOLON, tokens, iterator))
-            throw std::runtime_error("Expected a semicolon");
+        expectToken(Token::Type::SEMICOLON, tokens, iterator);
 
         ++iterator;
 
@@ -1259,8 +1221,7 @@ Statement* ASTContext::parseStatement(const std::vector<Token>& tokens,
         if (!(result->result = parseCommaExpression(tokens, iterator, declarationScopes, result)))
             throw std::runtime_error("Expected an expression");
 
-        if (!isToken(Token::Type::SEMICOLON, tokens, iterator))
-            throw std::runtime_error("Expected a semicolon");
+        expectToken(Token::Type::SEMICOLON, tokens, iterator);
 
         ++iterator;
 
@@ -1278,8 +1239,7 @@ Statement* ASTContext::parseStatement(const std::vector<Token>& tokens,
         if (result->declaration->getDeclarationKind() != Declaration::Kind::VARIABLE)
             throw std::runtime_error("Expected a variable declaration");
 
-        if (!isToken(Token::Type::SEMICOLON, tokens, iterator))
-            throw std::runtime_error("Expected a semicolon");
+        expectToken(Token::Type::SEMICOLON, tokens, iterator);
 
         ++iterator;
 
@@ -1304,8 +1264,7 @@ Statement* ASTContext::parseStatement(const std::vector<Token>& tokens,
         if (!(result->expression = parseCommaExpression(tokens, iterator, declarationScopes, result)))
             return nullptr;
 
-        if (!isToken(Token::Type::SEMICOLON, tokens, iterator))
-            throw std::runtime_error("Expected a semicolon");
+        expectToken(Token::Type::SEMICOLON, tokens, iterator);
 
         ++iterator;
 
@@ -1320,8 +1279,7 @@ CompoundStatement* ASTContext::parseCompoundStatement(const std::vector<Token>& 
                                                       std::vector<std::vector<Declaration*>>& declarationScopes,
                                                       Construct* parent)
 {
-    if (!isToken(Token::Type::LEFT_BRACE, tokens, iterator))
-        throw std::runtime_error("Expected a left brace");
+    expectToken(Token::Type::LEFT_BRACE, tokens, iterator);
 
     ++iterator;
 
@@ -1358,8 +1316,7 @@ IfStatement* ASTContext::parseIfStatement(const std::vector<Token>& tokens,
                                           std::vector<std::vector<Declaration*>>& declarationScopes,
                                           Construct* parent)
 {
-    if (!isToken(Token::Type::KEYWORD_IF, tokens, iterator))
-        throw std::runtime_error("Expected the if keyword");
+    expectToken(Token::Type::KEYWORD_IF, tokens, iterator);
 
     ++iterator;
 
@@ -1367,8 +1324,7 @@ IfStatement* ASTContext::parseIfStatement(const std::vector<Token>& tokens,
     constructs.push_back(std::unique_ptr<Construct>(result));
     result->parent = parent;
 
-    if (!isToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
-        throw std::runtime_error("Expected a left parenthesis");
+    expectToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator);
 
     ++iterator;
 
@@ -1390,8 +1346,7 @@ IfStatement* ASTContext::parseIfStatement(const std::vector<Token>& tokens,
             return nullptr;
     }
 
-    if (!isToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
-        throw std::runtime_error("Expected a right parenthesis");
+    expectToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator);
 
     ++iterator;
 
@@ -1419,8 +1374,7 @@ ForStatement* ASTContext::parseForStatement(const std::vector<Token>& tokens,
                                             std::vector<std::vector<Declaration*>>& declarationScopes,
                                             Construct* parent)
 {
-    if (!isToken(Token::Type::KEYWORD_FOR, tokens, iterator))
-        throw std::runtime_error("Expected the for keyword");
+    expectToken(Token::Type::KEYWORD_FOR, tokens, iterator);
 
     ++iterator;
 
@@ -1428,8 +1382,7 @@ ForStatement* ASTContext::parseForStatement(const std::vector<Token>& tokens,
     constructs.push_back(std::unique_ptr<Construct>(result));
     result->parent = parent;
 
-    if (!isToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
-        throw std::runtime_error("Expected a left parenthesis");
+    expectToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator);
 
     ++iterator;
 
@@ -1445,8 +1398,7 @@ ForStatement* ASTContext::parseForStatement(const std::vector<Token>& tokens,
 
         result->condition = declaration;
 
-        if (!isToken(Token::Type::SEMICOLON, tokens, iterator))
-            throw std::runtime_error("Expected a semicolon");
+        expectToken(Token::Type::SEMICOLON, tokens, iterator);
 
         ++iterator;
     }
@@ -1461,8 +1413,7 @@ ForStatement* ASTContext::parseForStatement(const std::vector<Token>& tokens,
         if (!(result->initialization = parseCommaExpression(tokens, iterator, declarationScopes, result)))
             return nullptr;
 
-        if (!isToken(Token::Type::SEMICOLON, tokens, iterator))
-            throw std::runtime_error("Expected a semicolon");
+        expectToken(Token::Type::SEMICOLON, tokens, iterator);
 
         ++iterator;
     }
@@ -1479,8 +1430,7 @@ ForStatement* ASTContext::parseForStatement(const std::vector<Token>& tokens,
 
         result->condition = declaration;
 
-        if (!isToken(Token::Type::SEMICOLON, tokens, iterator))
-            throw std::runtime_error("Expected a semicolon");
+        expectToken(Token::Type::SEMICOLON, tokens, iterator);
 
         ++iterator;
     }
@@ -1495,8 +1445,7 @@ ForStatement* ASTContext::parseForStatement(const std::vector<Token>& tokens,
         if (!(result->condition = parseCommaExpression(tokens, iterator, declarationScopes, result)))
             return nullptr;
 
-        if (!isToken(Token::Type::SEMICOLON, tokens, iterator))
-            throw std::runtime_error("Expected a semicolon");
+        expectToken(Token::Type::SEMICOLON, tokens, iterator);
 
         ++iterator;
     }
@@ -1512,8 +1461,7 @@ ForStatement* ASTContext::parseForStatement(const std::vector<Token>& tokens,
         if (!(result->increment = parseCommaExpression(tokens, iterator, declarationScopes, result)))
             return nullptr;
 
-        if (!isToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
-            throw std::runtime_error("Expected a right parenthesis");
+        expectToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator);
 
         ++iterator;
     }
@@ -1529,8 +1477,7 @@ SwitchStatement* ASTContext::parseSwitchStatement(const std::vector<Token>& toke
                                                   std::vector<std::vector<Declaration*>>& declarationScopes,
                                                   Construct* parent)
 {
-    if (!isToken(Token::Type::KEYWORD_SWITCH, tokens, iterator))
-        throw std::runtime_error("Expected the switch keyword");
+    expectToken(Token::Type::KEYWORD_SWITCH, tokens, iterator);
 
     ++iterator;
 
@@ -1538,8 +1485,7 @@ SwitchStatement* ASTContext::parseSwitchStatement(const std::vector<Token>& toke
     constructs.push_back(std::unique_ptr<Construct>(result));
     result->parent = parent;
 
-    if (!isToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
-        throw std::runtime_error("Expected a left parenthesis");
+    expectToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator);
 
     ++iterator;
 
@@ -1561,8 +1507,7 @@ SwitchStatement* ASTContext::parseSwitchStatement(const std::vector<Token>& toke
             return nullptr;
     }
 
-    if (!isToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
-        throw std::runtime_error("Expected a right parenthesis");
+    expectToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator);
 
     ++iterator;
 
@@ -1577,8 +1522,7 @@ CaseStatement* ASTContext::parseCaseStatement(const std::vector<Token>& tokens,
                                               std::vector<std::vector<Declaration*>>& declarationScopes,
                                               Construct* parent)
 {
-    if (!isToken(Token::Type::KEYWORD_CASE, tokens, iterator))
-        throw std::runtime_error("Expected the case keyword");
+    expectToken(Token::Type::KEYWORD_CASE, tokens, iterator);
 
     ++iterator;
 
@@ -1589,8 +1533,7 @@ CaseStatement* ASTContext::parseCaseStatement(const std::vector<Token>& tokens,
     if (!(result->condition = parseCommaExpression(tokens, iterator, declarationScopes, result)))
         throw std::runtime_error("Expected an expression");
 
-    if (!isToken(Token::Type::COLON, tokens, iterator))
-        throw std::runtime_error("Expected a colon");
+    expectToken(Token::Type::COLON, tokens, iterator);
 
     ++iterator;
 
@@ -1605,8 +1548,7 @@ DefaultStatement* ASTContext::parseDefaultStatement(const std::vector<Token>& to
                                                     std::vector<std::vector<Declaration*>>& declarationScopes,
                                                     Construct* parent)
 {
-    if (!isToken(Token::Type::KEYWORD_DEFAULT, tokens, iterator))
-        throw std::runtime_error("Expected the default keyword");
+    expectToken(Token::Type::KEYWORD_DEFAULT, tokens, iterator);
 
     ++iterator;
 
@@ -1614,8 +1556,7 @@ DefaultStatement* ASTContext::parseDefaultStatement(const std::vector<Token>& to
     constructs.push_back(std::unique_ptr<Construct>(result));
     result->parent = parent;
 
-    if (!isToken(Token::Type::COLON, tokens, iterator))
-        throw std::runtime_error("Expected a colon");
+    expectToken(Token::Type::COLON, tokens, iterator);
 
     ++iterator;
 
@@ -1630,8 +1571,7 @@ WhileStatement* ASTContext::parseWhileStatement(const std::vector<Token>& tokens
                                                 std::vector<std::vector<Declaration*>>& declarationScopes,
                                                 Construct* parent)
 {
-    if (!isToken(Token::Type::KEYWORD_WHILE, tokens, iterator))
-        throw std::runtime_error("Expected the while keyword");
+    expectToken(Token::Type::KEYWORD_WHILE, tokens, iterator);
 
     ++iterator;
 
@@ -1639,8 +1579,7 @@ WhileStatement* ASTContext::parseWhileStatement(const std::vector<Token>& tokens
     constructs.push_back(std::unique_ptr<Construct>(result));
     result->parent = parent;
 
-    if (!isToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
-        throw std::runtime_error("Expected a left parenthesis");
+    expectToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator);
 
     ++iterator;
 
@@ -1662,8 +1601,7 @@ WhileStatement* ASTContext::parseWhileStatement(const std::vector<Token>& tokens
             return nullptr;
     }
 
-    if (!isToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
-        throw std::runtime_error("Expected a right parenthesis");
+    expectToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator);
 
     ++iterator;
 
@@ -1678,8 +1616,7 @@ DoStatement* ASTContext::parseDoStatement(const std::vector<Token>& tokens,
                                           std::vector<std::vector<Declaration*>>& declarationScopes,
                                           Construct* parent)
 {
-    if (!isToken(Token::Type::KEYWORD_DO, tokens, iterator))
-        throw std::runtime_error("Expected the do keyword");
+    expectToken(Token::Type::KEYWORD_DO, tokens, iterator);
 
     ++iterator;
 
@@ -1690,13 +1627,11 @@ DoStatement* ASTContext::parseDoStatement(const std::vector<Token>& tokens,
     if (!(result->body = parseStatement(tokens, iterator, declarationScopes, result)))
         return nullptr;
 
-    if (!isToken(Token::Type::KEYWORD_WHILE, tokens, iterator))
-        throw std::runtime_error("Expected a \"while\" keyword");
+    expectToken(Token::Type::KEYWORD_WHILE, tokens, iterator);
 
     ++iterator;
 
-    if (!isToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
-        throw std::runtime_error("Expected a left parenthesis");
+    expectToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator);
 
     ++iterator;
 
@@ -1704,13 +1639,11 @@ DoStatement* ASTContext::parseDoStatement(const std::vector<Token>& tokens,
     if (!(result->condition = parseCommaExpression(tokens, iterator, declarationScopes, result)))
         return nullptr;
 
-    if (!isToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
-        throw std::runtime_error("Expected a right parenthesis");
+    expectToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator);
 
     ++iterator;
 
-    if (!isToken(Token::Type::SEMICOLON, tokens, iterator))
-        throw std::runtime_error("Expected a semicolon");
+    expectToken(Token::Type::SEMICOLON, tokens, iterator);
 
     ++iterator;
 
@@ -1792,9 +1725,7 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
 
         return result;
     }
-    else if (isToken(Token::Type::KEYWORD_BOOL, tokens, iterator) ||
-             isToken(Token::Type::KEYWORD_INT, tokens, iterator) ||
-             isToken(Token::Type::KEYWORD_FLOAT, tokens, iterator))
+    else if (isToken({Token::Type::KEYWORD_BOOL, Token::Type::KEYWORD_INT, Token::Type::KEYWORD_FLOAT}, tokens, iterator))
     {
         CastExpression* result = new CastExpression(CastExpression::Kind::EXPLICIT);
         constructs.push_back(std::unique_ptr<Construct>(result));
@@ -1805,15 +1736,13 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
 
         ++iterator;
 
-        if (!isToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
-            throw std::runtime_error("Expected a left parenthesis");
+        expectToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator);
 
         ++iterator;
 
         result->expression = parseMultiplicationAssignmentExpression(tokens, iterator, declarationScopes, result);
 
-        if (!isToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
-            throw std::runtime_error("Expected a right parenthesis");
+        expectToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator);
 
         ++iterator;
 
@@ -1850,15 +1779,12 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
             result->expressions.push_back(expression);
 
             if (!isToken(Token::Type::COMMA, tokens, iterator))
-            {
                 break;
-            }
 
             ++iterator;
         }
 
-        if (!isToken(Token::Type::RIGHT_BRACE, tokens, iterator))
-            throw std::runtime_error("Expected a right brace");
+        expectToken(Token::Type::RIGHT_BRACE, tokens, iterator);
 
         result->qualifiedType.typeDeclaration = getArrayTypeDeclaration(qualifiedType, static_cast<uint32_t>(result->expressions.size()));
 
@@ -1910,8 +1836,7 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
                             break;
                     }
 
-                    if (!isToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
-                        throw std::runtime_error("Expected a right parenthesis");
+                    expectToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator);
 
                     ++iterator;
                 }
@@ -1956,8 +1881,7 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
                             break;
                     }
 
-                    if (!isToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
-                        throw std::runtime_error("Expected a right parenthesis");
+                    expectToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator);
 
                     ++iterator;
                 }
@@ -2032,8 +1956,7 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
         if (!(result->expression = parseCommaExpression(tokens, iterator, declarationScopes, result)))
             return nullptr;
 
-        if (!isToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
-            throw std::runtime_error("Expected a right parenthesis");
+        expectToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator);
 
         ++iterator;
 
@@ -2086,12 +2009,9 @@ Expression* ASTContext::parseSubscriptExpression(const std::vector<Token>& token
             throw std::runtime_error("Subscript is not an integer");
 
         if (scalarType->getScalarTypeKind() != ScalarTypeDeclaration::Kind::INTEGER)
-        {
             expression->subscript = addImplicitCast(expression->subscript, &intTypeDeclaration);
-        }
 
-        if (!isToken(Token::Type::RIGHT_BRACKET, tokens, iterator))
-            throw std::runtime_error("Expected a right brace");
+        expectToken(Token::Type::RIGHT_BRACKET, tokens, iterator);
 
         ++iterator;
 
@@ -2139,8 +2059,7 @@ Expression* ASTContext::parseMemberExpression(const std::vector<Token>& tokens,
 
         StructDeclaration* structDeclaration = static_cast<StructDeclaration*>(result->qualifiedType.typeDeclaration);
 
-        if (!isToken(Token::Type::IDENTIFIER, tokens, iterator))
-            throw std::runtime_error("Expected an identifier");
+        expectToken(Token::Type::IDENTIFIER, tokens, iterator);
 
         Declaration* memberDeclaration = structDeclaration->findMemberDeclaration(iterator->value);
 
@@ -2550,8 +2469,7 @@ Expression* ASTContext::parseTernaryExpression(const std::vector<Token>& tokens,
         if (!(expression->leftExpression = parseTernaryExpression(tokens, iterator, declarationScopes, expression)))
             return nullptr;
 
-        if (!isToken(Token::Type::COLON, tokens, iterator))
-            throw std::runtime_error("Expected a colon");
+        expectToken(Token::Type::COLON, tokens, iterator);
 
         ++iterator;
 
