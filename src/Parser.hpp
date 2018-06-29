@@ -676,9 +676,7 @@ private:
         if (iterator == tokens.end()) return false;
 
         for (Token::Type tokenType : tokenTypes)
-        {
             if (iterator->type == tokenType) return true;
-        }
 
         return false;
     }
@@ -797,13 +795,11 @@ private:
         bool isVolatile = false;
     };
 
-    static bool parseSpecifiers(const std::vector<Token>& tokens,
-                                std::vector<Token>::const_iterator& iterator,
-                                Specifiers& specifiers);
+    static Specifiers parseSpecifiers(const std::vector<Token>& tokens,
+                                std::vector<Token>::const_iterator& iterator);
 
-    static bool parseAttributes(const std::vector<Token>& tokens,
-                                std::vector<Token>::const_iterator& iterator,
-                                std::vector<std::pair<std::string, std::vector<std::string>>>& attributes);
+    static std::vector<std::pair<std::string, std::vector<std::string>>> parseAttributes(const std::vector<Token>& tokens,
+                                                                                         std::vector<Token>::const_iterator& iterator);
 
     Declaration* parseDeclaration(const std::vector<Token>& tokens,
                                   std::vector<Token>::const_iterator& iterator,

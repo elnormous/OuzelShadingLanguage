@@ -413,7 +413,8 @@ bool ASTContext::isType(const std::vector<Token>& tokens,
                         std::vector<Token>::const_iterator iterator,
                         std::vector<std::vector<Declaration*>>& declarationScopes)
 {
-    if (iterator == tokens.end()) return false;
+    if (iterator == tokens.end())
+        throw std::runtime_error("Unexpected ned of file");
 
     return iterator->type == Token::Type::KEYWORD_BOOL ||
         iterator->type == Token::Type::KEYWORD_INT ||
@@ -426,7 +427,8 @@ TypeDeclaration* ASTContext::parseType(const std::vector<Token>& tokens,
                                        std::vector<Token>::const_iterator& iterator,
                                        std::vector<std::vector<Declaration*>>& declarationScopes)
 {
-    if (iterator == tokens.end()) return nullptr;
+    if (iterator == tokens.end())
+        throw std::runtime_error("Unexpected ned of file");
 
     TypeDeclaration* result;
 
@@ -459,7 +461,8 @@ bool ASTContext::isDeclaration(const std::vector<Token>& tokens,
                                std::vector<Token>::const_iterator iterator,
                                std::vector<std::vector<Declaration*>>& declarationScopes)
 {
-    if (iterator == tokens.end()) return false;
+    if (iterator == tokens.end())
+        throw std::runtime_error("Unexpected ned of file");
 
     return iterator->type == Token::Type::KEYWORD_CONST ||
         iterator->type == Token::Type::KEYWORD_STATIC ||
@@ -504,47 +507,48 @@ Declaration* ASTContext::parseTopLevelDeclaration(const std::vector<Token>& toke
     return declaration;
 }
 
-bool ASTContext::parseSpecifiers(const std::vector<Token>& tokens,
-                                 std::vector<Token>::const_iterator& iterator,
-                                 Specifiers& specifiers)
+ASTContext::Specifiers ASTContext::parseSpecifiers(const std::vector<Token>& tokens,
+                                                   std::vector<Token>::const_iterator& iterator)
 {
-    specifiers.isConst = false;
-    specifiers.isInline = false;
-    specifiers.isStatic = false;
-    specifiers.isVolatile = false;
+    ASTContext::Specifiers result;
+    result.isConst = false;
+    result.isInline = false;
+    result.isStatic = false;
+    result.isVolatile = false;
 
     for (;;)
     {
         if (isToken(Token::Type::KEYWORD_CONST, tokens, iterator))
         {
             ++iterator;
-            specifiers.isConst = true;
+            result.isConst = true;
         }
         else if (isToken(Token::Type::KEYWORD_INLINE, tokens, iterator))
         {
             ++iterator;
-            specifiers.isInline = true;
+            result.isInline = true;
         }
         else if (isToken(Token::Type::KEYWORD_STATIC, tokens, iterator))
         {
             ++iterator;
-            specifiers.isStatic = true;
+            result.isStatic = true;
         }
         else if (isToken(Token::Type::KEYWORD_VOLATILE, tokens, iterator))
         {
             ++iterator;
-            specifiers.isVolatile = true;
+            result.isVolatile = true;
         }
         else break;
     }
 
-    return true;
+    return result;
 }
 
-bool ASTContext::parseAttributes(const std::vector<Token>& tokens,
-                                 std::vector<Token>::const_iterator& iterator,
-                                 std::vector<std::pair<std::string, std::vector<std::string>>>& attributes)
+std::vector<std::pair<std::string, std::vector<std::string>>> ASTContext::parseAttributes(const std::vector<Token>& tokens,
+                                                                                          std::vector<Token>::const_iterator& iterator)
 {
+    std::vector<std::pair<std::string, std::vector<std::string>>> result;
+
     while (isToken(Token::Type::LEFT_BRACKET, tokens, iterator) &&
            isToken(Token::Type::LEFT_BRACKET, tokens, iterator + 1))
     {
@@ -576,46 +580,32 @@ bool ASTContext::parseAttributes(const std::vector<Token>& tokens,
                     ++iterator;
                 }
                 else
-                {
                     throw std::runtime_error("Unexpected token");
-                    return false;
-                }
 
                 if (!isToken(Token::Type::COMMA, tokens, iterator))
-                {
                     break;
-                }
             }
 
             if (!isToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
-            {
                 throw std::runtime_error("Expected a right parenthesis");
-                return false;
-            }
 
             ++iterator;
         }
 
         if (!isToken(Token::Type::RIGHT_BRACKET, tokens, iterator))
-        {
             throw std::runtime_error("Expected a right bracket");
-            return false;
-        }
 
         ++iterator;
 
         if (!isToken(Token::Type::RIGHT_BRACKET, tokens, iterator))
-        {
             throw std::runtime_error("Expected a right bracket");
-            return false;
-        }
 
         ++iterator;
 
-        attributes.push_back(attribute);
+        result.push_back(attribute);
     }
 
-    return true;
+    return result;
 }
 
 Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
@@ -652,11 +642,8 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
     }*/
     else
     {
-        std::vector<std::pair<std::string, std::vector<std::string>>> attributes;
-        if (!parseAttributes(tokens, iterator, attributes)) return nullptr;
-
-        ASTContext::Specifiers specifiers;
-        if (!parseSpecifiers(tokens, iterator, specifiers)) return nullptr;
+        std::vector<std::pair<std::string, std::vector<std::string>>> attributes = parseAttributes(tokens, iterator);
+        ASTContext::Specifiers specifiers = parseSpecifiers(tokens, iterator);
 
         QualifiedType qualifiedType;
         qualifiedType.isConst = specifiers.isConst;
@@ -683,7 +670,7 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
             }
         }
 
-        if (!parseSpecifiers(tokens, iterator, specifiers)) return nullptr;
+        specifiers = parseSpecifiers(tokens, iterator);
 
         if (specifiers.isConst) qualifiedType.isConst = true;
         if (specifiers.isVolatile) qualifiedType.isVolatile = true;
@@ -746,7 +733,7 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
 
             result->previousDeclaration = findFunctionDeclaration(name, declarationScopes, parameters);
 
-            if (!parseAttributes(tokens, iterator, attributes)) return nullptr;
+            attributes = parseAttributes(tokens, iterator);
 
             for (std::pair<std::string, std::vector<std::string>>& attribute : attributes)
             {
@@ -970,11 +957,8 @@ Declaration* ASTContext::parseMemberDeclaration(const std::vector<Token>& tokens
         constructs.push_back(std::unique_ptr<Construct>(result));
         result->parent = parent;
 
-        std::vector<std::pair<std::string, std::vector<std::string>>> attributes;
-        if (!parseAttributes(tokens, iterator, attributes)) return nullptr;
-
-        ASTContext::Specifiers specifiers;
-        if (!parseSpecifiers(tokens, iterator, specifiers)) return nullptr;
+        std::vector<std::pair<std::string, std::vector<std::string>>> attributes = parseAttributes(tokens, iterator);
+        ASTContext::Specifiers specifiers = parseSpecifiers(tokens, iterator);
 
         result->qualifiedType.isConst = specifiers.isConst;
         result->qualifiedType.isVolatile = specifiers.isVolatile;
@@ -993,7 +977,7 @@ Declaration* ASTContext::parseMemberDeclaration(const std::vector<Token>& tokens
                 throw std::runtime_error("Incomplete type " + result->qualifiedType.typeDeclaration->name);
         }
 
-        if (!parseSpecifiers(tokens, iterator, specifiers)) return nullptr;
+        specifiers = parseSpecifiers(tokens, iterator);
 
         if (specifiers.isConst) result->qualifiedType.isConst = true;
         if (specifiers.isVolatile) result->qualifiedType.isVolatile = true;
@@ -1014,7 +998,7 @@ Declaration* ASTContext::parseMemberDeclaration(const std::vector<Token>& tokens
 
         ++iterator;
 
-        if (!parseAttributes(tokens, iterator, attributes)) return nullptr;
+        attributes = parseAttributes(tokens, iterator);
 
         while (isToken(Token::Type::LEFT_BRACKET, tokens, iterator))
         {
@@ -1040,7 +1024,7 @@ Declaration* ASTContext::parseMemberDeclaration(const std::vector<Token>& tokens
             ++iterator;
         }
 
-        if (!parseAttributes(tokens, iterator, attributes)) return nullptr;
+        attributes = parseAttributes(tokens, iterator);
 
         for (std::pair<std::string, std::vector<std::string>>& attribute : attributes)
         {
@@ -1088,8 +1072,7 @@ ParameterDeclaration* ASTContext::parseParameterDeclaration(const std::vector<To
     constructs.push_back(std::unique_ptr<Construct>(result));
     result->parent = parent;
 
-    ASTContext::Specifiers specifiers;
-    if (!parseSpecifiers(tokens, iterator, specifiers)) return nullptr;
+    ASTContext::Specifiers specifiers = parseSpecifiers(tokens, iterator);
 
     result->qualifiedType.isConst = specifiers.isConst;
     result->qualifiedType.isVolatile = specifiers.isVolatile;
@@ -1108,7 +1091,7 @@ ParameterDeclaration* ASTContext::parseParameterDeclaration(const std::vector<To
             throw std::runtime_error("Incomplete type " + result->qualifiedType.typeDeclaration->name);
     }
 
-    if (!parseSpecifiers(tokens, iterator, specifiers)) return nullptr;
+    specifiers = parseSpecifiers(tokens, iterator);
 
     if (specifiers.isConst) result->qualifiedType.isConst = true;
     if (specifiers.isVolatile) result->qualifiedType.isVolatile = true;
