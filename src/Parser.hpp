@@ -97,9 +97,7 @@ public:
         PAREN,
         MEMBER,
         ARRAY_SUBSCRIPT,
-        UNARY,
-        BINARY,
-        TERNARY,
+        OPERATOR,
         TEMPORARY_OBJECT,
         INITIALIZER_LIST,
         CAST
@@ -552,7 +550,23 @@ public:
     Expression* subscript = nullptr;
 };
 
-class UnaryOperatorExpression: public Expression
+class OperatorExpression: public Expression
+{
+public:
+    enum class Kind
+    {
+        NONE,
+        UNARY,
+        BINARY,
+        TERNARY
+    };
+
+    OperatorExpression(Kind initOperatorKind): Expression(Expression::Kind::OPERATOR), operatorKind(initOperatorKind) {}
+
+    Kind operatorKind = Kind::NONE;
+};
+
+class UnaryOperatorExpression: public OperatorExpression
 {
 public:
     enum class Kind
@@ -563,14 +577,14 @@ public:
         NEGATIVE // -
     };
 
-    UnaryOperatorExpression(): Expression(Expression::Kind::UNARY) {}
+    UnaryOperatorExpression(): OperatorExpression(OperatorExpression::Kind::UNARY) {}
 
     Expression* expression = nullptr;
 
-    Kind operatorKind = Kind::NONE;
+    Kind unaryOperatorKind = Kind::NONE;
 };
 
-class BinaryOperatorExpression: public Expression
+class BinaryOperatorExpression: public OperatorExpression
 {
 public:
     enum class Kind
@@ -596,18 +610,18 @@ public:
         COMMA // ,
     };
 
-    BinaryOperatorExpression(): Expression(Expression::Kind::BINARY) {}
+    BinaryOperatorExpression(): OperatorExpression(OperatorExpression::Kind::BINARY) {}
 
     Expression* leftExpression = nullptr;
     Expression* rightExpression = nullptr;
 
-    Kind operatorKind = Kind::NONE;
+    Kind binaryOperatorKind = Kind::NONE;
 };
 
-class TernaryOperatorExpression: public Expression
+class TernaryOperatorExpression: public OperatorExpression
 {
 public:
-    TernaryOperatorExpression(): Expression(Expression::Kind::TERNARY) {}
+    TernaryOperatorExpression(): OperatorExpression(OperatorExpression::Kind::TERNARY) {}
 
     Expression* condition;
     Expression* leftExpression = nullptr;
