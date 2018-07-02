@@ -23,7 +23,7 @@ std::string OutputGLSL::output(const ASTContext& context)
 {
     std::string result = "#version " + std::to_string(glslVersion) + "\n";
 
-    for (Declaration* declaration : context.declarations)
+    for (Declaration* declaration : context.getDeclarations())
     {
         printConstruct(declaration, Options(0), result);
 

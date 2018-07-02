@@ -23,7 +23,7 @@ std::string OutputMSL::output(const ASTContext& context)
 {
     std::string result;
 
-    for (Declaration* declaration : context.declarations)
+    for (Declaration* declaration : context.getDeclarations())
     {
         printConstruct(declaration, Options(0), result);
 

@@ -688,7 +688,7 @@ public:
 
     void dump() const;
 
-    std::vector<Declaration*> declarations;
+    inline const std::vector<Declaration*>& getDeclarations() const { return declarations; }
 
 private:
     static bool isToken(Token::Type tokenType,
@@ -1027,6 +1027,7 @@ private:
     void dumpExpression(const Expression* expression, std::string indent = std::string()) const;
     void dumpConstruct(const Construct* construct, std::string indent = std::string()) const;
 
+    std::vector<Declaration*> declarations;
     std::vector<std::unique_ptr<Construct>> constructs;
 
     std::map<std::pair<QualifiedType, uint32_t>, ArrayTypeDeclaration*> arrayTypeDeclarations;
