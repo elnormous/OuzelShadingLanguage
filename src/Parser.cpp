@@ -726,15 +726,15 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
                         if (attribute.second.front() == "fragment") program = Program::FRAGMENT;
                         else if (attribute.second.front() == "vertex") program = Program::VERTEX;
                         else
-                            std::cout << "Invalid program" << attribute.second.front() << std::endl;
+                            throw std::runtime_error("Invalid program" + attribute.second.front());
 
                         result->program = program;
                     }
                     else
-                        std::cout << "Invalid parameters for attribute " << attribute.first << std::endl;
+                        throw std::runtime_error("Invalid parameters for attribute " + attribute.first);
                 }
                 else
-                    std::cout << "Invalid attribute " << attribute.first << std::endl;
+                    throw std::runtime_error("Invalid attribute " + attribute.first);
             }
 
             declarationScopes.back().push_back(result);
@@ -1014,15 +1014,15 @@ Declaration* ASTContext::parseMemberDeclaration(const std::vector<Token>& tokens
                     else if (attribute.second.front() == "tangent") semantic = Semantic::TANGENT;
                     else if (attribute.second.front() == "texture_coordinates") semantic = Semantic::TEXTURE_COORDINATES;
                     else
-                        std::cout << "Invalid semantic " << attribute.second.front() << std::endl;
+                        throw std::runtime_error("Invalid semantic " + attribute.second.front());
 
                     result->semantic = semantic;
                 }
                 else
-                    std::cout << "Invalid parameters for attribute " << attribute.first << std::endl;
+                    throw std::runtime_error("Invalid parameters for attribute " + attribute.first);
             }
             else
-                std::cout << "Invalid attribute " << attribute.first << std::endl;
+                throw std::runtime_error("Invalid attribute " + attribute.first);
         }
 
         return result;
