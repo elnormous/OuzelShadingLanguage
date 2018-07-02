@@ -97,7 +97,9 @@ public:
         PAREN,
         MEMBER,
         ARRAY_SUBSCRIPT,
-        OPERATOR,
+        UNARY_OPERATOR,
+        BINARY_OPERATOR,
+        TERNARY_OPERATOR,
         TEMPORARY_OBJECT,
         INITIALIZER_LIST,
         CAST
@@ -276,10 +278,24 @@ public:
     ConstructorDeclaration(): CallableDeclaration(CallableDeclaration::Kind::CONSTRUCTOR) {}
 };
 
+class Operator
+{
+public:
+    enum class Arity
+    {
+        NULLARY,
+        UNARY,
+        BINARY,
+        TERNARY
+    };
+};
+
 class OperatorDeclaration: public CallableDeclaration
 {
 public:
     OperatorDeclaration(): CallableDeclaration(CallableDeclaration::Kind::OPERATOR) {}
+
+    Operator op;
 };
 
 class StructDeclaration: public TypeDeclaration
@@ -550,23 +566,7 @@ public:
     Expression* subscript = nullptr;
 };
 
-class OperatorExpression: public Expression
-{
-public:
-    enum class Arity
-    {
-        NONE,
-        UNARY,
-        BINARY,
-        TERNARY
-    };
-
-    OperatorExpression(Arity initArity): Expression(Expression::Kind::OPERATOR), arity(initArity) {}
-
-    Arity arity = Arity::NONE;
-};
-
-class UnaryOperatorExpression: public OperatorExpression
+class UnaryOperatorExpression: public Expression
 {
 public:
     enum class Kind
@@ -577,14 +577,14 @@ public:
         NEGATIVE // -
     };
 
-    UnaryOperatorExpression(): OperatorExpression(OperatorExpression::Arity::UNARY) {}
+    UnaryOperatorExpression(): Expression(Expression::Kind::UNARY_OPERATOR) {}
 
     Expression* expression = nullptr;
 
     Kind unaryOperatorKind = Kind::NONE;
 };
 
-class BinaryOperatorExpression: public OperatorExpression
+class BinaryOperatorExpression: public Expression
 {
 public:
     enum class Kind
@@ -610,7 +610,7 @@ public:
         COMMA // ,
     };
 
-    BinaryOperatorExpression(): OperatorExpression(OperatorExpression::Arity::BINARY) {}
+    BinaryOperatorExpression(): Expression(Expression::Kind::BINARY_OPERATOR) {}
 
     Expression* leftExpression = nullptr;
     Expression* rightExpression = nullptr;
@@ -618,10 +618,10 @@ public:
     Kind binaryOperatorKind = Kind::NONE;
 };
 
-class TernaryOperatorExpression: public OperatorExpression
+class TernaryOperatorExpression: public Expression
 {
 public:
-    TernaryOperatorExpression(): OperatorExpression(OperatorExpression::Arity::TERNARY) {}
+    TernaryOperatorExpression(): Expression(Expression::Kind::TERNARY_OPERATOR) {}
 
     Expression* condition;
     Expression* leftExpression = nullptr;

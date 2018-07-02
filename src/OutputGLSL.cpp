@@ -634,90 +634,75 @@ void OutputGLSL::printExpression(const Expression* expression, Options options, 
             break;
         }
 
-        case Expression::Kind::OPERATOR:
+        case Expression::Kind::UNARY_OPERATOR:
         {
-            const OperatorExpression* operatorExpression = static_cast<const OperatorExpression*>(expression);
+            code.append(options.indentation, ' ');
 
-            switch (operatorExpression->arity)
+            const UnaryOperatorExpression* unaryOperatorExpression = static_cast<const UnaryOperatorExpression*>(expression);
+
+            switch (unaryOperatorExpression->unaryOperatorKind)
             {
-                case OperatorExpression::Arity::NONE:
-                {
-                    break;
-                }
-
-                case OperatorExpression::Arity::UNARY:
-                {
-                    code.append(options.indentation, ' ');
-
-                    const UnaryOperatorExpression* unaryOperatorExpression = static_cast<const UnaryOperatorExpression*>(operatorExpression);
-
-                    switch (unaryOperatorExpression->unaryOperatorKind)
-                    {
-                        case UnaryOperatorExpression::Kind::NEGATION: code += "!"; break;
-                        case UnaryOperatorExpression::Kind::POSITIVE: code += "+"; break;
-                        case UnaryOperatorExpression::Kind::NEGATIVE: code += "-"; break;
-                        default:
-                            throw std::runtime_error("Unknown operator");
-                    }
-
-                    printConstruct(unaryOperatorExpression->expression, Options(0), code);
-                    break;
-                }
-
-                case OperatorExpression::Arity::BINARY:
-                {
-                    code.append(options.indentation, ' ');
-
-                    const BinaryOperatorExpression* binaryOperatorExpression = static_cast<const BinaryOperatorExpression*>(operatorExpression);
-                    printConstruct(binaryOperatorExpression->leftExpression, Options(0), code);
-
-                    switch (binaryOperatorExpression->binaryOperatorKind)
-                    {
-                        case BinaryOperatorExpression::Kind::ADDITION: code += " + "; break;
-                        case BinaryOperatorExpression::Kind::SUBTRACTION: code += " - "; break;
-                        case BinaryOperatorExpression::Kind::MULTIPLICATION: code += " * "; break;
-                        case BinaryOperatorExpression::Kind::DIVISION: code += " / "; break;
-                        case BinaryOperatorExpression::Kind::ADDITION_ASSIGNMENT: code += " += "; break;
-                        case BinaryOperatorExpression::Kind::SUBTRACTION_ASSIGNMENT: code += " -= "; break;
-                        case BinaryOperatorExpression::Kind::MULTIPLICATION_ASSIGNMENT: code += " *= "; break;
-                        case BinaryOperatorExpression::Kind::DIVISION_ASSIGNMENT: code += " /= "; break;
-                        case BinaryOperatorExpression::Kind::LESS_THAN: code += " < "; break;
-                        case BinaryOperatorExpression::Kind::LESS_THAN_EQUAL: code += " <= "; break;
-                        case BinaryOperatorExpression::Kind::GREATER_THAN: code += " > "; break;
-                        case BinaryOperatorExpression::Kind::GREATER_THAN_EQUAL: code += " >= "; break;
-                        case BinaryOperatorExpression::Kind::EQUALITY: code += " == "; break;
-                        case BinaryOperatorExpression::Kind::INEQUALITY: code += " != "; break;
-                        case BinaryOperatorExpression::Kind::ASSIGNMENT: code += " = "; break;
-                        case BinaryOperatorExpression::Kind::OR: code += " || "; break;
-                        case BinaryOperatorExpression::Kind::AND: code += " && "; break;
-                        case BinaryOperatorExpression::Kind::COMMA: code += ", "; break;
-                        default:
-                            throw std::runtime_error("Unknown operator");
-                    }
-
-                    printConstruct(binaryOperatorExpression->rightExpression, Options(0), code);
-                    break;
-                }
-
-                case OperatorExpression::Arity::TERNARY:
-                {
-                    code.append(options.indentation, ' ');
-
-                    const TernaryOperatorExpression* ternaryOperatorExpression = static_cast<const TernaryOperatorExpression*>(operatorExpression);
-
-                    printConstruct(ternaryOperatorExpression->condition, Options(0), code);
-
-                    code += " ? ";
-
-                    printConstruct(ternaryOperatorExpression->leftExpression, Options(0), code);
-
-                    code += " : ";
-
-                    printConstruct(ternaryOperatorExpression->rightExpression, Options(0), code);
-                    break;
-                }
+                case UnaryOperatorExpression::Kind::NEGATION: code += "!"; break;
+                case UnaryOperatorExpression::Kind::POSITIVE: code += "+"; break;
+                case UnaryOperatorExpression::Kind::NEGATIVE: code += "-"; break;
+                default:
+                    throw std::runtime_error("Unknown operator");
             }
 
+            printConstruct(unaryOperatorExpression->expression, Options(0), code);
+            break;
+        }
+
+        case Expression::Kind::BINARY_OPERATOR:
+        {
+            code.append(options.indentation, ' ');
+
+            const BinaryOperatorExpression* binaryOperatorExpression = static_cast<const BinaryOperatorExpression*>(expression);
+            printConstruct(binaryOperatorExpression->leftExpression, Options(0), code);
+
+            switch (binaryOperatorExpression->binaryOperatorKind)
+            {
+                case BinaryOperatorExpression::Kind::ADDITION: code += " + "; break;
+                case BinaryOperatorExpression::Kind::SUBTRACTION: code += " - "; break;
+                case BinaryOperatorExpression::Kind::MULTIPLICATION: code += " * "; break;
+                case BinaryOperatorExpression::Kind::DIVISION: code += " / "; break;
+                case BinaryOperatorExpression::Kind::ADDITION_ASSIGNMENT: code += " += "; break;
+                case BinaryOperatorExpression::Kind::SUBTRACTION_ASSIGNMENT: code += " -= "; break;
+                case BinaryOperatorExpression::Kind::MULTIPLICATION_ASSIGNMENT: code += " *= "; break;
+                case BinaryOperatorExpression::Kind::DIVISION_ASSIGNMENT: code += " /= "; break;
+                case BinaryOperatorExpression::Kind::LESS_THAN: code += " < "; break;
+                case BinaryOperatorExpression::Kind::LESS_THAN_EQUAL: code += " <= "; break;
+                case BinaryOperatorExpression::Kind::GREATER_THAN: code += " > "; break;
+                case BinaryOperatorExpression::Kind::GREATER_THAN_EQUAL: code += " >= "; break;
+                case BinaryOperatorExpression::Kind::EQUALITY: code += " == "; break;
+                case BinaryOperatorExpression::Kind::INEQUALITY: code += " != "; break;
+                case BinaryOperatorExpression::Kind::ASSIGNMENT: code += " = "; break;
+                case BinaryOperatorExpression::Kind::OR: code += " || "; break;
+                case BinaryOperatorExpression::Kind::AND: code += " && "; break;
+                case BinaryOperatorExpression::Kind::COMMA: code += ", "; break;
+                default:
+                    throw std::runtime_error("Unknown operator");
+            }
+
+            printConstruct(binaryOperatorExpression->rightExpression, Options(0), code);
+            break;
+        }
+
+        case Expression::Kind::TERNARY_OPERATOR:
+        {
+            code.append(options.indentation, ' ');
+
+            const TernaryOperatorExpression* ternaryOperatorExpression = static_cast<const TernaryOperatorExpression*>(expression);
+
+            printConstruct(ternaryOperatorExpression->condition, Options(0), code);
+
+            code += " ? ";
+
+            printConstruct(ternaryOperatorExpression->leftExpression, Options(0), code);
+
+            code += " : ";
+
+            printConstruct(ternaryOperatorExpression->rightExpression, Options(0), code);
             break;
         }
 

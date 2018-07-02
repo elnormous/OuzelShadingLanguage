@@ -2701,7 +2701,9 @@ static std::string toString(Expression::Kind kind)
         case Expression::Kind::PAREN: return "PAREN";
         case Expression::Kind::MEMBER: return "MEMBER";
         case Expression::Kind::ARRAY_SUBSCRIPT: return "ARRAY_SUBSCRIPT";
-        case Expression::Kind::OPERATOR: return "OPERATOR";
+        case Expression::Kind::UNARY_OPERATOR: return "UNARY_OPERATOR";
+        case Expression::Kind::BINARY_OPERATOR: return "BINARY_OPERATOR";
+        case Expression::Kind::TERNARY_OPERATOR: return "TERNARY_OPERATOR";
         case Expression::Kind::TEMPORARY_OBJECT: return "TEMPORARY_OBJECT";
         case Expression::Kind::INITIALIZER_LIST: return "INITIALIZER_LIST";
         case Expression::Kind::CAST: return "CAST";
@@ -3290,51 +3292,36 @@ void ASTContext::dumpExpression(const Expression* expression, std::string indent
             break;
         }
 
-        case Expression::Kind::OPERATOR:
+        case Expression::Kind::UNARY_OPERATOR:
         {
-            const OperatorExpression* operatorExpression = static_cast<const OperatorExpression*>(expression);
+            const UnaryOperatorExpression* unaryOperatorExpression = static_cast<const UnaryOperatorExpression*>(expression);
 
-            switch (operatorExpression->arity)
-            {
-                case OperatorExpression::Arity::NONE:
-                {
-                    break;
-                }
+            std::cout <<", operator: " << toString(unaryOperatorExpression->unaryOperatorKind) << std::endl;
 
-                case OperatorExpression::Arity::UNARY:
-                {
-                    const UnaryOperatorExpression* unaryOperatorExpression = static_cast<const UnaryOperatorExpression*>(operatorExpression);
+            dumpConstruct(unaryOperatorExpression->expression, indent + "  ");
+            break;
+        }
 
-                    std::cout <<", operator: " << toString(unaryOperatorExpression->unaryOperatorKind) << std::endl;
+        case Expression::Kind::BINARY_OPERATOR:
+        {
+            const BinaryOperatorExpression* binaryOperatorExpression = static_cast<const BinaryOperatorExpression*>(expression);
 
-                    dumpConstruct(unaryOperatorExpression->expression, indent + "  ");
-                    break;
-                }
+            std::cout << ", operator: " << toString(binaryOperatorExpression->binaryOperatorKind) << std::endl;
 
-                case OperatorExpression::Arity::BINARY:
-                {
-                    const BinaryOperatorExpression* binaryOperatorExpression = static_cast<const BinaryOperatorExpression*>(operatorExpression);
+            dumpConstruct(binaryOperatorExpression->leftExpression, indent + "  ");
+            dumpConstruct(binaryOperatorExpression->rightExpression, indent + "  ");
+            break;
+        }
 
-                    std::cout << ", operator: " << toString(binaryOperatorExpression->binaryOperatorKind) << std::endl;
+        case Expression::Kind::TERNARY_OPERATOR:
+        {
+            const TernaryOperatorExpression* ternaryOperatorExpression = static_cast<const TernaryOperatorExpression*>(expression);
 
-                    dumpConstruct(binaryOperatorExpression->leftExpression, indent + "  ");
-                    dumpConstruct(binaryOperatorExpression->rightExpression, indent + "  ");
-                    break;
-                }
+            std::cout << std::endl;
 
-                case OperatorExpression::Arity::TERNARY:
-                {
-                    const TernaryOperatorExpression* ternaryOperatorExpression = static_cast<const TernaryOperatorExpression*>(operatorExpression);
-
-                    std::cout << std::endl;
-
-                    dumpConstruct(ternaryOperatorExpression->condition, indent + "  ");
-                    dumpConstruct(ternaryOperatorExpression->leftExpression, indent + "  ");
-                    dumpConstruct(ternaryOperatorExpression->rightExpression, indent + "  ");
-                    break;
-                }
-            }
-
+            dumpConstruct(ternaryOperatorExpression->condition, indent + "  ");
+            dumpConstruct(ternaryOperatorExpression->leftExpression, indent + "  ");
+            dumpConstruct(ternaryOperatorExpression->rightExpression, indent + "  ");
             break;
         }
 
