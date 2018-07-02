@@ -278,43 +278,31 @@ public:
     ConstructorDeclaration(): CallableDeclaration(CallableDeclaration::Kind::CONSTRUCTOR) {}
 };
 
-class Operator
+enum class Operator
 {
-public:
-    enum class Arity
-    {
-        NULLARY,
-        UNARY,
-        BINARY,
-        TERNARY
-    };
-
-    enum class Kind
-    {
-        NONE,
-        NEGATION, // !
-        POSITIVE, // +
-        NEGATIVE, // -
-        ADDITION, // +
-        SUBTRACTION, // -
-        MULTIPLICATION, // *
-        DIVISION, // /
-        ADDITION_ASSIGNMENT, // +=
-        SUBTRACTION_ASSIGNMENT, // -=
-        MULTIPLICATION_ASSIGNMENT, // *=
-        DIVISION_ASSIGNMENT, // /=
-        LESS_THAN, // <
-        LESS_THAN_EQUAL, // <=
-        GREATER_THAN, // >
-        GREATER_THAN_EQUAL, // >=
-        EQUALITY, // ==
-        INEQUALITY, // !=
-        ASSIGNMENT, // =
-        OR, // ||
-        AND, // &&
-        COMMA, // ,
-        CONDITIONAL // ?:
-    };
+    NONE,
+    NEGATION, // !
+    POSITIVE, // +
+    NEGATIVE, // -
+    ADDITION, // +
+    SUBTRACTION, // -
+    MULTIPLICATION, // *
+    DIVISION, // /
+    ADDITION_ASSIGNMENT, // +=
+    SUBTRACTION_ASSIGNMENT, // -=
+    MULTIPLICATION_ASSIGNMENT, // *=
+    DIVISION_ASSIGNMENT, // /=
+    LESS_THAN, // <
+    LESS_THAN_EQUAL, // <=
+    GREATER_THAN, // >
+    GREATER_THAN_EQUAL, // >=
+    EQUALITY, // ==
+    INEQUALITY, // !=
+    ASSIGNMENT, // =
+    OR, // ||
+    AND, // &&
+    COMMA, // ,
+    CONDITIONAL // ?:
 };
 
 class OperatorDeclaration: public CallableDeclaration
@@ -832,11 +820,15 @@ private:
         return nullptr;
     }
 
-    static FunctionDeclaration* compareFunctionDeclarations(FunctionDeclaration* functionDeclaration1,
-                                                            FunctionDeclaration* functionDeclaration2,
+    static CallableDeclaration* compareCallableDeclarations(CallableDeclaration* callableDeclaration1,
+                                                            CallableDeclaration* callableDeclaration2,
                                                             const std::vector<QualifiedType>& parameters);
 
     static FunctionDeclaration* resolveFunctionDeclaration(const std::string& name,
+                                                           const std::vector<std::vector<Declaration*>>& declarationScopes,
+                                                           const std::vector<QualifiedType>& parameters);
+
+    static OperatorDeclaration* resolveOperatorDeclaration(Operator op,
                                                            const std::vector<std::vector<Declaration*>>& declarationScopes,
                                                            const std::vector<QualifiedType>& parameters);
 

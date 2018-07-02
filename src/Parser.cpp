@@ -232,20 +232,20 @@ ASTContext::ASTContext(const std::vector<Token>& tokens):
     }
 }
 
-FunctionDeclaration* ASTContext::compareFunctionDeclarations(FunctionDeclaration* functionDeclaration1,
-                                                             FunctionDeclaration* functionDeclaration2,
+CallableDeclaration* ASTContext::compareCallableDeclarations(CallableDeclaration* callableDeclaration1,
+                                                             CallableDeclaration* callableDeclaration2,
                                                              const std::vector<QualifiedType>& parameters)
 {
-    FunctionDeclaration* result = nullptr;
+    CallableDeclaration* result = nullptr;
 
     if (!parameters.empty() && // both functions should have arguments
-        parameters.size() == functionDeclaration1->parameterDeclarations.size() == functionDeclaration2->parameterDeclarations.size()) // they should have the same number of parameters
+        parameters.size() == callableDeclaration1->parameterDeclarations.size() == callableDeclaration2->parameterDeclarations.size()) // they should have the same number of parameters
     {
         for (uint32_t i = 0; i < parameters.size(); ++i)
         {
             const QualifiedType& parameter = parameters[i];
-            const QualifiedType& parameter1 = functionDeclaration1->parameterDeclarations[i]->qualifiedType;
-            const QualifiedType& parameter2 = functionDeclaration2->parameterDeclarations[i]->qualifiedType;
+            const QualifiedType& parameter1 = callableDeclaration1->parameterDeclarations[i]->qualifiedType;
+            const QualifiedType& parameter2 = callableDeclaration2->parameterDeclarations[i]->qualifiedType;
 
             if (parameter1.typeDeclaration->getTypeKind() == parameter.typeDeclaration->getTypeKind() &&
                 parameter2.typeDeclaration->getTypeKind() == parameter.typeDeclaration->getTypeKind())
@@ -257,13 +257,13 @@ FunctionDeclaration* ASTContext::compareFunctionDeclarations(FunctionDeclaration
                 }
                 else if (parameter1.typeDeclaration == parameter.typeDeclaration)
                 {
-                    if (result == functionDeclaration2) return nullptr;
-                    result = functionDeclaration1;
+                    if (result == callableDeclaration2) return nullptr;
+                    result = callableDeclaration1;
                 }
                 else if (parameter2.typeDeclaration == parameter.typeDeclaration)
                 {
-                    if (result == functionDeclaration1) return nullptr;
-                    result = functionDeclaration2;
+                    if (result == callableDeclaration1) return nullptr;
+                    result = callableDeclaration2;
                 }
                 else
                 {
@@ -279,26 +279,26 @@ FunctionDeclaration* ASTContext::compareFunctionDeclarations(FunctionDeclaration
                         }
                         else if (arrayTypeDeclaration1->size == arrayTypeDeclaration->size)
                         {
-                            if (result == functionDeclaration2) return nullptr;
-                            result = functionDeclaration1;
+                            if (result == callableDeclaration2) return nullptr;
+                            result = callableDeclaration1;
                         }
                         else if (arrayTypeDeclaration2->size == arrayTypeDeclaration->size)
                         {
-                            if (result == functionDeclaration1) return nullptr;
-                            result = functionDeclaration2;
+                            if (result == callableDeclaration1) return nullptr;
+                            result = callableDeclaration2;
                         }
                     }
                 }
             }
             else if (parameter1.typeDeclaration->getTypeKind() == parameter.typeDeclaration->getTypeKind())
             {
-                if (result == functionDeclaration2) return nullptr;
-                result = functionDeclaration1;
+                if (result == callableDeclaration2) return nullptr;
+                result = callableDeclaration1;
             }
             else if (parameter2.typeDeclaration->getTypeKind() == parameter.typeDeclaration->getTypeKind())
             {
-                if (result == functionDeclaration1) return nullptr;
-                result = functionDeclaration2;
+                if (result == callableDeclaration1) return nullptr;
+                result = callableDeclaration2;
             }
         }
     }
@@ -354,13 +354,9 @@ FunctionDeclaration* ASTContext::resolveFunctionDeclaration(const std::string& n
     }
 
     if (viableFunctionDeclarations.empty())
-    {
         throw std::runtime_error("No matching function to call " + name + "  found");
-    }
     else if (viableFunctionDeclarations.size() == 1)
-    {
         return *viableFunctionDeclarations.begin();
-    }
     else
     {
         if (parameters.empty()) // two or more functions with zero parameters
@@ -372,7 +368,117 @@ FunctionDeclaration* ASTContext::resolveFunctionDeclaration(const std::string& n
             for (auto second = viableFunctionDeclarations.begin(); second != viableFunctionDeclarations.end(); ++second)
             {
                 if (first != second &&
-                    compareFunctionDeclarations(*first, *second, parameters) != *first)
+                    compareCallableDeclarations(*first, *second, parameters) != *first)
+                {
+                    best = false;
+                    break;
+                }
+            }
+
+            if (best) return *first;
+        };
+
+        throw std::runtime_error("Ambiguous call");
+    }
+
+    return nullptr;
+}
+
+static std::string toString(Operator op)
+{
+    switch (op)
+    {
+        case Operator::NONE: return "NONE";
+        case Operator::NEGATION: return "NEGATION";
+        case Operator::POSITIVE: return "POSITIVE";
+        case Operator::NEGATIVE: return "NEGATIVE";
+        case Operator::ADDITION: return "ADDITION";
+        case Operator::SUBTRACTION: return "SUBTRACTION";
+        case Operator::MULTIPLICATION: return "MULTIPLICATION";
+        case Operator::DIVISION: return "DIVISION";
+        case Operator::ADDITION_ASSIGNMENT: return "ADDITION_ASSIGNMENT";
+        case Operator::SUBTRACTION_ASSIGNMENT: return "SUBTRACTION_ASSIGNMENT";
+        case Operator::MULTIPLICATION_ASSIGNMENT: return "MULTIPLICATION_ASSIGNMENT";
+        case Operator::DIVISION_ASSIGNMENT: return "DIVISION_ASSIGNMENT";
+        case Operator::LESS_THAN: return "LESS_THAN";
+        case Operator::LESS_THAN_EQUAL: return "LESS_THAN_EQUAL";
+        case Operator::GREATER_THAN: return "GREATER_THAN";
+        case Operator::GREATER_THAN_EQUAL: return "GREATER_THAN_EQUAL";
+        case Operator::EQUALITY: return "EQUALITY";
+        case Operator::INEQUALITY: return "INEQUALITY";
+        case Operator::ASSIGNMENT: return "ASSIGNMENT";
+        case Operator::OR: return "OR";
+        case Operator::AND: return "AND";
+        case Operator::COMMA: return "COMMA";
+        case Operator::CONDITIONAL: return "CONDITIONAL";
+    }
+
+    return "unknown";
+}
+
+OperatorDeclaration* ASTContext::resolveOperatorDeclaration(Operator op,
+                                                            const std::vector<std::vector<Declaration*>>& declarationScopes,
+                                                            const std::vector<QualifiedType>& parameters)
+{
+    std::vector<OperatorDeclaration*> candidateOperatorDeclarations;
+
+    for (auto scopeIterator = declarationScopes.crbegin(); scopeIterator != declarationScopes.crend(); ++scopeIterator)
+    {
+        for (auto declarationIterator = scopeIterator->crbegin(); declarationIterator != scopeIterator->crend(); ++declarationIterator)
+        {
+            if ((*declarationIterator)->getDeclarationKind() == Declaration::Kind::CALLABLE)
+            {
+                CallableDeclaration* callableDeclaration = static_cast<CallableDeclaration*>(*declarationIterator);
+
+                if (callableDeclaration->getCallableDeclarationKind() != CallableDeclaration::Kind::OPERATOR)
+                {
+                    OperatorDeclaration* operatorDeclaration = static_cast<OperatorDeclaration*>(callableDeclaration->getFirstDeclaration());
+
+                    if (operatorDeclaration->op == op &&
+                        std::find(candidateOperatorDeclarations.begin(), candidateOperatorDeclarations.end(), operatorDeclaration) == candidateOperatorDeclarations.end())
+                        candidateOperatorDeclarations.push_back(operatorDeclaration);
+                }
+            }
+        }
+    }
+
+    std::vector<OperatorDeclaration*> viableOperatorDeclarations;
+
+    for (OperatorDeclaration* operatorDeclaration : candidateOperatorDeclarations)
+    {
+        if (operatorDeclaration->parameterDeclarations.size() == parameters.size())
+        {
+            if (std::equal(parameters.begin(), parameters.end(),
+                           operatorDeclaration->parameterDeclarations.begin(),
+                           [](const QualifiedType& qualifiedType,
+                              const ParameterDeclaration* parameterDeclaration) {
+                               bool scalar = qualifiedType.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::SCALAR &&
+                               qualifiedType.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::SCALAR;
+
+                               return (scalar || qualifiedType.typeDeclaration->getFirstDeclaration() == parameterDeclaration->qualifiedType.typeDeclaration->getFirstDeclaration());
+                           }))
+            {
+                viableOperatorDeclarations.push_back(operatorDeclaration);
+            }
+        }
+    }
+
+    if (viableOperatorDeclarations.empty())
+        throw std::runtime_error("No matching function to call " + toString(op) + "  found");
+    else if (viableOperatorDeclarations.size() == 1)
+        return *viableOperatorDeclarations.begin();
+    else
+    {
+        if (parameters.empty()) // two or more functions with zero parameters
+            throw std::runtime_error("Ambiguous call");
+
+        for (auto first = viableOperatorDeclarations.begin(); first != viableOperatorDeclarations.end(); ++first)
+        {
+            bool best = true;
+            for (auto second = viableOperatorDeclarations.begin(); second != viableOperatorDeclarations.end(); ++second)
+            {
+                if (first != second &&
+                    compareCallableDeclarations(*first, *second, parameters) != *first)
                 {
                     best = false;
                     break;
@@ -661,6 +767,9 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
 
         if (specifiers.isStatic) isStatic = true;
         if (specifiers.isInline) isInline = true;
+
+        if (isToken(Token::Type::KEYWORD_OPERATOR, tokens, iterator))
+            throw std::runtime_error("Operator overloads are not supported");
 
         expectToken(Token::Type::IDENTIFIER, tokens, iterator);
 
