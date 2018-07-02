@@ -553,7 +553,7 @@ public:
 class OperatorExpression: public Expression
 {
 public:
-    enum class Kind
+    enum class Arity
     {
         NONE,
         UNARY,
@@ -561,9 +561,9 @@ public:
         TERNARY
     };
 
-    OperatorExpression(Kind initOperatorKind): Expression(Expression::Kind::OPERATOR), operatorKind(initOperatorKind) {}
+    OperatorExpression(Arity initArity): Expression(Expression::Kind::OPERATOR), arity(initArity) {}
 
-    Kind operatorKind = Kind::NONE;
+    Arity arity = Arity::NONE;
 };
 
 class UnaryOperatorExpression: public OperatorExpression
@@ -577,7 +577,7 @@ public:
         NEGATIVE // -
     };
 
-    UnaryOperatorExpression(): OperatorExpression(OperatorExpression::Kind::UNARY) {}
+    UnaryOperatorExpression(): OperatorExpression(OperatorExpression::Arity::UNARY) {}
 
     Expression* expression = nullptr;
 
@@ -610,7 +610,7 @@ public:
         COMMA // ,
     };
 
-    BinaryOperatorExpression(): OperatorExpression(OperatorExpression::Kind::BINARY) {}
+    BinaryOperatorExpression(): OperatorExpression(OperatorExpression::Arity::BINARY) {}
 
     Expression* leftExpression = nullptr;
     Expression* rightExpression = nullptr;
@@ -621,7 +621,7 @@ public:
 class TernaryOperatorExpression: public OperatorExpression
 {
 public:
-    TernaryOperatorExpression(): OperatorExpression(OperatorExpression::Kind::TERNARY) {}
+    TernaryOperatorExpression(): OperatorExpression(OperatorExpression::Arity::TERNARY) {}
 
     Expression* condition;
     Expression* leftExpression = nullptr;

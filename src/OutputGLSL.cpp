@@ -638,14 +638,14 @@ void OutputGLSL::printExpression(const Expression* expression, Options options, 
         {
             const OperatorExpression* operatorExpression = static_cast<const OperatorExpression*>(expression);
 
-            switch (operatorExpression->operatorKind)
+            switch (operatorExpression->arity)
             {
-                case OperatorExpression::Kind::NONE:
+                case OperatorExpression::Arity::NONE:
                 {
                     break;
                 }
 
-                case OperatorExpression::Kind::UNARY:
+                case OperatorExpression::Arity::UNARY:
                 {
                     code.append(options.indentation, ' ');
 
@@ -664,7 +664,7 @@ void OutputGLSL::printExpression(const Expression* expression, Options options, 
                     break;
                 }
 
-                case OperatorExpression::Kind::BINARY:
+                case OperatorExpression::Arity::BINARY:
                 {
                     code.append(options.indentation, ' ');
 
@@ -699,7 +699,7 @@ void OutputGLSL::printExpression(const Expression* expression, Options options, 
                     break;
                 }
 
-                case OperatorExpression::Kind::TERNARY:
+                case OperatorExpression::Arity::TERNARY:
                 {
                     code.append(options.indentation, ' ');
 

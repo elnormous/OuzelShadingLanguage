@@ -3294,14 +3294,14 @@ void ASTContext::dumpExpression(const Expression* expression, std::string indent
         {
             const OperatorExpression* operatorExpression = static_cast<const OperatorExpression*>(expression);
 
-            switch (operatorExpression->operatorKind)
+            switch (operatorExpression->arity)
             {
-                case OperatorExpression::Kind::NONE:
+                case OperatorExpression::Arity::NONE:
                 {
                     break;
                 }
 
-                case OperatorExpression::Kind::UNARY:
+                case OperatorExpression::Arity::UNARY:
                 {
                     const UnaryOperatorExpression* unaryOperatorExpression = static_cast<const UnaryOperatorExpression*>(operatorExpression);
 
@@ -3311,7 +3311,7 @@ void ASTContext::dumpExpression(const Expression* expression, std::string indent
                     break;
                 }
 
-                case OperatorExpression::Kind::BINARY:
+                case OperatorExpression::Arity::BINARY:
                 {
                     const BinaryOperatorExpression* binaryOperatorExpression = static_cast<const BinaryOperatorExpression*>(operatorExpression);
 
@@ -3322,7 +3322,7 @@ void ASTContext::dumpExpression(const Expression* expression, std::string indent
                     break;
                 }
 
-                case OperatorExpression::Kind::TERNARY:
+                case OperatorExpression::Arity::TERNARY:
                 {
                     const TernaryOperatorExpression* ternaryOperatorExpression = static_cast<const TernaryOperatorExpression*>(operatorExpression);
 
