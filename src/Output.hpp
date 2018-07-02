@@ -10,5 +10,5 @@
 class Output
 {
 public:
-    virtual void output(const ASTContext& context, std::string& code) = 0;
+    virtual std::string output(const ASTContext& context) = 0;
 };

@@ -99,15 +99,7 @@ int main(int argc, const char* argv[])
                 if (program == Program::NONE)
                     throw std::runtime_error("No program");
 
-                std::ofstream file(outputFile, std::ios::binary);
-
-                if (!file)
-                    throw std::runtime_error("Failed to open file " + outputFile);
-
                 std::unique_ptr<Output> output;
-
-                if (outputFile.empty())
-                    throw std::runtime_error("No output file");
 
                 if (format == "hlsl")
                     output.reset(new OutputHLSL(program));
@@ -118,18 +110,26 @@ int main(int argc, const char* argv[])
                 else
                     throw std::runtime_error("Invalid format");
 
-                std::string code;
-
                 try
                 {
-                    output->output(context, code);
+                    std::string code = output->output(context);
+
+                    if (outputFile.empty())
+                        std::cout << code << std::endl;
+                    else
+                    {
+                        std::ofstream file(outputFile, std::ios::binary);
+
+                        if (!file)
+                            throw std::runtime_error("Failed to open file " + outputFile);
+
+                        file << code;
+                    }
                 }
                 catch (const std::exception& e)
                 {
                     throw std::runtime_error(std::string("Failed to output code: ") + e.what());
                 }
-
-                file << code;
             }
         }
         catch (const std::exception& e)

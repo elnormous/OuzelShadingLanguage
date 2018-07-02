@@ -17,19 +17,22 @@ OutputHLSL::OutputHLSL(Program initProgram):
 {
 }
 
-void OutputHLSL::output(const ASTContext& context,
-                        std::string& code)
+std::string OutputHLSL::output(const ASTContext& context)
 {
+    std::string result;
+
     for (Declaration* declaration : context.declarations)
     {
-        printConstruct(declaration, Options(0), code);
+        printConstruct(declaration, Options(0), result);
 
         if (declaration->getDeclarationKind() != Declaration::Kind::CALLABLE ||
             !static_cast<const CallableDeclaration*>(declaration)->body) // function doesn't have a body
-            code += ";";
+            result += ";";
 
-        code += "\n";
+        result += "\n";
     }
+
+    return result;
 }
 
 static std::pair<std::string, std::string> getPrintableTypeName(const QualifiedType& qualifiedType)

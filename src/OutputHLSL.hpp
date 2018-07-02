@@ -11,7 +11,7 @@ class OutputHLSL: public Output
 {
 public:
     OutputHLSL(Program initProgram);
-    virtual void output(const ASTContext& context, std::string& code);
+    virtual std::string output(const ASTContext& context);
 
 private:
     struct Options
