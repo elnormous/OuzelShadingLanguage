@@ -13,14 +13,16 @@ class OutputMSL: public Output
 public:
     OutputMSL(Program initProgram,
               const std::map<Semantic, uint32_t>& initSemantics);
-    virtual std::string output(const ASTContext& context);
+    virtual std::string output(const ASTContext& context, bool whitespaces);
 
 private:
     struct Options
     {
-        Options(uint32_t aIndentation): indentation(aIndentation) {}
+        Options(uint32_t initIndentation, bool initWhitespaces):
+            indentation(initIndentation), whitespaces(initWhitespaces) {}
 
         uint32_t indentation = 0;
+        bool whitespaces = false;
     };
     void printDeclaration(const Declaration* declaration, Options options, std::string& code);
     void printStatement(const Statement* statement, Options options, std::string& code);

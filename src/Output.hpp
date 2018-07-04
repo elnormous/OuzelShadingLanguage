@@ -10,5 +10,5 @@
 class Output
 {
 public:
-    virtual std::string output(const ASTContext& context) = 0;
+    virtual std::string output(const ASTContext& context, bool whitespaces) = 0;
 };

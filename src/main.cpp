@@ -15,6 +15,7 @@ int main(int argc, const char* argv[])
     std::string inputFile;
     bool printTokens = false;
     bool printAST = false;
+    bool whitespaces = false;
     std::string format;
     std::string outputFile;
     Program program = Program::NONE;
@@ -36,6 +37,10 @@ int main(int argc, const char* argv[])
             else if (std::string(argv[i]) == "--print-ast")
             {
                 printAST = true;
+            }
+            else if (std::string(argv[i]) == "--whitespaces")
+            {
+                if (++i < argc) whitespaces = true;
             }
             else if (std::string(argv[i]) == "--format")
             {
@@ -112,7 +117,7 @@ int main(int argc, const char* argv[])
 
                 try
                 {
-                    std::string code = output->output(context);
+                    std::string code = output->output(context, whitespaces);
 
                     if (outputFile.empty())
                         std::cout << code << std::endl;

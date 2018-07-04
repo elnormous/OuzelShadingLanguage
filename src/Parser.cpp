@@ -411,9 +411,8 @@ static std::string toString(Operator op)
         case Operator::AND: return "AND";
         case Operator::COMMA: return "COMMA";
         case Operator::CONDITIONAL: return "CONDITIONAL";
+        default: return "unknown";
     }
-
-    return "unknown";
 }
 
 OperatorDeclaration* ASTContext::resolveOperatorDeclaration(Operator op,
@@ -2770,9 +2769,8 @@ static std::string toString(Construct::Kind kind)
         case Construct::Kind::DECLARATION: return "DECLARATION";
         case Construct::Kind::STATEMENT: return "STATEMENT";
         case Construct::Kind::EXPRESSION: return "EXPRESSION";
+        default: return "unknown";
     }
-
-    return "unknown";
 }
 
 static std::string toString(Statement::Kind kind)
@@ -2794,9 +2792,8 @@ static std::string toString(Statement::Kind kind)
         case Statement::Kind::BREAK: return "BREAK";
         case Statement::Kind::CONTINUE: return "CONTINUE";
         case Statement::Kind::RETURN: return "RETURN";
+        default: return "unknown";
     }
-
-    return "unknown";
 }
 
 static std::string toString(Expression::Kind kind)
@@ -2816,9 +2813,8 @@ static std::string toString(Expression::Kind kind)
         case Expression::Kind::TEMPORARY_OBJECT: return "TEMPORARY_OBJECT";
         case Expression::Kind::INITIALIZER_LIST: return "INITIALIZER_LIST";
         case Expression::Kind::CAST: return "CAST";
+        default: return "unknown";
     }
-
-    return "unknown";
 }
 
 static std::string toString(Declaration::Kind kind)
@@ -2832,9 +2828,8 @@ static std::string toString(Declaration::Kind kind)
         case Declaration::Kind::CALLABLE: return "CALLABLE";
         case Declaration::Kind::VARIABLE: return "VARIABLE";
         case Declaration::Kind::PARAMETER: return "PARAMETER";
+        default: return "unknown";
     }
-
-    return "unknown";
 }
 
 static std::string toString(TypeDeclaration::Kind kind)
@@ -2845,10 +2840,9 @@ static std::string toString(TypeDeclaration::Kind kind)
         case TypeDeclaration::Kind::ARRAY: return "ARRAY";
         case TypeDeclaration::Kind::SCALAR: return "SCALAR";
         case TypeDeclaration::Kind::STRUCT: return "STRUCT";
-            //case TypeDeclaration::Kind::TYPE_DEFINITION: return "TYPE_DEFINITION";
+        //case TypeDeclaration::Kind::TYPE_DEFINITION: return "TYPE_DEFINITION";
+        default: return "unknown";
     }
-
-    return "unknown";
 }
 
 static std::string toString(ScalarTypeDeclaration::Kind kind)
@@ -2859,9 +2853,8 @@ static std::string toString(ScalarTypeDeclaration::Kind kind)
         case ScalarTypeDeclaration::Kind::BOOLEAN: return "BOOLEAN";
         case ScalarTypeDeclaration::Kind::INTEGER: return "INTEGER";
         case ScalarTypeDeclaration::Kind::FLOATING_POINT: return "FLOATING_POINT";
+        default: return "unknown";
     }
-
-    return "unknown";
 }
 
 static std::string toString(CallableDeclaration::Kind kind)
@@ -2873,9 +2866,8 @@ static std::string toString(CallableDeclaration::Kind kind)
         case CallableDeclaration::Kind::CONSTRUCTOR: return "CONSTRUCTOR";
         case CallableDeclaration::Kind::METHOD: return "METHOD";
         case CallableDeclaration::Kind::OPERATOR: return "OPERATOR";
+        default: return "unknown";
     }
-
-    return "unknown";
 }
 
 static std::string toString(LiteralExpression::Kind kind)
@@ -2887,9 +2879,8 @@ static std::string toString(LiteralExpression::Kind kind)
         case LiteralExpression::Kind::INTEGER: return "INTEGER";
         case LiteralExpression::Kind::FLOATING_POINT: return "FLOATING_POINT";
         case LiteralExpression::Kind::STRING: return "STRING";
+        default: return "unknown";
     }
-
-    return "unknown";
 }
 
 static std::string toString(UnaryOperatorExpression::Kind kind)
@@ -2900,9 +2891,8 @@ static std::string toString(UnaryOperatorExpression::Kind kind)
         case UnaryOperatorExpression::Kind::NEGATION: return "NEGATION";
         case UnaryOperatorExpression::Kind::POSITIVE: return "POSITIVE";
         case UnaryOperatorExpression::Kind::NEGATIVE: return "NEGATIVE";
+        default: return "unknown";
     }
-
-    return "unknown";
 }
 
 static std::string toString(BinaryOperatorExpression::Kind kind)
@@ -2928,9 +2918,8 @@ static std::string toString(BinaryOperatorExpression::Kind kind)
         case BinaryOperatorExpression::Kind::OR: return "OR";
         case BinaryOperatorExpression::Kind::AND: return "AND";
         case BinaryOperatorExpression::Kind::COMMA: return "COMMA";
+        default: return "unknown";
     }
-
-    return "unknown";
 }
 
 static std::string toString(CastExpression::Kind kind)
@@ -2940,9 +2929,8 @@ static std::string toString(CastExpression::Kind kind)
         case CastExpression::Kind::NONE: return "NONE";
         case CastExpression::Kind::IMPLICIT: return "IMPLICIT";
         case CastExpression::Kind::EXPLICIT: return "EXPLICIT";
+        default: return "unknown";
     }
-
-    return "unknown";
 }
 
 void ASTContext::dump() const
