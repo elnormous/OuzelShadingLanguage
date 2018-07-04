@@ -40,7 +40,7 @@ int main(int argc, const char* argv[])
             }
             else if (std::string(argv[i]) == "--whitespaces")
             {
-                if (++i < argc) whitespaces = true;
+                whitespaces = true;
             }
             else if (std::string(argv[i]) == "--format")
             {
