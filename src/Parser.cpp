@@ -2936,9 +2936,7 @@ static std::string toString(CastExpression::Kind kind)
 void ASTContext::dump() const
 {
     for (Declaration* declaration : declarations)
-    {
         dumpConstruct(declaration);
-    }
 }
 
 static std::string getPrintableTypeName(const QualifiedType& qualifiedType)
@@ -3011,21 +3009,15 @@ void ASTContext::dumpDeclaration(const Declaration* declaration, std::string ind
                     std::cout << ", name: " << structDeclaration->name;
 
                     if (structDeclaration->previousDeclaration)
-                    {
                         std::cout << ", previous declaration: " << structDeclaration->previousDeclaration;
-                    }
 
                     if (structDeclaration->definition)
-                    {
                         std::cout << ", definition: " << structDeclaration->definition;
-                    }
 
                     std::cout << std::endl;
 
                     for (const Declaration* memberDeclaration : structDeclaration->memberDeclarations)
-                    {
                         dumpConstruct(memberDeclaration, indent + "  ");
-                    }
 
                     break;
                 }
@@ -3047,9 +3039,7 @@ void ASTContext::dumpDeclaration(const Declaration* declaration, std::string ind
             std::cout << ", name: " << fieldDeclaration->name << ", type: " << getPrintableTypeName(fieldDeclaration->qualifiedType);
 
             if (fieldDeclaration->semantic != Semantic::NONE)
-            {
                 std::cout << ", semantic: " << toString(fieldDeclaration->semantic);
-            }
 
             std::cout << std::endl;
             break;
@@ -3069,32 +3059,23 @@ void ASTContext::dumpDeclaration(const Declaration* declaration, std::string ind
                 if (functionDeclaration->isInline) std::cout << " inline";
 
                 if (functionDeclaration->program != Program::NONE)
-                {
                     std::cout << ", program: " << toString(functionDeclaration->program);
-                }
             }
 
             if (callableDeclaration->previousDeclaration)
-            {
                 std::cout << ", previous declaration: " << callableDeclaration->previousDeclaration;
-            }
 
             if (callableDeclaration->definition)
-            {
                 std::cout << ", definition: " << callableDeclaration->definition;
-            }
 
             std::cout << std::endl;
 
             for (ParameterDeclaration* parameter : callableDeclaration->parameterDeclarations)
-            {
                 dumpConstruct(parameter, indent + "  ");
-            }
 
             if (callableDeclaration->body)
-            {
                 dumpConstruct(callableDeclaration->body, indent + "  ");
-            }
+
             break;
         }
 
@@ -3166,10 +3147,9 @@ void ASTContext::dumpStatement(const Statement* statement, std::string indent) c
 
             std::cout << std::endl;
 
-            for (Statement* statement : compoundStatement->statements)
-            {
-                dumpConstruct(statement, indent + "  ");
-            }
+            for (Statement* subSstatement : compoundStatement->statements)
+                dumpConstruct(subSstatement, indent + "  ");
+
             break;
         }
 
@@ -3302,9 +3282,7 @@ void ASTContext::dumpExpression(const Expression* expression, std::string indent
             dumpConstruct(callExpression->declarationReference, indent + "  ");
 
             for (Expression* parameter : callExpression->parameters)
-            {
                 dumpConstruct(parameter, indent + "  ");
-            }
 
             break;
         }
@@ -3431,9 +3409,7 @@ void ASTContext::dumpExpression(const Expression* expression, std::string indent
             std::cout << " " << typeDeclaration->name << std::endl;
 
             for (Expression* parameter : temporaryObjectExpression->parameters)
-            {
                 dumpConstruct(parameter, indent + "  ");
-            }
 
             break;
         }
@@ -3444,10 +3420,8 @@ void ASTContext::dumpExpression(const Expression* expression, std::string indent
 
             std::cout << std::endl;
 
-            for (Expression* expression : initializerListExpression->expressions)
-            {
-                dumpConstruct(expression, indent + "  ");
-            }
+            for (Expression* subExpression : initializerListExpression->expressions)
+                dumpConstruct(subExpression, indent + "  ");
 
             break;
         }

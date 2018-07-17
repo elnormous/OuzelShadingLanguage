@@ -288,9 +288,9 @@ void OutputGLSL::printStatement(const Statement* statement, Options options, std
             code += "{";
             if (options.whitespaces) code += "\n";
 
-            for (Statement* statement : compoundStatement->statements)
+            for (Statement* subStatement : compoundStatement->statements)
             {
-                printConstruct(statement, Options(options.indentation + 4, options.whitespaces), code);
+                printConstruct(subStatement, Options(options.indentation + 4, options.whitespaces), code);
 
                 if (options.whitespaces) code += "\n";
             }
@@ -796,7 +796,7 @@ void OutputGLSL::printExpression(const Expression* expression, Options options, 
 
             bool firstExpression = true;
 
-            for (Expression* expression : initializerListExpression->expressions)
+            for (Expression* subExpression : initializerListExpression->expressions)
             {
                 if (!firstExpression)
                 {
@@ -805,7 +805,7 @@ void OutputGLSL::printExpression(const Expression* expression, Options options, 
                     firstExpression = false;
                 }
 
-                printConstruct(expression, Options(0, options.whitespaces), code);
+                printConstruct(subExpression, Options(0, options.whitespaces), code);
             }
 
             code += "}";

@@ -292,9 +292,9 @@ void OutputHLSL::printStatement(const Statement* statement, Options options, std
             code += "{";
             if (options.whitespaces) code += "\n";
 
-            for (Statement* statement : compoundStatement->statements)
+            for (Statement* subStatement : compoundStatement->statements)
             {
-                printConstruct(statement, Options(options.indentation + 4, options.whitespaces), code);
+                printConstruct(subStatement, Options(options.indentation + 4, options.whitespaces), code);
                 if (options.whitespaces) code += "\n";
             }
 

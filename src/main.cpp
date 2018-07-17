@@ -12,12 +12,12 @@
 
 int main(int argc, const char* argv[])
 {
-    std::string inputFile;
+    std::string inputFilename;
     bool printTokens = false;
     bool printAST = false;
     bool whitespaces = false;
     std::string format;
-    std::string outputFile;
+    std::string outputFilename;
     Program program = Program::NONE;
 
     try
@@ -26,7 +26,7 @@ int main(int argc, const char* argv[])
         {
             if (std::string(argv[i]) == "--input")
             {
-                if (++i < argc) inputFile = argv[i];
+                if (++i < argc) inputFilename = argv[i];
                 else
                     throw std::runtime_error("Argument to " + std::string(argv[i]) + " is missing");
             }
@@ -50,7 +50,7 @@ int main(int argc, const char* argv[])
             }
             else if (std::string(argv[i]) == "--output")
             {
-                if (++i < argc) outputFile = argv[i];
+                if (++i < argc) outputFilename = argv[i];
                 else
                     throw std::runtime_error("Argument to " + std::string(argv[i]) + " is missing");
             }
@@ -68,78 +68,82 @@ int main(int argc, const char* argv[])
             }
         }
 
-        if (inputFile.empty())
+        if (inputFilename.empty())
             throw std::runtime_error("No input file");
 
-        std::vector<char> code;
+        std::ifstream inputFile(inputFilename, std::ios::binary);
 
-        std::ifstream file(inputFile, std::ios::binary);
+        if (!inputFile)
+            throw std::runtime_error("Failed to open file " + inputFilename);
 
-        if (!file)
-            throw std::runtime_error("Failed to open file " + inputFile);
-
-        code.assign(std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>());
+        std::vector<char> inCode;
+        inCode.assign(std::istreambuf_iterator<char>(inputFile), std::istreambuf_iterator<char>());
 
         std::vector<Token> tokens;
 
         try
         {
-            tokens = tokenize(code);
+            tokens = tokenize(inCode);
         }
         catch (const std::exception& e)
         {
             throw std::runtime_error(std::string("Failed to tokenize: ") + e.what());
         }
 
-        if (printTokens) dump(tokens);
-
-        try
+        if (printTokens)
+            dump(tokens);
+        else
         {
-            ASTContext context(tokens);
-
-            if (printAST) context.dump();
-
-            if (!format.empty())
+            try
             {
-                if (program == Program::NONE)
-                    throw std::runtime_error("No program");
+                ASTContext context(tokens);
 
-                std::unique_ptr<Output> output;
-
-                if (format == "hlsl")
-                    output.reset(new OutputHLSL(program));
-                else if (format == "glsl")
-                    output.reset(new OutputGLSL(program, 110, {}));
-                else if (format == "msl")
-                    output.reset(new OutputMSL(program, {}));
+                if (printAST)
+                    context.dump();
                 else
-                    throw std::runtime_error("Invalid format");
-
-                try
                 {
-                    std::string code = output->output(context, whitespaces);
+                    if (program == Program::NONE)
+                        throw std::runtime_error("No program");
 
-                    if (outputFile.empty())
-                        std::cout << code << std::endl;
+                    std::unique_ptr<Output> output;
+
+                    if (format.empty())
+                        throw std::runtime_error("No format");
+                    if (format == "hlsl")
+                        output.reset(new OutputHLSL(program));
+                    else if (format == "glsl")
+                        output.reset(new OutputGLSL(program, 110, {}));
+                    else if (format == "msl")
+                        output.reset(new OutputMSL(program, {}));
                     else
+                        throw std::runtime_error("Invalid format");
+
+                    try
                     {
-                        std::ofstream file(outputFile, std::ios::binary);
+                        std::string outCode = output->output(context, whitespaces);
 
-                        if (!file)
-                            throw std::runtime_error("Failed to open file " + outputFile);
+                        if (outputFilename.empty())
+                            std::cout << outCode << std::endl;
+                        else
+                        {
+                            std::ofstream outputFile(outputFilename, std::ios::binary);
 
-                        file << code;
+                            if (!outputFile)
+                                throw std::runtime_error("Failed to open file " + outputFilename);
+
+                            outputFile << outCode;
+                        }
+                    }
+                    catch (const std::exception& e)
+                    {
+                        throw std::runtime_error(std::string("Failed to output code: ") + e.what());
                     }
                 }
-                catch (const std::exception& e)
-                {
-                    throw std::runtime_error(std::string("Failed to output code: ") + e.what());
-                }
             }
-        }
-        catch (const std::exception& e)
-        {
-            throw std::runtime_error(std::string("Failed to parse: ") + e.what());
+            catch (const std::exception& e)
+            {
+                throw std::runtime_error(std::string("Failed to parse: ") + e.what());
+            }
         }
     }
     catch (const std::exception& e)
