@@ -2,6 +2,7 @@
 //  OSL
 //
 
+#include <algorithm>
 #include <iostream>
 #include "Parser.hpp"
 
@@ -239,7 +240,7 @@ CallableDeclaration* ASTContext::compareCallableDeclarations(CallableDeclaration
     CallableDeclaration* result = nullptr;
 
     if (!parameters.empty() && // both functions should have arguments
-        parameters.size() == callableDeclaration1->parameterDeclarations.size() == callableDeclaration2->parameterDeclarations.size()) // they should have the same number of parameters
+        (parameters.size() == callableDeclaration1->parameterDeclarations.size() == callableDeclaration2->parameterDeclarations.size())) // they should have the same number of parameters
     {
         for (uint32_t i = 0; i < parameters.size(); ++i)
         {
