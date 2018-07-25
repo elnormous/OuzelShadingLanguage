@@ -166,6 +166,12 @@ ASTContext::ASTContext(const std::vector<Token>& tokens):
     texture2DTypeDeclaration.isBuiltin = true;
     texture2DTypeDeclaration.definition = &texture2DTypeDeclaration;
 
+    intParameterDeclaration.name = "i";
+    samplerParameterDeclaration.qualifiedType.typeDeclaration = &intTypeDeclaration;
+
+    floatParameterDeclaration.name = "f";
+    samplerParameterDeclaration.qualifiedType.typeDeclaration = &floatTypeDeclaration;
+
     samplerParameterDeclaration.name = "sampler";
     samplerParameterDeclaration.qualifiedType.typeDeclaration = &samplerStateTypeDeclaration;
 
@@ -225,6 +231,46 @@ ASTContext::ASTContext(const std::vector<Token>& tokens):
     declarationScopes.back().push_back(&texture2DFunctionDeclaration);
     declarationScopes.back().push_back(&mulMatMatFunctionDeclaration);
     declarationScopes.back().push_back(&mulMatVecFunctionDeclaration);
+
+    intAddition.op = Operator::ADDITION;
+    intAddition.parameterDeclarations.push_back(&intParameterDeclaration);
+    intAddition.parameterDeclarations.push_back(&intParameterDeclaration);
+    declarationScopes.back().push_back(&intParameterDeclaration);
+
+    floatAddition.op = Operator::ADDITION;
+    floatAddition.parameterDeclarations.push_back(&floatParameterDeclaration);
+    floatAddition.parameterDeclarations.push_back(&floatParameterDeclaration);
+    declarationScopes.back().push_back(&floatAddition);
+
+    intSubtraction.op = Operator::SUBTRACTION;
+    intSubtraction.parameterDeclarations.push_back(&intParameterDeclaration);
+    intSubtraction.parameterDeclarations.push_back(&intParameterDeclaration);
+    declarationScopes.back().push_back(&intSubtraction);
+
+    floatSubtraction.op = Operator::SUBTRACTION;
+    floatSubtraction.parameterDeclarations.push_back(&floatParameterDeclaration);
+    floatSubtraction.parameterDeclarations.push_back(&floatParameterDeclaration);
+    declarationScopes.back().push_back(&floatSubtraction);
+
+    intMultiplication.op = Operator::MULTIPLICATION;
+    intMultiplication.parameterDeclarations.push_back(&intParameterDeclaration);
+    intMultiplication.parameterDeclarations.push_back(&intParameterDeclaration);
+    declarationScopes.back().push_back(&intMultiplication);
+
+    floatMultiplication.op = Operator::MULTIPLICATION;
+    floatMultiplication.parameterDeclarations.push_back(&floatParameterDeclaration);
+    floatMultiplication.parameterDeclarations.push_back(&floatParameterDeclaration);
+    declarationScopes.back().push_back(&floatMultiplication);
+
+    intDivision.op = Operator::DIVISION;
+    intDivision.parameterDeclarations.push_back(&intParameterDeclaration);
+    intDivision.parameterDeclarations.push_back(&intParameterDeclaration);
+    declarationScopes.back().push_back(&intDivision);
+
+    floatDivision.op = Operator::DIVISION;
+    floatDivision.parameterDeclarations.push_back(&floatParameterDeclaration);
+    floatDivision.parameterDeclarations.push_back(&floatParameterDeclaration);
+    declarationScopes.back().push_back(&floatDivision);
 
     while (iterator != tokens.end())
     {

@@ -800,7 +800,7 @@ void OutputHLSL::printExpression(const Expression* expression, Options options, 
 
             bool firstExpression = true;
 
-            for (Expression* expression : initializerListExpression->expressions)
+            for (Expression* subExpression : initializerListExpression->expressions)
             {
                 if (!firstExpression)
                 {

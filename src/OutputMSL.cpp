@@ -771,7 +771,7 @@ void OutputMSL::printExpression(const Expression* expression, Options options, s
 
             bool firstExpression = true;
 
-            for (Expression* expression : initializerListExpression->expressions)
+            for (Expression* subExpression : initializerListExpression->expressions)
             {
                 if (!firstExpression)
                 {
