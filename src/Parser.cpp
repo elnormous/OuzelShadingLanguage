@@ -166,11 +166,14 @@ ASTContext::ASTContext(const std::vector<Token>& tokens):
     texture2DTypeDeclaration.isBuiltin = true;
     texture2DTypeDeclaration.definition = &texture2DTypeDeclaration;
 
+    boolParameterDeclaration.name = "b";
+    boolParameterDeclaration.qualifiedType.typeDeclaration = &boolTypeDeclaration;
+
     intParameterDeclaration.name = "i";
-    samplerParameterDeclaration.qualifiedType.typeDeclaration = &intTypeDeclaration;
+    intParameterDeclaration.qualifiedType.typeDeclaration = &intTypeDeclaration;
 
     floatParameterDeclaration.name = "f";
-    samplerParameterDeclaration.qualifiedType.typeDeclaration = &floatTypeDeclaration;
+    floatParameterDeclaration.qualifiedType.typeDeclaration = &floatTypeDeclaration;
 
     samplerParameterDeclaration.name = "sampler";
     samplerParameterDeclaration.qualifiedType.typeDeclaration = &samplerStateTypeDeclaration;
@@ -231,6 +234,15 @@ ASTContext::ASTContext(const std::vector<Token>& tokens):
     declarationScopes.back().push_back(&texture2DFunctionDeclaration);
     declarationScopes.back().push_back(&mulMatMatFunctionDeclaration);
     declarationScopes.back().push_back(&mulMatVecFunctionDeclaration);
+
+    intPositive.op = Operator::POSITIVE;
+    intPositive.parameterDeclarations.push_back(&intParameterDeclaration);
+    floatPositive.op = Operator::POSITIVE;
+    floatPositive.parameterDeclarations.push_back(&floatParameterDeclaration);
+    intNegative.op = Operator::NEGATIVE;
+    intNegative.parameterDeclarations.push_back(&intParameterDeclaration);
+    floatNegative.op = Operator::NEGATIVE;
+    floatNegative.parameterDeclarations.push_back(&floatParameterDeclaration);
 
     intAddition.op = Operator::ADDITION;
     intAddition.parameterDeclarations.push_back(&intParameterDeclaration);

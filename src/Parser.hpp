@@ -1048,6 +1048,7 @@ private:
     StructDeclaration samplerStateTypeDeclaration;
     StructDeclaration texture2DTypeDeclaration;
 
+    ParameterDeclaration boolParameterDeclaration;
     ParameterDeclaration intParameterDeclaration;
     ParameterDeclaration floatParameterDeclaration;
     ParameterDeclaration samplerParameterDeclaration;
@@ -1059,6 +1060,11 @@ private:
     FunctionDeclaration mulMatMatFunctionDeclaration;
     FunctionDeclaration mulMatVecFunctionDeclaration;
     FunctionDeclaration mulVecMatFunctionDeclaration;
+
+    OperatorDeclaration intPositive;
+    OperatorDeclaration floatPositive;
+    OperatorDeclaration intNegative;
+    OperatorDeclaration floatNegative;
 
     OperatorDeclaration intAddition;
     OperatorDeclaration floatAddition;
