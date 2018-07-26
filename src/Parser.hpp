@@ -594,6 +594,8 @@ public:
 
     UnaryOperatorExpression(): Expression(Expression::Kind::UNARY_OPERATOR) {}
 
+    OperatorDeclaration* operatorDeclaration = nullptr;
+
     Expression* expression = nullptr;
 
     Kind unaryOperatorKind = Kind::NONE;
@@ -627,6 +629,8 @@ public:
 
     BinaryOperatorExpression(): Expression(Expression::Kind::BINARY_OPERATOR) {}
 
+    OperatorDeclaration* operatorDeclaration = nullptr;
+
     Expression* leftExpression = nullptr;
     Expression* rightExpression = nullptr;
 
@@ -637,6 +641,8 @@ class TernaryOperatorExpression: public Expression
 {
 public:
     TernaryOperatorExpression(): Expression(Expression::Kind::TERNARY_OPERATOR) {}
+
+    OperatorDeclaration* operatorDeclaration = nullptr;
 
     Expression* condition;
     Expression* leftExpression = nullptr;
@@ -1060,6 +1066,8 @@ private:
     FunctionDeclaration mulMatMatFunctionDeclaration;
     FunctionDeclaration mulMatVecFunctionDeclaration;
     FunctionDeclaration mulVecMatFunctionDeclaration;
+
+    OperatorDeclaration boolNegation;
 
     OperatorDeclaration intPositive;
     OperatorDeclaration floatPositive;

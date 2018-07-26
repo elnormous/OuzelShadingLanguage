@@ -235,14 +235,25 @@ ASTContext::ASTContext(const std::vector<Token>& tokens):
     declarationScopes.back().push_back(&mulMatMatFunctionDeclaration);
     declarationScopes.back().push_back(&mulMatVecFunctionDeclaration);
 
+    boolNegation.op = Operator::NEGATION;
+    boolNegation.parameterDeclarations.push_back(&boolParameterDeclaration);
+    declarationScopes.back().push_back(&boolNegation);
+
     intPositive.op = Operator::POSITIVE;
     intPositive.parameterDeclarations.push_back(&intParameterDeclaration);
+    declarationScopes.back().push_back(&intPositive);
+
     floatPositive.op = Operator::POSITIVE;
     floatPositive.parameterDeclarations.push_back(&floatParameterDeclaration);
+    declarationScopes.back().push_back(&floatPositive);
+
     intNegative.op = Operator::NEGATIVE;
     intNegative.parameterDeclarations.push_back(&intParameterDeclaration);
+    declarationScopes.back().push_back(&intNegative);
+
     floatNegative.op = Operator::NEGATIVE;
     floatNegative.parameterDeclarations.push_back(&floatParameterDeclaration);
+    declarationScopes.back().push_back(&floatNegative);
 
     intAddition.op = Operator::ADDITION;
     intAddition.parameterDeclarations.push_back(&intParameterDeclaration);
@@ -414,7 +425,7 @@ FunctionDeclaration* ASTContext::resolveFunctionDeclaration(const std::string& n
     }
 
     if (viableFunctionDeclarations.empty())
-        throw std::runtime_error("No matching function to call " + name + "  found");
+        throw std::runtime_error("No matching function to call " + name + " found");
     else if (viableFunctionDeclarations.size() == 1)
         return *viableFunctionDeclarations.begin();
     else
@@ -489,7 +500,7 @@ OperatorDeclaration* ASTContext::resolveOperatorDeclaration(Operator op,
             {
                 CallableDeclaration* callableDeclaration = static_cast<CallableDeclaration*>(*declarationIterator);
 
-                if (callableDeclaration->getCallableDeclarationKind() != CallableDeclaration::Kind::OPERATOR)
+                if (callableDeclaration->getCallableDeclarationKind() == CallableDeclaration::Kind::OPERATOR)
                 {
                     OperatorDeclaration* operatorDeclaration = static_cast<OperatorDeclaration*>(callableDeclaration->getFirstDeclaration());
 
@@ -523,7 +534,7 @@ OperatorDeclaration* ASTContext::resolveOperatorDeclaration(Operator op,
     }
 
     if (viableOperatorDeclarations.empty())
-        throw std::runtime_error("No matching function to call " + toString(op) + "  found");
+        throw std::runtime_error("No matching function to call " + toString(op) + " found");
     else if (viableOperatorDeclarations.size() == 1)
         return *viableOperatorDeclarations.begin();
     else
@@ -2263,21 +2274,28 @@ Expression* ASTContext::parseSignExpression(const std::vector<Token>& tokens,
         constructs.push_back(std::unique_ptr<Construct>(result));
         result->parent = parent;
 
-        if (iterator->type == Token::Type::OPERATOR_PLUS) result->unaryOperatorKind = UnaryOperatorExpression::Kind::POSITIVE;
-        else if (iterator->type == Token::Type::OPERATOR_MINUS) result->unaryOperatorKind = UnaryOperatorExpression::Kind::NEGATIVE;
+        Operator op = Operator::NONE;
+
+        if (iterator->type == Token::Type::OPERATOR_PLUS)
+        {
+            result->unaryOperatorKind = UnaryOperatorExpression::Kind::POSITIVE;
+            op = Operator::POSITIVE;
+        }
+        else if (iterator->type == Token::Type::OPERATOR_MINUS)
+        {
+            result->unaryOperatorKind = UnaryOperatorExpression::Kind::NEGATIVE;
+            op = Operator::NEGATIVE;
+        }
 
         ++iterator;
 
         if (!(result->expression = parseMemberExpression(tokens, iterator, declarationScopes, result)))
             return nullptr;
 
-        if (!result->expression->qualifiedType.typeDeclaration)
-            throw std::runtime_error("Unary expression with a void type");
+        result->operatorDeclaration = resolveOperatorDeclaration(op, declarationScopes, {result->expression->qualifiedType});
 
         if (result->expression->qualifiedType.typeDeclaration == &boolTypeDeclaration)
-        {
             result->expression = addImplicitCast(result->expression, &intTypeDeclaration);
-        }
 
         result->qualifiedType = result->expression->qualifiedType;
         result->isLValue = false;
@@ -2306,18 +2324,17 @@ Expression* ASTContext::parseNotExpression(const std::vector<Token>& tokens,
         result->parent = parent;
         result->unaryOperatorKind = UnaryOperatorExpression::Kind::NEGATION;
 
+        Operator op = Operator::NEGATION;
+
         ++iterator;
 
-        if (!(result->expression = parseSignExpression(tokens, iterator, declarationScopes, result)))
+        if (!(result->expression = parseNotExpression(tokens, iterator, declarationScopes, result)))
             return nullptr;
 
-        if (!result->expression->qualifiedType.typeDeclaration)
-            throw std::runtime_error("Unary expression with a void type");
+        result->operatorDeclaration = resolveOperatorDeclaration(op, declarationScopes, {result->expression->qualifiedType});
 
         if (result->expression->qualifiedType.typeDeclaration != &boolTypeDeclaration)
-        {
             result->expression = addImplicitCast(result->expression, &boolTypeDeclaration);
-        }
 
         result->qualifiedType.typeDeclaration = &boolTypeDeclaration;
         result->isLValue = false;
@@ -2329,7 +2346,6 @@ Expression* ASTContext::parseNotExpression(const std::vector<Token>& tokens,
         Expression* result;
         if (!(result = parseSignExpression(tokens, iterator, declarationScopes, parent)))
             return nullptr;
-
         return result;
     }
 }
@@ -2349,8 +2365,18 @@ Expression* ASTContext::parseMultiplicationExpression(const std::vector<Token>& 
         constructs.push_back(std::unique_ptr<Construct>(expression));
         expression->parent = parent;
 
-        if (iterator->type == Token::Type::OPERATOR_MULTIPLY) expression->binaryOperatorKind = BinaryOperatorExpression::Kind::MULTIPLICATION;
-        else if (iterator->type == Token::Type::OPERATOR_DIVIDE) expression->binaryOperatorKind = BinaryOperatorExpression::Kind::DIVISION;
+        Operator op = Operator::NONE;
+
+        if (iterator->type == Token::Type::OPERATOR_MULTIPLY)
+        {
+            expression->binaryOperatorKind = BinaryOperatorExpression::Kind::MULTIPLICATION;
+            op = Operator::MULTIPLICATION;
+        }
+        else if (iterator->type == Token::Type::OPERATOR_DIVIDE)
+        {
+            expression->binaryOperatorKind = BinaryOperatorExpression::Kind::DIVISION;
+            op = Operator::DIVISION;
+        }
 
         expression->leftExpression = result;
 
@@ -2359,9 +2385,8 @@ Expression* ASTContext::parseMultiplicationExpression(const std::vector<Token>& 
         if (!(expression->rightExpression = parseNotExpression(tokens, iterator, declarationScopes, expression)))
             return nullptr;
 
-        if (!expression->leftExpression->qualifiedType.typeDeclaration ||
-            !expression->rightExpression->qualifiedType.typeDeclaration)
-            throw std::runtime_error("Binary expression with a void type");
+        expression->operatorDeclaration = resolveOperatorDeclaration(op, declarationScopes,
+                                                                     {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
 
         // TODO: fix this
         expression->qualifiedType = expression->leftExpression->qualifiedType;
@@ -2389,8 +2414,18 @@ Expression* ASTContext::parseAdditionExpression(const std::vector<Token>& tokens
         constructs.push_back(std::unique_ptr<Construct>(expression));
         expression->parent = parent;
 
-        if (iterator->type == Token::Type::OPERATOR_PLUS) expression->binaryOperatorKind = BinaryOperatorExpression::Kind::ADDITION;
-        else if (iterator->type == Token::Type::OPERATOR_MINUS) expression->binaryOperatorKind = BinaryOperatorExpression::Kind::SUBTRACTION;
+        Operator op = Operator::NONE;
+
+        if (iterator->type == Token::Type::OPERATOR_PLUS)
+        {
+            expression->binaryOperatorKind = BinaryOperatorExpression::Kind::ADDITION;
+            op = Operator::ADDITION;
+        }
+        else if (iterator->type == Token::Type::OPERATOR_MINUS)
+        {
+            expression->binaryOperatorKind = BinaryOperatorExpression::Kind::SUBTRACTION;
+            op = Operator::SUBTRACTION;
+        }
 
         expression->leftExpression = result;
 
@@ -2399,9 +2434,8 @@ Expression* ASTContext::parseAdditionExpression(const std::vector<Token>& tokens
         if (!(expression->rightExpression = parseMultiplicationExpression(tokens, iterator, declarationScopes, expression)))
             return nullptr;
 
-        if (!expression->leftExpression->qualifiedType.typeDeclaration ||
-            !expression->rightExpression->qualifiedType.typeDeclaration)
-            throw std::runtime_error("Binary expression with a void type");
+        expression->operatorDeclaration = resolveOperatorDeclaration(op, declarationScopes,
+                                                                     {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
 
         // TODO: fix this
         expression->qualifiedType = expression->leftExpression->qualifiedType;
@@ -2439,10 +2473,6 @@ Expression* ASTContext::parseLessThanExpression(const std::vector<Token>& tokens
         if (!(expression->rightExpression = parseAdditionExpression(tokens, iterator, declarationScopes, expression)))
             return nullptr;
 
-        if (!expression->leftExpression->qualifiedType.typeDeclaration ||
-            !expression->rightExpression->qualifiedType.typeDeclaration)
-            throw std::runtime_error("Binary expression with a void type");
-
         // TODO: fix this
         expression->qualifiedType = expression->leftExpression->qualifiedType;
         expression->isLValue = false;
@@ -2478,10 +2508,6 @@ Expression* ASTContext::parseGreaterThanExpression(const std::vector<Token>& tok
 
         if (!(expression->rightExpression = parseLessThanExpression(tokens, iterator, declarationScopes, expression)))
             return nullptr;
-
-        if (!expression->leftExpression->qualifiedType.typeDeclaration ||
-            !expression->rightExpression->qualifiedType.typeDeclaration)
-            throw std::runtime_error("Binary expression with a void type");
 
         // TODO: fix this
         expression->qualifiedType = expression->leftExpression->qualifiedType;
@@ -2519,10 +2545,6 @@ Expression* ASTContext::parseEqualityExpression(const std::vector<Token>& tokens
         if (!(expression->rightExpression = parseGreaterThanExpression(tokens, iterator, declarationScopes, expression)))
             return nullptr;
 
-        if (!expression->leftExpression->qualifiedType.typeDeclaration ||
-            !expression->rightExpression->qualifiedType.typeDeclaration)
-            throw std::runtime_error("Binary expression with a void type");
-
         // TODO: fix this
         expression->qualifiedType = expression->leftExpression->qualifiedType;
         expression->isLValue = false;
@@ -2557,10 +2579,6 @@ Expression* ASTContext::parseLogicalAndExpression(const std::vector<Token>& toke
         if (!(expression->rightExpression = parseEqualityExpression(tokens, iterator, declarationScopes, expression)))
             return nullptr;
 
-        if (!expression->leftExpression->qualifiedType.typeDeclaration ||
-            !expression->rightExpression->qualifiedType.typeDeclaration)
-            throw std::runtime_error("Binary expression with a void type");
-
         // TODO: check if both sides ar scalar
         expression->qualifiedType.typeDeclaration = &boolTypeDeclaration;
         expression->isLValue = false;
@@ -2594,10 +2612,6 @@ Expression* ASTContext::parseLogicalOrExpression(const std::vector<Token>& token
 
         if (!(expression->rightExpression = parseLogicalAndExpression(tokens, iterator, declarationScopes, expression)))
             return nullptr;
-
-        if (!expression->leftExpression->qualifiedType.typeDeclaration ||
-            !expression->rightExpression->qualifiedType.typeDeclaration)
-            throw std::runtime_error("Binary expression with a void type");
 
         // TODO: check if both sides ar scalar
         expression->qualifiedType.typeDeclaration = &boolTypeDeclaration;
@@ -2680,10 +2694,6 @@ Expression* ASTContext::parseAssignmentExpression(const std::vector<Token>& toke
         if (!(expression->rightExpression = parseTernaryExpression(tokens, iterator, declarationScopes, expression)))
             return nullptr;
 
-        if (!expression->leftExpression->qualifiedType.typeDeclaration ||
-            !expression->rightExpression->qualifiedType.typeDeclaration)
-            throw std::runtime_error("Binary expression with a void type");
-
         // TODO: fix this
         expression->qualifiedType = expression->leftExpression->qualifiedType;
         expression->isLValue = true;
@@ -2725,10 +2735,6 @@ Expression* ASTContext::parseAdditionAssignmentExpression(const std::vector<Toke
 
         if (!(expression->rightExpression = parseAssignmentExpression(tokens, iterator, declarationScopes, expression)))
             return nullptr;
-
-        if (!expression->leftExpression->qualifiedType.typeDeclaration ||
-            !expression->rightExpression->qualifiedType.typeDeclaration)
-            throw std::runtime_error("Binary expression with a void type");
 
         // TODO: fix this
         expression->qualifiedType = expression->leftExpression->qualifiedType;
@@ -2772,10 +2778,6 @@ Expression* ASTContext::parseMultiplicationAssignmentExpression(const std::vecto
         std::unique_ptr<Construct> right;
         if (!(expression->rightExpression = parseAdditionAssignmentExpression(tokens, iterator, declarationScopes, expression)))
             return nullptr;
-
-        if (!expression->leftExpression->qualifiedType.typeDeclaration ||
-            !expression->rightExpression->qualifiedType.typeDeclaration)
-            throw std::runtime_error("Binary expression with a void type");
 
         // TODO: fix this
         expression->qualifiedType = expression->leftExpression->qualifiedType;
