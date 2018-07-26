@@ -780,7 +780,7 @@ void OutputMSL::printExpression(const Expression* expression, Options options, s
                     firstExpression = false;
                 }
 
-                printConstruct(expression, Options(0, options.whitespaces), code);
+                printConstruct(subExpression, Options(0, options.whitespaces), code);
             }
 
             code += "}";
