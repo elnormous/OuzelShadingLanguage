@@ -2463,8 +2463,18 @@ Expression* ASTContext::parseLessThanExpression(const std::vector<Token>& tokens
         constructs.push_back(std::unique_ptr<Construct>(expression));
         expression->parent = parent;
 
-        if (iterator->type == Token::Type::OPERATOR_LESS_THAN) expression->binaryOperatorKind = BinaryOperatorExpression::Kind::LESS_THAN;
-        else if (iterator->type == Token::Type::OPERATOR_LESS_THAN_EQUAL) expression->binaryOperatorKind = BinaryOperatorExpression::Kind::LESS_THAN_EQUAL;
+        Operator op = Operator::NONE;
+
+        if (iterator->type == Token::Type::OPERATOR_LESS_THAN)
+        {
+            expression->binaryOperatorKind = BinaryOperatorExpression::Kind::LESS_THAN;
+            op = Operator::LESS_THAN;
+        }
+        else if (iterator->type == Token::Type::OPERATOR_LESS_THAN_EQUAL)
+        {
+            expression->binaryOperatorKind = BinaryOperatorExpression::Kind::LESS_THAN_EQUAL;
+            op = Operator::LESS_THAN_EQUAL;
+        }
 
         ++iterator;
 
@@ -2472,6 +2482,9 @@ Expression* ASTContext::parseLessThanExpression(const std::vector<Token>& tokens
 
         if (!(expression->rightExpression = parseAdditionExpression(tokens, iterator, declarationScopes, expression)))
             return nullptr;
+
+        expression->operatorDeclaration = resolveOperatorDeclaration(op, declarationScopes,
+                                                                     {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
 
         // TODO: fix this
         expression->qualifiedType = expression->leftExpression->qualifiedType;
@@ -2499,8 +2512,18 @@ Expression* ASTContext::parseGreaterThanExpression(const std::vector<Token>& tok
         constructs.push_back(std::unique_ptr<Construct>(expression));
         expression->parent = parent;
 
-        if (iterator->type == Token::Type::OPERATOR_GREATER_THAN) expression->binaryOperatorKind = BinaryOperatorExpression::Kind::GREATER_THAN;
-        else if (iterator->type == Token::Type::OPERATOR_GREATER_THAN_EQUAL) expression->binaryOperatorKind = BinaryOperatorExpression::Kind::GREATER_THAN_EQUAL;
+        Operator op = Operator::NONE;
+
+        if (iterator->type == Token::Type::OPERATOR_GREATER_THAN)
+        {
+            expression->binaryOperatorKind = BinaryOperatorExpression::Kind::GREATER_THAN;
+            op = Operator::GREATER_THAN;
+        }
+        else if (iterator->type == Token::Type::OPERATOR_GREATER_THAN_EQUAL)
+        {
+            expression->binaryOperatorKind = BinaryOperatorExpression::Kind::GREATER_THAN_EQUAL;
+            op = Operator::GREATER_THAN_EQUAL;
+        }
 
         ++iterator;
 
@@ -2508,6 +2531,9 @@ Expression* ASTContext::parseGreaterThanExpression(const std::vector<Token>& tok
 
         if (!(expression->rightExpression = parseLessThanExpression(tokens, iterator, declarationScopes, expression)))
             return nullptr;
+
+        expression->operatorDeclaration = resolveOperatorDeclaration(op, declarationScopes,
+                                                                     {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
 
         // TODO: fix this
         expression->qualifiedType = expression->leftExpression->qualifiedType;
@@ -2535,8 +2561,18 @@ Expression* ASTContext::parseEqualityExpression(const std::vector<Token>& tokens
         constructs.push_back(std::unique_ptr<Construct>(expression));
         expression->parent = parent;
 
-        if (iterator->type == Token::Type::OPERATOR_EQUAL) expression->binaryOperatorKind = BinaryOperatorExpression::Kind::EQUALITY;
-        else if (iterator->type == Token::Type::OPERATOR_NOT_EQUAL || iterator->type == Token::Type::KEYWORD_NOT_EQ) expression->binaryOperatorKind = BinaryOperatorExpression::Kind::INEQUALITY;
+        Operator op = Operator::NONE;
+
+        if (iterator->type == Token::Type::OPERATOR_EQUAL)
+        {
+            expression->binaryOperatorKind = BinaryOperatorExpression::Kind::EQUALITY;
+            op = Operator::EQUALITY;
+        }
+        else if (iterator->type == Token::Type::OPERATOR_NOT_EQUAL || iterator->type == Token::Type::KEYWORD_NOT_EQ)
+        {
+            expression->binaryOperatorKind = BinaryOperatorExpression::Kind::INEQUALITY;
+            op = Operator::INEQUALITY;
+        }
 
         ++iterator;
 
@@ -2544,6 +2580,9 @@ Expression* ASTContext::parseEqualityExpression(const std::vector<Token>& tokens
 
         if (!(expression->rightExpression = parseGreaterThanExpression(tokens, iterator, declarationScopes, expression)))
             return nullptr;
+
+        expression->operatorDeclaration = resolveOperatorDeclaration(op, declarationScopes,
+                                                                     {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
 
         // TODO: fix this
         expression->qualifiedType = expression->leftExpression->qualifiedType;
@@ -2574,10 +2613,15 @@ Expression* ASTContext::parseLogicalAndExpression(const std::vector<Token>& toke
         expression->parent = parent;
         expression->binaryOperatorKind = BinaryOperatorExpression::Kind::AND;
 
+        Operator op = Operator::AND;
+
         expression->leftExpression = result;
 
         if (!(expression->rightExpression = parseEqualityExpression(tokens, iterator, declarationScopes, expression)))
             return nullptr;
+
+        expression->operatorDeclaration = resolveOperatorDeclaration(op, declarationScopes,
+                                                                     {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
 
         // TODO: check if both sides ar scalar
         expression->qualifiedType.typeDeclaration = &boolTypeDeclaration;
@@ -2608,10 +2652,15 @@ Expression* ASTContext::parseLogicalOrExpression(const std::vector<Token>& token
         expression->parent = parent;
         expression->binaryOperatorKind = BinaryOperatorExpression::Kind::OR;
 
+        Operator op = Operator::OR;
+
         expression->leftExpression = result;
 
         if (!(expression->rightExpression = parseLogicalAndExpression(tokens, iterator, declarationScopes, expression)))
             return nullptr;
+
+        expression->operatorDeclaration = resolveOperatorDeclaration(op, declarationScopes,
+                                                                     {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
 
         // TODO: check if both sides ar scalar
         expression->qualifiedType.typeDeclaration = &boolTypeDeclaration;
@@ -2720,8 +2769,18 @@ Expression* ASTContext::parseAdditionAssignmentExpression(const std::vector<Toke
         constructs.push_back(std::unique_ptr<Construct>(expression));
         expression->parent = parent;
 
-        if (iterator->type == Token::Type::OPERATOR_PLUS_ASSIGNMENT) expression->binaryOperatorKind = BinaryOperatorExpression::Kind::ADDITION_ASSIGNMENT;
-        else if (iterator->type == Token::Type::OPERATOR_MINUS_ASSIGNMENT) expression->binaryOperatorKind = BinaryOperatorExpression::Kind::SUBTRACTION_ASSIGNMENT;
+        Operator op = Operator::NONE;
+
+        if (iterator->type == Token::Type::OPERATOR_PLUS_ASSIGNMENT)
+        {
+            expression->binaryOperatorKind = BinaryOperatorExpression::Kind::ADDITION_ASSIGNMENT;
+            op = Operator::ADDITION_ASSIGNMENT;
+        }
+        else if (iterator->type == Token::Type::OPERATOR_MINUS_ASSIGNMENT)
+        {
+            expression->binaryOperatorKind = BinaryOperatorExpression::Kind::SUBTRACTION_ASSIGNMENT;
+            op = Operator::SUBTRACTION_ASSIGNMENT;
+        }
 
         ++iterator;
 
@@ -2735,6 +2794,9 @@ Expression* ASTContext::parseAdditionAssignmentExpression(const std::vector<Toke
 
         if (!(expression->rightExpression = parseAssignmentExpression(tokens, iterator, declarationScopes, expression)))
             return nullptr;
+
+        expression->operatorDeclaration = resolveOperatorDeclaration(op, declarationScopes,
+                                                                     {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
 
         // TODO: fix this
         expression->qualifiedType = expression->leftExpression->qualifiedType;
@@ -2762,8 +2824,18 @@ Expression* ASTContext::parseMultiplicationAssignmentExpression(const std::vecto
         constructs.push_back(std::unique_ptr<Construct>(expression));
         expression->parent = parent;
 
-        if (iterator->type == Token::Type::OPERATOR_MULTIPLY_ASSIGNMENT) expression->binaryOperatorKind = BinaryOperatorExpression::Kind::MULTIPLICATION_ASSIGNMENT;
-        else if (iterator->type == Token::Type::OPERATOR_DIVIDE_ASSIGNMENT) expression->binaryOperatorKind = BinaryOperatorExpression::Kind::DIVISION_ASSIGNMENT;
+        Operator op = Operator::NONE;
+
+        if (iterator->type == Token::Type::OPERATOR_MULTIPLY_ASSIGNMENT)
+        {
+            expression->binaryOperatorKind = BinaryOperatorExpression::Kind::MULTIPLICATION_ASSIGNMENT;
+            op = Operator::MULTIPLICATION_ASSIGNMENT;
+        }
+        else if (iterator->type == Token::Type::OPERATOR_DIVIDE_ASSIGNMENT)
+        {
+            expression->binaryOperatorKind = BinaryOperatorExpression::Kind::DIVISION_ASSIGNMENT;
+            op = Operator::DIVISION_ASSIGNMENT;
+        }
 
         ++iterator;
 
@@ -2779,6 +2851,9 @@ Expression* ASTContext::parseMultiplicationAssignmentExpression(const std::vecto
         if (!(expression->rightExpression = parseAdditionAssignmentExpression(tokens, iterator, declarationScopes, expression)))
             return nullptr;
 
+        expression->operatorDeclaration = resolveOperatorDeclaration(op, declarationScopes,
+                                                                     {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
+        
         // TODO: fix this
         expression->qualifiedType = expression->leftExpression->qualifiedType;
         expression->isLValue = true;
