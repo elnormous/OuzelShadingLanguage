@@ -45,6 +45,7 @@ struct Token
         KEYWORD_DELETE, // delete
         KEYWORD_DO, // do
         KEYWORD_DOUBLE, // double
+        KEYWORD_DYNAMIC_CAST, // dynamic_cast
         KEYWORD_ELSE, // else
         KEYWORD_ENUM, // enum
         KEYWORD_EXPLICIT, // extern
@@ -72,11 +73,13 @@ struct Token
         KEYWORD_PRIVATE, // private
         KEYWORD_PROTECTED, // protected
         KEYWORD_PUBLIC, // public
+        KEYWORD_REINTERPRET_CAST, // reinterpret_cast
         KEYWORD_RETURN, // return
         KEYWORD_SHORT, // short
         KEYWORD_SIGNED, // signed
         KEYWORD_SIZEOF, // sizeof
         KEYWORD_STATIC, // static
+        KEYWORD_STATIC_CAST, // static_cast
         KEYWORD_STRUCT, // struct
         KEYWORD_SWITCH, // switch
         KEYWORD_TEMPLATE, // template
@@ -195,6 +198,7 @@ inline std::string toString(Token::Type type)
         case Token::Type::KEYWORD_DELETE: return "KEYWORD_DELETE";
         case Token::Type::KEYWORD_DO: return "KEYWORD_DO";
         case Token::Type::KEYWORD_DOUBLE: return "KEYWORD_DOUBLE";
+        case Token::Type::KEYWORD_DYNAMIC_CAST: return "KEYWORD_DYNAMIC_CAST";
         case Token::Type::KEYWORD_ELSE: return "KEYWORD_ELSE";
         case Token::Type::KEYWORD_ENUM: return "KEYWORD_ENUM";
         case Token::Type::KEYWORD_EXPLICIT: return "KEYWORD_EXPLICIT";
@@ -223,10 +227,12 @@ inline std::string toString(Token::Type type)
         case Token::Type::KEYWORD_PROTECTED: return "KEYWORD_PROTECTED";
         case Token::Type::KEYWORD_PUBLIC: return "KEYWORD_PUBLIC";
         case Token::Type::KEYWORD_RETURN: return "KEYWORD_RETURN";
+        case Token::Type::KEYWORD_REINTERPRET_CAST: return "KEYWORD_REINTERPRET_CAST";
         case Token::Type::KEYWORD_SHORT: return "KEYWORD_SHORT";
         case Token::Type::KEYWORD_SIGNED: return "KEYWORD_SIGNED";
         case Token::Type::KEYWORD_SIZEOF: return "KEYWORD_SIZEOF";
         case Token::Type::KEYWORD_STATIC: return "KEYWORD_STATIC";
+        case Token::Type::KEYWORD_STATIC_CAST: return "KEYWORD_STATIC_CAST";
         case Token::Type::KEYWORD_STRUCT: return "KEYWORD_STRUCT";
         case Token::Type::KEYWORD_SWITCH: return "KEYWORD_SWITCH";
         case Token::Type::KEYWORD_TEMPLATE: return "KEYWORD_TEMPLATE";
