@@ -11,46 +11,30 @@ static const std::vector<std::string> builtinTypes = {
     "vec2", "vec3", "vec4", "mat3", "mat4"
 };
 
-ASTContext::ASTContext():
-    boolTypeDeclaration(ScalarTypeDeclaration::Kind::BOOLEAN),
-    intTypeDeclaration(ScalarTypeDeclaration::Kind::INTEGER),
-    floatTypeDeclaration(ScalarTypeDeclaration::Kind::FLOATING_POINT)
+ASTContext::ASTContext()
 {
 }
 
-ASTContext::ASTContext(const std::vector<Token>& tokens):
-    boolTypeDeclaration(ScalarTypeDeclaration::Kind::BOOLEAN),
-    intTypeDeclaration(ScalarTypeDeclaration::Kind::INTEGER),
-    floatTypeDeclaration(ScalarTypeDeclaration::Kind::FLOATING_POINT)
+ASTContext::ASTContext(const std::vector<Token>& tokens)
 {
-    boolTypeDeclaration.name = "bool";
-    boolTypeDeclaration.isBuiltin = true;
+    std::vector<std::vector<Declaration*>> declarationScopes;
+    declarationScopes.push_back(std::vector<Declaration*>());
 
-    intTypeDeclaration.name = "int";
-    intTypeDeclaration.isBuiltin = true;
+    boolTypeDeclaration = addScalarTypeDeclaration("bool", ScalarTypeDeclaration::Kind::BOOLEAN, declarationScopes);
+    intTypeDeclaration = addScalarTypeDeclaration("int", ScalarTypeDeclaration::Kind::INTEGER, declarationScopes);
+    floatTypeDeclaration = addScalarTypeDeclaration("float", ScalarTypeDeclaration::Kind::FLOATING_POINT, declarationScopes);
 
-    floatTypeDeclaration.name = "float";
-    floatTypeDeclaration.isBuiltin = true;
-
-    float2TypeDeclaration.name = "float2";
-    float2TypeDeclaration.isBuiltin = true;
-    float2TypeDeclaration.definition = &float2TypeDeclaration;
-
-    float3TypeDeclaration.name = "float3";
-    float3TypeDeclaration.isBuiltin = true;
-    float3TypeDeclaration.definition = &float3TypeDeclaration;
-
-    float4TypeDeclaration.name = "float4";
-    float4TypeDeclaration.isBuiltin = true;
-    float4TypeDeclaration.definition = &float4TypeDeclaration;
+    StructDeclaration* float2TypeDeclaration = addStructDeclaration("float2", declarationScopes);
+    StructDeclaration* float3TypeDeclaration = addStructDeclaration("float3", declarationScopes);
+    StructDeclaration* float4TypeDeclaration = addStructDeclaration("float4", declarationScopes);
 
     std::vector<std::pair<StructDeclaration*, std::vector<TypeDeclaration*>>> constructors = {
-        {&float2TypeDeclaration, {&floatTypeDeclaration}},
-        {&float2TypeDeclaration, {&floatTypeDeclaration, &floatTypeDeclaration}},
-        {&float3TypeDeclaration, {&floatTypeDeclaration}},
-        {&float3TypeDeclaration, {&floatTypeDeclaration, &floatTypeDeclaration, &floatTypeDeclaration}},
-        {&float4TypeDeclaration, {&floatTypeDeclaration}},
-        {&float4TypeDeclaration, {&floatTypeDeclaration, &floatTypeDeclaration, &floatTypeDeclaration, &floatTypeDeclaration}}
+        {float2TypeDeclaration, {floatTypeDeclaration}},
+        {float2TypeDeclaration, {floatTypeDeclaration, floatTypeDeclaration}},
+        {float3TypeDeclaration, {floatTypeDeclaration}},
+        {float3TypeDeclaration, {floatTypeDeclaration, floatTypeDeclaration, floatTypeDeclaration}},
+        {float4TypeDeclaration, {floatTypeDeclaration}},
+        {float4TypeDeclaration, {floatTypeDeclaration, floatTypeDeclaration, floatTypeDeclaration, floatTypeDeclaration}}
     };
 
     ConstructorDeclaration* constructorDeclaration = constructorDeclarations;
@@ -75,12 +59,12 @@ ASTContext::ASTContext(const std::vector<Token>& tokens):
     }
 
     std::vector<std::pair<StructDeclaration*, std::vector<char>>> types = {
-        {&float2TypeDeclaration, {'x', 'y'}},
-        {&float2TypeDeclaration, {'r', 'g'}},
-        {&float3TypeDeclaration, {'x', 'y', 'z'}},
-        {&float3TypeDeclaration, {'r', 'g', 'b'}},
-        {&float4TypeDeclaration, {'x', 'y', 'z', 'w'}},
-        {&float4TypeDeclaration, {'r', 'g', 'b', 'a'}}
+        {float2TypeDeclaration, {'x', 'y'}},
+        {float2TypeDeclaration, {'r', 'g'}},
+        {float3TypeDeclaration, {'x', 'y', 'z'}},
+        {float3TypeDeclaration, {'r', 'g', 'b'}},
+        {float4TypeDeclaration, {'x', 'y', 'z', 'w'}},
+        {float4TypeDeclaration, {'r', 'g', 'b', 'a'}}
     };
 
     FieldDeclaration* fieldDeclaration = fieldDeclarations;
@@ -90,7 +74,7 @@ ASTContext::ASTContext(const std::vector<Token>& tokens):
         for (char first : type.second)
         {
             fieldDeclaration->parent = type.first;
-            fieldDeclaration->qualifiedType.typeDeclaration = &floatTypeDeclaration;
+            fieldDeclaration->qualifiedType.typeDeclaration = floatTypeDeclaration;
             fieldDeclaration->qualifiedType.isConst = false;
             fieldDeclaration->name.assign({first});
 
@@ -103,7 +87,7 @@ ASTContext::ASTContext(const std::vector<Token>& tokens):
                 bool secondConst = (second == first);
 
                 fieldDeclaration->parent = type.first;
-                fieldDeclaration->qualifiedType.typeDeclaration = &float2TypeDeclaration;
+                fieldDeclaration->qualifiedType.typeDeclaration = float2TypeDeclaration;
                 fieldDeclaration->qualifiedType.isConst = secondConst;
                 fieldDeclaration->name.assign({first, second});
 
@@ -116,7 +100,7 @@ ASTContext::ASTContext(const std::vector<Token>& tokens):
                     bool thirdConst = (secondConst || third == first || third == second);
 
                     fieldDeclaration->parent = type.first;
-                    fieldDeclaration->qualifiedType.typeDeclaration = &float3TypeDeclaration;
+                    fieldDeclaration->qualifiedType.typeDeclaration = float3TypeDeclaration;
                     fieldDeclaration->qualifiedType.isConst = thirdConst;
                     fieldDeclaration->name.assign({first, second, third});
 
@@ -129,7 +113,7 @@ ASTContext::ASTContext(const std::vector<Token>& tokens):
                         bool fourthConst = (thirdConst || fourth == first || fourth == second || fourth == third);
 
                         fieldDeclaration->parent = type.first;
-                        fieldDeclaration->qualifiedType.typeDeclaration = &float4TypeDeclaration;
+                        fieldDeclaration->qualifiedType.typeDeclaration = float4TypeDeclaration;
                         fieldDeclaration->qualifiedType.isConst = fourthConst;
                         fieldDeclaration->name.assign({first, second, third, fourth});
 
@@ -142,206 +126,81 @@ ASTContext::ASTContext(const std::vector<Token>& tokens):
         }
     }
 
-    float2x2TypeDeclaration.name = "float2x2";
-    float2x2TypeDeclaration.isBuiltin = true;
-    float2x2TypeDeclaration.definition = &float2x2TypeDeclaration;
-
-    float3x3TypeDeclaration.name = "float3x3";
-    float3x3TypeDeclaration.isBuiltin = true;
-    float3x3TypeDeclaration.definition = &float3x3TypeDeclaration;
-
-    float4x4TypeDeclaration.name = "float4x4";
-    float4x4TypeDeclaration.isBuiltin = true;
-    float4x4TypeDeclaration.definition = &float4x4TypeDeclaration;
-
-    stringTypeDeclaration.name = "string";
-    stringTypeDeclaration.isBuiltin = true;
-    stringTypeDeclaration.definition = &stringTypeDeclaration;
-
-    samplerStateTypeDeclaration.name = "SamplerState";
-    samplerStateTypeDeclaration.isBuiltin = true;
-    samplerStateTypeDeclaration.definition = &samplerStateTypeDeclaration;
-
-    texture2DTypeDeclaration.name = "Texture2D";
-    texture2DTypeDeclaration.isBuiltin = true;
-    texture2DTypeDeclaration.definition = &texture2DTypeDeclaration;
+    addStructDeclaration("float2x2", declarationScopes);
+    addStructDeclaration("float3x3", declarationScopes);
+    StructDeclaration* float4x4TypeDeclaration = addStructDeclaration("float4x4", declarationScopes);
+    stringTypeDeclaration = addStructDeclaration("string", declarationScopes);
+    StructDeclaration* samplerStateTypeDeclaration = addStructDeclaration("SamplerState", declarationScopes);
+    addStructDeclaration("Texture2D", declarationScopes);
 
     boolParameterDeclaration.name = "b";
-    boolParameterDeclaration.qualifiedType.typeDeclaration = &boolTypeDeclaration;
+    boolParameterDeclaration.qualifiedType.typeDeclaration = boolTypeDeclaration;
 
     intParameterDeclaration.name = "i";
-    intParameterDeclaration.qualifiedType.typeDeclaration = &intTypeDeclaration;
+    intParameterDeclaration.qualifiedType.typeDeclaration = intTypeDeclaration;
 
     floatParameterDeclaration.name = "f";
-    floatParameterDeclaration.qualifiedType.typeDeclaration = &floatTypeDeclaration;
+    floatParameterDeclaration.qualifiedType.typeDeclaration = floatTypeDeclaration;
 
     samplerParameterDeclaration.name = "sampler";
-    samplerParameterDeclaration.qualifiedType.typeDeclaration = &samplerStateTypeDeclaration;
+    samplerParameterDeclaration.qualifiedType.typeDeclaration = samplerStateTypeDeclaration;
 
     coordParameterDeclaration.name = "coord";
-    coordParameterDeclaration.qualifiedType.typeDeclaration = &float2TypeDeclaration;
+    coordParameterDeclaration.qualifiedType.typeDeclaration = float2TypeDeclaration;
 
     matParameterDeclaration.name = "mat";
-    matParameterDeclaration.qualifiedType.typeDeclaration = &float4x4TypeDeclaration;
+    matParameterDeclaration.qualifiedType.typeDeclaration = float4x4TypeDeclaration;
 
     vec2ParameterDeclaration.name = "vec";
-    vec2ParameterDeclaration.qualifiedType.typeDeclaration = &float2TypeDeclaration;
+    vec2ParameterDeclaration.qualifiedType.typeDeclaration = float2TypeDeclaration;
 
     vec4ParameterDeclaration.name = "vec";
-    vec4ParameterDeclaration.qualifiedType.typeDeclaration = &float4TypeDeclaration;
+    vec4ParameterDeclaration.qualifiedType.typeDeclaration = float4TypeDeclaration;
 
-    texture2DFunctionDeclaration.name = "texture2D";
-    texture2DFunctionDeclaration.qualifiedType.typeDeclaration = &float4TypeDeclaration;
-    texture2DFunctionDeclaration.parameterDeclarations.push_back(&samplerParameterDeclaration);
-    texture2DFunctionDeclaration.parameterDeclarations.push_back(&vec2ParameterDeclaration);
-    texture2DFunctionDeclaration.isBuiltin = true;
-
-    mulMatMatFunctionDeclaration.name = "mul";
-    mulMatMatFunctionDeclaration.qualifiedType.typeDeclaration = &float4x4TypeDeclaration;
-    mulMatMatFunctionDeclaration.parameterDeclarations.push_back(&matParameterDeclaration);
-    mulMatMatFunctionDeclaration.parameterDeclarations.push_back(&matParameterDeclaration);
-    mulMatMatFunctionDeclaration.isBuiltin = true;
-
-    mulMatVecFunctionDeclaration.name = "mul";
-    mulMatVecFunctionDeclaration.qualifiedType.typeDeclaration = &float4TypeDeclaration;
-    mulMatVecFunctionDeclaration.parameterDeclarations.push_back(&matParameterDeclaration);
-    mulMatVecFunctionDeclaration.parameterDeclarations.push_back(&vec4ParameterDeclaration);
-    mulMatVecFunctionDeclaration.isBuiltin = true;
-
-    mulMatVecFunctionDeclaration.name = "mul";
-    mulMatVecFunctionDeclaration.qualifiedType.typeDeclaration = &float4TypeDeclaration;
-    mulMatVecFunctionDeclaration.parameterDeclarations.push_back(&vec4ParameterDeclaration);
-    mulMatVecFunctionDeclaration.parameterDeclarations.push_back(&matParameterDeclaration);
-    mulMatVecFunctionDeclaration.isBuiltin = true;
+    addFunctionDeclaration("texture2D", float4TypeDeclaration, {&samplerParameterDeclaration, &vec2ParameterDeclaration}, declarationScopes);
 
     auto iterator = tokens.cbegin();
 
-    std::vector<std::vector<Declaration*>> declarationScopes;
-    declarationScopes.push_back(std::vector<Declaration*>());
+    addOperatorDeclaration(Operator::NEGATION, boolTypeDeclaration, {&boolParameterDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::AND, boolTypeDeclaration, {&boolParameterDeclaration, &boolParameterDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::OR, boolTypeDeclaration, {&boolParameterDeclaration, &boolParameterDeclaration}, declarationScopes);
 
-    declarationScopes.back().push_back(&boolTypeDeclaration);
-    declarationScopes.back().push_back(&intTypeDeclaration);
-    declarationScopes.back().push_back(&floatTypeDeclaration);
-    declarationScopes.back().push_back(&float2TypeDeclaration);
-    declarationScopes.back().push_back(&float3TypeDeclaration);
-    declarationScopes.back().push_back(&float4TypeDeclaration);
-    declarationScopes.back().push_back(&float2x2TypeDeclaration);
-    declarationScopes.back().push_back(&float3x3TypeDeclaration);
-    declarationScopes.back().push_back(&float4x4TypeDeclaration);
-    declarationScopes.back().push_back(&stringTypeDeclaration);
-    declarationScopes.back().push_back(&samplerStateTypeDeclaration);
-    declarationScopes.back().push_back(&texture2DTypeDeclaration);
-    declarationScopes.back().push_back(&texture2DFunctionDeclaration);
-    declarationScopes.back().push_back(&mulMatMatFunctionDeclaration);
-    declarationScopes.back().push_back(&mulMatVecFunctionDeclaration);
+    addOperatorDeclaration(Operator::POSITIVE, intTypeDeclaration, {&intParameterDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::POSITIVE, floatTypeDeclaration, {&floatParameterDeclaration}, declarationScopes);
 
-    boolNegationDeclaration.op = Operator::NEGATION;
-    boolNegationDeclaration.parameterDeclarations.push_back(&boolParameterDeclaration);
-    declarationScopes.back().push_back(&boolNegationDeclaration);
+    addOperatorDeclaration(Operator::NEGATIVE, intTypeDeclaration, {&intParameterDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::NEGATIVE, floatTypeDeclaration, {&floatParameterDeclaration}, declarationScopes);
 
-    boolAndDeclaration.op = Operator::AND;
-    boolAndDeclaration.parameterDeclarations.push_back(&boolParameterDeclaration);
-    declarationScopes.back().push_back(&boolAndDeclaration);
+    addOperatorDeclaration(Operator::NEGATIVE, intTypeDeclaration, {&intParameterDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::POSITIVE, floatTypeDeclaration, {&floatParameterDeclaration}, declarationScopes);
 
-    boolOrDeclaration.op = Operator::OR;
-    boolOrDeclaration.parameterDeclarations.push_back(&boolParameterDeclaration);
-    declarationScopes.back().push_back(&boolOrDeclaration);
+    addOperatorDeclaration(Operator::ADDITION, intTypeDeclaration, {&intParameterDeclaration, &intParameterDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::ADDITION, floatTypeDeclaration, {&floatParameterDeclaration, &floatParameterDeclaration}, declarationScopes);
 
-    intPositiveDeclaration.op = Operator::POSITIVE;
-    intPositiveDeclaration.parameterDeclarations.push_back(&intParameterDeclaration);
-    declarationScopes.back().push_back(&intPositiveDeclaration);
+    addOperatorDeclaration(Operator::SUBTRACTION, intTypeDeclaration, {&intParameterDeclaration, &intParameterDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::SUBTRACTION, floatTypeDeclaration, {&floatParameterDeclaration, &floatParameterDeclaration}, declarationScopes);
 
-    floatPositiveDeclaration.op = Operator::POSITIVE;
-    floatPositiveDeclaration.parameterDeclarations.push_back(&floatParameterDeclaration);
-    declarationScopes.back().push_back(&floatPositiveDeclaration);
+    addOperatorDeclaration(Operator::MULTIPLICATION, intTypeDeclaration, {&intParameterDeclaration, &intParameterDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::MULTIPLICATION, floatTypeDeclaration, {&floatParameterDeclaration, &floatParameterDeclaration}, declarationScopes);
 
-    intNegativeDeclaration.op = Operator::NEGATIVE;
-    intNegativeDeclaration.parameterDeclarations.push_back(&intParameterDeclaration);
-    declarationScopes.back().push_back(&intNegativeDeclaration);
+    addOperatorDeclaration(Operator::DIVISION, intTypeDeclaration, {&intParameterDeclaration, &intParameterDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::DIVISION, floatTypeDeclaration, {&floatParameterDeclaration, &floatParameterDeclaration}, declarationScopes);
 
-    floatNegativeDeclaration.op = Operator::NEGATIVE;
-    floatNegativeDeclaration.parameterDeclarations.push_back(&floatParameterDeclaration);
-    declarationScopes.back().push_back(&floatNegativeDeclaration);
+    addOperatorDeclaration(Operator::LESS_THAN, intTypeDeclaration, {&intParameterDeclaration, &intParameterDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::LESS_THAN, floatTypeDeclaration, {&floatParameterDeclaration, &floatParameterDeclaration}, declarationScopes);
 
-    intAdditionDeclaration.op = Operator::ADDITION;
-    intAdditionDeclaration.parameterDeclarations.push_back(&intParameterDeclaration);
-    intAdditionDeclaration.parameterDeclarations.push_back(&intParameterDeclaration);
-    declarationScopes.back().push_back(&intAdditionDeclaration);
+    addOperatorDeclaration(Operator::LESS_THAN_EQUAL, intTypeDeclaration, {&intParameterDeclaration, &intParameterDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::LESS_THAN_EQUAL, floatTypeDeclaration, {&floatParameterDeclaration, &floatParameterDeclaration}, declarationScopes);
 
-    floatAdditionDeclaration.op = Operator::ADDITION;
-    floatAdditionDeclaration.parameterDeclarations.push_back(&floatParameterDeclaration);
-    floatAdditionDeclaration.parameterDeclarations.push_back(&floatParameterDeclaration);
-    declarationScopes.back().push_back(&floatAdditionDeclaration);
+    addOperatorDeclaration(Operator::GREATER_THAN, intTypeDeclaration, {&intParameterDeclaration, &intParameterDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::GREATER_THAN, floatTypeDeclaration, {&floatParameterDeclaration, &floatParameterDeclaration}, declarationScopes);
 
-    intSubtractionDeclaration.op = Operator::SUBTRACTION;
-    intSubtractionDeclaration.parameterDeclarations.push_back(&intParameterDeclaration);
-    intSubtractionDeclaration.parameterDeclarations.push_back(&intParameterDeclaration);
-    declarationScopes.back().push_back(&intSubtractionDeclaration);
+    addOperatorDeclaration(Operator::GREATER_THAN_EQUAL, intTypeDeclaration, {&intParameterDeclaration, &intParameterDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::GREATER_THAN_EQUAL, floatTypeDeclaration, {&floatParameterDeclaration, &floatParameterDeclaration}, declarationScopes);
 
-    floatSubtractionDeclaration.op = Operator::SUBTRACTION;
-    floatSubtractionDeclaration.parameterDeclarations.push_back(&floatParameterDeclaration);
-    floatSubtractionDeclaration.parameterDeclarations.push_back(&floatParameterDeclaration);
-    declarationScopes.back().push_back(&floatSubtractionDeclaration);
-
-    intMultiplicationDeclaration.op = Operator::MULTIPLICATION;
-    intMultiplicationDeclaration.parameterDeclarations.push_back(&intParameterDeclaration);
-    intMultiplicationDeclaration.parameterDeclarations.push_back(&intParameterDeclaration);
-    declarationScopes.back().push_back(&intMultiplicationDeclaration);
-
-    floatMultiplicationDeclaration.op = Operator::MULTIPLICATION;
-    floatMultiplicationDeclaration.parameterDeclarations.push_back(&floatParameterDeclaration);
-    floatMultiplicationDeclaration.parameterDeclarations.push_back(&floatParameterDeclaration);
-    declarationScopes.back().push_back(&floatMultiplicationDeclaration);
-
-    intDivisionDeclaration.op = Operator::DIVISION;
-    intDivisionDeclaration.parameterDeclarations.push_back(&intParameterDeclaration);
-    intDivisionDeclaration.parameterDeclarations.push_back(&intParameterDeclaration);
-    declarationScopes.back().push_back(&intDivisionDeclaration);
-
-    floatDivisionDeclaration.op = Operator::DIVISION;
-    floatDivisionDeclaration.parameterDeclarations.push_back(&floatParameterDeclaration);
-    floatDivisionDeclaration.parameterDeclarations.push_back(&floatParameterDeclaration);
-    declarationScopes.back().push_back(&floatDivisionDeclaration);
-
-    intLessThanDeclaration.op = Operator::LESS_THAN;
-    intLessThanDeclaration.parameterDeclarations.push_back(&intParameterDeclaration);
-    intLessThanDeclaration.parameterDeclarations.push_back(&intParameterDeclaration);
-    declarationScopes.back().push_back(&intLessThanDeclaration);
-
-    floatLessThanDeclaration.op = Operator::LESS_THAN;
-    floatLessThanDeclaration.parameterDeclarations.push_back(&floatParameterDeclaration);
-    floatLessThanDeclaration.parameterDeclarations.push_back(&floatParameterDeclaration);
-    declarationScopes.back().push_back(&floatLessThanDeclaration);
-
-    intLessThanEqualDeclaration.op = Operator::LESS_THAN_EQUAL;
-    intLessThanEqualDeclaration.parameterDeclarations.push_back(&intParameterDeclaration);
-    intLessThanEqualDeclaration.parameterDeclarations.push_back(&intParameterDeclaration);
-    declarationScopes.back().push_back(&intLessThanEqualDeclaration);
-
-    floatLessThanEqualDeclaration.op = Operator::LESS_THAN_EQUAL;
-    floatLessThanEqualDeclaration.parameterDeclarations.push_back(&floatParameterDeclaration);
-    floatLessThanEqualDeclaration.parameterDeclarations.push_back(&floatParameterDeclaration);
-    declarationScopes.back().push_back(&floatLessThanEqualDeclaration);
-
-    intGreaterThanDeclaration.op = Operator::GREATER_THAN;
-    intGreaterThanDeclaration.parameterDeclarations.push_back(&intParameterDeclaration);
-    intGreaterThanDeclaration.parameterDeclarations.push_back(&intParameterDeclaration);
-    declarationScopes.back().push_back(&intGreaterThanDeclaration);
-
-    floatGreaterThanDeclaration.op = Operator::GREATER_THAN;
-    floatGreaterThanDeclaration.parameterDeclarations.push_back(&floatParameterDeclaration);
-    floatGreaterThanDeclaration.parameterDeclarations.push_back(&floatParameterDeclaration);
-    declarationScopes.back().push_back(&floatGreaterThanDeclaration);
-
-    intGreaterThanEqualDeclaration.op = Operator::GREATER_THAN_EQUAL;
-    intGreaterThanEqualDeclaration.parameterDeclarations.push_back(&intParameterDeclaration);
-    intGreaterThanEqualDeclaration.parameterDeclarations.push_back(&intParameterDeclaration);
-    declarationScopes.back().push_back(&intGreaterThanEqualDeclaration);
-
-    floatGreaterThanEqualDeclaration.op = Operator::GREATER_THAN_EQUAL;
-    floatGreaterThanEqualDeclaration.parameterDeclarations.push_back(&floatParameterDeclaration);
-    floatGreaterThanEqualDeclaration.parameterDeclarations.push_back(&floatParameterDeclaration);
-    declarationScopes.back().push_back(&floatGreaterThanEqualDeclaration);
+    addOperatorDeclaration(Operator::MULTIPLICATION, float4x4TypeDeclaration, {&matParameterDeclaration, &matParameterDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::MULTIPLICATION, float4TypeDeclaration, {&matParameterDeclaration, &vec4ParameterDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::MULTIPLICATION, float4TypeDeclaration, {&vec4ParameterDeclaration, &matParameterDeclaration}, declarationScopes);
 
     while (iterator != tokens.end())
     {
@@ -657,11 +516,11 @@ TypeDeclaration* ASTContext::parseType(const std::vector<Token>& tokens,
     TypeDeclaration* result;
 
     if (iterator->type == Token::Type::KEYWORD_BOOL)
-        result = &boolTypeDeclaration;
+        result = boolTypeDeclaration;
     else if (iterator->type == Token::Type::KEYWORD_INT)
-        result = &intTypeDeclaration;
+        result = intTypeDeclaration;
     else if (iterator->type == Token::Type::KEYWORD_FLOAT)
-        result = &floatTypeDeclaration;
+        result = floatTypeDeclaration;
     else if (iterator->type == Token::Type::KEYWORD_DOUBLE)
         throw std::runtime_error("Double precision floating point numbers are not supported");
     else if (iterator->type == Token::Type::IDENTIFIER)
@@ -1898,7 +1757,7 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
         IntegerLiteralExpression* result = new IntegerLiteralExpression();
         constructs.push_back(std::unique_ptr<Construct>(result));
         result->parent = parent;
-        result->qualifiedType.typeDeclaration = &intTypeDeclaration;
+        result->qualifiedType.typeDeclaration = intTypeDeclaration;
         result->isLValue = false;
         result->value = strtoll(iterator->value.c_str(), nullptr, 0);
 
@@ -1911,7 +1770,7 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
         FloatingPointLiteralExpression* result = new FloatingPointLiteralExpression();
         constructs.push_back(std::unique_ptr<Construct>(result));
         result->parent = parent;
-        result->qualifiedType.typeDeclaration = &floatTypeDeclaration;
+        result->qualifiedType.typeDeclaration = floatTypeDeclaration;
         result->isLValue = false;
         result->value = strtod(iterator->value.c_str(), nullptr);
 
@@ -1928,7 +1787,7 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
         StringLiteralExpression* result = new StringLiteralExpression();
         constructs.push_back(std::unique_ptr<Construct>(result));
         result->parent = parent;
-        result->qualifiedType.typeDeclaration = &stringTypeDeclaration;
+        result->qualifiedType.typeDeclaration = stringTypeDeclaration;
         result->isLValue = false;
         result->value = iterator->value;
 
@@ -1941,7 +1800,7 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
         BooleanLiteralExpression* result = new BooleanLiteralExpression();
         constructs.push_back(std::unique_ptr<Construct>(result));
         result->parent = parent;
-        result->qualifiedType.typeDeclaration = &boolTypeDeclaration;
+        result->qualifiedType.typeDeclaration = boolTypeDeclaration;
         result->isLValue = false;
         result->value = (iterator->type == Token::Type::KEYWORD_TRUE);
 
@@ -1954,9 +1813,9 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
         CastExpression* result = new CastExpression(CastExpression::Kind::EXPLICIT);
         constructs.push_back(std::unique_ptr<Construct>(result));
 
-        if (isToken(Token::Type::KEYWORD_BOOL, tokens, iterator)) result->qualifiedType.typeDeclaration = &boolTypeDeclaration;
-        else if(isToken(Token::Type::KEYWORD_INT, tokens, iterator)) result->qualifiedType.typeDeclaration = &intTypeDeclaration;
-        else if(isToken(Token::Type::KEYWORD_FLOAT, tokens, iterator)) result->qualifiedType.typeDeclaration = &floatTypeDeclaration;
+        if (isToken(Token::Type::KEYWORD_BOOL, tokens, iterator)) result->qualifiedType.typeDeclaration = boolTypeDeclaration;
+        else if(isToken(Token::Type::KEYWORD_INT, tokens, iterator)) result->qualifiedType.typeDeclaration = intTypeDeclaration;
+        else if(isToken(Token::Type::KEYWORD_FLOAT, tokens, iterator)) result->qualifiedType.typeDeclaration = floatTypeDeclaration;
 
         ++iterator;
 
@@ -2233,7 +2092,7 @@ Expression* ASTContext::parseSubscriptExpression(const std::vector<Token>& token
             throw std::runtime_error("Subscript is not an integer");
 
         if (scalarType->getScalarTypeKind() != ScalarTypeDeclaration::Kind::INTEGER)
-            expression->subscript = addImplicitCast(expression->subscript, &intTypeDeclaration);
+            expression->subscript = addImplicitCast(expression->subscript, intTypeDeclaration);
 
         expectToken(Token::Type::RIGHT_BRACKET, tokens, iterator);
 
@@ -2342,8 +2201,8 @@ Expression* ASTContext::parseSignExpression(const std::vector<Token>& tokens,
 
         result->operatorDeclaration = resolveOperatorDeclaration(op, declarationScopes, {result->expression->qualifiedType});
 
-        if (result->expression->qualifiedType.typeDeclaration == &boolTypeDeclaration)
-            result->expression = addImplicitCast(result->expression, &intTypeDeclaration);
+        if (result->expression->qualifiedType.typeDeclaration == boolTypeDeclaration)
+            result->expression = addImplicitCast(result->expression, intTypeDeclaration);
 
         result->qualifiedType = result->expression->qualifiedType;
         result->isLValue = false;
@@ -2381,10 +2240,10 @@ Expression* ASTContext::parseNotExpression(const std::vector<Token>& tokens,
 
         result->operatorDeclaration = resolveOperatorDeclaration(op, declarationScopes, {result->expression->qualifiedType});
 
-        if (result->expression->qualifiedType.typeDeclaration != &boolTypeDeclaration)
-            result->expression = addImplicitCast(result->expression, &boolTypeDeclaration);
+        if (result->expression->qualifiedType.typeDeclaration != boolTypeDeclaration)
+            result->expression = addImplicitCast(result->expression, boolTypeDeclaration);
 
-        result->qualifiedType.typeDeclaration = &boolTypeDeclaration;
+        result->qualifiedType.typeDeclaration = boolTypeDeclaration;
         result->isLValue = false;
 
         return result;
@@ -2672,7 +2531,7 @@ Expression* ASTContext::parseLogicalAndExpression(const std::vector<Token>& toke
                                                                      {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
 
         // TODO: check if both sides ar scalar
-        expression->qualifiedType.typeDeclaration = &boolTypeDeclaration;
+        expression->qualifiedType.typeDeclaration = boolTypeDeclaration;
         expression->isLValue = false;
 
         result->parent = expression;
@@ -2711,7 +2570,7 @@ Expression* ASTContext::parseLogicalOrExpression(const std::vector<Token>& token
                                                                      {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
 
         // TODO: check if both sides ar scalar
-        expression->qualifiedType.typeDeclaration = &boolTypeDeclaration;
+        expression->qualifiedType.typeDeclaration = boolTypeDeclaration;
         expression->isLValue = false;
 
         result->parent = expression;

@@ -364,26 +364,80 @@ private:
     void dumpExpression(const Expression* expression, std::string indent = std::string()) const;
     void dumpConstruct(const Construct* construct, std::string indent = std::string()) const;
 
+    ScalarTypeDeclaration* addScalarTypeDeclaration(const std::string& name,
+                                                    ScalarTypeDeclaration::Kind kind,
+                                                    std::vector<std::vector<Declaration*>>& declarationScopes)
+    {
+        ScalarTypeDeclaration* scalarTypeDeclaration = new ScalarTypeDeclaration(kind);
+        constructs.push_back(std::unique_ptr<Construct>(scalarTypeDeclaration));
+
+        scalarTypeDeclaration->name = name;
+        scalarTypeDeclaration->isBuiltin = true;
+        scalarTypeDeclaration->definition = scalarTypeDeclaration;
+        declarationScopes.back().push_back(scalarTypeDeclaration);
+
+        return scalarTypeDeclaration;
+    }
+
+    StructDeclaration* addStructDeclaration(const std::string& name,
+                                            std::vector<std::vector<Declaration*>>& declarationScopes)
+    {
+        StructDeclaration* structDeclaration = new StructDeclaration();
+        constructs.push_back(std::unique_ptr<Construct>(structDeclaration));
+
+        structDeclaration->name = name;
+        structDeclaration->isBuiltin = true;
+        structDeclaration->definition = structDeclaration;
+        declarationScopes.back().push_back(structDeclaration);
+
+        return structDeclaration;
+    }
+
+    FunctionDeclaration* addFunctionDeclaration(const std::string& name,
+                                                TypeDeclaration* resultType,
+                                                const std::vector<ParameterDeclaration*>& parameters,
+                                                std::vector<std::vector<Declaration*>>& declarationScopes)
+    {
+        FunctionDeclaration* functionDeclaration = new FunctionDeclaration();
+        constructs.push_back(std::unique_ptr<Construct>(functionDeclaration));
+
+        functionDeclaration->name = name;
+        functionDeclaration->qualifiedType.typeDeclaration = resultType;
+        functionDeclaration->parameterDeclarations = parameters;
+        functionDeclaration->isBuiltin = true;
+        declarationScopes.back().push_back(functionDeclaration);
+
+        return functionDeclaration;
+    }
+
+    OperatorDeclaration* addOperatorDeclaration(Operator op,
+                                                TypeDeclaration* resultType,
+                                                const std::vector<ParameterDeclaration*>& parameters,
+                                                std::vector<std::vector<Declaration*>>& declarationScopes)
+    {
+        OperatorDeclaration* operatorDeclaration = new OperatorDeclaration();
+        constructs.push_back(std::unique_ptr<Construct>(operatorDeclaration));
+
+        operatorDeclaration->op = op;
+        operatorDeclaration->qualifiedType.typeDeclaration = resultType;
+        operatorDeclaration->parameterDeclarations = parameters;
+        declarationScopes.back().push_back(operatorDeclaration);
+
+        return operatorDeclaration;
+    }
+
     std::vector<Declaration*> declarations;
     std::vector<std::unique_ptr<Construct>> constructs;
 
     std::map<std::pair<QualifiedType, uint32_t>, ArrayTypeDeclaration*> arrayTypeDeclarations;
 
-    ScalarTypeDeclaration boolTypeDeclaration;
-    ScalarTypeDeclaration intTypeDeclaration;
-    ScalarTypeDeclaration floatTypeDeclaration;
-    StructDeclaration float2TypeDeclaration;
-    StructDeclaration float3TypeDeclaration;
-    StructDeclaration float4TypeDeclaration;
+    ScalarTypeDeclaration* boolTypeDeclaration;
+    ScalarTypeDeclaration* intTypeDeclaration;
+    ScalarTypeDeclaration* floatTypeDeclaration;
+    StructDeclaration* stringTypeDeclaration;
     FieldDeclaration fieldDeclarations[2 * (30 + 120 + 340)];
     ConstructorDeclaration constructorDeclarations[6];
     ParameterDeclaration parameterDeclarations[3 + 4 + 5];
-    StructDeclaration float2x2TypeDeclaration;
-    StructDeclaration float3x3TypeDeclaration;
-    StructDeclaration float4x4TypeDeclaration;
-    StructDeclaration stringTypeDeclaration;
-    StructDeclaration samplerStateTypeDeclaration;
-    StructDeclaration texture2DTypeDeclaration;
 
     ParameterDeclaration boolParameterDeclaration;
     ParameterDeclaration intParameterDeclaration;
@@ -393,41 +447,4 @@ private:
     ParameterDeclaration matParameterDeclaration;
     ParameterDeclaration vec2ParameterDeclaration;
     ParameterDeclaration vec4ParameterDeclaration;
-    FunctionDeclaration texture2DFunctionDeclaration;
-    FunctionDeclaration mulMatMatFunctionDeclaration;
-    FunctionDeclaration mulMatVecFunctionDeclaration;
-    FunctionDeclaration mulVecMatFunctionDeclaration;
-
-    OperatorDeclaration boolNegationDeclaration;
-    OperatorDeclaration boolAndDeclaration;
-    OperatorDeclaration boolOrDeclaration;
-
-    OperatorDeclaration intPositiveDeclaration;
-    OperatorDeclaration floatPositiveDeclaration;
-    OperatorDeclaration intNegativeDeclaration;
-    OperatorDeclaration floatNegativeDeclaration;
-
-    OperatorDeclaration intAdditionDeclaration;
-    OperatorDeclaration floatAdditionDeclaration;
-
-    OperatorDeclaration intSubtractionDeclaration;
-    OperatorDeclaration floatSubtractionDeclaration;
-
-    OperatorDeclaration intMultiplicationDeclaration;
-    OperatorDeclaration floatMultiplicationDeclaration;
-
-    OperatorDeclaration intDivisionDeclaration;
-    OperatorDeclaration floatDivisionDeclaration;
-
-    OperatorDeclaration intLessThanDeclaration;
-    OperatorDeclaration floatLessThanDeclaration;
-
-    OperatorDeclaration intLessThanEqualDeclaration;
-    OperatorDeclaration floatLessThanEqualDeclaration;
-
-    OperatorDeclaration intGreaterThanDeclaration;
-    OperatorDeclaration floatGreaterThanDeclaration;
-
-    OperatorDeclaration intGreaterThanEqualDeclaration;
-    OperatorDeclaration floatGreaterThanEqualDeclaration;
 };
