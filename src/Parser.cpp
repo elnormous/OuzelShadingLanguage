@@ -107,76 +107,50 @@ ASTContext::ASTContext(const std::vector<Token>& tokens)
     StructDeclaration* samplerStateTypeDeclaration = addStructDeclaration("SamplerState", declarationScopes);
     addStructDeclaration("Texture2D", declarationScopes);
 
-    boolParameterDeclaration.name = "b";
-    boolParameterDeclaration.qualifiedType.typeDeclaration = boolTypeDeclaration;
+    addFunctionDeclaration("texture2D", float4TypeDeclaration, {samplerStateTypeDeclaration, float2TypeDeclaration}, declarationScopes);
 
-    intParameterDeclaration.name = "i";
-    intParameterDeclaration.qualifiedType.typeDeclaration = intTypeDeclaration;
+    addOperatorDeclaration(Operator::NEGATION, boolTypeDeclaration, {boolTypeDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::AND, boolTypeDeclaration, {boolTypeDeclaration, boolTypeDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::OR, boolTypeDeclaration, {boolTypeDeclaration, boolTypeDeclaration}, declarationScopes);
 
-    floatParameterDeclaration.name = "f";
-    floatParameterDeclaration.qualifiedType.typeDeclaration = floatTypeDeclaration;
+    addOperatorDeclaration(Operator::POSITIVE, intTypeDeclaration, {intTypeDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::POSITIVE, floatTypeDeclaration, {floatTypeDeclaration}, declarationScopes);
 
-    samplerParameterDeclaration.name = "sampler";
-    samplerParameterDeclaration.qualifiedType.typeDeclaration = samplerStateTypeDeclaration;
+    addOperatorDeclaration(Operator::NEGATIVE, intTypeDeclaration, {intTypeDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::NEGATIVE, floatTypeDeclaration, {floatTypeDeclaration}, declarationScopes);
 
-    coordParameterDeclaration.name = "coord";
-    coordParameterDeclaration.qualifiedType.typeDeclaration = float2TypeDeclaration;
+    addOperatorDeclaration(Operator::NEGATIVE, intTypeDeclaration, {intTypeDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::POSITIVE, floatTypeDeclaration, {floatTypeDeclaration}, declarationScopes);
 
-    matParameterDeclaration.name = "mat";
-    matParameterDeclaration.qualifiedType.typeDeclaration = float4x4TypeDeclaration;
+    addOperatorDeclaration(Operator::ADDITION, intTypeDeclaration, {intTypeDeclaration, intTypeDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::ADDITION, floatTypeDeclaration, {floatTypeDeclaration, floatTypeDeclaration}, declarationScopes);
 
-    vec2ParameterDeclaration.name = "vec";
-    vec2ParameterDeclaration.qualifiedType.typeDeclaration = float2TypeDeclaration;
+    addOperatorDeclaration(Operator::SUBTRACTION, intTypeDeclaration, {intTypeDeclaration, intTypeDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::SUBTRACTION, floatTypeDeclaration, {floatTypeDeclaration, floatTypeDeclaration}, declarationScopes);
 
-    vec4ParameterDeclaration.name = "vec";
-    vec4ParameterDeclaration.qualifiedType.typeDeclaration = float4TypeDeclaration;
+    addOperatorDeclaration(Operator::MULTIPLICATION, intTypeDeclaration, {intTypeDeclaration, intTypeDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::MULTIPLICATION, floatTypeDeclaration, {floatTypeDeclaration, floatTypeDeclaration}, declarationScopes);
 
-    addFunctionDeclaration("texture2D", float4TypeDeclaration, {&samplerParameterDeclaration, &vec2ParameterDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::DIVISION, intTypeDeclaration, {intTypeDeclaration, intTypeDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::DIVISION, floatTypeDeclaration, {floatTypeDeclaration, floatTypeDeclaration}, declarationScopes);
 
-    auto iterator = tokens.cbegin();
+    addOperatorDeclaration(Operator::LESS_THAN, intTypeDeclaration, {intTypeDeclaration, intTypeDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::LESS_THAN, floatTypeDeclaration, {floatTypeDeclaration, floatTypeDeclaration}, declarationScopes);
 
-    addOperatorDeclaration(Operator::NEGATION, boolTypeDeclaration, {&boolParameterDeclaration}, declarationScopes);
-    addOperatorDeclaration(Operator::AND, boolTypeDeclaration, {&boolParameterDeclaration, &boolParameterDeclaration}, declarationScopes);
-    addOperatorDeclaration(Operator::OR, boolTypeDeclaration, {&boolParameterDeclaration, &boolParameterDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::LESS_THAN_EQUAL, intTypeDeclaration, {intTypeDeclaration, intTypeDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::LESS_THAN_EQUAL, floatTypeDeclaration, {floatTypeDeclaration, floatTypeDeclaration}, declarationScopes);
 
-    addOperatorDeclaration(Operator::POSITIVE, intTypeDeclaration, {&intParameterDeclaration}, declarationScopes);
-    addOperatorDeclaration(Operator::POSITIVE, floatTypeDeclaration, {&floatParameterDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::GREATER_THAN, intTypeDeclaration, {intTypeDeclaration, intTypeDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::GREATER_THAN, floatTypeDeclaration, {floatTypeDeclaration, floatTypeDeclaration}, declarationScopes);
 
-    addOperatorDeclaration(Operator::NEGATIVE, intTypeDeclaration, {&intParameterDeclaration}, declarationScopes);
-    addOperatorDeclaration(Operator::NEGATIVE, floatTypeDeclaration, {&floatParameterDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::GREATER_THAN_EQUAL, intTypeDeclaration, {intTypeDeclaration, intTypeDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::GREATER_THAN_EQUAL, floatTypeDeclaration, {floatTypeDeclaration, floatTypeDeclaration}, declarationScopes);
 
-    addOperatorDeclaration(Operator::NEGATIVE, intTypeDeclaration, {&intParameterDeclaration}, declarationScopes);
-    addOperatorDeclaration(Operator::POSITIVE, floatTypeDeclaration, {&floatParameterDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::MULTIPLICATION, float4x4TypeDeclaration, {float4x4TypeDeclaration, float4x4TypeDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::MULTIPLICATION, float4TypeDeclaration, {float4x4TypeDeclaration, float4TypeDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::MULTIPLICATION, float4TypeDeclaration, {float4TypeDeclaration, float4x4TypeDeclaration}, declarationScopes);
 
-    addOperatorDeclaration(Operator::ADDITION, intTypeDeclaration, {&intParameterDeclaration, &intParameterDeclaration}, declarationScopes);
-    addOperatorDeclaration(Operator::ADDITION, floatTypeDeclaration, {&floatParameterDeclaration, &floatParameterDeclaration}, declarationScopes);
-
-    addOperatorDeclaration(Operator::SUBTRACTION, intTypeDeclaration, {&intParameterDeclaration, &intParameterDeclaration}, declarationScopes);
-    addOperatorDeclaration(Operator::SUBTRACTION, floatTypeDeclaration, {&floatParameterDeclaration, &floatParameterDeclaration}, declarationScopes);
-
-    addOperatorDeclaration(Operator::MULTIPLICATION, intTypeDeclaration, {&intParameterDeclaration, &intParameterDeclaration}, declarationScopes);
-    addOperatorDeclaration(Operator::MULTIPLICATION, floatTypeDeclaration, {&floatParameterDeclaration, &floatParameterDeclaration}, declarationScopes);
-
-    addOperatorDeclaration(Operator::DIVISION, intTypeDeclaration, {&intParameterDeclaration, &intParameterDeclaration}, declarationScopes);
-    addOperatorDeclaration(Operator::DIVISION, floatTypeDeclaration, {&floatParameterDeclaration, &floatParameterDeclaration}, declarationScopes);
-
-    addOperatorDeclaration(Operator::LESS_THAN, intTypeDeclaration, {&intParameterDeclaration, &intParameterDeclaration}, declarationScopes);
-    addOperatorDeclaration(Operator::LESS_THAN, floatTypeDeclaration, {&floatParameterDeclaration, &floatParameterDeclaration}, declarationScopes);
-
-    addOperatorDeclaration(Operator::LESS_THAN_EQUAL, intTypeDeclaration, {&intParameterDeclaration, &intParameterDeclaration}, declarationScopes);
-    addOperatorDeclaration(Operator::LESS_THAN_EQUAL, floatTypeDeclaration, {&floatParameterDeclaration, &floatParameterDeclaration}, declarationScopes);
-
-    addOperatorDeclaration(Operator::GREATER_THAN, intTypeDeclaration, {&intParameterDeclaration, &intParameterDeclaration}, declarationScopes);
-    addOperatorDeclaration(Operator::GREATER_THAN, floatTypeDeclaration, {&floatParameterDeclaration, &floatParameterDeclaration}, declarationScopes);
-
-    addOperatorDeclaration(Operator::GREATER_THAN_EQUAL, intTypeDeclaration, {&intParameterDeclaration, &intParameterDeclaration}, declarationScopes);
-    addOperatorDeclaration(Operator::GREATER_THAN_EQUAL, floatTypeDeclaration, {&floatParameterDeclaration, &floatParameterDeclaration}, declarationScopes);
-
-    addOperatorDeclaration(Operator::MULTIPLICATION, float4x4TypeDeclaration, {&matParameterDeclaration, &matParameterDeclaration}, declarationScopes);
-    addOperatorDeclaration(Operator::MULTIPLICATION, float4TypeDeclaration, {&matParameterDeclaration, &vec4ParameterDeclaration}, declarationScopes);
-    addOperatorDeclaration(Operator::MULTIPLICATION, float4TypeDeclaration, {&vec4ParameterDeclaration, &matParameterDeclaration}, declarationScopes);
-
-    while (iterator != tokens.end())
+    for (auto iterator = tokens.cbegin(); iterator != tokens.end();)
     {
         Declaration* declaration = parseTopLevelDeclaration(tokens, iterator, declarationScopes);
         declarations.push_back(declaration);
@@ -415,7 +389,7 @@ OperatorDeclaration* ASTContext::resolveOperatorDeclaration(Operator op,
     }
 
     if (viableOperatorDeclarations.empty())
-        throw std::runtime_error("No matching function to call " + toString(op) + " found");
+        throw std::runtime_error("No matching function operator " + toString(op) + " found");
     else if (viableOperatorDeclarations.size() == 1)
         return *viableOperatorDeclarations.begin();
     else

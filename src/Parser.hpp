@@ -415,7 +415,7 @@ private:
 
     FunctionDeclaration* addFunctionDeclaration(const std::string& name,
                                                 TypeDeclaration* resultType,
-                                                const std::vector<ParameterDeclaration*>& parameters,
+                                                const std::vector<TypeDeclaration*>& parameters,
                                                 std::vector<std::vector<Declaration*>>& declarationScopes)
     {
         FunctionDeclaration* functionDeclaration = new FunctionDeclaration();
@@ -423,7 +423,16 @@ private:
 
         functionDeclaration->name = name;
         functionDeclaration->qualifiedType.typeDeclaration = resultType;
-        functionDeclaration->parameterDeclarations = parameters;
+
+        for (TypeDeclaration* parameter : parameters)
+        {
+            ParameterDeclaration* parameterDeclaration = new ParameterDeclaration();
+            constructs.push_back(std::unique_ptr<Construct>(parameterDeclaration));
+
+            parameterDeclaration->qualifiedType.typeDeclaration = parameter;
+            functionDeclaration->parameterDeclarations.push_back(parameterDeclaration);
+        }
+
         functionDeclaration->isBuiltin = true;
         declarationScopes.back().push_back(functionDeclaration);
 
@@ -432,7 +441,7 @@ private:
 
     OperatorDeclaration* addOperatorDeclaration(Operator op,
                                                 TypeDeclaration* resultType,
-                                                const std::vector<ParameterDeclaration*>& parameters,
+                                                const std::vector<TypeDeclaration*>& parameters,
                                                 std::vector<std::vector<Declaration*>>& declarationScopes)
     {
         OperatorDeclaration* operatorDeclaration = new OperatorDeclaration();
@@ -440,7 +449,16 @@ private:
 
         operatorDeclaration->op = op;
         operatorDeclaration->qualifiedType.typeDeclaration = resultType;
-        operatorDeclaration->parameterDeclarations = parameters;
+
+        for (TypeDeclaration* parameter : parameters)
+        {
+            ParameterDeclaration* parameterDeclaration = new ParameterDeclaration();
+            constructs.push_back(std::unique_ptr<Construct>(parameterDeclaration));
+
+            parameterDeclaration->qualifiedType.typeDeclaration = parameter;
+            operatorDeclaration->parameterDeclarations.push_back(parameterDeclaration);
+        }
+
         declarationScopes.back().push_back(operatorDeclaration);
 
         return operatorDeclaration;
@@ -457,13 +475,4 @@ private:
     StructDeclaration* stringTypeDeclaration;
     ConstructorDeclaration constructorDeclarations[6];
     ParameterDeclaration parameterDeclarations[3 + 4 + 5];
-
-    ParameterDeclaration boolParameterDeclaration;
-    ParameterDeclaration intParameterDeclaration;
-    ParameterDeclaration floatParameterDeclaration;
-    ParameterDeclaration samplerParameterDeclaration;
-    ParameterDeclaration coordParameterDeclaration;
-    ParameterDeclaration matParameterDeclaration;
-    ParameterDeclaration vec2ParameterDeclaration;
-    ParameterDeclaration vec4ParameterDeclaration;
 };
