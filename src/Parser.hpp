@@ -366,12 +366,14 @@ private:
 
     ScalarTypeDeclaration* addScalarTypeDeclaration(const std::string& name,
                                                     ScalarTypeDeclaration::Kind kind,
+                                                    bool isUnsigned,
                                                     std::vector<std::vector<Declaration*>>& declarationScopes)
     {
         ScalarTypeDeclaration* scalarTypeDeclaration = new ScalarTypeDeclaration(kind);
         constructs.push_back(std::unique_ptr<Construct>(scalarTypeDeclaration));
 
         scalarTypeDeclaration->name = name;
+        scalarTypeDeclaration->isUnsigned = isUnsigned;
         scalarTypeDeclaration->isBuiltin = true;
         scalarTypeDeclaration->definition = scalarTypeDeclaration;
         declarationScopes.back().push_back(scalarTypeDeclaration);
@@ -471,6 +473,7 @@ private:
 
     ScalarTypeDeclaration* boolTypeDeclaration;
     ScalarTypeDeclaration* intTypeDeclaration;
+    ScalarTypeDeclaration* unsignedIntTypeDeclaration;
     ScalarTypeDeclaration* floatTypeDeclaration;
     StructDeclaration* stringTypeDeclaration;
     ConstructorDeclaration constructorDeclarations[6];

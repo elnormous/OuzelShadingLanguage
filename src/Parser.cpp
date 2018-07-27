@@ -6,11 +6,6 @@
 #include <iostream>
 #include "Parser.hpp"
 
-static const std::vector<std::string> builtinTypes = {
-    "void", "bool", "int", "uint", "float", "double",
-    "vec2", "vec3", "vec4", "mat3", "mat4"
-};
-
 ASTContext::ASTContext()
 {
 }
@@ -20,9 +15,10 @@ ASTContext::ASTContext(const std::vector<Token>& tokens)
     std::vector<std::vector<Declaration*>> declarationScopes;
     declarationScopes.push_back(std::vector<Declaration*>());
 
-    boolTypeDeclaration = addScalarTypeDeclaration("bool", ScalarTypeDeclaration::Kind::BOOLEAN, declarationScopes);
-    intTypeDeclaration = addScalarTypeDeclaration("int", ScalarTypeDeclaration::Kind::INTEGER, declarationScopes);
-    floatTypeDeclaration = addScalarTypeDeclaration("float", ScalarTypeDeclaration::Kind::FLOATING_POINT, declarationScopes);
+    boolTypeDeclaration = addScalarTypeDeclaration("bool", ScalarTypeDeclaration::Kind::BOOLEAN, false, declarationScopes);
+    intTypeDeclaration = addScalarTypeDeclaration("int", ScalarTypeDeclaration::Kind::INTEGER, false, declarationScopes);
+    unsignedIntTypeDeclaration = addScalarTypeDeclaration("unsigned int", ScalarTypeDeclaration::Kind::INTEGER, true, declarationScopes);
+    floatTypeDeclaration = addScalarTypeDeclaration("float", ScalarTypeDeclaration::Kind::FLOATING_POINT, false, declarationScopes);
 
     StructDeclaration* float2TypeDeclaration = addStructDeclaration("float2", declarationScopes);
     StructDeclaration* float3TypeDeclaration = addStructDeclaration("float3", declarationScopes);
@@ -149,6 +145,10 @@ ASTContext::ASTContext(const std::vector<Token>& tokens)
     addOperatorDeclaration(Operator::MULTIPLICATION, float4x4TypeDeclaration, {float4x4TypeDeclaration, float4x4TypeDeclaration}, declarationScopes);
     addOperatorDeclaration(Operator::MULTIPLICATION, float4TypeDeclaration, {float4x4TypeDeclaration, float4TypeDeclaration}, declarationScopes);
     addOperatorDeclaration(Operator::MULTIPLICATION, float4TypeDeclaration, {float4TypeDeclaration, float4x4TypeDeclaration}, declarationScopes);
+    
+    addOperatorDeclaration(Operator::DIVISION, float4x4TypeDeclaration, {float4x4TypeDeclaration, float4x4TypeDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::DIVISION, float4TypeDeclaration, {float4x4TypeDeclaration, float4TypeDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::DIVISION, float4TypeDeclaration, {float4TypeDeclaration, float4x4TypeDeclaration}, declarationScopes);
 
     for (auto iterator = tokens.cbegin(); iterator != tokens.end();)
     {
@@ -495,11 +495,8 @@ bool ASTContext::isDeclaration(const std::vector<Token>& tokens,
         iterator->type == Token::Type::KEYWORD_STATIC ||
         iterator->type == Token::Type::KEYWORD_VOLATILE ||
         iterator->type == Token::Type::KEYWORD_INLINE ||
+        iterator->type == Token::Type::KEYWORD_UNSIGNED ||
         iterator->type == Token::Type::KEYWORD_STRUCT ||
-        iterator->type == Token::Type::KEYWORD_BOOL ||
-        iterator->type == Token::Type::KEYWORD_INT ||
-        iterator->type == Token::Type::KEYWORD_FLOAT ||
-        iterator->type == Token::Type::KEYWORD_DOUBLE ||
         isType(tokens, iterator, declarationScopes);
 }
 

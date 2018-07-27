@@ -98,6 +98,8 @@ public:
 
     inline Kind getScalarTypeKind() const { return scalarTypeKind; }
 
+    bool isUnsigned = false;
+    
 protected:
     Kind scalarTypeKind;
 };
