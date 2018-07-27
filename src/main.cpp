@@ -18,6 +18,7 @@ int main(int argc, const char* argv[])
     bool whitespaces = false;
     std::string format;
     std::string outputFilename;
+    uint32_t outputVersion = 0;
     Program program = Program::NONE;
 
     try
@@ -26,45 +27,43 @@ int main(int argc, const char* argv[])
         {
             if (std::string(argv[i]) == "--input")
             {
-                if (++i < argc) inputFilename = argv[i];
-                else
+                if (++i >= argc)
                     throw std::runtime_error("Argument to " + std::string(argv[i]) + " is missing");
+                inputFilename = argv[i];
             }
             else if (std::string(argv[i]) == "--print-tokens")
-            {
                 printTokens = true;
-            }
             else if (std::string(argv[i]) == "--print-ast")
-            {
                 printAST = true;
-            }
             else if (std::string(argv[i]) == "--whitespaces")
-            {
                 whitespaces = true;
-            }
             else if (std::string(argv[i]) == "--format")
             {
-                if (++i < argc) format = argv[i];
-                else
+                if (++i >= argc)
                     throw std::runtime_error("Argument to " + std::string(argv[i]) + " is missing");
+                format = argv[i];
             }
             else if (std::string(argv[i]) == "--output")
             {
-                if (++i < argc) outputFilename = argv[i];
-                else
+                if (++i >= argc)
                     throw std::runtime_error("Argument to " + std::string(argv[i]) + " is missing");
+                outputFilename = argv[i];
+            }
+            else if (std::string(argv[i]) == "--output-version")
+            {
+                if (++i >= argc)
+                    throw std::runtime_error("Argument to " + std::string(argv[i]) + " is missing");
+                outputVersion = std::stoi(argv[i]);
             }
             else if (std::string(argv[i]) == "--program")
             {
-                if (++i < argc)
-                {
-                    if (std::string(argv[i]) == "fragment") program = Program::FRAGMENT;
-                    else if (std::string(argv[i]) == "vertex") program = Program::VERTEX;
-                    else
-                        throw std::runtime_error("Invalid program: " + std::string(argv[i]));
-                }
-                else
+                if (++i >= argc)
                     throw std::runtime_error("Argument to " + std::string(argv[i]) + " is missing");
+                
+                if (std::string(argv[i]) == "fragment") program = Program::FRAGMENT;
+                else if (std::string(argv[i]) == "vertex") program = Program::VERTEX;
+                else
+                    throw std::runtime_error("Invalid program: " + std::string(argv[i]));
             }
         }
 
@@ -79,71 +78,69 @@ int main(int argc, const char* argv[])
         std::vector<char> inCode;
         inCode.assign(std::istreambuf_iterator<char>(inputFile), std::istreambuf_iterator<char>());
 
-        std::vector<Token> tokens;
-
         try
         {
-            tokens = tokenize(inCode);
+            std::vector<Token> tokens = tokenize(inCode);
+            
+            if (printTokens)
+                dump(tokens);
+            else
+            {
+                try
+                {
+                    ASTContext context(tokens);
+                    
+                    if (printAST)
+                        context.dump();
+                    else
+                    {
+                        if (program == Program::NONE)
+                            throw std::runtime_error("No program");
+                        
+                        std::unique_ptr<Output> output;
+                        
+                        if (format.empty())
+                            throw std::runtime_error("No format");
+                        if (format == "hlsl")
+                            output.reset(new OutputHLSL(program));
+                        else if (format == "glsl")
+                            output.reset(new OutputGLSL(program, outputVersion, {}));
+                        else if (format == "msl")
+                            output.reset(new OutputMSL(program, {}));
+                        else
+                            throw std::runtime_error("Invalid format");
+                        
+                        try
+                        {
+                            std::string outCode = output->output(context, whitespaces);
+                            
+                            if (outputFilename.empty())
+                                std::cout << outCode << std::endl;
+                            else
+                            {
+                                std::ofstream outputFile(outputFilename, std::ios::binary);
+                                
+                                if (!outputFile)
+                                    throw std::runtime_error("Failed to open file " + outputFilename);
+                                
+                                outputFile << outCode;
+                            }
+                        }
+                        catch (const std::exception& e)
+                        {
+                            throw std::runtime_error(std::string("Failed to output code: ") + e.what());
+                        }
+                    }
+                }
+                catch (const std::exception& e)
+                {
+                    throw std::runtime_error(std::string("Failed to parse: ") + e.what());
+                }
+            }
         }
         catch (const std::exception& e)
         {
             throw std::runtime_error(std::string("Failed to tokenize: ") + e.what());
-        }
-
-        if (printTokens)
-            dump(tokens);
-        else
-        {
-            try
-            {
-                ASTContext context(tokens);
-
-                if (printAST)
-                    context.dump();
-                else
-                {
-                    if (program == Program::NONE)
-                        throw std::runtime_error("No program");
-
-                    std::unique_ptr<Output> output;
-
-                    if (format.empty())
-                        throw std::runtime_error("No format");
-                    if (format == "hlsl")
-                        output.reset(new OutputHLSL(program));
-                    else if (format == "glsl")
-                        output.reset(new OutputGLSL(program, 110, {}));
-                    else if (format == "msl")
-                        output.reset(new OutputMSL(program, {}));
-                    else
-                        throw std::runtime_error("Invalid format");
-
-                    try
-                    {
-                        std::string outCode = output->output(context, whitespaces);
-
-                        if (outputFilename.empty())
-                            std::cout << outCode << std::endl;
-                        else
-                        {
-                            std::ofstream outputFile(outputFilename, std::ios::binary);
-
-                            if (!outputFile)
-                                throw std::runtime_error("Failed to open file " + outputFilename);
-
-                            outputFile << outCode;
-                        }
-                    }
-                    catch (const std::exception& e)
-                    {
-                        throw std::runtime_error(std::string("Failed to output code: ") + e.what());
-                    }
-                }
-            }
-            catch (const std::exception& e)
-            {
-                throw std::runtime_error(std::string("Failed to parse: ") + e.what());
-            }
         }
     }
     catch (const std::exception& e)
