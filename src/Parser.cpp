@@ -495,6 +495,7 @@ bool ASTContext::isDeclaration(const std::vector<Token>& tokens,
         iterator->type == Token::Type::KEYWORD_STATIC ||
         iterator->type == Token::Type::KEYWORD_VOLATILE ||
         iterator->type == Token::Type::KEYWORD_INLINE ||
+        iterator->type == Token::Type::KEYWORD_SIGNED ||
         iterator->type == Token::Type::KEYWORD_UNSIGNED ||
         iterator->type == Token::Type::KEYWORD_STRUCT ||
         isType(tokens, iterator, declarationScopes);
