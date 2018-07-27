@@ -155,11 +155,19 @@
     <ClCompile Include="src\Tokenizer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Construct.hpp" />
+    <ClInclude Include="src\Declarations.hpp" />
+    <ClInclude Include="src\Expressions.hpp" />
+    <ClInclude Include="src\Operator.hpp" />
     <ClInclude Include="src\Output.hpp" />
     <ClInclude Include="src\OutputGLSL.hpp" />
     <ClInclude Include="src\OutputHLSL.hpp" />
     <ClInclude Include="src\OutputMSL.hpp" />
     <ClInclude Include="src\Parser.hpp" />
+    <ClInclude Include="src\Program.hpp" />
+    <ClInclude Include="src\QualifiedType.hpp" />
+    <ClInclude Include="src\Semantic.hpp" />
+    <ClInclude Include="src\Statements.hpp" />
     <ClInclude Include="src\Tokenizer.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
