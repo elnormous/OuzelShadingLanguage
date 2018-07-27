@@ -398,22 +398,36 @@ private:
     FunctionDeclaration mulMatVecFunctionDeclaration;
     FunctionDeclaration mulVecMatFunctionDeclaration;
 
-    OperatorDeclaration boolNegation;
+    OperatorDeclaration boolNegationDeclaration;
+    OperatorDeclaration boolAndDeclaration;
+    OperatorDeclaration boolOrDeclaration;
 
-    OperatorDeclaration intPositive;
-    OperatorDeclaration floatPositive;
-    OperatorDeclaration intNegative;
-    OperatorDeclaration floatNegative;
+    OperatorDeclaration intPositiveDeclaration;
+    OperatorDeclaration floatPositiveDeclaration;
+    OperatorDeclaration intNegativeDeclaration;
+    OperatorDeclaration floatNegativeDeclaration;
 
-    OperatorDeclaration intAddition;
-    OperatorDeclaration floatAddition;
+    OperatorDeclaration intAdditionDeclaration;
+    OperatorDeclaration floatAdditionDeclaration;
 
-    OperatorDeclaration intSubtraction;
-    OperatorDeclaration floatSubtraction;
+    OperatorDeclaration intSubtractionDeclaration;
+    OperatorDeclaration floatSubtractionDeclaration;
 
-    OperatorDeclaration intMultiplication;
-    OperatorDeclaration floatMultiplication;
+    OperatorDeclaration intMultiplicationDeclaration;
+    OperatorDeclaration floatMultiplicationDeclaration;
 
-    OperatorDeclaration intDivision;
-    OperatorDeclaration floatDivision;
+    OperatorDeclaration intDivisionDeclaration;
+    OperatorDeclaration floatDivisionDeclaration;
+
+    OperatorDeclaration intLessThanDeclaration;
+    OperatorDeclaration floatLessThanDeclaration;
+
+    OperatorDeclaration intLessThanEqualDeclaration;
+    OperatorDeclaration floatLessThanEqualDeclaration;
+
+    OperatorDeclaration intGreaterThanDeclaration;
+    OperatorDeclaration floatGreaterThanDeclaration;
+
+    OperatorDeclaration intGreaterThanEqualDeclaration;
+    OperatorDeclaration floatGreaterThanEqualDeclaration;
 };

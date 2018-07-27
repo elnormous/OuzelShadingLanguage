@@ -235,65 +235,113 @@ ASTContext::ASTContext(const std::vector<Token>& tokens):
     declarationScopes.back().push_back(&mulMatMatFunctionDeclaration);
     declarationScopes.back().push_back(&mulMatVecFunctionDeclaration);
 
-    boolNegation.op = Operator::NEGATION;
-    boolNegation.parameterDeclarations.push_back(&boolParameterDeclaration);
-    declarationScopes.back().push_back(&boolNegation);
+    boolNegationDeclaration.op = Operator::NEGATION;
+    boolNegationDeclaration.parameterDeclarations.push_back(&boolParameterDeclaration);
+    declarationScopes.back().push_back(&boolNegationDeclaration);
 
-    intPositive.op = Operator::POSITIVE;
-    intPositive.parameterDeclarations.push_back(&intParameterDeclaration);
-    declarationScopes.back().push_back(&intPositive);
+    boolAndDeclaration.op = Operator::AND;
+    boolAndDeclaration.parameterDeclarations.push_back(&boolParameterDeclaration);
+    declarationScopes.back().push_back(&boolAndDeclaration);
 
-    floatPositive.op = Operator::POSITIVE;
-    floatPositive.parameterDeclarations.push_back(&floatParameterDeclaration);
-    declarationScopes.back().push_back(&floatPositive);
+    boolOrDeclaration.op = Operator::OR;
+    boolOrDeclaration.parameterDeclarations.push_back(&boolParameterDeclaration);
+    declarationScopes.back().push_back(&boolOrDeclaration);
 
-    intNegative.op = Operator::NEGATIVE;
-    intNegative.parameterDeclarations.push_back(&intParameterDeclaration);
-    declarationScopes.back().push_back(&intNegative);
+    intPositiveDeclaration.op = Operator::POSITIVE;
+    intPositiveDeclaration.parameterDeclarations.push_back(&intParameterDeclaration);
+    declarationScopes.back().push_back(&intPositiveDeclaration);
 
-    floatNegative.op = Operator::NEGATIVE;
-    floatNegative.parameterDeclarations.push_back(&floatParameterDeclaration);
-    declarationScopes.back().push_back(&floatNegative);
+    floatPositiveDeclaration.op = Operator::POSITIVE;
+    floatPositiveDeclaration.parameterDeclarations.push_back(&floatParameterDeclaration);
+    declarationScopes.back().push_back(&floatPositiveDeclaration);
 
-    intAddition.op = Operator::ADDITION;
-    intAddition.parameterDeclarations.push_back(&intParameterDeclaration);
-    intAddition.parameterDeclarations.push_back(&intParameterDeclaration);
-    declarationScopes.back().push_back(&intParameterDeclaration);
+    intNegativeDeclaration.op = Operator::NEGATIVE;
+    intNegativeDeclaration.parameterDeclarations.push_back(&intParameterDeclaration);
+    declarationScopes.back().push_back(&intNegativeDeclaration);
 
-    floatAddition.op = Operator::ADDITION;
-    floatAddition.parameterDeclarations.push_back(&floatParameterDeclaration);
-    floatAddition.parameterDeclarations.push_back(&floatParameterDeclaration);
-    declarationScopes.back().push_back(&floatAddition);
+    floatNegativeDeclaration.op = Operator::NEGATIVE;
+    floatNegativeDeclaration.parameterDeclarations.push_back(&floatParameterDeclaration);
+    declarationScopes.back().push_back(&floatNegativeDeclaration);
 
-    intSubtraction.op = Operator::SUBTRACTION;
-    intSubtraction.parameterDeclarations.push_back(&intParameterDeclaration);
-    intSubtraction.parameterDeclarations.push_back(&intParameterDeclaration);
-    declarationScopes.back().push_back(&intSubtraction);
+    intAdditionDeclaration.op = Operator::ADDITION;
+    intAdditionDeclaration.parameterDeclarations.push_back(&intParameterDeclaration);
+    intAdditionDeclaration.parameterDeclarations.push_back(&intParameterDeclaration);
+    declarationScopes.back().push_back(&intAdditionDeclaration);
 
-    floatSubtraction.op = Operator::SUBTRACTION;
-    floatSubtraction.parameterDeclarations.push_back(&floatParameterDeclaration);
-    floatSubtraction.parameterDeclarations.push_back(&floatParameterDeclaration);
-    declarationScopes.back().push_back(&floatSubtraction);
+    floatAdditionDeclaration.op = Operator::ADDITION;
+    floatAdditionDeclaration.parameterDeclarations.push_back(&floatParameterDeclaration);
+    floatAdditionDeclaration.parameterDeclarations.push_back(&floatParameterDeclaration);
+    declarationScopes.back().push_back(&floatAdditionDeclaration);
 
-    intMultiplication.op = Operator::MULTIPLICATION;
-    intMultiplication.parameterDeclarations.push_back(&intParameterDeclaration);
-    intMultiplication.parameterDeclarations.push_back(&intParameterDeclaration);
-    declarationScopes.back().push_back(&intMultiplication);
+    intSubtractionDeclaration.op = Operator::SUBTRACTION;
+    intSubtractionDeclaration.parameterDeclarations.push_back(&intParameterDeclaration);
+    intSubtractionDeclaration.parameterDeclarations.push_back(&intParameterDeclaration);
+    declarationScopes.back().push_back(&intSubtractionDeclaration);
 
-    floatMultiplication.op = Operator::MULTIPLICATION;
-    floatMultiplication.parameterDeclarations.push_back(&floatParameterDeclaration);
-    floatMultiplication.parameterDeclarations.push_back(&floatParameterDeclaration);
-    declarationScopes.back().push_back(&floatMultiplication);
+    floatSubtractionDeclaration.op = Operator::SUBTRACTION;
+    floatSubtractionDeclaration.parameterDeclarations.push_back(&floatParameterDeclaration);
+    floatSubtractionDeclaration.parameterDeclarations.push_back(&floatParameterDeclaration);
+    declarationScopes.back().push_back(&floatSubtractionDeclaration);
 
-    intDivision.op = Operator::DIVISION;
-    intDivision.parameterDeclarations.push_back(&intParameterDeclaration);
-    intDivision.parameterDeclarations.push_back(&intParameterDeclaration);
-    declarationScopes.back().push_back(&intDivision);
+    intMultiplicationDeclaration.op = Operator::MULTIPLICATION;
+    intMultiplicationDeclaration.parameterDeclarations.push_back(&intParameterDeclaration);
+    intMultiplicationDeclaration.parameterDeclarations.push_back(&intParameterDeclaration);
+    declarationScopes.back().push_back(&intMultiplicationDeclaration);
 
-    floatDivision.op = Operator::DIVISION;
-    floatDivision.parameterDeclarations.push_back(&floatParameterDeclaration);
-    floatDivision.parameterDeclarations.push_back(&floatParameterDeclaration);
-    declarationScopes.back().push_back(&floatDivision);
+    floatMultiplicationDeclaration.op = Operator::MULTIPLICATION;
+    floatMultiplicationDeclaration.parameterDeclarations.push_back(&floatParameterDeclaration);
+    floatMultiplicationDeclaration.parameterDeclarations.push_back(&floatParameterDeclaration);
+    declarationScopes.back().push_back(&floatMultiplicationDeclaration);
+
+    intDivisionDeclaration.op = Operator::DIVISION;
+    intDivisionDeclaration.parameterDeclarations.push_back(&intParameterDeclaration);
+    intDivisionDeclaration.parameterDeclarations.push_back(&intParameterDeclaration);
+    declarationScopes.back().push_back(&intDivisionDeclaration);
+
+    floatDivisionDeclaration.op = Operator::DIVISION;
+    floatDivisionDeclaration.parameterDeclarations.push_back(&floatParameterDeclaration);
+    floatDivisionDeclaration.parameterDeclarations.push_back(&floatParameterDeclaration);
+    declarationScopes.back().push_back(&floatDivisionDeclaration);
+
+    intLessThanDeclaration.op = Operator::LESS_THAN;
+    intLessThanDeclaration.parameterDeclarations.push_back(&intParameterDeclaration);
+    intLessThanDeclaration.parameterDeclarations.push_back(&intParameterDeclaration);
+    declarationScopes.back().push_back(&intLessThanDeclaration);
+
+    floatLessThanDeclaration.op = Operator::LESS_THAN;
+    floatLessThanDeclaration.parameterDeclarations.push_back(&floatParameterDeclaration);
+    floatLessThanDeclaration.parameterDeclarations.push_back(&floatParameterDeclaration);
+    declarationScopes.back().push_back(&floatLessThanDeclaration);
+
+    intLessThanEqualDeclaration.op = Operator::LESS_THAN_EQUAL;
+    intLessThanEqualDeclaration.parameterDeclarations.push_back(&intParameterDeclaration);
+    intLessThanEqualDeclaration.parameterDeclarations.push_back(&intParameterDeclaration);
+    declarationScopes.back().push_back(&intLessThanEqualDeclaration);
+
+    floatLessThanEqualDeclaration.op = Operator::LESS_THAN_EQUAL;
+    floatLessThanEqualDeclaration.parameterDeclarations.push_back(&floatParameterDeclaration);
+    floatLessThanEqualDeclaration.parameterDeclarations.push_back(&floatParameterDeclaration);
+    declarationScopes.back().push_back(&floatLessThanEqualDeclaration);
+
+    intGreaterThanDeclaration.op = Operator::GREATER_THAN;
+    intGreaterThanDeclaration.parameterDeclarations.push_back(&intParameterDeclaration);
+    intGreaterThanDeclaration.parameterDeclarations.push_back(&intParameterDeclaration);
+    declarationScopes.back().push_back(&intGreaterThanDeclaration);
+
+    floatGreaterThanDeclaration.op = Operator::GREATER_THAN;
+    floatGreaterThanDeclaration.parameterDeclarations.push_back(&floatParameterDeclaration);
+    floatGreaterThanDeclaration.parameterDeclarations.push_back(&floatParameterDeclaration);
+    declarationScopes.back().push_back(&floatGreaterThanDeclaration);
+
+    intGreaterThanEqualDeclaration.op = Operator::GREATER_THAN_EQUAL;
+    intGreaterThanEqualDeclaration.parameterDeclarations.push_back(&intParameterDeclaration);
+    intGreaterThanEqualDeclaration.parameterDeclarations.push_back(&intParameterDeclaration);
+    declarationScopes.back().push_back(&intGreaterThanEqualDeclaration);
+
+    floatGreaterThanEqualDeclaration.op = Operator::GREATER_THAN_EQUAL;
+    floatGreaterThanEqualDeclaration.parameterDeclarations.push_back(&floatParameterDeclaration);
+    floatGreaterThanEqualDeclaration.parameterDeclarations.push_back(&floatParameterDeclaration);
+    declarationScopes.back().push_back(&floatGreaterThanEqualDeclaration);
 
     while (iterator != tokens.end())
     {
@@ -431,7 +479,7 @@ FunctionDeclaration* ASTContext::resolveFunctionDeclaration(const std::string& n
     else
     {
         if (parameters.empty()) // two or more functions with zero parameters
-            throw std::runtime_error("Ambiguous call");
+            throw std::runtime_error("Ambiguous call to " + name);
 
         for (auto first = viableFunctionDeclarations.begin(); first != viableFunctionDeclarations.end(); ++first)
         {
@@ -449,7 +497,7 @@ FunctionDeclaration* ASTContext::resolveFunctionDeclaration(const std::string& n
             if (best) return *first;
         };
 
-        throw std::runtime_error("Ambiguous call");
+        throw std::runtime_error("Ambiguous call to " + name);
     }
 
     return nullptr;
@@ -540,7 +588,7 @@ OperatorDeclaration* ASTContext::resolveOperatorDeclaration(Operator op,
     else
     {
         if (parameters.empty()) // two or more functions with zero parameters
-            throw std::runtime_error("Ambiguous call");
+            throw std::runtime_error("Ambiguous call to operator " + toString(op));
 
         for (auto first = viableOperatorDeclarations.begin(); first != viableOperatorDeclarations.end(); ++first)
         {
@@ -558,7 +606,7 @@ OperatorDeclaration* ASTContext::resolveOperatorDeclaration(Operator op,
             if (best) return *first;
         };
 
-        throw std::runtime_error("Ambiguous call");
+        throw std::runtime_error("Ambiguous call to operator " + toString(op));
     }
 
     return nullptr;
