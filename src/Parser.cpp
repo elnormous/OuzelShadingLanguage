@@ -67,63 +67,37 @@ ASTContext::ASTContext(const std::vector<Token>& tokens)
         {float4TypeDeclaration, {'r', 'g', 'b', 'a'}}
     };
 
-    FieldDeclaration* fieldDeclaration = fieldDeclarations;
-
     for (auto& type : types)
     {
+        declarationScopes.push_back(std::vector<Declaration*>());
+
         for (char first : type.second)
         {
-            fieldDeclaration->parent = type.first;
-            fieldDeclaration->qualifiedType.typeDeclaration = floatTypeDeclaration;
-            fieldDeclaration->qualifiedType.isConst = false;
-            fieldDeclaration->name.assign({first});
-
-            type.first->memberDeclarations.push_back(fieldDeclaration);
-
-            ++fieldDeclaration;
+            addFieldDeclaration(type.first, {first}, floatTypeDeclaration, false, declarationScopes);
 
             for (char second : type.second)
             {
                 bool secondConst = (second == first);
 
-                fieldDeclaration->parent = type.first;
-                fieldDeclaration->qualifiedType.typeDeclaration = float2TypeDeclaration;
-                fieldDeclaration->qualifiedType.isConst = secondConst;
-                fieldDeclaration->name.assign({first, second});
-
-                type.first->memberDeclarations.push_back(fieldDeclaration);
-
-                ++fieldDeclaration;
+                addFieldDeclaration(type.first, {first, second}, float2TypeDeclaration, secondConst, declarationScopes);
 
                 for (char third : type.second)
                 {
                     bool thirdConst = (secondConst || third == first || third == second);
 
-                    fieldDeclaration->parent = type.first;
-                    fieldDeclaration->qualifiedType.typeDeclaration = float3TypeDeclaration;
-                    fieldDeclaration->qualifiedType.isConst = thirdConst;
-                    fieldDeclaration->name.assign({first, second, third});
-
-                    type.first->memberDeclarations.push_back(fieldDeclaration);
-
-                    ++fieldDeclaration;
+                    addFieldDeclaration(type.first, {first, second, third}, float3TypeDeclaration, thirdConst, declarationScopes);
 
                     for (char fourth : type.second)
                     {
                         bool fourthConst = (thirdConst || fourth == first || fourth == second || fourth == third);
 
-                        fieldDeclaration->parent = type.first;
-                        fieldDeclaration->qualifiedType.typeDeclaration = float4TypeDeclaration;
-                        fieldDeclaration->qualifiedType.isConst = fourthConst;
-                        fieldDeclaration->name.assign({first, second, third, fourth});
-
-                        type.first->memberDeclarations.push_back(fieldDeclaration);
-
-                        ++fieldDeclaration;
+                        addFieldDeclaration(type.first, {first, second, third, fourth}, float4TypeDeclaration, fourthConst, declarationScopes);
                     }
                 }
             }
         }
+
+        declarationScopes.pop_back();
     }
 
     addStructDeclaration("float2x2", declarationScopes);

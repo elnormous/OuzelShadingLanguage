@@ -393,6 +393,26 @@ private:
         return structDeclaration;
     }
 
+    FieldDeclaration* addFieldDeclaration(StructDeclaration* structDeclaration,
+                                          const std::string& name,
+                                          TypeDeclaration* type,
+                                          bool isConst,
+                                          std::vector<std::vector<Declaration*>>& declarationScopes)
+    {
+        FieldDeclaration* fieldDeclaration = new FieldDeclaration();
+        constructs.push_back(std::unique_ptr<Construct>(fieldDeclaration));
+
+        fieldDeclaration->parent = structDeclaration;
+        fieldDeclaration->name = name;
+        fieldDeclaration->qualifiedType.typeDeclaration = type;
+        fieldDeclaration->qualifiedType.isConst = isConst;
+        declarationScopes.back().push_back(fieldDeclaration);
+
+        structDeclaration->memberDeclarations.push_back(fieldDeclaration);
+
+        return fieldDeclaration;
+    }
+
     FunctionDeclaration* addFunctionDeclaration(const std::string& name,
                                                 TypeDeclaration* resultType,
                                                 const std::vector<ParameterDeclaration*>& parameters,
@@ -435,7 +455,6 @@ private:
     ScalarTypeDeclaration* intTypeDeclaration;
     ScalarTypeDeclaration* floatTypeDeclaration;
     StructDeclaration* stringTypeDeclaration;
-    FieldDeclaration fieldDeclarations[2 * (30 + 120 + 340)];
     ConstructorDeclaration constructorDeclarations[6];
     ParameterDeclaration parameterDeclarations[3 + 4 + 5];
 
