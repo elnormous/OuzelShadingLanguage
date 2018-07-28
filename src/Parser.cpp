@@ -1994,6 +1994,48 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
 
         return result;
     }
+    else if (isToken({Token::Type::KEYWORD_DYNAMIC_CAST,
+        Token::Type::KEYWORD_REINTERPRET_CAST,
+        Token::Type::KEYWORD_STATIC_CAST}, tokens, iterator))
+    {
+        CastExpression::Kind castKind = CastExpression::Kind::NONE;
+        
+        switch (iterator->type)
+        {
+            case Token::Type::KEYWORD_DYNAMIC_CAST: castKind = CastExpression::Kind::DYNAMIC; break;
+            case Token::Type::KEYWORD_REINTERPRET_CAST: castKind = CastExpression::Kind::REINTERPRET; break;
+            case Token::Type::KEYWORD_STATIC_CAST: castKind = CastExpression::Kind::STATIC; break;
+            default: break;
+        }
+        
+        CastExpression* result = new CastExpression(castKind);
+        constructs.push_back(std::unique_ptr<Construct>(result));
+        result->parent = parent;
+        
+        ++iterator;
+        
+        expectToken(Token::Type::OPERATOR_LESS_THAN, tokens, iterator);
+        ++iterator;
+        
+        // TODO: parse qualifiers
+        result->qualifiedType.typeDeclaration = parseType(tokens, iterator, declarationScopes);
+        
+        expectToken(Token::Type::OPERATOR_GREATER_THAN, tokens, iterator);
+        ++iterator;
+        
+        expectToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator);
+        ++iterator;
+        
+        if (!(result->expression = parseExpression(tokens, iterator, declarationScopes, result)))
+            return nullptr;
+        
+        expectToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator);
+        ++iterator;
+        
+        result->isLValue = false;
+        
+        return result;
+    }
     else
         throw std::runtime_error("Expected an expression");
 
