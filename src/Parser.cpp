@@ -1756,7 +1756,7 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
     }
     else if (isToken({Token::Type::KEYWORD_BOOL, Token::Type::KEYWORD_INT, Token::Type::KEYWORD_FLOAT}, tokens, iterator))
     {
-        CastExpression* result = new CastExpression(CastExpression::Kind::EXPLICIT);
+        CastExpression* result = new CastExpression(CastExpression::Kind::C_STYLE);
         constructs.push_back(std::unique_ptr<Construct>(result));
 
         if (isToken(Token::Type::KEYWORD_BOOL, tokens, iterator)) result->qualifiedType.typeDeclaration = boolTypeDeclaration;
@@ -2918,7 +2918,10 @@ static std::string toString(CastExpression::Kind kind)
     {
         case CastExpression::Kind::NONE: return "NONE";
         case CastExpression::Kind::IMPLICIT: return "IMPLICIT";
-        case CastExpression::Kind::EXPLICIT: return "EXPLICIT";
+        case CastExpression::Kind::C_STYLE: return "C_STYLE";
+        case CastExpression::Kind::STATIC: return "STATIC";
+        case CastExpression::Kind::DYNAMIC: return "DYNAMIC";
+        case CastExpression::Kind::REINTERPRET: return "REINTERPRET";
         default: return "unknown";
     }
 }

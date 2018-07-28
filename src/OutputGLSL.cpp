@@ -819,7 +819,7 @@ void OutputGLSL::printExpression(const Expression* expression, Options options, 
 
             const CastExpression* castExpression = static_cast<const CastExpression*>(expression);
 
-            if (castExpression->getCastKind() == CastExpression::Kind::EXPLICIT)
+            if (castExpression->getCastKind() != CastExpression::Kind::IMPLICIT)
             {
                 code += castExpression->qualifiedType.typeDeclaration->name + "(";
 

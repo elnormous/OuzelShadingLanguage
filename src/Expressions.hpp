@@ -226,7 +226,10 @@ public:
     {
         NONE,
         IMPLICIT,
-        EXPLICIT
+        C_STYLE,
+        STATIC,
+        DYNAMIC,
+        REINTERPRET
     };
 
     CastExpression(Kind initCastKind): Expression(Expression::Kind::CAST), castKind(initCastKind) {}
