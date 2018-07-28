@@ -2919,6 +2919,7 @@ static std::string toString(CastExpression::Kind kind)
         case CastExpression::Kind::NONE: return "NONE";
         case CastExpression::Kind::IMPLICIT: return "IMPLICIT";
         case CastExpression::Kind::C_STYLE: return "C_STYLE";
+        case CastExpression::Kind::FUNCTIONAL: return "FUNCTIONAL";
         case CastExpression::Kind::STATIC: return "STATIC";
         case CastExpression::Kind::DYNAMIC: return "DYNAMIC";
         case CastExpression::Kind::REINTERPRET: return "REINTERPRET";

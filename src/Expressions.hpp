@@ -227,6 +227,7 @@ public:
         NONE,
         IMPLICIT,
         C_STYLE,
+        FUNCTIONAL,
         STATIC,
         DYNAMIC,
         REINTERPRET
