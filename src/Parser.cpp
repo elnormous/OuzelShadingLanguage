@@ -1247,7 +1247,7 @@ Statement* ASTContext::parseStatement(const std::vector<Token>& tokens,
         constructs.push_back(std::unique_ptr<Construct>(result));
         result->parent = parent;
 
-        if (!(result->result = parseCommaExpression(tokens, iterator, declarationScopes, result)))
+        if (!(result->result = parseExpression(tokens, iterator, declarationScopes, result)))
             throw std::runtime_error("Expected an expression");
 
         expectToken(Token::Type::SEMICOLON, tokens, iterator);
@@ -1290,7 +1290,7 @@ Statement* ASTContext::parseStatement(const std::vector<Token>& tokens,
         constructs.push_back(std::unique_ptr<Construct>(result));
         result->parent = parent;
 
-        if (!(result->expression = parseCommaExpression(tokens, iterator, declarationScopes, result)))
+        if (!(result->expression = parseExpression(tokens, iterator, declarationScopes, result)))
             return nullptr;
 
         expectToken(Token::Type::SEMICOLON, tokens, iterator);
@@ -1371,7 +1371,7 @@ IfStatement* ASTContext::parseIfStatement(const std::vector<Token>& tokens,
     }
     else
     {
-        if (!(result->condition = parseCommaExpression(tokens, iterator, declarationScopes, result)))
+        if (!(result->condition = parseExpression(tokens, iterator, declarationScopes, result)))
             return nullptr;
     }
 
@@ -1439,7 +1439,7 @@ ForStatement* ASTContext::parseForStatement(const std::vector<Token>& tokens,
     }
     else
     {
-        if (!(result->initialization = parseCommaExpression(tokens, iterator, declarationScopes, result)))
+        if (!(result->initialization = parseExpression(tokens, iterator, declarationScopes, result)))
             return nullptr;
 
         expectToken(Token::Type::SEMICOLON, tokens, iterator);
@@ -1471,7 +1471,7 @@ ForStatement* ASTContext::parseForStatement(const std::vector<Token>& tokens,
     }
     else
     {
-        if (!(result->condition = parseCommaExpression(tokens, iterator, declarationScopes, result)))
+        if (!(result->condition = parseExpression(tokens, iterator, declarationScopes, result)))
             return nullptr;
 
         expectToken(Token::Type::SEMICOLON, tokens, iterator);
@@ -1487,7 +1487,7 @@ ForStatement* ASTContext::parseForStatement(const std::vector<Token>& tokens,
     }
     else
     {
-        if (!(result->increment = parseCommaExpression(tokens, iterator, declarationScopes, result)))
+        if (!(result->increment = parseExpression(tokens, iterator, declarationScopes, result)))
             return nullptr;
 
         expectToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator);
@@ -1532,7 +1532,7 @@ SwitchStatement* ASTContext::parseSwitchStatement(const std::vector<Token>& toke
     }
     else
     {
-        if (!(result->condition = parseCommaExpression(tokens, iterator, declarationScopes, result)))
+        if (!(result->condition = parseExpression(tokens, iterator, declarationScopes, result)))
             return nullptr;
     }
 
@@ -1559,7 +1559,7 @@ CaseStatement* ASTContext::parseCaseStatement(const std::vector<Token>& tokens,
     constructs.push_back(std::unique_ptr<Construct>(result));
     result->parent = parent;
 
-    if (!(result->condition = parseCommaExpression(tokens, iterator, declarationScopes, result)))
+    if (!(result->condition = parseExpression(tokens, iterator, declarationScopes, result)))
         throw std::runtime_error("Expected an expression");
 
     expectToken(Token::Type::COLON, tokens, iterator);
@@ -1626,7 +1626,7 @@ WhileStatement* ASTContext::parseWhileStatement(const std::vector<Token>& tokens
     }
     else
     {
-        if (!(result->condition = parseCommaExpression(tokens, iterator, declarationScopes, result)))
+        if (!(result->condition = parseExpression(tokens, iterator, declarationScopes, result)))
             return nullptr;
     }
 
@@ -1665,7 +1665,7 @@ DoStatement* ASTContext::parseDoStatement(const std::vector<Token>& tokens,
     ++iterator;
 
     // expression
-    if (!(result->condition = parseCommaExpression(tokens, iterator, declarationScopes, result)))
+    if (!(result->condition = parseExpression(tokens, iterator, declarationScopes, result)))
         return nullptr;
 
     expectToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator);
@@ -1982,7 +1982,7 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
         constructs.push_back(std::unique_ptr<Construct>(result));
         result->parent = parent;
 
-        if (!(result->expression = parseCommaExpression(tokens, iterator, declarationScopes, result)))
+        if (!(result->expression = parseExpression(tokens, iterator, declarationScopes, result)))
             return nullptr;
 
         expectToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator);
@@ -2024,7 +2024,7 @@ Expression* ASTContext::parseSubscriptExpression(const std::vector<Token>& token
         if (result->qualifiedType.typeDeclaration->getTypeKind() != TypeDeclaration::Kind::ARRAY)
             throw std::runtime_error("Subscript value is not an array");
 
-        if (!(expression->subscript = parseCommaExpression(tokens, iterator, declarationScopes, expression)))
+        if (!(expression->subscript = parseExpression(tokens, iterator, declarationScopes, expression)))
             return nullptr;
 
         if (!expression->subscript->qualifiedType.typeDeclaration ||

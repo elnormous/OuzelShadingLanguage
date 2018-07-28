@@ -358,6 +358,14 @@ private:
                                      std::vector<Token>::const_iterator& iterator,
                                      std::vector<std::vector<Declaration*>>& declarationScopes,
                                      Construct* parent);
+    
+    Expression* parseExpression(const std::vector<Token>& tokens,
+                                std::vector<Token>::const_iterator& iterator,
+                                std::vector<std::vector<Declaration*>>& declarationScopes,
+                                Construct* parent)
+    {
+        return parseCommaExpression(tokens, iterator, declarationScopes, parent);
+    }
 
     void dumpDeclaration(const Declaration* declaration, std::string indent = std::string()) const;
     void dumpStatement(const Statement* statement, std::string indent = std::string()) const;
