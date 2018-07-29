@@ -835,6 +835,13 @@ void OutputHLSL::printExpression(const Expression* expression, Options options, 
             {
                 printConstruct(castExpression->expression, Options(0, options.whitespaces), code);
             }
+            
+            break;
+        }
+        case Expression::Kind::SIZEOF:
+        {
+            // TODO: implement
+            break;
         }
     }
 }

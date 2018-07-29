@@ -299,6 +299,11 @@ private:
                                    std::vector<std::vector<Declaration*>>& declarationScopes,
                                    Construct* parent);
 
+    Expression* parseSizeofExpression(const std::vector<Token>& tokens,
+                                      std::vector<Token>::const_iterator& iterator,
+                                      std::vector<std::vector<Declaration*>>& declarationScopes,
+                                      Construct* parent);
+    
     Expression* parseMultiplicationExpression(const std::vector<Token>& tokens,
                                               std::vector<Token>::const_iterator& iterator,
                                               std::vector<std::vector<Declaration*>>& declarationScopes,

@@ -829,6 +829,13 @@ void OutputGLSL::printExpression(const Expression* expression, Options options, 
             }
             else
                 printConstruct(castExpression->expression, Options(0, options.whitespaces), code);
+            
+            break;
+        }
+        case Expression::Kind::SIZEOF:
+        {
+            // TODO: implement
+            break;
         }
     }
 }

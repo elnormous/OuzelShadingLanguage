@@ -24,7 +24,8 @@ public:
         TERNARY_OPERATOR,
         TEMPORARY_OBJECT,
         INITIALIZER_LIST,
-        CAST
+        CAST,
+        SIZEOF
     };
 
     Expression(Kind initExpressionKind): Construct(Construct::Kind::EXPRESSION), expressionKind(initExpressionKind) {}
@@ -242,4 +243,13 @@ public:
 
 protected:
     Kind castKind;
+};
+
+class SizeofExpression: public Expression
+{
+public:
+    SizeofExpression(): Expression(Expression::Kind::SIZEOF) {}
+    
+    Expression* expression;
+    TypeDeclaration* type;
 };

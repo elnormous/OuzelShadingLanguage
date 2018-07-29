@@ -806,6 +806,12 @@ void OutputMSL::printExpression(const Expression* expression, Options options, s
             {
                 printConstruct(castExpression->expression, Options(0, options.whitespaces), code);
             }
+            break;
+        }
+        case Expression::Kind::SIZEOF:
+        {
+            // TODO: implement
+            break;
         }
     }
 }

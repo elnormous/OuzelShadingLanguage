@@ -2225,7 +2225,7 @@ Expression* ASTContext::parseNotExpression(const std::vector<Token>& tokens,
 
         ++iterator;
 
-        if (!(result->expression = parseNotExpression(tokens, iterator, declarationScopes, result)))
+        if (!(result->expression = parseExpression(tokens, iterator, declarationScopes, result)))
             return nullptr;
 
         result->operatorDeclaration = resolveOperatorDeclaration(op, declarationScopes, {result->expression->qualifiedType});
@@ -2247,13 +2247,57 @@ Expression* ASTContext::parseNotExpression(const std::vector<Token>& tokens,
     }
 }
 
+Expression* ASTContext::parseSizeofExpression(const std::vector<Token>& tokens,
+                                              std::vector<Token>::const_iterator& iterator,
+                                              std::vector<std::vector<Declaration*>>& declarationScopes,
+                                              Construct* parent)
+{
+    if (isToken(Token::Type::KEYWORD_SIZEOF, tokens, iterator))
+    {
+        SizeofExpression* result = new SizeofExpression();
+        constructs.push_back(std::unique_ptr<Construct>(result));
+        result->parent = parent;
+        
+        ++iterator;
+        
+        expectToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator);
+        ++iterator;
+        
+        if (isType(tokens, iterator, declarationScopes))
+        {
+            if (!(result->type = parseType(tokens, iterator, declarationScopes)))
+                return nullptr;
+        }
+        else
+        {
+            if (!(result->expression = parseExpression(tokens, iterator, declarationScopes, result)))
+                return nullptr;
+        }
+        
+        expectToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator);
+        ++iterator;
+        
+        result->qualifiedType.typeDeclaration = unsignedIntTypeDeclaration;
+        result->isLValue = false;
+        
+        return result;
+    }
+    else
+    {
+        Expression* result;
+        if (!(result = parseNotExpression(tokens, iterator, declarationScopes, parent)))
+            return nullptr;
+        return result;
+    }
+}
+
 Expression* ASTContext::parseMultiplicationExpression(const std::vector<Token>& tokens,
                                                       std::vector<Token>::const_iterator& iterator,
                                                       std::vector<std::vector<Declaration*>>& declarationScopes,
                                                       Construct* parent)
 {
     Expression* result;
-    if (!(result = parseNotExpression(tokens, iterator, declarationScopes, parent)))
+    if (!(result = parseSizeofExpression(tokens, iterator, declarationScopes, parent)))
         return nullptr;
 
     while (isToken({Token::Type::OPERATOR_MULTIPLY, Token::Type::OPERATOR_DIVIDE}, tokens, iterator))
@@ -2279,7 +2323,7 @@ Expression* ASTContext::parseMultiplicationExpression(const std::vector<Token>& 
 
         ++iterator;
 
-        if (!(expression->rightExpression = parseNotExpression(tokens, iterator, declarationScopes, expression)))
+        if (!(expression->rightExpression = parseSizeofExpression(tokens, iterator, declarationScopes, expression)))
             return nullptr;
 
         expression->operatorDeclaration = resolveOperatorDeclaration(op, declarationScopes,
@@ -2847,6 +2891,7 @@ static std::string toString(Expression::Kind kind)
         case Expression::Kind::TEMPORARY_OBJECT: return "TEMPORARY_OBJECT";
         case Expression::Kind::INITIALIZER_LIST: return "INITIALIZER_LIST";
         case Expression::Kind::CAST: return "CAST";
+        case Expression::Kind::SIZEOF: return "SIZEOF";
         default: return "unknown";
     }
 }
@@ -3474,6 +3519,18 @@ void ASTContext::dumpExpression(const Expression* expression, std::string indent
 
             dumpConstruct(castExpression->expression, indent + "  ");
 
+            break;
+        }
+        case Expression::Kind::SIZEOF:
+        {
+            const SizeofExpression* sizeofExpression = static_cast<const SizeofExpression*>(expression);
+
+            std::cout << std::endl;
+
+            if (sizeofExpression->expression)
+                dumpConstruct(sizeofExpression->expression, indent + "  ");
+            else if (sizeofExpression->type)
+                dumpConstruct(sizeofExpression->type, indent + "  ");
             break;
         }
     }
