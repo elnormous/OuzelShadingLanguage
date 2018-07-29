@@ -1756,7 +1756,8 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
     }
     else if (isToken({Token::Type::KEYWORD_BOOL, Token::Type::KEYWORD_INT, Token::Type::KEYWORD_FLOAT}, tokens, iterator))
     {
-        CastExpression* result = new CastExpression(CastExpression::Kind::C_STYLE);
+        // TODO: parse type and fix precedence
+        CastExpression* result = new CastExpression(CastExpression::Kind::FUNCTIONAL);
         constructs.push_back(std::unique_ptr<Construct>(result));
 
         if (isToken(Token::Type::KEYWORD_BOOL, tokens, iterator)) result->qualifiedType.typeDeclaration = boolTypeDeclaration;
@@ -1978,21 +1979,41 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
     {
         ++iterator;
 
-        ParenExpression* result = new ParenExpression();
-        constructs.push_back(std::unique_ptr<Construct>(result));
-        result->parent = parent;
+        if (isType(tokens, iterator, declarationScopes))
+        {
+            CastExpression* result = new CastExpression(CastExpression::Kind::C_STYLE);
+            constructs.push_back(std::unique_ptr<Construct>(result));
+            result->parent = parent;
 
-        if (!(result->expression = parseExpression(tokens, iterator, declarationScopes, result)))
-            return nullptr;
+            // TODO: parse qualifiers
+            result->qualifiedType.typeDeclaration = parseType(tokens, iterator, declarationScopes);
 
-        expectToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator);
+            expectToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator);
+            ++iterator;
 
-        ++iterator;
+            result->expression = parseExpression(tokens, iterator, declarationScopes, result);
+            result->isLValue = false;
 
-        result->qualifiedType = result->expression->qualifiedType;
-        result->isLValue = result->expression->isLValue;
+            return result;
+        }
+        else
+        {
+            ParenExpression* result = new ParenExpression();
+            constructs.push_back(std::unique_ptr<Construct>(result));
+            result->parent = parent;
 
-        return result;
+            if (!(result->expression = parseExpression(tokens, iterator, declarationScopes, result)))
+                return nullptr;
+
+            expectToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator);
+
+            ++iterator;
+
+            result->qualifiedType = result->expression->qualifiedType;
+            result->isLValue = result->expression->isLValue;
+
+            return result;
+        }
     }
     else if (isToken({Token::Type::KEYWORD_CONST_CAST,
         Token::Type::KEYWORD_DYNAMIC_CAST,
