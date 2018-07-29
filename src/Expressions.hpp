@@ -228,9 +228,10 @@ public:
         IMPLICIT,
         C_STYLE,
         FUNCTIONAL,
-        STATIC,
+        CONST,
         DYNAMIC,
-        REINTERPRET
+        REINTERPRET,
+        STATIC
     };
 
     CastExpression(Kind initCastKind): Expression(Expression::Kind::CAST), castKind(initCastKind) {}

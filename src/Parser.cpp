@@ -1994,7 +1994,8 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
 
         return result;
     }
-    else if (isToken({Token::Type::KEYWORD_DYNAMIC_CAST,
+    else if (isToken({Token::Type::KEYWORD_CONST_CAST,
+        Token::Type::KEYWORD_DYNAMIC_CAST,
         Token::Type::KEYWORD_REINTERPRET_CAST,
         Token::Type::KEYWORD_STATIC_CAST}, tokens, iterator))
     {
@@ -2002,6 +2003,7 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
         
         switch (iterator->type)
         {
+            case Token::Type::KEYWORD_CONST_CAST: castKind = CastExpression::Kind::CONST; break;
             case Token::Type::KEYWORD_DYNAMIC_CAST: castKind = CastExpression::Kind::DYNAMIC; break;
             case Token::Type::KEYWORD_REINTERPRET_CAST: castKind = CastExpression::Kind::REINTERPRET; break;
             case Token::Type::KEYWORD_STATIC_CAST: castKind = CastExpression::Kind::STATIC; break;

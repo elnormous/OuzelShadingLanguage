@@ -40,6 +40,7 @@ struct Token
         KEYWORD_CLASS, // class
         KEYWORD_COMPL, // compl
         KEYWORD_CONST, // const
+        KEYWORD_CONST_CAST, // const_cast
         KEYWORD_CONTINUE, // continue
         KEYWORD_DEFAULT, // default
         KEYWORD_DELETE, // delete
@@ -193,6 +194,7 @@ inline std::string toString(Token::Type type)
         case Token::Type::KEYWORD_CLASS: return "KEYWORD_CLASS";
         case Token::Type::KEYWORD_COMPL: return "KEYWORD_COMPL";
         case Token::Type::KEYWORD_CONST: return "KEYWORD_CONST";
+        case Token::Type::KEYWORD_CONST_CAST: return "KEYWORD_CONST_CAST";
         case Token::Type::KEYWORD_CONTINUE: return "KEYWORD_CONTINUE";
         case Token::Type::KEYWORD_DEFAULT: return "KEYWORD_DEFAULT";
         case Token::Type::KEYWORD_DELETE: return "KEYWORD_DELETE";
