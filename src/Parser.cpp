@@ -111,19 +111,6 @@ ASTContext::ASTContext(const std::vector<Token>& tokens)
     (void)samplerStateTypeDeclaration;
     (void)texture2DTypeDeclaration;
 
-    addOperatorDeclaration(Operator::NEGATION, boolTypeDeclaration, {boolTypeDeclaration}, declarationScopes);
-    addOperatorDeclaration(Operator::AND, boolTypeDeclaration, {boolTypeDeclaration, boolTypeDeclaration}, declarationScopes);
-    addOperatorDeclaration(Operator::OR, boolTypeDeclaration, {boolTypeDeclaration, boolTypeDeclaration}, declarationScopes);
-
-    addOperatorDeclaration(Operator::POSITIVE, intTypeDeclaration, {intTypeDeclaration}, declarationScopes);
-    addOperatorDeclaration(Operator::POSITIVE, floatTypeDeclaration, {floatTypeDeclaration}, declarationScopes);
-
-    addOperatorDeclaration(Operator::NEGATIVE, intTypeDeclaration, {intTypeDeclaration}, declarationScopes);
-    addOperatorDeclaration(Operator::NEGATIVE, floatTypeDeclaration, {floatTypeDeclaration}, declarationScopes);
-
-    addOperatorDeclaration(Operator::NEGATIVE, intTypeDeclaration, {intTypeDeclaration}, declarationScopes);
-    addOperatorDeclaration(Operator::POSITIVE, floatTypeDeclaration, {floatTypeDeclaration}, declarationScopes);
-
     addOperatorDeclaration(Operator::MULTIPLICATION, float4x4TypeDeclaration, {float4x4TypeDeclaration, float4x4TypeDeclaration}, declarationScopes);
     addOperatorDeclaration(Operator::MULTIPLICATION, float4TypeDeclaration, {float4x4TypeDeclaration, float4TypeDeclaration}, declarationScopes);
     addOperatorDeclaration(Operator::MULTIPLICATION, float4TypeDeclaration, {float4TypeDeclaration, float4x4TypeDeclaration}, declarationScopes);
