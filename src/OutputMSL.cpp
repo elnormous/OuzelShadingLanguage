@@ -652,11 +652,11 @@ void OutputMSL::printExpression(const Expression* expression, Options options, s
 
             const UnaryOperatorExpression* unaryOperatorExpression = static_cast<const UnaryOperatorExpression*>(expression);
 
-            switch (unaryOperatorExpression->unaryOperatorKind)
+            switch (unaryOperatorExpression->operatorDeclaration->op)
             {
-                case UnaryOperatorExpression::Kind::NEGATION: code += "!"; break;
-                case UnaryOperatorExpression::Kind::POSITIVE: code += "+"; break;
-                case UnaryOperatorExpression::Kind::NEGATIVE: code += "-"; break;
+                case Operator::NEGATION: code += "!"; break;
+                case Operator::POSITIVE: code += "+"; break;
+                case Operator::NEGATIVE: code += "-"; break;
                 default:
                     throw std::runtime_error("Unknown operator");
             }

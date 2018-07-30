@@ -347,7 +347,7 @@ OperatorDeclaration* ASTContext::resolveOperatorDeclaration(Operator op,
                            [](const QualifiedType& qualifiedType,
                               const ParameterDeclaration* parameterDeclaration) {
                                bool scalar = qualifiedType.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::SCALAR &&
-                               qualifiedType.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::SCALAR;
+                                   qualifiedType.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::SCALAR;
 
                                return (scalar || qualifiedType.typeDeclaration->getFirstDeclaration() == parameterDeclaration->qualifiedType.typeDeclaration->getFirstDeclaration());
                            }))
@@ -2169,15 +2169,9 @@ Expression* ASTContext::parseSignExpression(const std::vector<Token>& tokens,
         Operator op = Operator::NONE;
 
         if (iterator->type == Token::Type::OPERATOR_PLUS)
-        {
-            result->unaryOperatorKind = UnaryOperatorExpression::Kind::POSITIVE;
             op = Operator::POSITIVE;
-        }
         else if (iterator->type == Token::Type::OPERATOR_MINUS)
-        {
-            result->unaryOperatorKind = UnaryOperatorExpression::Kind::NEGATIVE;
             op = Operator::NEGATIVE;
-        }
 
         ++iterator;
 
@@ -2189,7 +2183,7 @@ Expression* ASTContext::parseSignExpression(const std::vector<Token>& tokens,
         if (result->expression->qualifiedType.typeDeclaration == boolTypeDeclaration)
             result->expression = addImplicitCast(result->expression, intTypeDeclaration);
 
-        result->qualifiedType = result->expression->qualifiedType;
+        result->qualifiedType = result->operatorDeclaration->qualifiedType;
         result->isLValue = false;
 
         return result;
@@ -2214,7 +2208,6 @@ Expression* ASTContext::parseNotExpression(const std::vector<Token>& tokens,
         UnaryOperatorExpression* result = new UnaryOperatorExpression();
         constructs.push_back(std::unique_ptr<Construct>(result));
         result->parent = parent;
-        result->unaryOperatorKind = UnaryOperatorExpression::Kind::NEGATION;
 
         Operator op = Operator::NEGATION;
 
@@ -2324,8 +2317,7 @@ Expression* ASTContext::parseMultiplicationExpression(const std::vector<Token>& 
         expression->operatorDeclaration = resolveOperatorDeclaration(op, declarationScopes,
                                                                      {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
 
-        // TODO: fix this
-        expression->qualifiedType = expression->leftExpression->qualifiedType;
+        expression->qualifiedType = expression->operatorDeclaration->qualifiedType;
         expression->isLValue = false;
 
         result->parent = expression;
@@ -2373,8 +2365,7 @@ Expression* ASTContext::parseAdditionExpression(const std::vector<Token>& tokens
         expression->operatorDeclaration = resolveOperatorDeclaration(op, declarationScopes,
                                                                      {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
 
-        // TODO: fix this
-        expression->qualifiedType = expression->leftExpression->qualifiedType;
+        expression->qualifiedType = expression->operatorDeclaration->qualifiedType;
         expression->isLValue = false;
 
         result->parent = expression;
@@ -2422,8 +2413,7 @@ Expression* ASTContext::parseLessThanExpression(const std::vector<Token>& tokens
         expression->operatorDeclaration = resolveOperatorDeclaration(op, declarationScopes,
                                                                      {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
 
-        // TODO: fix this
-        expression->qualifiedType = expression->leftExpression->qualifiedType;
+        expression->qualifiedType = expression->operatorDeclaration->qualifiedType;
         expression->isLValue = false;
 
         result->parent = expression;
@@ -2471,8 +2461,7 @@ Expression* ASTContext::parseGreaterThanExpression(const std::vector<Token>& tok
         expression->operatorDeclaration = resolveOperatorDeclaration(op, declarationScopes,
                                                                      {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
 
-        // TODO: fix this
-        expression->qualifiedType = expression->leftExpression->qualifiedType;
+        expression->qualifiedType = expression->operatorDeclaration->qualifiedType;
         expression->isLValue = false;
 
         result->parent = expression;
@@ -2520,8 +2509,7 @@ Expression* ASTContext::parseEqualityExpression(const std::vector<Token>& tokens
         expression->operatorDeclaration = resolveOperatorDeclaration(op, declarationScopes,
                                                                      {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
 
-        // TODO: fix this
-        expression->qualifiedType = expression->leftExpression->qualifiedType;
+        expression->qualifiedType = expression->operatorDeclaration->qualifiedType;
         expression->isLValue = false;
 
         result->parent = expression;
@@ -2560,7 +2548,7 @@ Expression* ASTContext::parseLogicalAndExpression(const std::vector<Token>& toke
                                                                      {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
 
         // TODO: check if both sides ar scalar
-        expression->qualifiedType.typeDeclaration = boolTypeDeclaration;
+        expression->qualifiedType = expression->operatorDeclaration->qualifiedType;
         expression->isLValue = false;
 
         result->parent = expression;
@@ -2599,7 +2587,7 @@ Expression* ASTContext::parseLogicalOrExpression(const std::vector<Token>& token
                                                                      {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
 
         // TODO: check if both sides ar scalar
-        expression->qualifiedType.typeDeclaration = boolTypeDeclaration;
+        expression->qualifiedType = expression->operatorDeclaration->qualifiedType;
         expression->isLValue = false;
 
         result->parent = expression;
@@ -2679,8 +2667,11 @@ Expression* ASTContext::parseAssignmentExpression(const std::vector<Token>& toke
         if (!(expression->rightExpression = parseTernaryExpression(tokens, iterator, declarationScopes, expression)))
             return nullptr;
 
-        // TODO: fix this
-        expression->qualifiedType = expression->leftExpression->qualifiedType;
+        expression->operatorDeclaration = resolveOperatorDeclaration(Operator::ASSIGNMENT,
+                                                                     declarationScopes,
+                                                                     {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
+
+        expression->qualifiedType = expression->operatorDeclaration->qualifiedType;
         expression->isLValue = true;
 
         result->parent = expression;
@@ -2734,8 +2725,7 @@ Expression* ASTContext::parseAdditionAssignmentExpression(const std::vector<Toke
         expression->operatorDeclaration = resolveOperatorDeclaration(op, declarationScopes,
                                                                      {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
 
-        // TODO: fix this
-        expression->qualifiedType = expression->leftExpression->qualifiedType;
+        expression->qualifiedType = expression->operatorDeclaration->qualifiedType;
         expression->isLValue = true;
 
         result->parent = expression;
@@ -2789,9 +2779,8 @@ Expression* ASTContext::parseMultiplicationAssignmentExpression(const std::vecto
 
         expression->operatorDeclaration = resolveOperatorDeclaration(op, declarationScopes,
                                                                      {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
-        
-        // TODO: fix this
-        expression->qualifiedType = expression->leftExpression->qualifiedType;
+
+        expression->qualifiedType = expression->operatorDeclaration->qualifiedType;
         expression->isLValue = true;
 
         result->parent = expression;
@@ -2953,22 +2942,6 @@ static std::string toString(LiteralExpression::Kind kind)
         case LiteralExpression::Kind::INTEGER: return "INTEGER";
         case LiteralExpression::Kind::FLOATING_POINT: return "FLOATING_POINT";
         case LiteralExpression::Kind::STRING: return "STRING";
-        default: return "unknown";
-    }
-}
-
-static std::string toString(UnaryOperatorExpression::Kind kind)
-{
-    switch (kind)
-    {
-        case UnaryOperatorExpression::Kind::NONE: return "NONE";
-        case UnaryOperatorExpression::Kind::NEGATION: return "NEGATION";
-        case UnaryOperatorExpression::Kind::POSITIVE: return "POSITIVE";
-        case UnaryOperatorExpression::Kind::NEGATIVE: return "NEGATIVE";
-        case UnaryOperatorExpression::Kind::PREFIX_INCREMENT: return "PREFIX_INCREMENT";
-        case UnaryOperatorExpression::Kind::PREFIX_DECREMENT: return "PREFIX_DECREMENT";
-        case UnaryOperatorExpression::Kind::POSTFIX_INCREMENT: return "POSTFIX_INCREMENT";
-        case UnaryOperatorExpression::Kind::POSTFIX_DECREMENT: return "POSTFIX_DECREMENT";
         default: return "unknown";
     }
 }
@@ -3453,7 +3426,7 @@ void ASTContext::dumpExpression(const Expression* expression, std::string indent
         {
             const UnaryOperatorExpression* unaryOperatorExpression = static_cast<const UnaryOperatorExpression*>(expression);
 
-            std::cout <<", operator: " << toString(unaryOperatorExpression->unaryOperatorKind) << std::endl;
+            std::cout <<", operator: " << toString(unaryOperatorExpression->operatorDeclaration->op) << std::endl;
 
             dumpConstruct(unaryOperatorExpression->expression, indent + "  ");
             break;

@@ -138,25 +138,11 @@ public:
 class UnaryOperatorExpression: public Expression
 {
 public:
-    enum class Kind
-    {
-        NONE,
-        NEGATION, // !
-        POSITIVE, // +
-        NEGATIVE, // -
-        PREFIX_INCREMENT, // ++
-        PREFIX_DECREMENT, // --
-        POSTFIX_INCREMENT, // ++
-        POSTFIX_DECREMENT // --
-    };
-
     UnaryOperatorExpression(): Expression(Expression::Kind::UNARY_OPERATOR) {}
 
     OperatorDeclaration* operatorDeclaration = nullptr;
 
     Expression* expression = nullptr;
-
-    Kind unaryOperatorKind = Kind::NONE;
 };
 
 class BinaryOperatorExpression: public Expression
