@@ -62,6 +62,7 @@ public:
 
     inline Kind getTypeKind() const { return typeKind; }
 
+    uint32_t size = 0;
     bool isBuiltin = false;
 
 protected:

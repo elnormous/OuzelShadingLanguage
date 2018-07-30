@@ -379,6 +379,7 @@ private:
 
     ScalarTypeDeclaration* addScalarTypeDeclaration(const std::string& name,
                                                     ScalarTypeDeclaration::Kind kind,
+                                                    uint32_t size,
                                                     bool isUnsigned,
                                                     std::vector<std::vector<Declaration*>>& declarationScopes)
     {
@@ -386,21 +387,42 @@ private:
         constructs.push_back(std::unique_ptr<Construct>(scalarTypeDeclaration));
 
         scalarTypeDeclaration->name = name;
+        scalarTypeDeclaration->size = size;
         scalarTypeDeclaration->isUnsigned = isUnsigned;
         scalarTypeDeclaration->isBuiltin = true;
         scalarTypeDeclaration->definition = scalarTypeDeclaration;
         declarationScopes.back().push_back(scalarTypeDeclaration);
 
+        addOperatorDeclaration(Operator::ASSIGNMENT, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
+
+        addOperatorDeclaration(Operator::ADDITION, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
+
+        addOperatorDeclaration(Operator::SUBTRACTION, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
+
+        addOperatorDeclaration(Operator::MULTIPLICATION, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
+
+        addOperatorDeclaration(Operator::DIVISION, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
+
+        addOperatorDeclaration(Operator::LESS_THAN, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
+
+        addOperatorDeclaration(Operator::LESS_THAN_EQUAL, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
+
+        addOperatorDeclaration(Operator::GREATER_THAN, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
+
+        addOperatorDeclaration(Operator::GREATER_THAN_EQUAL, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
+
         return scalarTypeDeclaration;
     }
 
     StructDeclaration* addStructDeclaration(const std::string& name,
+                                            uint32_t size,
                                             std::vector<std::vector<Declaration*>>& declarationScopes)
     {
         StructDeclaration* structDeclaration = new StructDeclaration();
         constructs.push_back(std::unique_ptr<Construct>(structDeclaration));
 
         structDeclaration->name = name;
+        structDeclaration->size = size;
         structDeclaration->isBuiltin = true;
         structDeclaration->definition = structDeclaration;
         declarationScopes.back().push_back(structDeclaration);
