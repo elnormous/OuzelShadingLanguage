@@ -399,14 +399,6 @@ private:
 
         addOperatorDeclaration(Operator::INEQUALITY, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
 
-        addOperatorDeclaration(Operator::LESS_THAN, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
-
-        addOperatorDeclaration(Operator::LESS_THAN_EQUAL, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
-
-        addOperatorDeclaration(Operator::GREATER_THAN, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
-
-        addOperatorDeclaration(Operator::GREATER_THAN_EQUAL, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
-
         // TODO: for int and float only
         addOperatorDeclaration(Operator::ADDITION, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
         addOperatorDeclaration(Operator::ADDITION_ASSIGNMENT, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
