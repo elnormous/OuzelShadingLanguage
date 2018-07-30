@@ -148,29 +148,6 @@ public:
 class BinaryOperatorExpression: public Expression
 {
 public:
-    enum class Kind
-    {
-        NONE,
-        ADDITION, // +
-        SUBTRACTION, // -
-        MULTIPLICATION, // *
-        DIVISION, // /
-        ADDITION_ASSIGNMENT, // +=
-        SUBTRACTION_ASSIGNMENT, // -=
-        MULTIPLICATION_ASSIGNMENT, // *=
-        DIVISION_ASSIGNMENT, // /=
-        LESS_THAN, // <
-        LESS_THAN_EQUAL, // <=
-        GREATER_THAN, // >
-        GREATER_THAN_EQUAL, // >=
-        EQUALITY, // ==
-        INEQUALITY, // !=
-        ASSIGNMENT, // =
-        OR, // ||
-        AND, // &&
-        COMMA // ,
-    };
-
     BinaryOperatorExpression(): Expression(Expression::Kind::BINARY_OPERATOR) {}
 
     OperatorDeclaration* operatorDeclaration = nullptr;
@@ -178,7 +155,7 @@ public:
     Expression* leftExpression = nullptr;
     Expression* rightExpression = nullptr;
 
-    Kind binaryOperatorKind = Kind::NONE;
+    Operator op = Operator::NONE;
 };
 
 class TernaryOperatorExpression: public Expression

@@ -2298,12 +2298,12 @@ Expression* ASTContext::parseMultiplicationExpression(const std::vector<Token>& 
 
         if (iterator->type == Token::Type::OPERATOR_MULTIPLY)
         {
-            expression->binaryOperatorKind = BinaryOperatorExpression::Kind::MULTIPLICATION;
+            expression->op = Operator::MULTIPLICATION;
             op = Operator::MULTIPLICATION;
         }
         else if (iterator->type == Token::Type::OPERATOR_DIVIDE)
         {
-            expression->binaryOperatorKind = BinaryOperatorExpression::Kind::DIVISION;
+            expression->op = Operator::DIVISION;
             op = Operator::DIVISION;
         }
 
@@ -2346,12 +2346,12 @@ Expression* ASTContext::parseAdditionExpression(const std::vector<Token>& tokens
 
         if (iterator->type == Token::Type::OPERATOR_PLUS)
         {
-            expression->binaryOperatorKind = BinaryOperatorExpression::Kind::ADDITION;
+            expression->op = Operator::ADDITION;
             op = Operator::ADDITION;
         }
         else if (iterator->type == Token::Type::OPERATOR_MINUS)
         {
-            expression->binaryOperatorKind = BinaryOperatorExpression::Kind::SUBTRACTION;
+            expression->op = Operator::SUBTRACTION;
             op = Operator::SUBTRACTION;
         }
 
@@ -2394,12 +2394,12 @@ Expression* ASTContext::parseLessThanExpression(const std::vector<Token>& tokens
 
         if (iterator->type == Token::Type::OPERATOR_LESS_THAN)
         {
-            expression->binaryOperatorKind = BinaryOperatorExpression::Kind::LESS_THAN;
+            expression->op = Operator::LESS_THAN;
             op = Operator::LESS_THAN;
         }
         else if (iterator->type == Token::Type::OPERATOR_LESS_THAN_EQUAL)
         {
-            expression->binaryOperatorKind = BinaryOperatorExpression::Kind::LESS_THAN_EQUAL;
+            expression->op = Operator::LESS_THAN_EQUAL;
             op = Operator::LESS_THAN_EQUAL;
         }
 
@@ -2442,12 +2442,12 @@ Expression* ASTContext::parseGreaterThanExpression(const std::vector<Token>& tok
 
         if (iterator->type == Token::Type::OPERATOR_GREATER_THAN)
         {
-            expression->binaryOperatorKind = BinaryOperatorExpression::Kind::GREATER_THAN;
+            expression->op = Operator::GREATER_THAN;
             op = Operator::GREATER_THAN;
         }
         else if (iterator->type == Token::Type::OPERATOR_GREATER_THAN_EQUAL)
         {
-            expression->binaryOperatorKind = BinaryOperatorExpression::Kind::GREATER_THAN_EQUAL;
+            expression->op = Operator::GREATER_THAN_EQUAL;
             op = Operator::GREATER_THAN_EQUAL;
         }
 
@@ -2490,12 +2490,12 @@ Expression* ASTContext::parseEqualityExpression(const std::vector<Token>& tokens
 
         if (iterator->type == Token::Type::OPERATOR_EQUAL)
         {
-            expression->binaryOperatorKind = BinaryOperatorExpression::Kind::EQUALITY;
+            expression->op = Operator::EQUALITY;
             op = Operator::EQUALITY;
         }
         else if (iterator->type == Token::Type::OPERATOR_NOT_EQUAL || iterator->type == Token::Type::KEYWORD_NOT_EQ)
         {
-            expression->binaryOperatorKind = BinaryOperatorExpression::Kind::INEQUALITY;
+            expression->op = Operator::INEQUALITY;
             op = Operator::INEQUALITY;
         }
 
@@ -2535,7 +2535,7 @@ Expression* ASTContext::parseLogicalAndExpression(const std::vector<Token>& toke
         BinaryOperatorExpression* expression = new BinaryOperatorExpression();
         constructs.push_back(std::unique_ptr<Construct>(expression));
         expression->parent = parent;
-        expression->binaryOperatorKind = BinaryOperatorExpression::Kind::AND;
+        expression->op = Operator::AND;
 
         Operator op = Operator::AND;
 
@@ -2574,7 +2574,7 @@ Expression* ASTContext::parseLogicalOrExpression(const std::vector<Token>& token
         BinaryOperatorExpression* expression = new BinaryOperatorExpression();
         constructs.push_back(std::unique_ptr<Construct>(expression));
         expression->parent = parent;
-        expression->binaryOperatorKind = BinaryOperatorExpression::Kind::OR;
+        expression->op = Operator::OR;
 
         Operator op = Operator::OR;
 
@@ -2655,7 +2655,7 @@ Expression* ASTContext::parseAssignmentExpression(const std::vector<Token>& toke
         BinaryOperatorExpression* expression = new BinaryOperatorExpression();
         constructs.push_back(std::unique_ptr<Construct>(expression));
         expression->parent = parent;
-        expression->binaryOperatorKind = BinaryOperatorExpression::Kind::ASSIGNMENT;
+        expression->op = Operator::ASSIGNMENT;
         expression->leftExpression = result;
 
         if (expression->leftExpression->qualifiedType.isConst)
@@ -2700,12 +2700,12 @@ Expression* ASTContext::parseAdditionAssignmentExpression(const std::vector<Toke
 
         if (iterator->type == Token::Type::OPERATOR_PLUS_ASSIGNMENT)
         {
-            expression->binaryOperatorKind = BinaryOperatorExpression::Kind::ADDITION_ASSIGNMENT;
+            expression->op = Operator::ADDITION_ASSIGNMENT;
             op = Operator::ADDITION_ASSIGNMENT;
         }
         else if (iterator->type == Token::Type::OPERATOR_MINUS_ASSIGNMENT)
         {
-            expression->binaryOperatorKind = BinaryOperatorExpression::Kind::SUBTRACTION_ASSIGNMENT;
+            expression->op = Operator::SUBTRACTION_ASSIGNMENT;
             op = Operator::SUBTRACTION_ASSIGNMENT;
         }
 
@@ -2754,12 +2754,12 @@ Expression* ASTContext::parseMultiplicationAssignmentExpression(const std::vecto
 
         if (iterator->type == Token::Type::OPERATOR_MULTIPLY_ASSIGNMENT)
         {
-            expression->binaryOperatorKind = BinaryOperatorExpression::Kind::MULTIPLICATION_ASSIGNMENT;
+            expression->op = Operator::MULTIPLICATION_ASSIGNMENT;
             op = Operator::MULTIPLICATION_ASSIGNMENT;
         }
         else if (iterator->type == Token::Type::OPERATOR_DIVIDE_ASSIGNMENT)
         {
-            expression->binaryOperatorKind = BinaryOperatorExpression::Kind::DIVISION_ASSIGNMENT;
+            expression->op = Operator::DIVISION_ASSIGNMENT;
             op = Operator::DIVISION_ASSIGNMENT;
         }
 
@@ -2804,7 +2804,7 @@ Expression* ASTContext::parseCommaExpression(const std::vector<Token>& tokens,
         BinaryOperatorExpression* expression = new BinaryOperatorExpression();
         constructs.push_back(std::unique_ptr<Construct>(expression));
         expression->parent = parent;
-        expression->binaryOperatorKind = BinaryOperatorExpression::Kind::COMMA;
+        expression->op = Operator::COMMA;
         expression->leftExpression = result;
 
         ++iterator;
@@ -2942,33 +2942,6 @@ static std::string toString(LiteralExpression::Kind kind)
         case LiteralExpression::Kind::INTEGER: return "INTEGER";
         case LiteralExpression::Kind::FLOATING_POINT: return "FLOATING_POINT";
         case LiteralExpression::Kind::STRING: return "STRING";
-        default: return "unknown";
-    }
-}
-
-static std::string toString(BinaryOperatorExpression::Kind kind)
-{
-    switch (kind)
-    {
-        case BinaryOperatorExpression::Kind::NONE: return "NONE";
-        case BinaryOperatorExpression::Kind::ADDITION: return "ADDITION";
-        case BinaryOperatorExpression::Kind::SUBTRACTION: return "SUBTRACTION";
-        case BinaryOperatorExpression::Kind::MULTIPLICATION: return "MULTIPLICATION";
-        case BinaryOperatorExpression::Kind::DIVISION: return "DIVISION";
-        case BinaryOperatorExpression::Kind::ADDITION_ASSIGNMENT: return "ADDITION_ASSIGNMENT";
-        case BinaryOperatorExpression::Kind::SUBTRACTION_ASSIGNMENT: return "SUBTRACTION_ASSIGNMENT";
-        case BinaryOperatorExpression::Kind::MULTIPLICATION_ASSIGNMENT: return "MULTIPLICATION_ASSIGNMENT";
-        case BinaryOperatorExpression::Kind::DIVISION_ASSIGNMENT: return "DIVISION_ASSIGNMENT";
-        case BinaryOperatorExpression::Kind::LESS_THAN: return "LESS_THAN";
-        case BinaryOperatorExpression::Kind::LESS_THAN_EQUAL: return "LESS_THAN_EQUAL";
-        case BinaryOperatorExpression::Kind::GREATER_THAN: return "GREATER_THAN";
-        case BinaryOperatorExpression::Kind::GREATER_THAN_EQUAL: return "GREATER_THAN_EQUAL";
-        case BinaryOperatorExpression::Kind::EQUALITY: return "EQUALITY";
-        case BinaryOperatorExpression::Kind::INEQUALITY: return "INEQUALITY";
-        case BinaryOperatorExpression::Kind::ASSIGNMENT: return "ASSIGNMENT";
-        case BinaryOperatorExpression::Kind::OR: return "OR";
-        case BinaryOperatorExpression::Kind::AND: return "AND";
-        case BinaryOperatorExpression::Kind::COMMA: return "COMMA";
         default: return "unknown";
     }
 }
@@ -3436,7 +3409,7 @@ void ASTContext::dumpExpression(const Expression* expression, std::string indent
         {
             const BinaryOperatorExpression* binaryOperatorExpression = static_cast<const BinaryOperatorExpression*>(expression);
 
-            std::cout << ", operator: " << toString(binaryOperatorExpression->binaryOperatorKind) << std::endl;
+            std::cout << ", operator: " << toString(binaryOperatorExpression->op) << std::endl;
 
             dumpConstruct(binaryOperatorExpression->leftExpression, indent + "  ");
             dumpConstruct(binaryOperatorExpression->rightExpression, indent + "  ");

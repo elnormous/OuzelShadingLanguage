@@ -702,28 +702,28 @@ void OutputHLSL::printExpression(const Expression* expression, Options options, 
             printConstruct(binaryOperatorExpression->leftExpression, Options(0, options.whitespaces), code);
 
             if (options.whitespaces &&
-                binaryOperatorExpression->binaryOperatorKind != BinaryOperatorExpression::Kind::COMMA) code += " ";
+                binaryOperatorExpression->op != Operator::COMMA) code += " ";
 
-            switch (binaryOperatorExpression->binaryOperatorKind)
+            switch (binaryOperatorExpression->op)
             {
-                case BinaryOperatorExpression::Kind::ADDITION: code += "+"; break;
-                case BinaryOperatorExpression::Kind::SUBTRACTION: code += "-"; break;
-                case BinaryOperatorExpression::Kind::MULTIPLICATION: code += "*"; break;
-                case BinaryOperatorExpression::Kind::DIVISION: code += "/"; break;
-                case BinaryOperatorExpression::Kind::ADDITION_ASSIGNMENT: code += "+="; break;
-                case BinaryOperatorExpression::Kind::SUBTRACTION_ASSIGNMENT: code += "-="; break;
-                case BinaryOperatorExpression::Kind::MULTIPLICATION_ASSIGNMENT: code += "*="; break;
-                case BinaryOperatorExpression::Kind::DIVISION_ASSIGNMENT: code += "/="; break;
-                case BinaryOperatorExpression::Kind::LESS_THAN: code += "<"; break;
-                case BinaryOperatorExpression::Kind::LESS_THAN_EQUAL: code += "<="; break;
-                case BinaryOperatorExpression::Kind::GREATER_THAN: code += ">"; break;
-                case BinaryOperatorExpression::Kind::GREATER_THAN_EQUAL: code += ">="; break;
-                case BinaryOperatorExpression::Kind::EQUALITY: code += "=="; break;
-                case BinaryOperatorExpression::Kind::INEQUALITY: code += "!="; break;
-                case BinaryOperatorExpression::Kind::ASSIGNMENT: code += "="; break;
-                case BinaryOperatorExpression::Kind::OR: code += "||"; break;
-                case BinaryOperatorExpression::Kind::AND: code += "&&"; break;
-                case BinaryOperatorExpression::Kind::COMMA: code += ","; break;
+                case Operator::ADDITION: code += "+"; break;
+                case Operator::SUBTRACTION: code += "-"; break;
+                case Operator::MULTIPLICATION: code += "*"; break;
+                case Operator::DIVISION: code += "/"; break;
+                case Operator::ADDITION_ASSIGNMENT: code += "+="; break;
+                case Operator::SUBTRACTION_ASSIGNMENT: code += "-="; break;
+                case Operator::MULTIPLICATION_ASSIGNMENT: code += "*="; break;
+                case Operator::DIVISION_ASSIGNMENT: code += "/="; break;
+                case Operator::LESS_THAN: code += "<"; break;
+                case Operator::LESS_THAN_EQUAL: code += "<="; break;
+                case Operator::GREATER_THAN: code += ">"; break;
+                case Operator::GREATER_THAN_EQUAL: code += ">="; break;
+                case Operator::EQUALITY: code += "=="; break;
+                case Operator::INEQUALITY: code += "!="; break;
+                case Operator::ASSIGNMENT: code += "="; break;
+                case Operator::OR: code += "||"; break;
+                case Operator::AND: code += "&&"; break;
+                case Operator::COMMA: code += ","; break;
                 default:
                     throw std::runtime_error("Unknown operator");
             }
