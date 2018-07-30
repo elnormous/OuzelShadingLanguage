@@ -10,6 +10,10 @@ enum class Operator
     NEGATION, // !
     POSITIVE, // +
     NEGATIVE, // -
+    PREFIX_INCREMENT, // ++
+    PREFIX_DECREMENT, // --
+    POSTFIX_INCREMENT, // ++
+    POSTFIX_DECREMENT, // --
     ADDITION, // +
     SUBTRACTION, // -
     MULTIPLICATION, // *

@@ -143,7 +143,11 @@ public:
         NONE,
         NEGATION, // !
         POSITIVE, // +
-        NEGATIVE // -
+        NEGATIVE, // -
+        PREFIX_INCREMENT, // ++
+        PREFIX_DECREMENT, // --
+        POSTFIX_INCREMENT, // ++
+        POSTFIX_DECREMENT // --
     };
 
     UnaryOperatorExpression(): Expression(Expression::Kind::UNARY_OPERATOR) {}

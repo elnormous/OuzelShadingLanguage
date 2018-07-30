@@ -1326,6 +1326,7 @@ IfStatement* ASTContext::parseIfStatement(const std::vector<Token>& tokens,
 
     ++iterator;
 
+    // TODO: add implicit cast to bool
     if (isDeclaration(tokens, iterator, declarationScopes))
     {
         Declaration* declaration;
@@ -1416,6 +1417,7 @@ ForStatement* ASTContext::parseForStatement(const std::vector<Token>& tokens,
         ++iterator;
     }
 
+    // TODO: add implicit cast to bool
     if (isDeclaration(tokens, iterator, declarationScopes))
     {
         Declaration* declaration;
@@ -1487,6 +1489,7 @@ SwitchStatement* ASTContext::parseSwitchStatement(const std::vector<Token>& toke
 
     ++iterator;
 
+    // TODO: add implicit cast to int
     if (isDeclaration(tokens, iterator, declarationScopes))
     {
         Declaration* declaration;
@@ -1581,6 +1584,7 @@ WhileStatement* ASTContext::parseWhileStatement(const std::vector<Token>& tokens
 
     ++iterator;
 
+    // TODO: add implicit cast to bool
     if (isDeclaration(tokens, iterator, declarationScopes))
     {
         Declaration* declaration;
@@ -1633,6 +1637,7 @@ DoStatement* ASTContext::parseDoStatement(const std::vector<Token>& tokens,
 
     ++iterator;
 
+    // TODO: add implicit cast to bool
     // expression
     if (!(result->condition = parseExpression(tokens, iterator, declarationScopes, result)))
         return nullptr;
@@ -2960,6 +2965,10 @@ static std::string toString(UnaryOperatorExpression::Kind kind)
         case UnaryOperatorExpression::Kind::NEGATION: return "NEGATION";
         case UnaryOperatorExpression::Kind::POSITIVE: return "POSITIVE";
         case UnaryOperatorExpression::Kind::NEGATIVE: return "NEGATIVE";
+        case UnaryOperatorExpression::Kind::PREFIX_INCREMENT: return "PREFIX_INCREMENT";
+        case UnaryOperatorExpression::Kind::PREFIX_DECREMENT: return "PREFIX_DECREMENT";
+        case UnaryOperatorExpression::Kind::POSTFIX_INCREMENT: return "POSTFIX_INCREMENT";
+        case UnaryOperatorExpression::Kind::POSTFIX_DECREMENT: return "POSTFIX_DECREMENT";
         default: return "unknown";
     }
 }
