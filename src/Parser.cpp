@@ -2221,7 +2221,7 @@ Expression* ASTContext::parseNotExpression(const std::vector<Token>& tokens,
         if (result->expression->qualifiedType.typeDeclaration != boolTypeDeclaration)
             result->expression = addImplicitCast(result->expression, boolTypeDeclaration);
 
-        result->qualifiedType.typeDeclaration = boolTypeDeclaration;
+        result->qualifiedType = result->operatorDeclaration->qualifiedType;
         result->isLValue = false;
 
         return result;
