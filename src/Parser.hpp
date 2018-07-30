@@ -430,6 +430,8 @@ private:
 
         addOperatorDeclaration(Operator::AND, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
 
+        addOperatorDeclaration(Operator::COMMA, scalarTypeDeclaration, {nullptr, scalarTypeDeclaration}, declarationScopes);
+
         return scalarTypeDeclaration;
     }
 
@@ -451,6 +453,8 @@ private:
         addOperatorDeclaration(Operator::EQUALITY, structDeclaration, {structDeclaration, structDeclaration}, declarationScopes);
 
         addOperatorDeclaration(Operator::INEQUALITY, structDeclaration, {structDeclaration, structDeclaration}, declarationScopes);
+
+        addOperatorDeclaration(Operator::COMMA, structDeclaration, {nullptr, structDeclaration}, declarationScopes);
 
         return structDeclaration;
     }

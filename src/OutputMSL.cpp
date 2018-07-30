@@ -673,9 +673,9 @@ void OutputMSL::printExpression(const Expression* expression, Options options, s
             printConstruct(binaryOperatorExpression->leftExpression, Options(0, options.whitespaces), code);
 
             if (options.whitespaces &&
-                binaryOperatorExpression->op != Operator::COMMA) code += " ";
+                binaryOperatorExpression->operatorDeclaration->op != Operator::COMMA) code += " ";
 
-            switch (binaryOperatorExpression->op)
+            switch (binaryOperatorExpression->operatorDeclaration->op)
             {
                 case Operator::ADDITION: code += "+"; break;
                 case Operator::SUBTRACTION: code += "-"; break;

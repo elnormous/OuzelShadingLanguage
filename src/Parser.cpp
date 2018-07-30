@@ -142,6 +142,10 @@ CallableDeclaration* ASTContext::compareCallableDeclarations(CallableDeclaration
             const QualifiedType& parameter1 = callableDeclaration1->parameterDeclarations[i]->qualifiedType;
             const QualifiedType& parameter2 = callableDeclaration2->parameterDeclarations[i]->qualifiedType;
 
+            if (!parameter.typeDeclaration ||
+                !parameter1.typeDeclaration ||
+                !parameter2.typeDeclaration) continue; // any type
+
             if (parameter1.typeDeclaration->getTypeKind() == parameter.typeDeclaration->getTypeKind() &&
                 parameter2.typeDeclaration->getTypeKind() == parameter.typeDeclaration->getTypeKind())
             {
@@ -346,6 +350,9 @@ OperatorDeclaration* ASTContext::resolveOperatorDeclaration(Operator op,
                            operatorDeclaration->parameterDeclarations.begin(),
                            [](const QualifiedType& qualifiedType,
                               const ParameterDeclaration* parameterDeclaration) {
+
+                               if (!qualifiedType.typeDeclaration) return true; // any type
+
                                bool scalar = qualifiedType.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::SCALAR &&
                                    qualifiedType.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::SCALAR;
 
@@ -2297,15 +2304,9 @@ Expression* ASTContext::parseMultiplicationExpression(const std::vector<Token>& 
         Operator op = Operator::NONE;
 
         if (iterator->type == Token::Type::OPERATOR_MULTIPLY)
-        {
-            expression->op = Operator::MULTIPLICATION;
             op = Operator::MULTIPLICATION;
-        }
         else if (iterator->type == Token::Type::OPERATOR_DIVIDE)
-        {
-            expression->op = Operator::DIVISION;
             op = Operator::DIVISION;
-        }
 
         expression->leftExpression = result;
 
@@ -2345,15 +2346,9 @@ Expression* ASTContext::parseAdditionExpression(const std::vector<Token>& tokens
         Operator op = Operator::NONE;
 
         if (iterator->type == Token::Type::OPERATOR_PLUS)
-        {
-            expression->op = Operator::ADDITION;
             op = Operator::ADDITION;
-        }
         else if (iterator->type == Token::Type::OPERATOR_MINUS)
-        {
-            expression->op = Operator::SUBTRACTION;
             op = Operator::SUBTRACTION;
-        }
 
         expression->leftExpression = result;
 
@@ -2393,15 +2388,9 @@ Expression* ASTContext::parseLessThanExpression(const std::vector<Token>& tokens
         Operator op = Operator::NONE;
 
         if (iterator->type == Token::Type::OPERATOR_LESS_THAN)
-        {
-            expression->op = Operator::LESS_THAN;
             op = Operator::LESS_THAN;
-        }
         else if (iterator->type == Token::Type::OPERATOR_LESS_THAN_EQUAL)
-        {
-            expression->op = Operator::LESS_THAN_EQUAL;
             op = Operator::LESS_THAN_EQUAL;
-        }
 
         ++iterator;
 
@@ -2441,15 +2430,9 @@ Expression* ASTContext::parseGreaterThanExpression(const std::vector<Token>& tok
         Operator op = Operator::NONE;
 
         if (iterator->type == Token::Type::OPERATOR_GREATER_THAN)
-        {
-            expression->op = Operator::GREATER_THAN;
             op = Operator::GREATER_THAN;
-        }
         else if (iterator->type == Token::Type::OPERATOR_GREATER_THAN_EQUAL)
-        {
-            expression->op = Operator::GREATER_THAN_EQUAL;
             op = Operator::GREATER_THAN_EQUAL;
-        }
 
         ++iterator;
 
@@ -2489,15 +2472,9 @@ Expression* ASTContext::parseEqualityExpression(const std::vector<Token>& tokens
         Operator op = Operator::NONE;
 
         if (iterator->type == Token::Type::OPERATOR_EQUAL)
-        {
-            expression->op = Operator::EQUALITY;
             op = Operator::EQUALITY;
-        }
         else if (iterator->type == Token::Type::OPERATOR_NOT_EQUAL || iterator->type == Token::Type::KEYWORD_NOT_EQ)
-        {
-            expression->op = Operator::INEQUALITY;
             op = Operator::INEQUALITY;
-        }
 
         ++iterator;
 
@@ -2535,7 +2512,6 @@ Expression* ASTContext::parseLogicalAndExpression(const std::vector<Token>& toke
         BinaryOperatorExpression* expression = new BinaryOperatorExpression();
         constructs.push_back(std::unique_ptr<Construct>(expression));
         expression->parent = parent;
-        expression->op = Operator::AND;
 
         Operator op = Operator::AND;
 
@@ -2574,7 +2550,6 @@ Expression* ASTContext::parseLogicalOrExpression(const std::vector<Token>& token
         BinaryOperatorExpression* expression = new BinaryOperatorExpression();
         constructs.push_back(std::unique_ptr<Construct>(expression));
         expression->parent = parent;
-        expression->op = Operator::OR;
 
         Operator op = Operator::OR;
 
@@ -2655,7 +2630,6 @@ Expression* ASTContext::parseAssignmentExpression(const std::vector<Token>& toke
         BinaryOperatorExpression* expression = new BinaryOperatorExpression();
         constructs.push_back(std::unique_ptr<Construct>(expression));
         expression->parent = parent;
-        expression->op = Operator::ASSIGNMENT;
         expression->leftExpression = result;
 
         if (expression->leftExpression->qualifiedType.isConst)
@@ -2699,15 +2673,9 @@ Expression* ASTContext::parseAdditionAssignmentExpression(const std::vector<Toke
         Operator op = Operator::NONE;
 
         if (iterator->type == Token::Type::OPERATOR_PLUS_ASSIGNMENT)
-        {
-            expression->op = Operator::ADDITION_ASSIGNMENT;
             op = Operator::ADDITION_ASSIGNMENT;
-        }
         else if (iterator->type == Token::Type::OPERATOR_MINUS_ASSIGNMENT)
-        {
-            expression->op = Operator::SUBTRACTION_ASSIGNMENT;
             op = Operator::SUBTRACTION_ASSIGNMENT;
-        }
 
         ++iterator;
 
@@ -2753,15 +2721,9 @@ Expression* ASTContext::parseMultiplicationAssignmentExpression(const std::vecto
         Operator op = Operator::NONE;
 
         if (iterator->type == Token::Type::OPERATOR_MULTIPLY_ASSIGNMENT)
-        {
-            expression->op = Operator::MULTIPLICATION_ASSIGNMENT;
             op = Operator::MULTIPLICATION_ASSIGNMENT;
-        }
         else if (iterator->type == Token::Type::OPERATOR_DIVIDE_ASSIGNMENT)
-        {
-            expression->op = Operator::DIVISION_ASSIGNMENT;
             op = Operator::DIVISION_ASSIGNMENT;
-        }
 
         ++iterator;
 
@@ -2804,7 +2766,6 @@ Expression* ASTContext::parseCommaExpression(const std::vector<Token>& tokens,
         BinaryOperatorExpression* expression = new BinaryOperatorExpression();
         constructs.push_back(std::unique_ptr<Construct>(expression));
         expression->parent = parent;
-        expression->op = Operator::COMMA;
         expression->leftExpression = result;
 
         ++iterator;
@@ -2813,7 +2774,10 @@ Expression* ASTContext::parseCommaExpression(const std::vector<Token>& tokens,
         if (!(expression->rightExpression = parseAdditionAssignmentExpression(tokens, iterator, declarationScopes, expression)))
             return nullptr;
 
-        expression->qualifiedType = expression->rightExpression->qualifiedType;
+        expression->operatorDeclaration = resolveOperatorDeclaration(Operator::COMMA, declarationScopes,
+                                                                     {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
+
+        expression->qualifiedType = expression->operatorDeclaration->qualifiedType;
         expression->isLValue = expression->rightExpression->isLValue;
 
         result->parent = expression;
@@ -3409,7 +3373,7 @@ void ASTContext::dumpExpression(const Expression* expression, std::string indent
         {
             const BinaryOperatorExpression* binaryOperatorExpression = static_cast<const BinaryOperatorExpression*>(expression);
 
-            std::cout << ", operator: " << toString(binaryOperatorExpression->op) << std::endl;
+            std::cout << ", operator: " << toString(binaryOperatorExpression->operatorDeclaration->op) << std::endl;
 
             dumpConstruct(binaryOperatorExpression->leftExpression, indent + "  ");
             dumpConstruct(binaryOperatorExpression->rightExpression, indent + "  ");

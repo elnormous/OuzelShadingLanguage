@@ -154,8 +154,6 @@ public:
 
     Expression* leftExpression = nullptr;
     Expression* rightExpression = nullptr;
-
-    Operator op = Operator::NONE;
 };
 
 class TernaryOperatorExpression: public Expression
