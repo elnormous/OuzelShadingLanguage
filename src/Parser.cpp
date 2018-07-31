@@ -916,6 +916,10 @@ StructDeclaration* ASTContext::parseStructDeclaration(const std::vector<Token>& 
 
     declarationScopes.back().push_back(result);
 
+    addOperatorDeclaration(Operator::ASSIGNMENT, result, {result, result}, declarationScopes);
+    addOperatorDeclaration(Operator::EQUALITY, result, {result, result}, declarationScopes);
+    addOperatorDeclaration(Operator::INEQUALITY, result, {result, result}, declarationScopes);
+
     return result;
 }
 

@@ -449,9 +449,7 @@ private:
         declarationScopes.back().push_back(structDeclaration);
 
         addOperatorDeclaration(Operator::ASSIGNMENT, structDeclaration, {structDeclaration, structDeclaration}, declarationScopes);
-
         addOperatorDeclaration(Operator::EQUALITY, structDeclaration, {structDeclaration, structDeclaration}, declarationScopes);
-
         addOperatorDeclaration(Operator::INEQUALITY, structDeclaration, {structDeclaration, structDeclaration}, declarationScopes);
 
         addOperatorDeclaration(Operator::COMMA, structDeclaration, {nullptr, structDeclaration}, declarationScopes);
