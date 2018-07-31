@@ -1,4 +1,4 @@
-CXXFLAGS=-c -std=c++11 -Wall -O2
+CXXFLAGS=-c -std=c++11 -Wpedantic -O2
 SOURCES=src/main.cpp \
 	src/Output.cpp \
 	src/OutputGLSL.cpp \
