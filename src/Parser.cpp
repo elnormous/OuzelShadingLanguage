@@ -16,6 +16,10 @@ ASTContext::ASTContext(const std::vector<Token>& tokens)
     declarationScopes.push_back(std::vector<Declaration*>());
 
     boolTypeDeclaration = addScalarTypeDeclaration("bool", ScalarTypeDeclaration::Kind::BOOLEAN, 1, false, declarationScopes);
+    addOperatorDeclaration(Operator::NEGATION, boolTypeDeclaration, {boolTypeDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::OR, boolTypeDeclaration, {boolTypeDeclaration, boolTypeDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::AND, boolTypeDeclaration, {boolTypeDeclaration, boolTypeDeclaration}, declarationScopes);
+
     intTypeDeclaration = addScalarTypeDeclaration("int", ScalarTypeDeclaration::Kind::INTEGER, 4, false, declarationScopes);
     unsignedIntTypeDeclaration = addScalarTypeDeclaration("unsigned int", ScalarTypeDeclaration::Kind::INTEGER, 4, true, declarationScopes);
     floatTypeDeclaration = addScalarTypeDeclaration("float", ScalarTypeDeclaration::Kind::FLOATING_POINT, 4, false, declarationScopes);

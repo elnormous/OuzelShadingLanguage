@@ -393,6 +393,8 @@ private:
         scalarTypeDeclaration->definition = scalarTypeDeclaration;
         declarationScopes.back().push_back(scalarTypeDeclaration);
 
+        addOperatorDeclaration(Operator::COMMA, scalarTypeDeclaration, {nullptr, scalarTypeDeclaration}, declarationScopes);
+
         addOperatorDeclaration(Operator::ASSIGNMENT, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
 
         addOperatorDeclaration(Operator::EQUALITY, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
@@ -422,15 +424,6 @@ private:
         addOperatorDeclaration(Operator::GREATER_THAN, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
 
         addOperatorDeclaration(Operator::GREATER_THAN_EQUAL, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
-
-        // TODO: for bool only
-        addOperatorDeclaration(Operator::NEGATION, boolTypeDeclaration, {boolTypeDeclaration}, declarationScopes);
-
-        addOperatorDeclaration(Operator::OR, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
-
-        addOperatorDeclaration(Operator::AND, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
-
-        addOperatorDeclaration(Operator::COMMA, scalarTypeDeclaration, {nullptr, scalarTypeDeclaration}, declarationScopes);
 
         return scalarTypeDeclaration;
     }
