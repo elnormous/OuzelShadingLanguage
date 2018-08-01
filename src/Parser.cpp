@@ -24,6 +24,30 @@ ASTContext::ASTContext(const std::vector<Token>& tokens)
     unsignedIntTypeDeclaration = addScalarTypeDeclaration("unsigned int", ScalarTypeDeclaration::Kind::INTEGER, 4, true, declarationScopes);
     floatTypeDeclaration = addScalarTypeDeclaration("float", ScalarTypeDeclaration::Kind::FLOATING_POINT, 4, false, declarationScopes);
 
+    for (ScalarTypeDeclaration* scalarTypeDeclaration : {intTypeDeclaration, unsignedIntTypeDeclaration, floatTypeDeclaration})
+    {
+        addOperatorDeclaration(Operator::ADDITION, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
+        addOperatorDeclaration(Operator::ADDITION_ASSIGNMENT, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
+
+        addOperatorDeclaration(Operator::SUBTRACTION, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
+        addOperatorDeclaration(Operator::SUBTRACTION_ASSIGNMENT, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
+
+        addOperatorDeclaration(Operator::MULTIPLICATION, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
+        addOperatorDeclaration(Operator::MULTIPLICATION_ASSIGNMENT, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
+
+        addOperatorDeclaration(Operator::DIVISION, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
+        addOperatorDeclaration(Operator::DIVISION_ASSIGNMENT, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
+
+        addOperatorDeclaration(Operator::POSITIVE, scalarTypeDeclaration, {scalarTypeDeclaration}, declarationScopes);
+        addOperatorDeclaration(Operator::NEGATIVE, scalarTypeDeclaration, {scalarTypeDeclaration}, declarationScopes);
+
+        addOperatorDeclaration(Operator::LESS_THAN, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
+        addOperatorDeclaration(Operator::LESS_THAN_EQUAL, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
+
+        addOperatorDeclaration(Operator::GREATER_THAN, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
+        addOperatorDeclaration(Operator::GREATER_THAN_EQUAL, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
+    }
+
     StructDeclaration* float2TypeDeclaration = addStructDeclaration("float2", 8, declarationScopes);
     StructDeclaration* float3TypeDeclaration = addStructDeclaration("float3", 12, declarationScopes);
     StructDeclaration* float4TypeDeclaration = addStructDeclaration("float4", 16, declarationScopes);

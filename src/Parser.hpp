@@ -394,36 +394,9 @@ private:
         declarationScopes.back().push_back(scalarTypeDeclaration);
 
         addOperatorDeclaration(Operator::COMMA, scalarTypeDeclaration, {nullptr, scalarTypeDeclaration}, declarationScopes);
-
         addOperatorDeclaration(Operator::ASSIGNMENT, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
-
         addOperatorDeclaration(Operator::EQUALITY, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
-
         addOperatorDeclaration(Operator::INEQUALITY, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
-
-        // TODO: for int and float only
-        addOperatorDeclaration(Operator::ADDITION, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
-        addOperatorDeclaration(Operator::ADDITION_ASSIGNMENT, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
-
-        addOperatorDeclaration(Operator::SUBTRACTION, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
-        addOperatorDeclaration(Operator::SUBTRACTION_ASSIGNMENT, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
-
-        addOperatorDeclaration(Operator::MULTIPLICATION, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
-        addOperatorDeclaration(Operator::MULTIPLICATION_ASSIGNMENT, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
-
-        addOperatorDeclaration(Operator::DIVISION, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
-        addOperatorDeclaration(Operator::DIVISION_ASSIGNMENT, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
-
-        addOperatorDeclaration(Operator::POSITIVE, scalarTypeDeclaration, {scalarTypeDeclaration}, declarationScopes);
-        addOperatorDeclaration(Operator::NEGATIVE, scalarTypeDeclaration, {scalarTypeDeclaration}, declarationScopes);
-
-        addOperatorDeclaration(Operator::LESS_THAN, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
-
-        addOperatorDeclaration(Operator::LESS_THAN_EQUAL, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
-
-        addOperatorDeclaration(Operator::GREATER_THAN, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
-
-        addOperatorDeclaration(Operator::GREATER_THAN_EQUAL, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
 
         return scalarTypeDeclaration;
     }
@@ -441,11 +414,10 @@ private:
         structDeclaration->definition = structDeclaration;
         declarationScopes.back().push_back(structDeclaration);
 
+        addOperatorDeclaration(Operator::COMMA, structDeclaration, {nullptr, structDeclaration}, declarationScopes);
         addOperatorDeclaration(Operator::ASSIGNMENT, structDeclaration, {structDeclaration, structDeclaration}, declarationScopes);
         addOperatorDeclaration(Operator::EQUALITY, structDeclaration, {structDeclaration, structDeclaration}, declarationScopes);
         addOperatorDeclaration(Operator::INEQUALITY, structDeclaration, {structDeclaration, structDeclaration}, declarationScopes);
-
-        addOperatorDeclaration(Operator::COMMA, structDeclaration, {nullptr, structDeclaration}, declarationScopes);
 
         return structDeclaration;
     }
