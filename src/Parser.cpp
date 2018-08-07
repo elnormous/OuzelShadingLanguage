@@ -61,25 +61,25 @@ ASTContext::ASTContext(const std::vector<Token>& tokens)
         {float4TypeDeclaration, {floatTypeDeclaration, floatTypeDeclaration, floatTypeDeclaration, floatTypeDeclaration}}
     };
 
-    ConstructorDeclaration* constructorDeclaration = constructorDeclarations;
-    ParameterDeclaration* parameterDeclaration = parameterDeclarations;
-
     for (auto& constructor : constructors)
     {
+        ConstructorDeclaration* constructorDeclaration = new ConstructorDeclaration();
+        constructs.push_back(std::unique_ptr<Construct>(constructorDeclaration));
+
         constructorDeclaration->parent = constructor.first;
         constructorDeclaration->definition = constructorDeclaration;
 
         for (auto& parameter : constructor.second)
         {
+            ParameterDeclaration* parameterDeclaration = new ParameterDeclaration();
+            constructs.push_back(std::unique_ptr<Construct>(parameterDeclaration));
+
             parameterDeclaration->parent = constructorDeclaration;
             parameterDeclaration->qualifiedType.typeDeclaration = parameter;
             constructorDeclaration->parameterDeclarations.push_back(parameterDeclaration);
-            ++parameterDeclaration;
         }
 
         constructor.first->memberDeclarations.push_back(constructorDeclaration);
-
-        ++constructorDeclaration;
     }
 
     std::vector<std::pair<StructDeclaration*, std::vector<char>>> types = {
