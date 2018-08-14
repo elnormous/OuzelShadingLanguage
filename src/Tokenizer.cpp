@@ -54,6 +54,7 @@ static const std::map<std::string, Token::Type> keywordMap = {
     {"private", Token::Type::KEYWORD_PRIVATE},
     {"protected", Token::Type::KEYWORD_PROTECTED},
     {"public", Token::Type::KEYWORD_PUBLIC},
+    {"register", Token::Type::KEYWORD_REGISTER},
     {"reinterpret_cast", Token::Type::KEYWORD_REINTERPRET_CAST},
     {"return", Token::Type::KEYWORD_RETURN},
     {"short", Token::Type::KEYWORD_SHORT},
@@ -77,6 +78,7 @@ static const std::map<std::string, Token::Type> keywordMap = {
     {"virtual", Token::Type::KEYWORD_VIRTUAL},
     {"void", Token::Type::KEYWORD_VOID},
     {"volatile", Token::Type::KEYWORD_VOLATILE},
+    {"wchar_t", Token::Type::KEYWORD_WCHAR_T},
     {"while", Token::Type::KEYWORD_WHILE},
     {"xor", Token::Type::KEYWORD_XOR},
     {"xor_eq", Token::Type::KEYWORD_XOR_EQ}

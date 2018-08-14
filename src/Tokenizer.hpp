@@ -75,6 +75,7 @@ struct Token
         KEYWORD_PRIVATE, // private
         KEYWORD_PROTECTED, // protected
         KEYWORD_PUBLIC, // public
+        KEYWORD_REGISTER, // register
         KEYWORD_REINTERPRET_CAST, // reinterpret_cast
         KEYWORD_RETURN, // return
         KEYWORD_SHORT, // short
@@ -98,6 +99,7 @@ struct Token
         KEYWORD_VIRTUAL, // virtual
         KEYWORD_VOID, // void
         KEYWORD_VOLATILE, // volatile
+        KEYWORD_WCHAR_T, // wchar_t
         KEYWORD_WHILE, // while
         KEYWORD_XOR, // xor
         KEYWORD_XOR_EQ, // xor_eq
@@ -230,8 +232,9 @@ inline std::string toString(Token::Type type)
         case Token::Type::KEYWORD_PRIVATE: return "KEYWORD_PRIVATE";
         case Token::Type::KEYWORD_PROTECTED: return "KEYWORD_PROTECTED";
         case Token::Type::KEYWORD_PUBLIC: return "KEYWORD_PUBLIC";
-        case Token::Type::KEYWORD_RETURN: return "KEYWORD_RETURN";
+        case Token::Type::KEYWORD_REGISTER: return "KEYWORD_REGISTER";
         case Token::Type::KEYWORD_REINTERPRET_CAST: return "KEYWORD_REINTERPRET_CAST";
+        case Token::Type::KEYWORD_RETURN: return "KEYWORD_RETURN";
         case Token::Type::KEYWORD_SHORT: return "KEYWORD_SHORT";
         case Token::Type::KEYWORD_SIGNED: return "KEYWORD_SIGNED";
         case Token::Type::KEYWORD_SIZEOF: return "KEYWORD_SIZEOF";
@@ -253,6 +256,7 @@ inline std::string toString(Token::Type type)
         case Token::Type::KEYWORD_VIRTUAL: return "KEYWORD_VIRTUAL";
         case Token::Type::KEYWORD_VOID: return "KEYWORD_VOID";
         case Token::Type::KEYWORD_VOLATILE: return "KEYWORD_VOLATILE";
+        case Token::Type::KEYWORD_WCHAR_T: return "KEYWORD_WCHAR_T";
         case Token::Type::KEYWORD_WHILE: return "KEYWORD_WHILE";
         case Token::Type::KEYWORD_XOR: return "KEYWORD_XOR";
         case Token::Type::KEYWORD_XOR_EQ: return "KEYWORD_XOR_EQ";
