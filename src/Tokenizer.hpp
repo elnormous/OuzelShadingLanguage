@@ -50,9 +50,9 @@ struct Token
         KEYWORD_DYNAMIC_CAST, // dynamic_cast
         KEYWORD_ELSE, // else
         KEYWORD_ENUM, // enum
-        KEYWORD_EXPLICIT, // extern
-        KEYWORD_EXPORT, // explicit
-        KEYWORD_EXTERN, // export
+        KEYWORD_EXPLICIT, // explicit
+        KEYWORD_EXPORT, // export
+        KEYWORD_EXTERN, // extern
         KEYWORD_FALSE, // false
         KEYWORD_FLOAT, // float
         KEYWORD_FOR, // for

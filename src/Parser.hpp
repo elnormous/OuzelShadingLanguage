@@ -503,6 +503,4 @@ private:
     ScalarTypeDeclaration* unsignedIntTypeDeclaration;
     ScalarTypeDeclaration* floatTypeDeclaration;
     StructDeclaration* stringTypeDeclaration;
-    ConstructorDeclaration constructorDeclarations[6];
-    ParameterDeclaration parameterDeclarations[3 + 4 + 5];
 };

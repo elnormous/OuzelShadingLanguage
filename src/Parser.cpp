@@ -53,33 +53,43 @@ ASTContext::ASTContext(const std::vector<Token>& tokens)
     StructDeclaration* float4TypeDeclaration = addStructDeclaration("float4", 16, declarationScopes);
 
     std::vector<std::pair<StructDeclaration*, std::vector<TypeDeclaration*>>> constructors = {
-        {float2TypeDeclaration, {floatTypeDeclaration}},
         {float2TypeDeclaration, {floatTypeDeclaration, floatTypeDeclaration}},
-        {float3TypeDeclaration, {floatTypeDeclaration}},
-        {float3TypeDeclaration, {floatTypeDeclaration, floatTypeDeclaration, floatTypeDeclaration}},
-        {float4TypeDeclaration, {floatTypeDeclaration}},
-        {float4TypeDeclaration, {floatTypeDeclaration, floatTypeDeclaration, floatTypeDeclaration, floatTypeDeclaration}}
-    };
+        {float2TypeDeclaration, {float2TypeDeclaration}},
 
-    ConstructorDeclaration* constructorDeclaration = constructorDeclarations;
-    ParameterDeclaration* parameterDeclaration = parameterDeclarations;
+        {float3TypeDeclaration, {floatTypeDeclaration, floatTypeDeclaration, floatTypeDeclaration}},
+        {float3TypeDeclaration, {floatTypeDeclaration, float2TypeDeclaration}},
+        {float3TypeDeclaration, {float2TypeDeclaration, floatTypeDeclaration}},
+        {float3TypeDeclaration, {float3TypeDeclaration}},
+
+        {float4TypeDeclaration, {floatTypeDeclaration, floatTypeDeclaration, floatTypeDeclaration, floatTypeDeclaration}},
+        {float4TypeDeclaration, {floatTypeDeclaration, floatTypeDeclaration, float2TypeDeclaration}},
+        {float4TypeDeclaration, {floatTypeDeclaration, float2TypeDeclaration, floatTypeDeclaration}},
+        {float4TypeDeclaration, {floatTypeDeclaration, float3TypeDeclaration}},
+        {float4TypeDeclaration, {float2TypeDeclaration, floatTypeDeclaration, floatTypeDeclaration}},
+        {float4TypeDeclaration, {float2TypeDeclaration, float2TypeDeclaration}},
+        {float4TypeDeclaration, {float3TypeDeclaration, floatTypeDeclaration}},
+        {float4TypeDeclaration, {float4TypeDeclaration}}
+    };
 
     for (auto& constructor : constructors)
     {
+        ConstructorDeclaration* constructorDeclaration = new ConstructorDeclaration();
+        constructs.push_back(std::unique_ptr<Construct>(constructorDeclaration));
+
         constructorDeclaration->parent = constructor.first;
         constructorDeclaration->definition = constructorDeclaration;
 
         for (auto& parameter : constructor.second)
         {
+            ParameterDeclaration* parameterDeclaration = new ParameterDeclaration();
+            constructs.push_back(std::unique_ptr<Construct>(parameterDeclaration));
+
             parameterDeclaration->parent = constructorDeclaration;
             parameterDeclaration->qualifiedType.typeDeclaration = parameter;
             constructorDeclaration->parameterDeclarations.push_back(parameterDeclaration);
-            ++parameterDeclaration;
         }
 
         constructor.first->memberDeclarations.push_back(constructorDeclaration);
-
-        ++constructorDeclaration;
     }
 
     std::vector<std::pair<StructDeclaration*, std::vector<char>>> types = {
