@@ -29,6 +29,7 @@ struct Token
         LITERAL_STRING, // string
         KEYWORD_AND, // and
         KEYWORD_AND_EQ, // and_eq
+        KEYWORD_ASM, // asm
         KEYWORD_AUTO, // auto
         KEYWORD_BITAND, // bitand
         KEYWORD_BITOR, // bitor
@@ -183,6 +184,7 @@ inline std::string toString(Token::Type type)
         case Token::Type::LITERAL_STRING: return "LITERAL_STRING";
         case Token::Type::KEYWORD_AND: return "KEYWORD_AND";
         case Token::Type::KEYWORD_AND_EQ: return "KEYWORD_AND_EQ";
+        case Token::Type::KEYWORD_ASM: return "KEYWORD_ASM";
         case Token::Type::KEYWORD_AUTO: return "KEYWORD_AUTO";
         case Token::Type::KEYWORD_BITAND: return "KEYWORD_BITAND";
         case Token::Type::KEYWORD_BITOR: return "KEYWORD_BITOR";

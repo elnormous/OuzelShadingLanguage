@@ -8,7 +8,8 @@
 
 static const std::map<std::string, Token::Type> keywordMap = {
     {"and", Token::Type::KEYWORD_AND},
-    {"and_eq", Token::Type::KEYWORD_AND},
+    {"and_eq", Token::Type::KEYWORD_AND_EQ},
+    {"asm", Token::Type::KEYWORD_ASM},
     {"auto", Token::Type::KEYWORD_AUTO},
     {"bitand", Token::Type::KEYWORD_BITAND},
     {"bitor", Token::Type::KEYWORD_BITOR},
