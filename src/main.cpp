@@ -78,69 +78,55 @@ int main(int argc, const char* argv[])
         std::vector<char> inCode;
         inCode.assign(std::istreambuf_iterator<char>(inputFile), std::istreambuf_iterator<char>());
 
-        try
+        std::vector<Token> tokens = tokenize(inCode);
+
+        if (printTokens)
+            dump(tokens);
+        else
         {
-            std::vector<Token> tokens = tokenize(inCode);
-            
-            if (printTokens)
-                dump(tokens);
+            ASTContext context(tokens);
+
+            if (printAST)
+                context.dump();
             else
             {
+                if (program == Program::NONE)
+                    throw std::runtime_error("No program");
+
+                std::unique_ptr<Output> output;
+
+                if (format.empty())
+                    throw std::runtime_error("No format");
+                if (format == "hlsl")
+                    output.reset(new OutputHLSL(program));
+                else if (format == "glsl")
+                    output.reset(new OutputGLSL(program, outputVersion, {}));
+                else if (format == "msl")
+                    output.reset(new OutputMSL(program, {}));
+                else
+                    throw std::runtime_error("Invalid format");
+
                 try
                 {
-                    ASTContext context(tokens);
-                    
-                    if (printAST)
-                        context.dump();
+                    std::string outCode = output->output(context, whitespaces);
+
+                    if (outputFilename.empty())
+                        std::cout << outCode << std::endl;
                     else
                     {
-                        if (program == Program::NONE)
-                            throw std::runtime_error("No program");
-                        
-                        std::unique_ptr<Output> output;
-                        
-                        if (format.empty())
-                            throw std::runtime_error("No format");
-                        if (format == "hlsl")
-                            output.reset(new OutputHLSL(program));
-                        else if (format == "glsl")
-                            output.reset(new OutputGLSL(program, outputVersion, {}));
-                        else if (format == "msl")
-                            output.reset(new OutputMSL(program, {}));
-                        else
-                            throw std::runtime_error("Invalid format");
-                        
-                        try
-                        {
-                            std::string outCode = output->output(context, whitespaces);
-                            
-                            if (outputFilename.empty())
-                                std::cout << outCode << std::endl;
-                            else
-                            {
-                                std::ofstream outputFile(outputFilename, std::ios::binary);
-                                
-                                if (!outputFile)
-                                    throw std::runtime_error("Failed to open file " + outputFilename);
-                                
-                                outputFile << outCode;
-                            }
-                        }
-                        catch (const std::exception& e)
-                        {
-                            throw std::runtime_error(std::string("Failed to output code: ") + e.what());
-                        }
+                        std::ofstream outputFile(outputFilename, std::ios::binary);
+
+                        if (!outputFile)
+                            throw std::runtime_error("Failed to open file " + outputFilename);
+
+                        outputFile << outCode;
                     }
                 }
                 catch (const std::exception& e)
                 {
-                    throw std::runtime_error(std::string("Failed to parse: ") + e.what());
+                    throw std::runtime_error(std::string("Failed to output code: ") + e.what());
                 }
             }
-        }
-        catch (const std::exception& e)
-        {
-            throw std::runtime_error(std::string("Failed to tokenize: ") + e.what());
         }
     }
     catch (const std::exception& e)

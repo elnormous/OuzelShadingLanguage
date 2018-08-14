@@ -1124,11 +1124,12 @@ ParameterDeclaration* ASTContext::parseParameterDeclaration(const std::vector<To
     if (isInline)
         throw std::runtime_error("Parameters can not be inline");
 
-    expectToken(Token::Type::IDENTIFIER, tokens, iterator);
+    if (isToken(Token::Type::IDENTIFIER, tokens, iterator))
+    {
+        result->name = iterator->value;
 
-    result->name = iterator->value;
-
-    ++iterator;
+        ++iterator;
+    }
 
     while (isToken(Token::Type::LEFT_BRACKET, tokens, iterator))
     {
