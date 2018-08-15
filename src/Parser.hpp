@@ -192,6 +192,7 @@ private:
         bool isConst = false;
         bool isInline = false;
         bool isStatic = false;
+        bool isExtern = false;
         bool isVolatile = false;
     };
 

@@ -561,6 +561,11 @@ ASTContext::Specifiers ASTContext::parseSpecifiers(const std::vector<Token>& tok
             ++iterator;
             result.isConst = true;
         }
+        else if (isToken(Token::Type::KEYWORD_EXTERN, tokens, iterator))
+        {
+            ++iterator;
+            result.isExtern = true;
+        }
         else if (isToken(Token::Type::KEYWORD_INLINE, tokens, iterator))
         {
             ++iterator;
@@ -676,8 +681,9 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
         qualifiedType.isConst = specifiers.isConst;
         qualifiedType.isVolatile = specifiers.isVolatile;
 
-        bool isStatic = specifiers.isStatic;
+        bool isExtern = specifiers.isExtern;
         bool isInline = specifiers.isInline;
+        bool isStatic = specifiers.isStatic;
 
         if (isToken(Token::Type::KEYWORD_VOID, tokens, iterator))
         {
@@ -702,8 +708,9 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
         if (specifiers.isConst) qualifiedType.isConst = true;
         if (specifiers.isVolatile) qualifiedType.isVolatile = true;
 
-        if (specifiers.isStatic) isStatic = true;
+        if (specifiers.isExtern) isExtern = true;
         if (specifiers.isInline) isInline = true;
+        if (specifiers.isStatic) isStatic = true;
 
         if (isToken(Token::Type::KEYWORD_OPERATOR, tokens, iterator))
             throw std::runtime_error("Operator overloads are not supported");
@@ -828,7 +835,8 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
             constructs.push_back(std::unique_ptr<VariableDeclaration>(result));
             result->parent = parent;
             result->qualifiedType = qualifiedType;
-            result->isStatic = isStatic;
+            if (isExtern) result->storageClass = VariableDeclaration::StorageClass::EXTERN;
+            else if (isStatic) result->storageClass = VariableDeclaration::StorageClass::STATIC;
             result->name = name;
 
             while (isToken(Token::Type::LEFT_BRACKET, tokens, iterator))

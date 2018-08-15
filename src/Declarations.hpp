@@ -236,6 +236,13 @@ public:
 class VariableDeclaration: public Declaration
 {
 public:
+    enum class StorageClass
+    {
+        NONE,
+        EXTERN,
+        STATIC
+    };
+
     VariableDeclaration(): Declaration(Declaration::Kind::VARIABLE)
     {
         definition = this;
@@ -244,5 +251,5 @@ public:
     QualifiedType qualifiedType;
     Expression* initialization = nullptr;
 
-    bool isStatic = false;
+    StorageClass storageClass = StorageClass::NONE;
 };

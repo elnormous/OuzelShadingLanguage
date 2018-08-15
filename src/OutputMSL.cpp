@@ -187,7 +187,7 @@ void OutputMSL::printDeclaration(const Declaration* declaration, Options options
             if (options.whitespaces) code.append(options.indentation, ' ');
 
             const VariableDeclaration* variableDeclaration = static_cast<const VariableDeclaration*>(declaration);
-            if (variableDeclaration->isStatic) code += "static ";
+            if (variableDeclaration->storageClass == VariableDeclaration::StorageClass::STATIC) code += "static ";
 
             std::pair<std::string, std::string> printableTypeName = getPrintableTypeName(variableDeclaration->qualifiedType);
 
