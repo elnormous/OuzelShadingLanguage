@@ -1304,6 +1304,18 @@ Statement* ASTContext::parseStatement(const std::vector<Token>& tokens,
 
         return statement;
     }
+    else if (isToken(Token::Type::KEYWORD_ASM, tokens, iterator))
+    {
+        throw std::runtime_error("asm statements are not supported");
+    }
+    else if (isToken(Token::Type::KEYWORD_GOTO, tokens, iterator))
+    {
+        throw std::runtime_error("goto statements are not supported");
+    }
+    else if (isToken({Token::Type::KEYWORD_TRY, Token::Type::KEYWORD_CATCH}, tokens, iterator))
+    {
+        throw std::runtime_error("try and catch statements are not supported");
+    }
     else
     {
         ExpressionStatement* result = new ExpressionStatement();
