@@ -1312,9 +1312,11 @@ Statement* ASTContext::parseStatement(const std::vector<Token>& tokens,
     {
         throw std::runtime_error("goto statements are not supported");
     }
-    else if (isToken({Token::Type::KEYWORD_TRY, Token::Type::KEYWORD_CATCH}, tokens, iterator))
+    else if (isToken({Token::Type::KEYWORD_TRY,
+        Token::Type::KEYWORD_CATCH,
+        Token::Type::KEYWORD_THROW}, tokens, iterator))
     {
-        throw std::runtime_error("try and catch statements are not supported");
+        throw std::runtime_error("Exceptions are not supported");
     }
     else
     {
