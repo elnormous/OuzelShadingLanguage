@@ -52,6 +52,24 @@ ASTContext::ASTContext(const std::vector<Token>& tokens)
     StructDeclaration* float3TypeDeclaration = addStructDeclaration("float3", 12, declarationScopes);
     StructDeclaration* float4TypeDeclaration = addStructDeclaration("float4", 16, declarationScopes);
 
+    for (StructDeclaration* vectorTypeDeclaration : {float2TypeDeclaration, float3TypeDeclaration, float4TypeDeclaration})
+    {
+        addOperatorDeclaration(Operator::ADDITION, vectorTypeDeclaration, {vectorTypeDeclaration, vectorTypeDeclaration}, declarationScopes);
+        addOperatorDeclaration(Operator::ADDITION_ASSIGNMENT, vectorTypeDeclaration, {vectorTypeDeclaration, vectorTypeDeclaration}, declarationScopes);
+
+        addOperatorDeclaration(Operator::SUBTRACTION, vectorTypeDeclaration, {vectorTypeDeclaration, vectorTypeDeclaration}, declarationScopes);
+        addOperatorDeclaration(Operator::SUBTRACTION_ASSIGNMENT, vectorTypeDeclaration, {vectorTypeDeclaration, vectorTypeDeclaration}, declarationScopes);
+
+        addOperatorDeclaration(Operator::MULTIPLICATION, vectorTypeDeclaration, {vectorTypeDeclaration, vectorTypeDeclaration}, declarationScopes);
+        addOperatorDeclaration(Operator::MULTIPLICATION_ASSIGNMENT, vectorTypeDeclaration, {vectorTypeDeclaration, vectorTypeDeclaration}, declarationScopes);
+
+        addOperatorDeclaration(Operator::DIVISION, vectorTypeDeclaration, {vectorTypeDeclaration, vectorTypeDeclaration}, declarationScopes);
+        addOperatorDeclaration(Operator::DIVISION_ASSIGNMENT, vectorTypeDeclaration, {vectorTypeDeclaration, vectorTypeDeclaration}, declarationScopes);
+
+        addOperatorDeclaration(Operator::POSITIVE, vectorTypeDeclaration, {vectorTypeDeclaration}, declarationScopes);
+        addOperatorDeclaration(Operator::NEGATIVE, vectorTypeDeclaration, {vectorTypeDeclaration}, declarationScopes);
+    }
+
     std::vector<std::pair<StructDeclaration*, std::vector<TypeDeclaration*>>> constructors = {
         {float2TypeDeclaration, {floatTypeDeclaration, floatTypeDeclaration}},
         {float2TypeDeclaration, {float2TypeDeclaration}},
@@ -141,14 +159,28 @@ ASTContext::ASTContext(const std::vector<Token>& tokens)
     StructDeclaration* samplerStateTypeDeclaration = addStructDeclaration("SamplerState", 0, declarationScopes);
     StructDeclaration* texture2DTypeDeclaration = addStructDeclaration("Texture2D", 0, declarationScopes);
 
-    addFunctionDeclaration("texture2D", float4TypeDeclaration, {samplerStateTypeDeclaration, float2TypeDeclaration}, declarationScopes);
+    addFunctionDeclaration("sample", float4TypeDeclaration, {samplerStateTypeDeclaration, texture2DTypeDeclaration, float2TypeDeclaration}, declarationScopes);
 
-    // unused for now
-    (void)float2x2TypeDeclaration;
-    (void)float3x3TypeDeclaration;
-    (void)samplerStateTypeDeclaration;
-    (void)texture2DTypeDeclaration;
+    // TODO: add other arithmetic operators
+    // float2x2
+    addOperatorDeclaration(Operator::MULTIPLICATION, float2x2TypeDeclaration, {float2x2TypeDeclaration, float2x2TypeDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::MULTIPLICATION, float2TypeDeclaration, {float2x2TypeDeclaration, float2TypeDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::MULTIPLICATION, float2TypeDeclaration, {float2TypeDeclaration, float2x2TypeDeclaration}, declarationScopes);
 
+    addOperatorDeclaration(Operator::DIVISION, float2x2TypeDeclaration, {float2x2TypeDeclaration, float2x2TypeDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::DIVISION, float2TypeDeclaration, {float2x2TypeDeclaration, float2TypeDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::DIVISION, float2TypeDeclaration, {float2TypeDeclaration, float2x2TypeDeclaration}, declarationScopes);
+
+    // float3x3
+    addOperatorDeclaration(Operator::MULTIPLICATION, float3x3TypeDeclaration, {float3x3TypeDeclaration, float3x3TypeDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::MULTIPLICATION, float3TypeDeclaration, {float3x3TypeDeclaration, float3TypeDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::MULTIPLICATION, float3TypeDeclaration, {float3TypeDeclaration, float3x3TypeDeclaration}, declarationScopes);
+
+    addOperatorDeclaration(Operator::DIVISION, float3x3TypeDeclaration, {float3x3TypeDeclaration, float3x3TypeDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::DIVISION, float3TypeDeclaration, {float3x3TypeDeclaration, float3TypeDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::DIVISION, float3TypeDeclaration, {float3TypeDeclaration, float3x3TypeDeclaration}, declarationScopes);
+
+    // float4x4
     addOperatorDeclaration(Operator::MULTIPLICATION, float4x4TypeDeclaration, {float4x4TypeDeclaration, float4x4TypeDeclaration}, declarationScopes);
     addOperatorDeclaration(Operator::MULTIPLICATION, float4TypeDeclaration, {float4x4TypeDeclaration, float4TypeDeclaration}, declarationScopes);
     addOperatorDeclaration(Operator::MULTIPLICATION, float4TypeDeclaration, {float4TypeDeclaration, float4x4TypeDeclaration}, declarationScopes);
