@@ -1130,6 +1130,8 @@ ParameterDeclaration* ASTContext::parseParameterDeclaration(const std::vector<To
     constructs.push_back(std::unique_ptr<Construct>(result));
     result->parent = parent;
 
+    std::vector<std::pair<std::string, std::vector<std::string>>> attributes = parseAttributes(tokens, iterator);
+
     ASTContext::Specifiers specifiers = parseSpecifiers(tokens, iterator);
 
     result->qualifiedType.isConst = specifiers.isConst;
@@ -1170,6 +1172,8 @@ ParameterDeclaration* ASTContext::parseParameterDeclaration(const std::vector<To
         ++iterator;
     }
 
+    attributes = parseAttributes(tokens, iterator);
+
     while (isToken(Token::Type::LEFT_BRACKET, tokens, iterator))
     {
         ++iterator;
@@ -1189,6 +1193,8 @@ ParameterDeclaration* ASTContext::parseParameterDeclaration(const std::vector<To
 
         ++iterator;
     }
+
+    attributes = parseAttributes(tokens, iterator);
 
     return result;
 }
