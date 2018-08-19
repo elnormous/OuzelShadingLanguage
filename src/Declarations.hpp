@@ -176,6 +176,16 @@ public:
     ConstructorDeclaration(): CallableDeclaration(CallableDeclaration::Kind::CONSTRUCTOR) {}
 };
 
+class MethodDeclaration: public CallableDeclaration
+{
+public:
+    MethodDeclaration(): CallableDeclaration(CallableDeclaration::Kind::METHOD) {}
+
+    bool isInline = false;
+    bool isStatic = false;
+    bool isBuiltin = false;
+};
+
 class OperatorDeclaration: public CallableDeclaration
 {
 public:
