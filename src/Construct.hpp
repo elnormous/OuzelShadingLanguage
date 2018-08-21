@@ -16,6 +16,7 @@ public:
     };
 
     Construct(Kind initKind): kind(initKind) {}
+    virtual ~Construct() {}
 
     inline Kind getKind() const { return kind; }
 
