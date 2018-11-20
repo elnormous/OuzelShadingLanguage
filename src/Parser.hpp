@@ -80,9 +80,7 @@ private:
     static Declaration* findDeclaration(const std::string& name, const std::vector<Declaration*>& declarationScope)
     {
         for (auto declarationIterator = declarationScope.crbegin(); declarationIterator != declarationScope.crend(); ++declarationIterator)
-        {
             if ((*declarationIterator)->name == name) return *declarationIterator;
-        }
 
         return nullptr;
     }
@@ -92,9 +90,7 @@ private:
         for (auto scopeIterator = declarationScopes.crbegin(); scopeIterator != declarationScopes.crend(); ++scopeIterator)
         {
             for (auto declarationIterator = scopeIterator->crbegin(); declarationIterator != scopeIterator->crend(); ++declarationIterator)
-            {
                 if ((*declarationIterator)->name == name) return *declarationIterator;
-            }
         }
 
         return nullptr;

@@ -233,9 +233,7 @@ public:
     Declaration* findMemberDeclaration(const std::string& name) const
     {
         for (Declaration* memberDeclaration : memberDeclarations)
-        {
             if (memberDeclaration->name == name) return memberDeclaration;
-        }
 
         return nullptr;
     }
