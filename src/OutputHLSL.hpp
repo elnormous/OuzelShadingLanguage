@@ -2,7 +2,8 @@
 //  OSL
 //
 
-#pragma once
+#ifndef OUTPUTHLSL_HPP
+#define OUTPUTHLSL_HPP
 
 #include "Output.hpp"
 #include "Program.hpp"
@@ -29,3 +30,5 @@ private:
 
     Program program;
 };
+
+#endif // OUTPUTHLSL_HPP

@@ -2,7 +2,8 @@
 //  OSL
 //
 
-#pragma once
+#ifndef EXPRESSIONS_HPP
+#define EXPRESSIONS_HPP
 
 #include "Construct.hpp"
 #include "QualifiedType.hpp"
@@ -218,3 +219,5 @@ public:
     Expression* expression;
     TypeDeclaration* type;
 };
+
+#endif // EXPRESSIONS_HPP

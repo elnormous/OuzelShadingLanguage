@@ -2,7 +2,8 @@
 //  OSL
 //
 
-#pragma once
+#ifndef TOKENIZER_HPP
+#define TOKENIZER_HPP
 
 #include <vector>
 #include <string>
@@ -314,3 +315,5 @@ inline std::string toString(Token::Type type)
 
 std::vector<Token> tokenize(const std::vector<char>& code);
 void dump(const std::vector<Token>& tokens);
+
+#endif // TOKENIZER_HPP

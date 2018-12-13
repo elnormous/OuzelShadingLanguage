@@ -2,7 +2,8 @@
 //  OSL
 //
 
-#pragma once
+#ifndef QUALIFIEDTYPE_HPP
+#define QUALIFIEDTYPE_HPP
 
 class TypeDeclaration;
 
@@ -24,3 +25,5 @@ public:
     bool isConst = false;
     bool isVolatile = false;
 };
+
+#endif // QUALIFIEDTYPE_HPP

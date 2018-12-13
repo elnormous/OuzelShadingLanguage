@@ -2,7 +2,8 @@
 // OSL
 //
 
-#pragma once
+#ifndef PROGRAM_HPP
+#define PROGRAM_HPP
 
 #include <string>
 
@@ -23,3 +24,5 @@ inline std::string toString(Program program)
         default: return "unknown";
     }
 }
+
+#endif // PROGRAM_HPP

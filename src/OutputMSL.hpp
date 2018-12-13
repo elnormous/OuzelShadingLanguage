@@ -2,7 +2,8 @@
 //  OSL
 //
 
-#pragma once
+#ifndef OUTPUTMSL_HPP
+#define OUTPUTMSL_HPP
 
 #include <map>
 #include "Output.hpp"
@@ -32,3 +33,5 @@ private:
     Program program;
     const std::map<Semantic, uint32_t> semantics;
 };
+
+#endif // OUTPUTMSL_HPP

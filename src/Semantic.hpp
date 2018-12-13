@@ -2,7 +2,8 @@
 //  OSL
 //
 
-#pragma once
+#ifndef SEMANTIC_HPP
+#define SEMANTIC_HPP
 
 #include <string>
 
@@ -39,3 +40,5 @@ inline std::string toString(Semantic semantic)
         default: return "unknown";
     }
 }
+
+#endif // SEMANTIC_HPP

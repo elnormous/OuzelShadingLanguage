@@ -2,7 +2,8 @@
 //  OSL
 //
 
-#pragma once
+#ifndef PARSER_HPP
+#define PARSER_HPP
 
 #include <map>
 #include <memory>
@@ -501,3 +502,5 @@ private:
     ScalarTypeDeclaration* floatTypeDeclaration;
     StructDeclaration* stringTypeDeclaration;
 };
+
+#endif // PARSER_HPP

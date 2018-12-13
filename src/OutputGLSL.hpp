@@ -2,7 +2,8 @@
 //  OSL
 //
 
-#pragma once
+#ifndef OUTPUTGLSL_HPP
+#define OUTPUTGLSL_HPP
 
 #include <map>
 #include <string>
@@ -35,3 +36,5 @@ private:
     uint32_t glslVersion;
     const std::map<Semantic, std::string> semantics;
 };
+
+#endif // OUTPUTGLSL_HPP

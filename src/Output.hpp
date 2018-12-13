@@ -2,7 +2,8 @@
 //  OSL
 //
 
-#pragma once
+#ifndef OUTPUT_HPP
+#define OUTPUT_HPP
 
 #include <string>
 #include "Parser.hpp"
@@ -12,3 +13,5 @@ class Output
 public:
     virtual std::string output(const ASTContext& context, bool whitespaces) = 0;
 };
+
+#endif // OUTPUT_HPP

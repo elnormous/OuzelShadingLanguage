@@ -152,6 +152,7 @@
     <ClCompile Include="src\OutputHLSL.cpp" />
     <ClCompile Include="src\OutputMSL.cpp" />
     <ClCompile Include="src\Parser.cpp" />
+    <ClCompile Include="src\Preprocessor.cpp" />
     <ClCompile Include="src\Tokenizer.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -164,6 +165,7 @@
     <ClInclude Include="src\OutputHLSL.hpp" />
     <ClInclude Include="src\OutputMSL.hpp" />
     <ClInclude Include="src\Parser.hpp" />
+    <ClInclude Include="src\Preprocessor.hpp" />
     <ClInclude Include="src\Program.hpp" />
     <ClInclude Include="src\QualifiedType.hpp" />
     <ClInclude Include="src\Semantic.hpp" />

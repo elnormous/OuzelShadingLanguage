@@ -2,7 +2,8 @@
 //  OSL
 //
 
-#pragma once
+#ifndef STATEMENTS_HPP
+#define STATEMENTS_HPP
 
 #include "Construct.hpp"
 
@@ -147,3 +148,5 @@ public:
 
     Expression* result = nullptr;
 };
+
+#endif // STATEMENTS_HPP

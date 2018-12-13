@@ -2,7 +2,8 @@
 //  OSL
 //
 
-#pragma once
+#ifndef OPERATOR_HPP
+#define OPERATOR_HPP
 
 enum class Operator
 {
@@ -34,3 +35,5 @@ enum class Operator
     COMMA, // ,
     CONDITIONAL // ?:
 };
+
+#endif // OPERATOR_HPP

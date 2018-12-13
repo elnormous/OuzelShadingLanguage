@@ -2,7 +2,8 @@
 //  OSL
 //
 
-#pragma once
+#ifndef CONSTRUCT_HPP
+#define CONSTRUCT_HPP
 
 class Construct
 {
@@ -25,3 +26,5 @@ public:
 protected:
     Kind kind = Kind::NONE;
 };
+
+#endif // CONSTRUCT_HPP

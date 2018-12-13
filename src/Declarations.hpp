@@ -2,7 +2,8 @@
 //  OSL
 //
 
-#pragma once
+#ifndef DECLARATIONS_HPP
+#define DECLARATIONS_HPP
 
 #include "Construct.hpp"
 #include "Operator.hpp"
@@ -261,3 +262,5 @@ public:
 
     StorageClass storageClass = StorageClass::NONE;
 };
+
+#endif // DECLARATIONS_HPP
