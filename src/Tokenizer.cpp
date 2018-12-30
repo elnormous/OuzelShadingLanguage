@@ -221,7 +221,7 @@ std::vector<Token> tokenize(const std::vector<char>& code)
                         throw std::runtime_error("Unrecognized escape character");
                     // TODO: handle numeric character references
                 }
-                else if (*i == '\n' || *i == '\r')
+                else if (*i == '\n')
                     throw std::runtime_error("Unterminated string literal");
                 else
                     token.value.push_back(*i);
@@ -398,11 +398,6 @@ std::vector<Token> tokenize(const std::vector<char>& code)
                                 ++i; // skip the newline
                                 ++line;
                                 lineStart = i;
-                                break;
-                            }
-                            else if (*i == '\r') // end of the comment
-                            {
-                                ++i;
                                 break;
                             }
                         }
@@ -670,7 +665,7 @@ std::vector<Token> tokenize(const std::vector<char>& code)
             lineStart = i;
             continue;
         }
-        else if (*i == ' ' || *i == '\t' || *i == '\r') // whitespace
+        else if (*i == ' ' || *i == '\t') // whitespace
         {
             ++i;
             continue;
