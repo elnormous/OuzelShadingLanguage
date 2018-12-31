@@ -668,19 +668,6 @@ std::vector<Token> tokenize(const std::vector<char>& code)
             ++i;
             continue;
         }
-        else if (*i == '\\') // backslash followed by a newline
-        {
-            // TODO: handle backslash followed by a newline in the middle of tokens
-            if (++i == code.end()) // reached end of file
-                throw std::runtime_error("Backslash not followed by a newline");
-
-            if (*i != '\n') // not a newline
-                throw std::runtime_error("Backslash not followed by a newline");
-
-            ++i;
-            ++line;
-            continue;
-        }
         else
             throw std::runtime_error("Unknown character");
 
