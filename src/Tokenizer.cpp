@@ -255,9 +255,7 @@ std::vector<Token> tokenize(const std::vector<char>& code)
                 // TODO: handle numeric character references
             }
             else
-            {
                 token.value.push_back(*i);
-            }
 
             if (++i == code.end()) // reached end of file
                 throw std::runtime_error("Unterminated char literal");
@@ -668,6 +666,18 @@ std::vector<Token> tokenize(const std::vector<char>& code)
         else if (*i == ' ' || *i == '\t') // whitespace
         {
             ++i;
+            continue;
+        }
+        else if (*i == '\\') // backslash followed by a newline
+        {
+            if (++i == code.end()) // reached end of file
+                throw std::runtime_error("Backslash not followed by a newline");
+
+            if (*i != '\n') // not a newline
+                throw std::runtime_error("Backslash not followed by a newline");
+
+            ++i;
+            ++line;
             continue;
         }
         else
