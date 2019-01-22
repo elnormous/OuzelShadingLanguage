@@ -156,9 +156,13 @@ ASTContext::ASTContext(const std::vector<Token>& tokens)
     StructDeclaration* float3x3TypeDeclaration = addStructDeclaration("float3x3", 36, declarationScopes);
     StructDeclaration* float4x4TypeDeclaration = addStructDeclaration("float4x4", 64, declarationScopes);
     stringTypeDeclaration = addStructDeclaration("string", 8, declarationScopes);
-    StructDeclaration* sampler2DTypeDeclaration = addStructDeclaration("Sampler2D", 0, declarationScopes);
+    StructDeclaration* texture2DTypeDeclaration = addStructDeclaration("Texture2D", 0, declarationScopes);
 
-    addFunctionDeclaration("sample", float4TypeDeclaration, {sampler2DTypeDeclaration, float2TypeDeclaration}, declarationScopes);
+    addFunctionDeclaration("sample", float4TypeDeclaration, {texture2DTypeDeclaration, float2TypeDeclaration}, declarationScopes);
+
+    StructDeclaration* texture2DMSTypeDeclaration = addStructDeclaration("Texture2DMS", 0, declarationScopes);
+
+    addFunctionDeclaration("load", float4TypeDeclaration, {texture2DMSTypeDeclaration, float2TypeDeclaration}, declarationScopes);
 
     // TODO: add other arithmetic operators
     // float2x2
