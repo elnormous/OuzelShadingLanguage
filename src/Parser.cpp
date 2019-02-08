@@ -192,24 +192,6 @@ ASTContext::ASTContext(const std::vector<Token>& tokens)
     addOperatorDeclaration(Operator::DIVISION, float4TypeDeclaration, {float4x4TypeDeclaration, float4TypeDeclaration}, declarationScopes);
     addOperatorDeclaration(Operator::DIVISION, float4TypeDeclaration, {float4TypeDeclaration, float4x4TypeDeclaration}, declarationScopes);
 
-    // float2
-    addOperatorDeclaration(Operator::MULTIPLICATION, float2TypeDeclaration, {float2TypeDeclaration, float2TypeDeclaration}, declarationScopes);
-    addOperatorDeclaration(Operator::DIVISION, float2TypeDeclaration, {float2TypeDeclaration, float2TypeDeclaration}, declarationScopes);
-    addOperatorDeclaration(Operator::ADDITION, float2TypeDeclaration, {float2TypeDeclaration, float2TypeDeclaration}, declarationScopes);
-    addOperatorDeclaration(Operator::SUBTRACTION, float2TypeDeclaration, {float2TypeDeclaration, float2TypeDeclaration}, declarationScopes);
-
-    // float3
-    addOperatorDeclaration(Operator::MULTIPLICATION, float3TypeDeclaration, {float3TypeDeclaration, float3TypeDeclaration}, declarationScopes);
-    addOperatorDeclaration(Operator::DIVISION, float3TypeDeclaration, {float3TypeDeclaration, float3TypeDeclaration}, declarationScopes);
-    addOperatorDeclaration(Operator::ADDITION, float3TypeDeclaration, {float3TypeDeclaration, float3TypeDeclaration}, declarationScopes);
-    addOperatorDeclaration(Operator::SUBTRACTION, float3TypeDeclaration, {float3TypeDeclaration, float3TypeDeclaration}, declarationScopes);
-
-    // float4
-    addOperatorDeclaration(Operator::MULTIPLICATION, float4TypeDeclaration, {float4TypeDeclaration, float4TypeDeclaration}, declarationScopes);
-    addOperatorDeclaration(Operator::DIVISION, float4TypeDeclaration, {float4TypeDeclaration, float4TypeDeclaration}, declarationScopes);
-    addOperatorDeclaration(Operator::ADDITION, float4TypeDeclaration, {float4TypeDeclaration, float4TypeDeclaration}, declarationScopes);
-    addOperatorDeclaration(Operator::SUBTRACTION, float4TypeDeclaration, {float4TypeDeclaration, float4TypeDeclaration}, declarationScopes);
-
     for (auto iterator = tokens.cbegin(); iterator != tokens.end();)
     {
         Declaration* declaration = parseTopLevelDeclaration(tokens, iterator, declarationScopes);
@@ -1336,6 +1318,30 @@ Statement* ASTContext::parseStatement(const std::vector<Token>& tokens,
 
         if (!(result->result = parseExpression(tokens, iterator, declarationScopes, result)))
             throw std::runtime_error("Expected an expression");
+
+        Construct* currentParent = parent;
+        CallableDeclaration* callableDeclaration = nullptr;
+
+        while (currentParent)
+        {
+            if (currentParent->getKind() == Construct::Kind::DECLARATION)
+            {
+                Declaration* declaration = static_cast<Declaration*>(currentParent);
+                if (declaration->getDeclarationKind() == Declaration::Kind::CALLABLE)
+                {
+                    callableDeclaration = static_cast<CallableDeclaration*>(currentParent);
+                    break;
+                }
+            }
+
+            currentParent = currentParent->parent;
+        }
+
+        if (!callableDeclaration)
+            throw std::runtime_error("Return statement outside of a function");
+
+        if (callableDeclaration->qualifiedType.typeDeclaration != result->result->qualifiedType.typeDeclaration)
+            throw std::runtime_error("Invalid type for a return statement");
 
         expectToken(Token::Type::SEMICOLON, tokens, iterator);
 
