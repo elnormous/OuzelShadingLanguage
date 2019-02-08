@@ -192,15 +192,23 @@ ASTContext::ASTContext(const std::vector<Token>& tokens)
     addOperatorDeclaration(Operator::DIVISION, float4TypeDeclaration, {float4x4TypeDeclaration, float4TypeDeclaration}, declarationScopes);
     addOperatorDeclaration(Operator::DIVISION, float4TypeDeclaration, {float4TypeDeclaration, float4x4TypeDeclaration}, declarationScopes);
 
-    // vectors
+    // float2
     addOperatorDeclaration(Operator::MULTIPLICATION, float2TypeDeclaration, {float2TypeDeclaration, float2TypeDeclaration}, declarationScopes);
     addOperatorDeclaration(Operator::DIVISION, float2TypeDeclaration, {float2TypeDeclaration, float2TypeDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::ADDITION, float2TypeDeclaration, {float2TypeDeclaration, float2TypeDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::SUBTRACTION, float2TypeDeclaration, {float2TypeDeclaration, float2TypeDeclaration}, declarationScopes);
 
+    // float3
     addOperatorDeclaration(Operator::MULTIPLICATION, float3TypeDeclaration, {float3TypeDeclaration, float3TypeDeclaration}, declarationScopes);
     addOperatorDeclaration(Operator::DIVISION, float3TypeDeclaration, {float3TypeDeclaration, float3TypeDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::ADDITION, float3TypeDeclaration, {float3TypeDeclaration, float3TypeDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::SUBTRACTION, float3TypeDeclaration, {float3TypeDeclaration, float3TypeDeclaration}, declarationScopes);
 
+    // float4
     addOperatorDeclaration(Operator::MULTIPLICATION, float4TypeDeclaration, {float4TypeDeclaration, float4TypeDeclaration}, declarationScopes);
     addOperatorDeclaration(Operator::DIVISION, float4TypeDeclaration, {float4TypeDeclaration, float4TypeDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::ADDITION, float4TypeDeclaration, {float4TypeDeclaration, float4TypeDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::SUBTRACTION, float4TypeDeclaration, {float4TypeDeclaration, float4TypeDeclaration}, declarationScopes);
 
     for (auto iterator = tokens.cbegin(); iterator != tokens.end();)
     {
