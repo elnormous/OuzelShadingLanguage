@@ -91,16 +91,16 @@ ASTContext::ASTContext(const std::vector<Token>& tokens)
 
     for (auto& constructor : constructors)
     {
-        ConstructorDeclaration* constructorDeclaration = new ConstructorDeclaration();
-        constructs.push_back(std::unique_ptr<Construct>(constructorDeclaration));
+        ConstructorDeclaration* constructorDeclaration;
+        constructs.push_back(std::unique_ptr<Construct>(constructorDeclaration = new ConstructorDeclaration()));
 
         constructorDeclaration->parent = constructor.first;
         constructorDeclaration->definition = constructorDeclaration;
 
         for (auto& parameter : constructor.second)
         {
-            ParameterDeclaration* parameterDeclaration = new ParameterDeclaration();
-            constructs.push_back(std::unique_ptr<Construct>(parameterDeclaration));
+            ParameterDeclaration* parameterDeclaration;
+            constructs.push_back(std::unique_ptr<Construct>(parameterDeclaration = new ParameterDeclaration()));
 
             parameterDeclaration->parent = constructorDeclaration;
             parameterDeclaration->qualifiedType.typeDeclaration = parameter;
@@ -478,8 +478,8 @@ ArrayTypeDeclaration* ASTContext::getArrayTypeDeclaration(QualifiedType qualifie
     }
     else
     {
-        ArrayTypeDeclaration* result = new ArrayTypeDeclaration();
-        constructs.push_back(std::unique_ptr<Construct>(result));
+        ArrayTypeDeclaration* result;
+        constructs.push_back(std::unique_ptr<Construct>(result = new ArrayTypeDeclaration()));
         result->elementType = qualifiedType;
         result->size = size;
 
@@ -682,8 +682,8 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
 {
     if (isToken(Token::Type::SEMICOLON, tokens, iterator))
     {
-        Declaration* declaration = new Declaration(Declaration::Kind::EMPTY);
-        constructs.push_back(std::unique_ptr<Construct>(declaration));
+        Declaration* declaration;
+        constructs.push_back(std::unique_ptr<Construct>(declaration = new Declaration(Declaration::Kind::EMPTY)));
 
         return declaration;
     }
@@ -763,8 +763,8 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
         {
             ++iterator;
 
-            FunctionDeclaration* result = new FunctionDeclaration();
-            constructs.push_back(std::unique_ptr<Construct>(result));
+            FunctionDeclaration* result;
+            constructs.push_back(std::unique_ptr<Construct>(result = new FunctionDeclaration()));
             result->parent = parent;
             result->qualifiedType = qualifiedType;
             result->isStatic = isStatic;
@@ -866,8 +866,8 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
             if (findDeclaration(name, declarationScopes.back()))
                 throw std::runtime_error("Redefinition of " + name);
 
-            VariableDeclaration* result = new VariableDeclaration();
-            constructs.push_back(std::unique_ptr<VariableDeclaration>(result));
+            VariableDeclaration* result;
+            constructs.push_back(std::unique_ptr<VariableDeclaration>(result = new VariableDeclaration()));
             result->parent = parent;
             result->qualifiedType = qualifiedType;
             if (isExtern) result->storageClass = VariableDeclaration::StorageClass::EXTERN;
@@ -937,8 +937,8 @@ StructDeclaration* ASTContext::parseStructDeclaration(const std::vector<Token>& 
 {
     expectToken(Token::Type::IDENTIFIER, tokens, iterator);
 
-    StructDeclaration* result = new StructDeclaration();
-    constructs.push_back(std::unique_ptr<Construct>(result));
+    StructDeclaration* result;
+    constructs.push_back(std::unique_ptr<Construct>(result = new StructDeclaration()));
     result->parent = parent;
     result->name = iterator->value;
     result->previousDeclaration = findStructDeclaration(iterator->value, declarationScopes);
@@ -1012,16 +1012,16 @@ Declaration* ASTContext::parseMemberDeclaration(const std::vector<Token>& tokens
 {
     if (isToken(Token::Type::SEMICOLON, tokens, iterator))
     {
-        Declaration* result = new Declaration(Declaration::Kind::EMPTY);
-        constructs.push_back(std::unique_ptr<Construct>(result));
+        Declaration* result;
+        constructs.push_back(std::unique_ptr<Construct>(result = new Declaration(Declaration::Kind::EMPTY)));
         result->parent = parent;
 
         return result;
     }
     else
     {
-        FieldDeclaration* result = new FieldDeclaration();
-        constructs.push_back(std::unique_ptr<Construct>(result));
+        FieldDeclaration* result;
+        constructs.push_back(std::unique_ptr<Construct>(result = new FieldDeclaration()));
         result->parent = parent;
 
         std::vector<std::pair<std::string, std::vector<std::string>>> attributes = parseAttributes(tokens, iterator);
@@ -1130,8 +1130,8 @@ ParameterDeclaration* ASTContext::parseParameterDeclaration(const std::vector<To
                                                             std::vector<std::vector<Declaration*>>& declarationScopes,
                                                             Construct* parent)
 {
-    ParameterDeclaration* result = new ParameterDeclaration();
-    constructs.push_back(std::unique_ptr<Construct>(result));
+    ParameterDeclaration* result;
+    constructs.push_back(std::unique_ptr<Construct>(result = new ParameterDeclaration()));
     result->parent = parent;
 
     std::vector<std::pair<std::string, std::vector<std::string>>> attributes = parseAttributes(tokens, iterator);
@@ -1211,8 +1211,8 @@ ParameterDeclaration* ASTContext::parseParameterDeclaration(const std::vector<To
     throw std::runtime_error("Typedef is not supported");
     return nullptr;
 
-    TypeDefinitionDeclaration* result = new TypeDefinitionDeclaration();
-    constructs.push_back(std::unique_ptr<Construct>(result));
+    TypeDefinitionDeclaration* result;
+    constructs.push_back(std::unique_ptr<Construct>(result = new TypeDefinitionDeclaration()));
     result->parent = parent;
     result->kind = Construct::Kind::DECLARATION;
     result->declarationKind = Declaration::Kind::TYPE;
@@ -1284,8 +1284,8 @@ Statement* ASTContext::parseStatement(const std::vector<Token>& tokens,
     {
         ++iterator;
 
-        BreakStatement* result = new BreakStatement();
-        constructs.push_back(std::unique_ptr<Construct>(result));
+        BreakStatement* result;
+        constructs.push_back(std::unique_ptr<Construct>(result = new BreakStatement()));
         result->parent = parent;
 
         expectToken(Token::Type::SEMICOLON, tokens, iterator);
@@ -1298,8 +1298,8 @@ Statement* ASTContext::parseStatement(const std::vector<Token>& tokens,
     {
         ++iterator;
 
-        ContinueStatement* result = new ContinueStatement();
-        constructs.push_back(std::unique_ptr<Construct>(result));
+        ContinueStatement* result;
+        constructs.push_back(std::unique_ptr<Construct>(result = new ContinueStatement()));
         result->parent = parent;
 
         expectToken(Token::Type::SEMICOLON, tokens, iterator);
@@ -1312,8 +1312,8 @@ Statement* ASTContext::parseStatement(const std::vector<Token>& tokens,
     {
         ++iterator;
 
-        ReturnStatement* result = new ReturnStatement();
-        constructs.push_back(std::unique_ptr<Construct>(result));
+        ReturnStatement* result;
+        constructs.push_back(std::unique_ptr<Construct>(result = new ReturnStatement()));
         result->parent = parent;
 
         if (!(result->result = parseExpression(tokens, iterator, declarationScopes, result)))
@@ -1351,8 +1351,8 @@ Statement* ASTContext::parseStatement(const std::vector<Token>& tokens,
     }
     else if (isDeclaration(tokens, iterator, declarationScopes))
     {
-        DeclarationStatement* result = new DeclarationStatement();
-        constructs.push_back(std::unique_ptr<Construct>(result));
+        DeclarationStatement* result;
+        constructs.push_back(std::unique_ptr<Construct>(result = new DeclarationStatement()));
         result->parent = parent;
 
         if (!(result->declaration = parseDeclaration(tokens, iterator, declarationScopes, result)))
@@ -1393,8 +1393,8 @@ Statement* ASTContext::parseStatement(const std::vector<Token>& tokens,
     }
     else
     {
-        ExpressionStatement* result = new ExpressionStatement();
-        constructs.push_back(std::unique_ptr<Construct>(result));
+        ExpressionStatement* result;
+        constructs.push_back(std::unique_ptr<Construct>(result = new ExpressionStatement()));
         result->parent = parent;
 
         if (!(result->expression = parseExpression(tokens, iterator, declarationScopes, result)))
@@ -1421,8 +1421,8 @@ CompoundStatement* ASTContext::parseCompoundStatement(const std::vector<Token>& 
 
     declarationScopes.push_back(std::vector<Declaration*>());
 
-    CompoundStatement* result = new CompoundStatement();
-    constructs.push_back(std::unique_ptr<Construct>(result));
+    CompoundStatement* result;
+    constructs.push_back(std::unique_ptr<Construct>(result = new CompoundStatement()));
     result->parent = parent;
 
     for (;;)
@@ -1456,8 +1456,8 @@ IfStatement* ASTContext::parseIfStatement(const std::vector<Token>& tokens,
 
     ++iterator;
 
-    IfStatement* result = new IfStatement();
-    constructs.push_back(std::unique_ptr<Construct>(result));
+    IfStatement* result;
+    constructs.push_back(std::unique_ptr<Construct>(result = new IfStatement()));
     result->parent = parent;
 
     expectToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator);
@@ -1515,8 +1515,8 @@ ForStatement* ASTContext::parseForStatement(const std::vector<Token>& tokens,
 
     ++iterator;
 
-    ForStatement* result = new ForStatement();
-    constructs.push_back(std::unique_ptr<Construct>(result));
+    ForStatement* result;
+    constructs.push_back(std::unique_ptr<Construct>(result = new ForStatement()));
     result->parent = parent;
 
     expectToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator);
@@ -1619,8 +1619,8 @@ SwitchStatement* ASTContext::parseSwitchStatement(const std::vector<Token>& toke
 
     ++iterator;
 
-    SwitchStatement* result = new SwitchStatement();
-    constructs.push_back(std::unique_ptr<Construct>(result));
+    SwitchStatement* result;
+    constructs.push_back(std::unique_ptr<Construct>(result = new SwitchStatement()));
     result->parent = parent;
 
     expectToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator);
@@ -1665,8 +1665,8 @@ CaseStatement* ASTContext::parseCaseStatement(const std::vector<Token>& tokens,
 
     ++iterator;
 
-    CaseStatement* result = new CaseStatement();
-    constructs.push_back(std::unique_ptr<Construct>(result));
+    CaseStatement* result;
+    constructs.push_back(std::unique_ptr<Construct>(result = new CaseStatement()));
     result->parent = parent;
 
     if (!(result->condition = parseExpression(tokens, iterator, declarationScopes, result)))
@@ -1691,8 +1691,8 @@ DefaultStatement* ASTContext::parseDefaultStatement(const std::vector<Token>& to
 
     ++iterator;
 
-    DefaultStatement* result = new DefaultStatement();
-    constructs.push_back(std::unique_ptr<Construct>(result));
+    DefaultStatement* result;
+    constructs.push_back(std::unique_ptr<Construct>(result = new DefaultStatement()));
     result->parent = parent;
 
     expectToken(Token::Type::COLON, tokens, iterator);
@@ -1714,8 +1714,8 @@ WhileStatement* ASTContext::parseWhileStatement(const std::vector<Token>& tokens
 
     ++iterator;
 
-    WhileStatement* result = new WhileStatement();
-    constructs.push_back(std::unique_ptr<Construct>(result));
+    WhileStatement* result;
+    constructs.push_back(std::unique_ptr<Construct>(result = new WhileStatement()));
     result->parent = parent;
 
     expectToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator);
@@ -1760,8 +1760,8 @@ DoStatement* ASTContext::parseDoStatement(const std::vector<Token>& tokens,
 
     ++iterator;
 
-    DoStatement* result = new DoStatement();
-    constructs.push_back(std::unique_ptr<Construct>(result));
+    DoStatement* result;
+    constructs.push_back(std::unique_ptr<Construct>(result = new DoStatement()));
     result->parent = parent;
 
     if (!(result->body = parseStatement(tokens, iterator, declarationScopes, result)))
@@ -1812,8 +1812,8 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
 {
     if (isToken(Token::Type::LITERAL_INT, tokens, iterator))
     {
-        IntegerLiteralExpression* result = new IntegerLiteralExpression();
-        constructs.push_back(std::unique_ptr<Construct>(result));
+        IntegerLiteralExpression* result;
+        constructs.push_back(std::unique_ptr<Construct>(result = new IntegerLiteralExpression()));
         result->parent = parent;
         result->qualifiedType.typeDeclaration = intTypeDeclaration;
         result->isLValue = false;
@@ -1825,8 +1825,8 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
     }
     else if (isToken(Token::Type::LITERAL_FLOAT, tokens, iterator))
     {
-        FloatingPointLiteralExpression* result = new FloatingPointLiteralExpression();
-        constructs.push_back(std::unique_ptr<Construct>(result));
+        FloatingPointLiteralExpression* result;
+        constructs.push_back(std::unique_ptr<Construct>(result = new FloatingPointLiteralExpression()));
         result->parent = parent;
         result->qualifiedType.typeDeclaration = floatTypeDeclaration;
         result->isLValue = false;
@@ -1842,8 +1842,8 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
     }
     else if (isToken(Token::Type::LITERAL_STRING, tokens, iterator))
     {
-        StringLiteralExpression* result = new StringLiteralExpression();
-        constructs.push_back(std::unique_ptr<Construct>(result));
+        StringLiteralExpression* result;
+        constructs.push_back(std::unique_ptr<Construct>(result = new StringLiteralExpression()));
         result->parent = parent;
         result->qualifiedType.typeDeclaration = stringTypeDeclaration;
         result->isLValue = false;
@@ -1855,8 +1855,8 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
     }
     else if (isToken({Token::Type::KEYWORD_TRUE, Token::Type::KEYWORD_FALSE}, tokens, iterator))
     {
-        BooleanLiteralExpression* result = new BooleanLiteralExpression();
-        constructs.push_back(std::unique_ptr<Construct>(result));
+        BooleanLiteralExpression* result;
+        constructs.push_back(std::unique_ptr<Construct>(result = new BooleanLiteralExpression()));
         result->parent = parent;
         result->qualifiedType.typeDeclaration = boolTypeDeclaration;
         result->isLValue = false;
@@ -1869,8 +1869,8 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
     else if (isToken({Token::Type::KEYWORD_BOOL, Token::Type::KEYWORD_INT, Token::Type::KEYWORD_FLOAT}, tokens, iterator))
     {
         // TODO: parse type and fix precedence
-        CastExpression* result = new CastExpression(CastExpression::Kind::FUNCTIONAL);
-        constructs.push_back(std::unique_ptr<Construct>(result));
+        CastExpression* result;
+        constructs.push_back(std::unique_ptr<Construct>(result = new CastExpression(CastExpression::Kind::FUNCTIONAL)));
 
         if (isToken(Token::Type::KEYWORD_BOOL, tokens, iterator)) result->qualifiedType.typeDeclaration = boolTypeDeclaration;
         else if(isToken(Token::Type::KEYWORD_INT, tokens, iterator)) result->qualifiedType.typeDeclaration = intTypeDeclaration;
@@ -1894,8 +1894,8 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
     {
         ++iterator;
 
-        InitializerListExpression* result = new InitializerListExpression();
-        constructs.push_back(std::unique_ptr<Construct>(result));
+        InitializerListExpression* result;
+        constructs.push_back(std::unique_ptr<Construct>(result = new InitializerListExpression()));
 
         QualifiedType qualifiedType;
 
@@ -1948,8 +1948,8 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
 
             if ((typeDeclaration = findTypeDeclaration(name, declarationScopes)))
             {
-                TemporaryObjectExpression* result = new TemporaryObjectExpression();
-                constructs.push_back(std::unique_ptr<Construct>(result));
+                TemporaryObjectExpression* result;
+                constructs.push_back(std::unique_ptr<Construct>(result = new TemporaryObjectExpression()));
                 result->parent = parent;
                 result->qualifiedType.typeDeclaration = typeDeclaration;
                 result->isLValue = false;
@@ -1995,8 +1995,8 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
             }
             else
             {
-                CallExpression* result = new CallExpression();
-                constructs.push_back(std::unique_ptr<Construct>(result));
+                CallExpression* result;
+                constructs.push_back(std::unique_ptr<Construct>(result = new CallExpression()));
                 result->parent = parent;
 
                 std::vector<QualifiedType> parameters;
@@ -2028,8 +2028,8 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
                     ++iterator;
                 }
 
-                DeclarationReferenceExpression* declRefExpression = new DeclarationReferenceExpression();
-                constructs.push_back(std::unique_ptr<Construct>(declRefExpression));
+                DeclarationReferenceExpression* declRefExpression;
+                constructs.push_back(std::unique_ptr<Construct>(declRefExpression = new DeclarationReferenceExpression()));
                 declRefExpression->parent = result;
 
                 FunctionDeclaration* functionDeclaration = resolveFunctionDeclaration(name, declarationScopes, parameters);
@@ -2049,8 +2049,8 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
         }
         else
         {
-            DeclarationReferenceExpression* result = new DeclarationReferenceExpression();
-            constructs.push_back(std::unique_ptr<Construct>(result));
+            DeclarationReferenceExpression* result;
+            constructs.push_back(std::unique_ptr<Construct>(result = new DeclarationReferenceExpression()));
             result->parent = parent;
             result->declaration = findDeclaration(name, declarationScopes);
 
@@ -2110,8 +2110,8 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
         }
         else
         {
-            ParenExpression* result = new ParenExpression();
-            constructs.push_back(std::unique_ptr<Construct>(result));
+            ParenExpression* result;
+            constructs.push_back(std::unique_ptr<Construct>(result = new ParenExpression()));
             result->parent = parent;
 
             if (!(result->expression = parseExpression(tokens, iterator, declarationScopes, result)))
@@ -2143,8 +2143,8 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
             default: break;
         }
         
-        CastExpression* result = new CastExpression(castKind);
-        constructs.push_back(std::unique_ptr<Construct>(result));
+        CastExpression* result;
+        constructs.push_back(std::unique_ptr<Construct>(result = new CastExpression(castKind)));
         result->parent = parent;
         
         ++iterator;
@@ -2190,8 +2190,8 @@ Expression* ASTContext::parseSubscriptExpression(const std::vector<Token>& token
     {
         ++iterator;
 
-        ArraySubscriptExpression* expression = new ArraySubscriptExpression();
-        constructs.push_back(std::unique_ptr<Construct>(expression));
+        ArraySubscriptExpression* expression;
+        constructs.push_back(std::unique_ptr<Construct>(expression = new ArraySubscriptExpression()));
         expression->parent = parent;
         expression->expression = result;
 
@@ -2249,8 +2249,8 @@ Expression* ASTContext::parseMemberExpression(const std::vector<Token>& tokens,
 
         ++iterator;
 
-        MemberExpression* expression = new MemberExpression();
-        constructs.push_back(std::unique_ptr<Construct>(expression));
+        MemberExpression* expression;
+        constructs.push_back(std::unique_ptr<Construct>(expression = new MemberExpression()));
         expression->parent = parent;
         expression->expression = result;
 
@@ -2300,8 +2300,8 @@ Expression* ASTContext::parseSignExpression(const std::vector<Token>& tokens,
 {
     if (isToken({Token::Type::OPERATOR_PLUS, Token::Type::OPERATOR_MINUS}, tokens, iterator))
     {
-        UnaryOperatorExpression* result = new UnaryOperatorExpression();
-        constructs.push_back(std::unique_ptr<Construct>(result));
+        UnaryOperatorExpression* result;
+        constructs.push_back(std::unique_ptr<Construct>(result = new UnaryOperatorExpression()));
         result->parent = parent;
 
         Operator op = Operator::NONE;
@@ -2343,8 +2343,8 @@ Expression* ASTContext::parseNotExpression(const std::vector<Token>& tokens,
 {
     if (isToken({Token::Type::OPERATOR_NOT, Token::Type::KEYWORD_NOT}, tokens, iterator))
     {
-        UnaryOperatorExpression* result = new UnaryOperatorExpression();
-        constructs.push_back(std::unique_ptr<Construct>(result));
+        UnaryOperatorExpression* result;
+        constructs.push_back(std::unique_ptr<Construct>(result = new UnaryOperatorExpression()));
         result->parent = parent;
 
         Operator op = Operator::NEGATION;
@@ -2380,8 +2380,8 @@ Expression* ASTContext::parseSizeofExpression(const std::vector<Token>& tokens,
 {
     if (isToken(Token::Type::KEYWORD_SIZEOF, tokens, iterator))
     {
-        SizeofExpression* result = new SizeofExpression();
-        constructs.push_back(std::unique_ptr<Construct>(result));
+        SizeofExpression* result;
+        constructs.push_back(std::unique_ptr<Construct>(result = new SizeofExpression()));
         result->parent = parent;
         
         ++iterator;
@@ -2428,8 +2428,8 @@ Expression* ASTContext::parseMultiplicationExpression(const std::vector<Token>& 
 
     while (isToken({Token::Type::OPERATOR_MULTIPLY, Token::Type::OPERATOR_DIVIDE}, tokens, iterator))
     {
-        BinaryOperatorExpression* expression = new BinaryOperatorExpression();
-        constructs.push_back(std::unique_ptr<Construct>(expression));
+        BinaryOperatorExpression* expression;
+        constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression()));
         expression->parent = parent;
 
         Operator op = Operator::NONE;
@@ -2470,8 +2470,8 @@ Expression* ASTContext::parseAdditionExpression(const std::vector<Token>& tokens
 
     while (isToken({Token::Type::OPERATOR_PLUS, Token::Type::OPERATOR_MINUS}, tokens, iterator))
     {
-        BinaryOperatorExpression* expression = new BinaryOperatorExpression();
-        constructs.push_back(std::unique_ptr<Construct>(expression));
+        BinaryOperatorExpression* expression;
+        constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression()));
         expression->parent = parent;
 
         Operator op = Operator::NONE;
@@ -2512,8 +2512,8 @@ Expression* ASTContext::parseLessThanExpression(const std::vector<Token>& tokens
 
     while (isToken({Token::Type::OPERATOR_LESS_THAN, Token::Type::OPERATOR_LESS_THAN_EQUAL}, tokens, iterator))
     {
-        BinaryOperatorExpression* expression = new BinaryOperatorExpression();
-        constructs.push_back(std::unique_ptr<Construct>(expression));
+        BinaryOperatorExpression* expression;
+        constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression()));
         expression->parent = parent;
 
         Operator op = Operator::NONE;
@@ -2554,8 +2554,8 @@ Expression* ASTContext::parseGreaterThanExpression(const std::vector<Token>& tok
 
     while (isToken({Token::Type::OPERATOR_GREATER_THAN, Token::Type::OPERATOR_GREATER_THAN_EQUAL}, tokens, iterator))
     {
-        BinaryOperatorExpression* expression = new BinaryOperatorExpression();
-        constructs.push_back(std::unique_ptr<Construct>(expression));
+        BinaryOperatorExpression* expression;
+        constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression()));
         expression->parent = parent;
 
         Operator op = Operator::NONE;
@@ -2596,8 +2596,8 @@ Expression* ASTContext::parseEqualityExpression(const std::vector<Token>& tokens
 
     while (isToken({Token::Type::OPERATOR_EQUAL, Token::Type::OPERATOR_NOT_EQUAL, Token::Type::KEYWORD_NOT_EQ}, tokens, iterator))
     {
-        BinaryOperatorExpression* expression = new BinaryOperatorExpression();
-        constructs.push_back(std::unique_ptr<Construct>(expression));
+        BinaryOperatorExpression* expression;
+        constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression()));
         expression->parent = parent;
 
         Operator op = Operator::NONE;
@@ -2640,8 +2640,8 @@ Expression* ASTContext::parseLogicalAndExpression(const std::vector<Token>& toke
     {
         ++iterator;
 
-        BinaryOperatorExpression* expression = new BinaryOperatorExpression();
-        constructs.push_back(std::unique_ptr<Construct>(expression));
+        BinaryOperatorExpression* expression;
+        constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression()));
         expression->parent = parent;
 
         Operator op = Operator::AND;
@@ -2678,8 +2678,8 @@ Expression* ASTContext::parseLogicalOrExpression(const std::vector<Token>& token
     {
         ++iterator;
 
-        BinaryOperatorExpression* expression = new BinaryOperatorExpression();
-        constructs.push_back(std::unique_ptr<Construct>(expression));
+        BinaryOperatorExpression* expression;
+        constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression()));
         expression->parent = parent;
 
         Operator op = Operator::OR;
@@ -2716,8 +2716,8 @@ Expression* ASTContext::parseTernaryExpression(const std::vector<Token>& tokens,
     {
         ++iterator;
 
-        TernaryOperatorExpression* expression = new TernaryOperatorExpression();
-        constructs.push_back(std::unique_ptr<Construct>(expression));
+        TernaryOperatorExpression* expression;
+        constructs.push_back(std::unique_ptr<Construct>(expression = new TernaryOperatorExpression()));
         expression->parent = parent;
         expression->condition = result;
 
@@ -2758,8 +2758,8 @@ Expression* ASTContext::parseAssignmentExpression(const std::vector<Token>& toke
     {
         ++iterator;
 
-        BinaryOperatorExpression* expression = new BinaryOperatorExpression();
-        constructs.push_back(std::unique_ptr<Construct>(expression));
+        BinaryOperatorExpression* expression;
+        constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression()));
         expression->parent = parent;
         expression->leftExpression = result;
 
@@ -2797,8 +2797,8 @@ Expression* ASTContext::parseAdditionAssignmentExpression(const std::vector<Toke
 
     while (isToken({Token::Type::OPERATOR_PLUS_ASSIGNMENT, Token::Type::OPERATOR_MINUS_ASSIGNMENT}, tokens, iterator))
     {
-        BinaryOperatorExpression* expression = new BinaryOperatorExpression();
-        constructs.push_back(std::unique_ptr<Construct>(expression));
+        BinaryOperatorExpression* expression;
+        constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression()));
         expression->parent = parent;
 
         Operator op = Operator::NONE;
@@ -2845,8 +2845,8 @@ Expression* ASTContext::parseMultiplicationAssignmentExpression(const std::vecto
 
     while (isToken({Token::Type::OPERATOR_MULTIPLY_ASSIGNMENT, Token::Type::OPERATOR_DIVIDE_ASSIGNMENT}, tokens, iterator))
     {
-        BinaryOperatorExpression* expression = new BinaryOperatorExpression();
-        constructs.push_back(std::unique_ptr<Construct>(expression));
+        BinaryOperatorExpression* expression;
+        constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression()));
         expression->parent = parent;
 
         Operator op = Operator::NONE;
@@ -2894,8 +2894,8 @@ Expression* ASTContext::parseCommaExpression(const std::vector<Token>& tokens,
 
     while (isToken(Token::Type::COMMA, tokens, iterator))
     {
-        BinaryOperatorExpression* expression = new BinaryOperatorExpression();
-        constructs.push_back(std::unique_ptr<Construct>(expression));
+        BinaryOperatorExpression* expression;
+        constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression()));
         expression->parent = parent;
         expression->leftExpression = result;
 

@@ -381,8 +381,8 @@ private:
                                                     bool isUnsigned,
                                                     std::vector<std::vector<Declaration*>>& declarationScopes)
     {
-        ScalarTypeDeclaration* scalarTypeDeclaration = new ScalarTypeDeclaration(kind);
-        constructs.push_back(std::unique_ptr<Construct>(scalarTypeDeclaration));
+        ScalarTypeDeclaration* scalarTypeDeclaration;
+        constructs.push_back(std::unique_ptr<Construct>(scalarTypeDeclaration = new ScalarTypeDeclaration(kind)));
 
         scalarTypeDeclaration->name = name;
         scalarTypeDeclaration->size = size;
@@ -403,8 +403,8 @@ private:
                                             uint32_t size,
                                             std::vector<std::vector<Declaration*>>& declarationScopes)
     {
-        StructDeclaration* structDeclaration = new StructDeclaration();
-        constructs.push_back(std::unique_ptr<Construct>(structDeclaration));
+        StructDeclaration* structDeclaration;
+        constructs.push_back(std::unique_ptr<Construct>(structDeclaration = new StructDeclaration()));
 
         structDeclaration->name = name;
         structDeclaration->size = size;
@@ -426,8 +426,8 @@ private:
                                           bool isConst,
                                           std::vector<std::vector<Declaration*>>& declarationScopes)
     {
-        FieldDeclaration* fieldDeclaration = new FieldDeclaration();
-        constructs.push_back(std::unique_ptr<Construct>(fieldDeclaration));
+        FieldDeclaration* fieldDeclaration;
+        constructs.push_back(std::unique_ptr<Construct>(fieldDeclaration = new FieldDeclaration()));
 
         fieldDeclaration->parent = structDeclaration;
         fieldDeclaration->name = name;
@@ -445,16 +445,16 @@ private:
                                                 const std::vector<TypeDeclaration*>& parameters,
                                                 std::vector<std::vector<Declaration*>>& declarationScopes)
     {
-        FunctionDeclaration* functionDeclaration = new FunctionDeclaration();
-        constructs.push_back(std::unique_ptr<Construct>(functionDeclaration));
+        FunctionDeclaration* functionDeclaration;
+        constructs.push_back(std::unique_ptr<Construct>(functionDeclaration = new FunctionDeclaration()));
 
         functionDeclaration->name = name;
         functionDeclaration->qualifiedType.typeDeclaration = resultType;
 
         for (TypeDeclaration* parameter : parameters)
         {
-            ParameterDeclaration* parameterDeclaration = new ParameterDeclaration();
-            constructs.push_back(std::unique_ptr<Construct>(parameterDeclaration));
+            ParameterDeclaration* parameterDeclaration;
+            constructs.push_back(std::unique_ptr<Construct>(parameterDeclaration = new ParameterDeclaration()));
 
             parameterDeclaration->qualifiedType.typeDeclaration = parameter;
             functionDeclaration->parameterDeclarations.push_back(parameterDeclaration);
@@ -471,16 +471,16 @@ private:
                                                 const std::vector<TypeDeclaration*>& parameters,
                                                 std::vector<std::vector<Declaration*>>& declarationScopes)
     {
-        OperatorDeclaration* operatorDeclaration = new OperatorDeclaration();
-        constructs.push_back(std::unique_ptr<Construct>(operatorDeclaration));
+        OperatorDeclaration* operatorDeclaration;
+        constructs.push_back(std::unique_ptr<Construct>(operatorDeclaration = new OperatorDeclaration()));
 
         operatorDeclaration->op = op;
         operatorDeclaration->qualifiedType.typeDeclaration = resultType;
 
         for (TypeDeclaration* parameter : parameters)
         {
-            ParameterDeclaration* parameterDeclaration = new ParameterDeclaration();
-            constructs.push_back(std::unique_ptr<Construct>(parameterDeclaration));
+            ParameterDeclaration* parameterDeclaration;
+            constructs.push_back(std::unique_ptr<Construct>(parameterDeclaration = new ParameterDeclaration()));
 
             parameterDeclaration->qualifiedType.typeDeclaration = parameter;
             operatorDeclaration->parameterDeclarations.push_back(parameterDeclaration);
