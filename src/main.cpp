@@ -79,8 +79,6 @@ int main(int argc, const char* argv[])
         std::vector<char> inCode;
         inCode.assign(std::istreambuf_iterator<char>(inputFile), std::istreambuf_iterator<char>());
 
-        inCode.erase(std::remove(inCode.begin(), inCode.end(), '\r'), inCode.end());
-
         Preprocessor preprocessor;
 
         std::vector<Token> tokens = tokenize(preprocessor.preprocess(inCode));
