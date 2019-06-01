@@ -663,7 +663,7 @@ std::vector<Token> tokenize(const std::vector<char>& code)
             lineStart = i;
             continue;
         }
-        else if (*i == ' ' || *i == '\t') // whitespace
+        else if (*i == ' ' || *i == '\t' || *i == '\r') // whitespace
         {
             ++i;
             continue;
