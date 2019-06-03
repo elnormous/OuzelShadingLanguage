@@ -565,14 +565,14 @@ Declaration* ASTContext::parseTopLevelDeclaration(const std::vector<Token>& toke
         // semicolon is not needed after a function definition
         if (!callableDeclaration->body)
         {
-            expectToken(Token::Type::SEMICOLON, tokens, iterator);
+            expectToken(Token::Type::SEMICOLON, iterator, tokens.end());
 
             ++iterator;
         }
     }
     else
     {
-        expectToken(Token::Type::SEMICOLON, tokens, iterator);
+        expectToken(Token::Type::SEMICOLON, iterator, tokens.end());
 
         ++iterator;
     }
@@ -591,27 +591,27 @@ ASTContext::Specifiers ASTContext::parseSpecifiers(const std::vector<Token>& tok
 
     for (;;)
     {
-        if (isToken(Token::Type::KEYWORD_CONST, tokens, iterator))
+        if (isToken(Token::Type::KEYWORD_CONST, iterator, tokens.end()))
         {
             ++iterator;
             result.isConst = true;
         }
-        else if (isToken(Token::Type::KEYWORD_EXTERN, tokens, iterator))
+        else if (isToken(Token::Type::KEYWORD_EXTERN, iterator, tokens.end()))
         {
             ++iterator;
             result.isExtern = true;
         }
-        else if (isToken(Token::Type::KEYWORD_INLINE, tokens, iterator))
+        else if (isToken(Token::Type::KEYWORD_INLINE, iterator, tokens.end()))
         {
             ++iterator;
             result.isInline = true;
         }
-        else if (isToken(Token::Type::KEYWORD_STATIC, tokens, iterator))
+        else if (isToken(Token::Type::KEYWORD_STATIC, iterator, tokens.end()))
         {
             ++iterator;
             result.isStatic = true;
         }
-        else if (isToken(Token::Type::KEYWORD_VOLATILE, tokens, iterator))
+        else if (isToken(Token::Type::KEYWORD_VOLATILE, iterator, tokens.end()))
         {
             ++iterator;
             result.isVolatile = true;
@@ -627,13 +627,13 @@ std::vector<std::pair<std::string, std::vector<std::string>>> ASTContext::parseA
 {
     std::vector<std::pair<std::string, std::vector<std::string>>> result;
 
-    while (isToken(Token::Type::LEFT_BRACKET, tokens, iterator) &&
-           isToken(Token::Type::LEFT_BRACKET, tokens, iterator + 1))
+    while (isToken(Token::Type::LEFT_BRACKET, iterator, tokens.end()) &&
+           isToken(Token::Type::LEFT_BRACKET, iterator + 1, tokens.end()))
     {
         ++iterator;
         ++iterator;
 
-        expectToken(Token::Type::IDENTIFIER, tokens, iterator);
+        expectToken(Token::Type::IDENTIFIER, iterator, tokens.end());
 
         std::pair<std::string, std::vector<std::string>> attribute;
 
@@ -641,31 +641,31 @@ std::vector<std::pair<std::string, std::vector<std::string>>> ASTContext::parseA
 
         ++iterator;
 
-        if (isToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
+        if (isToken(Token::Type::LEFT_PARENTHESIS, iterator, tokens.end()))
         {
             ++iterator;
 
             for (;;)
             {
-                expectToken({Token::Type::LITERAL_INT, Token::Type::LITERAL_FLOAT, Token::Type::LITERAL_DOUBLE, Token::Type::LITERAL_CHAR, Token::Type::LITERAL_STRING}, tokens, iterator);
+                expectToken({Token::Type::LITERAL_INT, Token::Type::LITERAL_FLOAT, Token::Type::LITERAL_DOUBLE, Token::Type::LITERAL_CHAR, Token::Type::LITERAL_STRING}, iterator, tokens.end());
 
                 attribute.second.push_back(iterator->value);
                 ++iterator;
 
-                if (!isToken(Token::Type::COMMA, tokens, iterator))
+                if (!isToken(Token::Type::COMMA, iterator, tokens.end()))
                     break;
             }
 
-            expectToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator);
+            expectToken(Token::Type::RIGHT_PARENTHESIS, iterator, tokens.end());
 
             ++iterator;
         }
 
-        expectToken(Token::Type::RIGHT_BRACKET, tokens, iterator);
+        expectToken(Token::Type::RIGHT_BRACKET, iterator, tokens.end());
 
         ++iterator;
 
-        expectToken(Token::Type::RIGHT_BRACKET, tokens, iterator);
+        expectToken(Token::Type::RIGHT_BRACKET, iterator, tokens.end());
 
         ++iterator;
 
@@ -680,14 +680,14 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
                                           std::vector<std::vector<Declaration*>>& declarationScopes,
                                           Construct* parent)
 {
-    if (isToken(Token::Type::SEMICOLON, tokens, iterator))
+    if (isToken(Token::Type::SEMICOLON, iterator, tokens.end()))
     {
         Declaration* declaration;
         constructs.push_back(std::unique_ptr<Construct>(declaration = new Declaration(Declaration::Kind::EMPTY)));
 
         return declaration;
     }
-    else if (isToken(Token::Type::KEYWORD_STRUCT, tokens, iterator))
+    else if (isToken(Token::Type::KEYWORD_STRUCT, iterator, tokens.end()))
     {
         ++iterator;
 
@@ -697,7 +697,7 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
 
         return declaration;
     }
-    /*else if (isToken(Token::Type::KEYWORD_TYPEDEF, tokens, iterator))
+    /*else if (isToken(Token::Type::KEYWORD_TYPEDEF, iterator, tokens.end()))
     {
         ++iterator;
 
@@ -720,7 +720,7 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
         bool isInline = specifiers.isInline;
         bool isStatic = specifiers.isStatic;
 
-        if (isToken(Token::Type::KEYWORD_VOID, tokens, iterator))
+        if (isToken(Token::Type::KEYWORD_VOID, iterator, tokens.end()))
         {
             ++iterator;
         }
@@ -747,18 +747,18 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
         if (specifiers.isInline) isInline = true;
         if (specifiers.isStatic) isStatic = true;
 
-        if (isToken(Token::Type::KEYWORD_OPERATOR, tokens, iterator))
+        if (isToken(Token::Type::KEYWORD_OPERATOR, iterator, tokens.end()))
             throw std::runtime_error("Operator overloads are not supported");
 
-        expectToken(Token::Type::IDENTIFIER, tokens, iterator);
+        expectToken(Token::Type::IDENTIFIER, iterator, tokens.end());
 
         std::string name = iterator->value;
 
         ++iterator;
 
-        if (isToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator) &&
-            (isToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator + 1) ||
-             isToken(Token::Type::KEYWORD_VOID, tokens, iterator + 1) ||
+        if (isToken(Token::Type::LEFT_PARENTHESIS, iterator, tokens.end()) &&
+            (isToken(Token::Type::RIGHT_PARENTHESIS, iterator + 1, tokens.end()) ||
+             isToken(Token::Type::KEYWORD_VOID, iterator + 1, tokens.end()) ||
              isDeclaration(tokens, iterator + 1, declarationScopes)))  // function declaration
         {
             ++iterator;
@@ -773,11 +773,11 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
 
             std::vector<QualifiedType> parameters;
 
-            if (isToken(Token::Type::KEYWORD_VOID, tokens, iterator))
+            if (isToken(Token::Type::KEYWORD_VOID, iterator, tokens.end()))
             {
                 ++iterator;
             }
-            else if (!isToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
+            else if (!isToken(Token::Type::RIGHT_PARENTHESIS, iterator, tokens.end()))
             {
                 for (;;)
                 {
@@ -788,14 +788,14 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
                     result->parameterDeclarations.push_back(parameterDeclaration);
                     parameters.push_back(parameterDeclaration->qualifiedType);
 
-                    if (!isToken(Token::Type::COMMA, tokens, iterator))
+                    if (!isToken(Token::Type::COMMA, iterator, tokens.end()))
                         break;
 
                     ++iterator;
                 }
             }
 
-            expectToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator);
+            expectToken(Token::Type::RIGHT_PARENTHESIS, iterator, tokens.end());
 
             ++iterator;
 
@@ -830,7 +830,7 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
             // set the definition of the previous declaration
             if (result->previousDeclaration) result->definition = result->previousDeclaration->definition;
 
-            if (isToken(Token::Type::LEFT_BRACE, tokens, iterator))
+            if (isToken(Token::Type::LEFT_BRACE, iterator, tokens.end()))
             {
                 // check if only one definition exists
                 if (result->definition)
@@ -874,11 +874,11 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
             else if (isStatic) result->storageClass = VariableDeclaration::StorageClass::STATIC;
             result->name = name;
 
-            while (isToken(Token::Type::LEFT_BRACKET, tokens, iterator))
+            while (isToken(Token::Type::LEFT_BRACKET, iterator, tokens.end()))
             {
                 ++iterator;
 
-                expectToken(Token::Type::LITERAL_INT, tokens, iterator);
+                expectToken(Token::Type::LITERAL_INT, iterator, tokens.end());
 
                 int size = std::stoi(iterator->value);
 
@@ -889,12 +889,12 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
 
                 result->qualifiedType.typeDeclaration = getArrayTypeDeclaration(result->qualifiedType, static_cast<uint32_t>(size));
 
-                expectToken(Token::Type::RIGHT_BRACKET, tokens, iterator);
+                expectToken(Token::Type::RIGHT_BRACKET, iterator, tokens.end());
 
                 ++iterator;
             }
 
-            if (isToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
+            if (isToken(Token::Type::LEFT_PARENTHESIS, iterator, tokens.end()))
             {
                 ++iterator;
 
@@ -906,11 +906,11 @@ Declaration* ASTContext::parseDeclaration(const std::vector<Token>& tokens,
 
                 // TODO: check for comma and parse multiple expressions
 
-                expectToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator);
+                expectToken(Token::Type::RIGHT_PARENTHESIS, iterator, tokens.end());
 
                 ++iterator;
             }
-            else if (isToken(Token::Type::OPERATOR_ASSIGNMENT, tokens, iterator))
+            else if (isToken(Token::Type::OPERATOR_ASSIGNMENT, iterator, tokens.end()))
             {
                 ++iterator;
 
@@ -935,7 +935,7 @@ StructDeclaration* ASTContext::parseStructDeclaration(const std::vector<Token>& 
                                                       std::vector<std::vector<Declaration*>>& declarationScopes,
                                                       Construct* parent)
 {
-    expectToken(Token::Type::IDENTIFIER, tokens, iterator);
+    expectToken(Token::Type::IDENTIFIER, iterator, tokens.end());
 
     StructDeclaration* result;
     constructs.push_back(std::unique_ptr<Construct>(result = new StructDeclaration()));
@@ -948,7 +948,7 @@ StructDeclaration* ASTContext::parseStructDeclaration(const std::vector<Token>& 
     // set the definition of the previous declaration
     if (result->previousDeclaration) result->definition = result->previousDeclaration->definition;
 
-    if (isToken(Token::Type::LEFT_BRACE, tokens, iterator))
+    if (isToken(Token::Type::LEFT_BRACE, iterator, tokens.end()))
     {
         ++iterator;
 
@@ -968,7 +968,7 @@ StructDeclaration* ASTContext::parseStructDeclaration(const std::vector<Token>& 
 
         for (;;)
         {
-            if (isToken(Token::Type::RIGHT_BRACE, tokens, iterator))
+            if (isToken(Token::Type::RIGHT_BRACE, iterator, tokens.end()))
             {
                 ++iterator;
 
@@ -981,7 +981,7 @@ StructDeclaration* ASTContext::parseStructDeclaration(const std::vector<Token>& 
                 if (!(memberDeclaration = parseMemberDeclaration(tokens, iterator, declarationScopes, result)))
                     return nullptr;
 
-                expectToken(Token::Type::SEMICOLON, tokens, iterator);
+                expectToken(Token::Type::SEMICOLON, iterator, tokens.end());
 
                 if (result->findMemberDeclaration(memberDeclaration->name))
                     throw std::runtime_error("Redefinition of member " + memberDeclaration->name);
@@ -1010,7 +1010,7 @@ Declaration* ASTContext::parseMemberDeclaration(const std::vector<Token>& tokens
                                                 std::vector<std::vector<Declaration*>>& declarationScopes,
                                                 Construct* parent)
 {
-    if (isToken(Token::Type::SEMICOLON, tokens, iterator))
+    if (isToken(Token::Type::SEMICOLON, iterator, tokens.end()))
     {
         Declaration* result;
         constructs.push_back(std::unique_ptr<Construct>(result = new Declaration(Declaration::Kind::EMPTY)));
@@ -1058,7 +1058,7 @@ Declaration* ASTContext::parseMemberDeclaration(const std::vector<Token>& tokens
         if (isInline)
             throw std::runtime_error("Members can not be inline");
 
-        expectToken(Token::Type::IDENTIFIER, tokens, iterator);
+        expectToken(Token::Type::IDENTIFIER, iterator, tokens.end());
 
         result->name = iterator->value;
 
@@ -1066,11 +1066,11 @@ Declaration* ASTContext::parseMemberDeclaration(const std::vector<Token>& tokens
 
         attributes = parseAttributes(tokens, iterator);
 
-        while (isToken(Token::Type::LEFT_BRACKET, tokens, iterator))
+        while (isToken(Token::Type::LEFT_BRACKET, iterator, tokens.end()))
         {
             ++iterator;
 
-            expectToken(Token::Type::LITERAL_INT, tokens, iterator);
+            expectToken(Token::Type::LITERAL_INT, iterator, tokens.end());
 
             int size = std::stoi(iterator->value);
 
@@ -1081,7 +1081,7 @@ Declaration* ASTContext::parseMemberDeclaration(const std::vector<Token>& tokens
 
             result->qualifiedType.typeDeclaration = getArrayTypeDeclaration(result->qualifiedType, static_cast<uint32_t>(size));
 
-            expectToken(Token::Type::RIGHT_BRACKET, tokens, iterator);
+            expectToken(Token::Type::RIGHT_BRACKET, iterator, tokens.end());
 
             ++iterator;
         }
@@ -1169,7 +1169,7 @@ ParameterDeclaration* ASTContext::parseParameterDeclaration(const std::vector<To
     if (isInline)
         throw std::runtime_error("Parameters can not be inline");
 
-    if (isToken(Token::Type::IDENTIFIER, tokens, iterator))
+    if (isToken(Token::Type::IDENTIFIER, iterator, tokens.end()))
     {
         result->name = iterator->value;
 
@@ -1178,11 +1178,11 @@ ParameterDeclaration* ASTContext::parseParameterDeclaration(const std::vector<To
 
     attributes = parseAttributes(tokens, iterator);
 
-    while (isToken(Token::Type::LEFT_BRACKET, tokens, iterator))
+    while (isToken(Token::Type::LEFT_BRACKET, iterator, tokens.end()))
     {
         ++iterator;
 
-        expectToken(Token::Type::LITERAL_INT, tokens, iterator);
+        expectToken(Token::Type::LITERAL_INT, iterator, tokens.end());
 
         int size = std::stoi(iterator->value);
 
@@ -1193,7 +1193,7 @@ ParameterDeclaration* ASTContext::parseParameterDeclaration(const std::vector<To
 
         result->qualifiedType.typeDeclaration = getArrayTypeDeclaration(result->qualifiedType, static_cast<uint32_t>(size));
 
-        expectToken(Token::Type::RIGHT_BRACKET, tokens, iterator);
+        expectToken(Token::Type::RIGHT_BRACKET, iterator, tokens.end());
 
         ++iterator;
     }
@@ -1230,13 +1230,13 @@ ParameterDeclaration* ASTContext::parseParameterDeclaration(const std::vector<To
             throw std::runtime_error("Incomplete type " + result->qualifiedType.typeDeclaration->name);
     }
 
-    expectToken(Token::Type::IDENTIFIER, tokens, iterator);
+    expectToken(Token::Type::IDENTIFIER, iterator, tokens.end());
 
     result->name = iterator->value;
 
     ++iterator;
 
-    expectToken(Token::Type::SEMICOLON, tokens, iterator);
+    expectToken(Token::Type::SEMICOLON, iterator, tokens.end());
 
     ++iterator;
 
@@ -1248,39 +1248,39 @@ Statement* ASTContext::parseStatement(const std::vector<Token>& tokens,
                                       std::vector<std::vector<Declaration*>>& declarationScopes,
                                       Construct* parent)
 {
-    if (isToken(Token::Type::LEFT_BRACE, tokens, iterator))
+    if (isToken(Token::Type::LEFT_BRACE, iterator, tokens.end()))
     {
         return parseCompoundStatement(tokens, iterator, declarationScopes, parent);
     }
-    else if (isToken(Token::Type::KEYWORD_IF, tokens, iterator))
+    else if (isToken(Token::Type::KEYWORD_IF, iterator, tokens.end()))
     {
         return parseIfStatement(tokens, iterator, declarationScopes, parent);
     }
-    else if (isToken(Token::Type::KEYWORD_FOR, tokens, iterator))
+    else if (isToken(Token::Type::KEYWORD_FOR, iterator, tokens.end()))
     {
         return parseForStatement(tokens, iterator, declarationScopes, parent);
     }
-    else if (isToken(Token::Type::KEYWORD_SWITCH, tokens, iterator))
+    else if (isToken(Token::Type::KEYWORD_SWITCH, iterator, tokens.end()))
     {
         return parseSwitchStatement(tokens, iterator, declarationScopes, parent);
     }
-    else if (isToken(Token::Type::KEYWORD_CASE, tokens, iterator))
+    else if (isToken(Token::Type::KEYWORD_CASE, iterator, tokens.end()))
     {
         return parseCaseStatement(tokens, iterator, declarationScopes, parent);
     }
-    else if (isToken(Token::Type::KEYWORD_DEFAULT, tokens, iterator))
+    else if (isToken(Token::Type::KEYWORD_DEFAULT, iterator, tokens.end()))
     {
         return parseDefaultStatement(tokens, iterator, declarationScopes, parent);
     }
-    else if (isToken(Token::Type::KEYWORD_WHILE, tokens, iterator))
+    else if (isToken(Token::Type::KEYWORD_WHILE, iterator, tokens.end()))
     {
         return parseWhileStatement(tokens, iterator, declarationScopes, parent);
     }
-    else if (isToken(Token::Type::KEYWORD_DO, tokens, iterator))
+    else if (isToken(Token::Type::KEYWORD_DO, iterator, tokens.end()))
     {
         return parseDoStatement(tokens, iterator, declarationScopes, parent);
     }
-    else if (isToken(Token::Type::KEYWORD_BREAK, tokens, iterator))
+    else if (isToken(Token::Type::KEYWORD_BREAK, iterator, tokens.end()))
     {
         ++iterator;
 
@@ -1288,13 +1288,13 @@ Statement* ASTContext::parseStatement(const std::vector<Token>& tokens,
         constructs.push_back(std::unique_ptr<Construct>(result = new BreakStatement()));
         result->parent = parent;
 
-        expectToken(Token::Type::SEMICOLON, tokens, iterator);
+        expectToken(Token::Type::SEMICOLON, iterator, tokens.end());
 
         ++iterator;
 
         return result;
     }
-    else if (isToken(Token::Type::KEYWORD_CONTINUE, tokens, iterator))
+    else if (isToken(Token::Type::KEYWORD_CONTINUE, iterator, tokens.end()))
     {
         ++iterator;
 
@@ -1302,13 +1302,13 @@ Statement* ASTContext::parseStatement(const std::vector<Token>& tokens,
         constructs.push_back(std::unique_ptr<Construct>(result = new ContinueStatement()));
         result->parent = parent;
 
-        expectToken(Token::Type::SEMICOLON, tokens, iterator);
+        expectToken(Token::Type::SEMICOLON, iterator, tokens.end());
 
         ++iterator;
 
         return result;
     }
-    else if (isToken(Token::Type::KEYWORD_RETURN, tokens, iterator))
+    else if (isToken(Token::Type::KEYWORD_RETURN, iterator, tokens.end()))
     {
         ++iterator;
 
@@ -1343,7 +1343,7 @@ Statement* ASTContext::parseStatement(const std::vector<Token>& tokens,
         if (callableDeclaration->qualifiedType.typeDeclaration != result->result->qualifiedType.typeDeclaration)
             throw std::runtime_error("Invalid type for a return statement");
 
-        expectToken(Token::Type::SEMICOLON, tokens, iterator);
+        expectToken(Token::Type::SEMICOLON, iterator, tokens.end());
 
         ++iterator;
 
@@ -1361,13 +1361,13 @@ Statement* ASTContext::parseStatement(const std::vector<Token>& tokens,
         if (result->declaration->getDeclarationKind() != Declaration::Kind::VARIABLE)
             throw std::runtime_error("Expected a variable declaration");
 
-        expectToken(Token::Type::SEMICOLON, tokens, iterator);
+        expectToken(Token::Type::SEMICOLON, iterator, tokens.end());
 
         ++iterator;
 
         return result;
     }
-    else if (isToken(Token::Type::SEMICOLON, tokens, iterator))
+    else if (isToken(Token::Type::SEMICOLON, iterator, tokens.end()))
     {
         ++iterator;
 
@@ -1377,17 +1377,17 @@ Statement* ASTContext::parseStatement(const std::vector<Token>& tokens,
 
         return statement;
     }
-    else if (isToken(Token::Type::KEYWORD_ASM, tokens, iterator))
+    else if (isToken(Token::Type::KEYWORD_ASM, iterator, tokens.end()))
     {
         throw std::runtime_error("asm statements are not supported");
     }
-    else if (isToken(Token::Type::KEYWORD_GOTO, tokens, iterator))
+    else if (isToken(Token::Type::KEYWORD_GOTO, iterator, tokens.end()))
     {
         throw std::runtime_error("goto statements are not supported");
     }
     else if (isToken({Token::Type::KEYWORD_TRY,
         Token::Type::KEYWORD_CATCH,
-        Token::Type::KEYWORD_THROW}, tokens, iterator))
+        Token::Type::KEYWORD_THROW}, iterator, tokens.end()))
     {
         throw std::runtime_error("Exceptions are not supported");
     }
@@ -1400,7 +1400,7 @@ Statement* ASTContext::parseStatement(const std::vector<Token>& tokens,
         if (!(result->expression = parseExpression(tokens, iterator, declarationScopes, result)))
             return nullptr;
 
-        expectToken(Token::Type::SEMICOLON, tokens, iterator);
+        expectToken(Token::Type::SEMICOLON, iterator, tokens.end());
 
         ++iterator;
 
@@ -1415,7 +1415,7 @@ CompoundStatement* ASTContext::parseCompoundStatement(const std::vector<Token>& 
                                                       std::vector<std::vector<Declaration*>>& declarationScopes,
                                                       Construct* parent)
 {
-    expectToken(Token::Type::LEFT_BRACE, tokens, iterator);
+    expectToken(Token::Type::LEFT_BRACE, iterator, tokens.end());
 
     ++iterator;
 
@@ -1427,7 +1427,7 @@ CompoundStatement* ASTContext::parseCompoundStatement(const std::vector<Token>& 
 
     for (;;)
     {
-        if (isToken(Token::Type::RIGHT_BRACE, tokens, iterator))
+        if (isToken(Token::Type::RIGHT_BRACE, iterator, tokens.end()))
         {
             ++iterator;
             break;
@@ -1452,7 +1452,7 @@ IfStatement* ASTContext::parseIfStatement(const std::vector<Token>& tokens,
                                           std::vector<std::vector<Declaration*>>& declarationScopes,
                                           Construct* parent)
 {
-    expectToken(Token::Type::KEYWORD_IF, tokens, iterator);
+    expectToken(Token::Type::KEYWORD_IF, iterator, tokens.end());
 
     ++iterator;
 
@@ -1460,7 +1460,7 @@ IfStatement* ASTContext::parseIfStatement(const std::vector<Token>& tokens,
     constructs.push_back(std::unique_ptr<Construct>(result = new IfStatement()));
     result->parent = parent;
 
-    expectToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator);
+    expectToken(Token::Type::LEFT_PARENTHESIS, iterator, tokens.end());
 
     ++iterator;
 
@@ -1483,7 +1483,7 @@ IfStatement* ASTContext::parseIfStatement(const std::vector<Token>& tokens,
             return nullptr;
     }
 
-    expectToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator);
+    expectToken(Token::Type::RIGHT_PARENTHESIS, iterator, tokens.end());
 
     ++iterator;
 
@@ -1493,7 +1493,7 @@ IfStatement* ASTContext::parseIfStatement(const std::vector<Token>& tokens,
 
     result->body = statement;
 
-    if (isToken(Token::Type::KEYWORD_ELSE, tokens, iterator))
+    if (isToken(Token::Type::KEYWORD_ELSE, iterator, tokens.end()))
     {
         ++iterator;
 
@@ -1511,7 +1511,7 @@ ForStatement* ASTContext::parseForStatement(const std::vector<Token>& tokens,
                                             std::vector<std::vector<Declaration*>>& declarationScopes,
                                             Construct* parent)
 {
-    expectToken(Token::Type::KEYWORD_FOR, tokens, iterator);
+    expectToken(Token::Type::KEYWORD_FOR, iterator, tokens.end());
 
     ++iterator;
 
@@ -1519,7 +1519,7 @@ ForStatement* ASTContext::parseForStatement(const std::vector<Token>& tokens,
     constructs.push_back(std::unique_ptr<Construct>(result = new ForStatement()));
     result->parent = parent;
 
-    expectToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator);
+    expectToken(Token::Type::LEFT_PARENTHESIS, iterator, tokens.end());
 
     ++iterator;
 
@@ -1535,11 +1535,11 @@ ForStatement* ASTContext::parseForStatement(const std::vector<Token>& tokens,
 
         result->condition = declaration;
 
-        expectToken(Token::Type::SEMICOLON, tokens, iterator);
+        expectToken(Token::Type::SEMICOLON, iterator, tokens.end());
 
         ++iterator;
     }
-    else if (isToken(Token::Type::SEMICOLON, tokens, iterator))
+    else if (isToken(Token::Type::SEMICOLON, iterator, tokens.end()))
     {
         ++iterator;
 
@@ -1550,7 +1550,7 @@ ForStatement* ASTContext::parseForStatement(const std::vector<Token>& tokens,
         if (!(result->initialization = parseExpression(tokens, iterator, declarationScopes, result)))
             return nullptr;
 
-        expectToken(Token::Type::SEMICOLON, tokens, iterator);
+        expectToken(Token::Type::SEMICOLON, iterator, tokens.end());
 
         ++iterator;
     }
@@ -1568,11 +1568,11 @@ ForStatement* ASTContext::parseForStatement(const std::vector<Token>& tokens,
 
         result->condition = declaration;
 
-        expectToken(Token::Type::SEMICOLON, tokens, iterator);
+        expectToken(Token::Type::SEMICOLON, iterator, tokens.end());
 
         ++iterator;
     }
-    else if (isToken(Token::Type::SEMICOLON, tokens, iterator))
+    else if (isToken(Token::Type::SEMICOLON, iterator, tokens.end()))
     {
         ++iterator;
 
@@ -1583,12 +1583,12 @@ ForStatement* ASTContext::parseForStatement(const std::vector<Token>& tokens,
         if (!(result->condition = parseExpression(tokens, iterator, declarationScopes, result)))
             return nullptr;
 
-        expectToken(Token::Type::SEMICOLON, tokens, iterator);
+        expectToken(Token::Type::SEMICOLON, iterator, tokens.end());
 
         ++iterator;
     }
 
-    if (isToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator))
+    if (isToken(Token::Type::RIGHT_PARENTHESIS, iterator, tokens.end()))
     {
         ++iterator;
 
@@ -1599,7 +1599,7 @@ ForStatement* ASTContext::parseForStatement(const std::vector<Token>& tokens,
         if (!(result->increment = parseExpression(tokens, iterator, declarationScopes, result)))
             return nullptr;
 
-        expectToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator);
+        expectToken(Token::Type::RIGHT_PARENTHESIS, iterator, tokens.end());
 
         ++iterator;
     }
@@ -1615,7 +1615,7 @@ SwitchStatement* ASTContext::parseSwitchStatement(const std::vector<Token>& toke
                                                   std::vector<std::vector<Declaration*>>& declarationScopes,
                                                   Construct* parent)
 {
-    expectToken(Token::Type::KEYWORD_SWITCH, tokens, iterator);
+    expectToken(Token::Type::KEYWORD_SWITCH, iterator, tokens.end());
 
     ++iterator;
 
@@ -1623,7 +1623,7 @@ SwitchStatement* ASTContext::parseSwitchStatement(const std::vector<Token>& toke
     constructs.push_back(std::unique_ptr<Construct>(result = new SwitchStatement()));
     result->parent = parent;
 
-    expectToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator);
+    expectToken(Token::Type::LEFT_PARENTHESIS, iterator, tokens.end());
 
     ++iterator;
 
@@ -1646,7 +1646,7 @@ SwitchStatement* ASTContext::parseSwitchStatement(const std::vector<Token>& toke
             return nullptr;
     }
 
-    expectToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator);
+    expectToken(Token::Type::RIGHT_PARENTHESIS, iterator, tokens.end());
 
     ++iterator;
 
@@ -1661,7 +1661,7 @@ CaseStatement* ASTContext::parseCaseStatement(const std::vector<Token>& tokens,
                                               std::vector<std::vector<Declaration*>>& declarationScopes,
                                               Construct* parent)
 {
-    expectToken(Token::Type::KEYWORD_CASE, tokens, iterator);
+    expectToken(Token::Type::KEYWORD_CASE, iterator, tokens.end());
 
     ++iterator;
 
@@ -1672,7 +1672,7 @@ CaseStatement* ASTContext::parseCaseStatement(const std::vector<Token>& tokens,
     if (!(result->condition = parseExpression(tokens, iterator, declarationScopes, result)))
         throw std::runtime_error("Expected an expression");
 
-    expectToken(Token::Type::COLON, tokens, iterator);
+    expectToken(Token::Type::COLON, iterator, tokens.end());
 
     ++iterator;
 
@@ -1687,7 +1687,7 @@ DefaultStatement* ASTContext::parseDefaultStatement(const std::vector<Token>& to
                                                     std::vector<std::vector<Declaration*>>& declarationScopes,
                                                     Construct* parent)
 {
-    expectToken(Token::Type::KEYWORD_DEFAULT, tokens, iterator);
+    expectToken(Token::Type::KEYWORD_DEFAULT, iterator, tokens.end());
 
     ++iterator;
 
@@ -1695,7 +1695,7 @@ DefaultStatement* ASTContext::parseDefaultStatement(const std::vector<Token>& to
     constructs.push_back(std::unique_ptr<Construct>(result = new DefaultStatement()));
     result->parent = parent;
 
-    expectToken(Token::Type::COLON, tokens, iterator);
+    expectToken(Token::Type::COLON, iterator, tokens.end());
 
     ++iterator;
 
@@ -1710,7 +1710,7 @@ WhileStatement* ASTContext::parseWhileStatement(const std::vector<Token>& tokens
                                                 std::vector<std::vector<Declaration*>>& declarationScopes,
                                                 Construct* parent)
 {
-    expectToken(Token::Type::KEYWORD_WHILE, tokens, iterator);
+    expectToken(Token::Type::KEYWORD_WHILE, iterator, tokens.end());
 
     ++iterator;
 
@@ -1718,7 +1718,7 @@ WhileStatement* ASTContext::parseWhileStatement(const std::vector<Token>& tokens
     constructs.push_back(std::unique_ptr<Construct>(result = new WhileStatement()));
     result->parent = parent;
 
-    expectToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator);
+    expectToken(Token::Type::LEFT_PARENTHESIS, iterator, tokens.end());
 
     ++iterator;
 
@@ -1741,7 +1741,7 @@ WhileStatement* ASTContext::parseWhileStatement(const std::vector<Token>& tokens
             return nullptr;
     }
 
-    expectToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator);
+    expectToken(Token::Type::RIGHT_PARENTHESIS, iterator, tokens.end());
 
     ++iterator;
 
@@ -1756,7 +1756,7 @@ DoStatement* ASTContext::parseDoStatement(const std::vector<Token>& tokens,
                                           std::vector<std::vector<Declaration*>>& declarationScopes,
                                           Construct* parent)
 {
-    expectToken(Token::Type::KEYWORD_DO, tokens, iterator);
+    expectToken(Token::Type::KEYWORD_DO, iterator, tokens.end());
 
     ++iterator;
 
@@ -1767,11 +1767,11 @@ DoStatement* ASTContext::parseDoStatement(const std::vector<Token>& tokens,
     if (!(result->body = parseStatement(tokens, iterator, declarationScopes, result)))
         return nullptr;
 
-    expectToken(Token::Type::KEYWORD_WHILE, tokens, iterator);
+    expectToken(Token::Type::KEYWORD_WHILE, iterator, tokens.end());
 
     ++iterator;
 
-    expectToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator);
+    expectToken(Token::Type::LEFT_PARENTHESIS, iterator, tokens.end());
 
     ++iterator;
 
@@ -1780,11 +1780,11 @@ DoStatement* ASTContext::parseDoStatement(const std::vector<Token>& tokens,
     if (!(result->condition = parseExpression(tokens, iterator, declarationScopes, result)))
         return nullptr;
 
-    expectToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator);
+    expectToken(Token::Type::RIGHT_PARENTHESIS, iterator, tokens.end());
 
     ++iterator;
 
-    expectToken(Token::Type::SEMICOLON, tokens, iterator);
+    expectToken(Token::Type::SEMICOLON, iterator, tokens.end());
 
     ++iterator;
 
@@ -1810,7 +1810,7 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
                                                std::vector<std::vector<Declaration*>>& declarationScopes,
                                                Construct* parent)
 {
-    if (isToken(Token::Type::LITERAL_INT, tokens, iterator))
+    if (isToken(Token::Type::LITERAL_INT, iterator, tokens.end()))
     {
         IntegerLiteralExpression* result;
         constructs.push_back(std::unique_ptr<Construct>(result = new IntegerLiteralExpression()));
@@ -1823,7 +1823,7 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
 
         return result;
     }
-    else if (isToken(Token::Type::LITERAL_FLOAT, tokens, iterator))
+    else if (isToken(Token::Type::LITERAL_FLOAT, iterator, tokens.end()))
     {
         FloatingPointLiteralExpression* result;
         constructs.push_back(std::unique_ptr<Construct>(result = new FloatingPointLiteralExpression()));
@@ -1836,11 +1836,11 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
 
         return result;
     }
-    else if (isToken({Token::Type::LITERAL_DOUBLE, Token::Type::KEYWORD_DOUBLE}, tokens, iterator))
+    else if (isToken({Token::Type::LITERAL_DOUBLE, Token::Type::KEYWORD_DOUBLE}, iterator, tokens.end()))
     {
         throw std::runtime_error("Double precision floating point numbers are not supported");
     }
-    else if (isToken(Token::Type::LITERAL_STRING, tokens, iterator))
+    else if (isToken(Token::Type::LITERAL_STRING, iterator, tokens.end()))
     {
         StringLiteralExpression* result;
         constructs.push_back(std::unique_ptr<Construct>(result = new StringLiteralExpression()));
@@ -1853,7 +1853,7 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
 
         return result;
     }
-    else if (isToken({Token::Type::KEYWORD_TRUE, Token::Type::KEYWORD_FALSE}, tokens, iterator))
+    else if (isToken({Token::Type::KEYWORD_TRUE, Token::Type::KEYWORD_FALSE}, iterator, tokens.end()))
     {
         BooleanLiteralExpression* result;
         constructs.push_back(std::unique_ptr<Construct>(result = new BooleanLiteralExpression()));
@@ -1866,31 +1866,31 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
 
         return result;
     }
-    else if (isToken({Token::Type::KEYWORD_BOOL, Token::Type::KEYWORD_INT, Token::Type::KEYWORD_FLOAT}, tokens, iterator))
+    else if (isToken({Token::Type::KEYWORD_BOOL, Token::Type::KEYWORD_INT, Token::Type::KEYWORD_FLOAT}, iterator, tokens.end()))
     {
         // TODO: parse type and fix precedence
         CastExpression* result;
         constructs.push_back(std::unique_ptr<Construct>(result = new CastExpression(CastExpression::Kind::FUNCTIONAL)));
 
-        if (isToken(Token::Type::KEYWORD_BOOL, tokens, iterator)) result->qualifiedType.typeDeclaration = boolTypeDeclaration;
-        else if(isToken(Token::Type::KEYWORD_INT, tokens, iterator)) result->qualifiedType.typeDeclaration = intTypeDeclaration;
-        else if(isToken(Token::Type::KEYWORD_FLOAT, tokens, iterator)) result->qualifiedType.typeDeclaration = floatTypeDeclaration;
+        if (isToken(Token::Type::KEYWORD_BOOL, iterator, tokens.end())) result->qualifiedType.typeDeclaration = boolTypeDeclaration;
+        else if(isToken(Token::Type::KEYWORD_INT, iterator, tokens.end())) result->qualifiedType.typeDeclaration = intTypeDeclaration;
+        else if(isToken(Token::Type::KEYWORD_FLOAT, iterator, tokens.end())) result->qualifiedType.typeDeclaration = floatTypeDeclaration;
 
         ++iterator;
 
-        expectToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator);
+        expectToken(Token::Type::LEFT_PARENTHESIS, iterator, tokens.end());
 
         ++iterator;
 
         result->expression = parseMultiplicationAssignmentExpression(tokens, iterator, declarationScopes, result);
 
-        expectToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator);
+        expectToken(Token::Type::RIGHT_PARENTHESIS, iterator, tokens.end());
 
         ++iterator;
 
         return result;
     }
-    else if (isToken(Token::Type::LEFT_BRACE, tokens, iterator))
+    else if (isToken(Token::Type::LEFT_BRACE, iterator, tokens.end()))
     {
         ++iterator;
 
@@ -1920,13 +1920,13 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
 
             result->expressions.push_back(expression);
 
-            if (!isToken(Token::Type::COMMA, tokens, iterator))
+            if (!isToken(Token::Type::COMMA, iterator, tokens.end()))
                 break;
 
             ++iterator;
         }
 
-        expectToken(Token::Type::RIGHT_BRACE, tokens, iterator);
+        expectToken(Token::Type::RIGHT_BRACE, iterator, tokens.end());
 
         result->qualifiedType.typeDeclaration = getArrayTypeDeclaration(qualifiedType, static_cast<uint32_t>(result->expressions.size()));
 
@@ -1934,13 +1934,13 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
 
         return result;
     }
-    else if (isToken(Token::Type::IDENTIFIER, tokens, iterator))
+    else if (isToken(Token::Type::IDENTIFIER, iterator, tokens.end()))
     {
         std::string name = iterator->value;
 
         ++iterator;
 
-        if (isToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
+        if (isToken(Token::Type::LEFT_PARENTHESIS, iterator, tokens.end()))
         {
             ++iterator;
 
@@ -1956,7 +1956,7 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
 
                 std::vector<QualifiedType> parameters;
 
-                if (isToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator)) // no arguments
+                if (isToken(Token::Type::RIGHT_PARENTHESIS, iterator, tokens.end())) // no arguments
                 {
                     ++iterator;
                 }
@@ -1972,13 +1972,13 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
                         result->parameters.push_back(parameter);
                         parameters.push_back(parameter->qualifiedType);
 
-                        if (isToken(Token::Type::COMMA, tokens, iterator))
+                        if (isToken(Token::Type::COMMA, iterator, tokens.end()))
                             ++iterator;
                         else
                             break;
                     }
 
-                    expectToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator);
+                    expectToken(Token::Type::RIGHT_PARENTHESIS, iterator, tokens.end());
 
                     ++iterator;
                 }
@@ -2001,7 +2001,7 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
 
                 std::vector<QualifiedType> parameters;
 
-                if (isToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator)) // no arguments
+                if (isToken(Token::Type::RIGHT_PARENTHESIS, iterator, tokens.end())) // no arguments
                 {
                     ++iterator;
                 }
@@ -2017,13 +2017,13 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
                         result->parameters.push_back(parameter);
                         parameters.push_back(parameter->qualifiedType);
 
-                        if (isToken(Token::Type::COMMA, tokens, iterator))
+                        if (isToken(Token::Type::COMMA, iterator, tokens.end()))
                             ++iterator;
                         else
                             break;
                     }
 
-                    expectToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator);
+                    expectToken(Token::Type::RIGHT_PARENTHESIS, iterator, tokens.end());
 
                     ++iterator;
                 }
@@ -2087,7 +2087,7 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
             return result;
         }
     }
-    else if (isToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator))
+    else if (isToken(Token::Type::LEFT_PARENTHESIS, iterator, tokens.end()))
     {
         ++iterator;
 
@@ -2100,7 +2100,7 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
             // TODO: parse qualifiers
             result->qualifiedType.typeDeclaration = parseType(tokens, iterator, declarationScopes);
 
-            expectToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator);
+            expectToken(Token::Type::RIGHT_PARENTHESIS, iterator, tokens.end());
             ++iterator;
 
             result->expression = parseExpression(tokens, iterator, declarationScopes, result);
@@ -2117,7 +2117,7 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
             if (!(result->expression = parseExpression(tokens, iterator, declarationScopes, result)))
                 return nullptr;
 
-            expectToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator);
+            expectToken(Token::Type::RIGHT_PARENTHESIS, iterator, tokens.end());
 
             ++iterator;
 
@@ -2130,7 +2130,7 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
     else if (isToken({Token::Type::KEYWORD_CONST_CAST,
         Token::Type::KEYWORD_DYNAMIC_CAST,
         Token::Type::KEYWORD_REINTERPRET_CAST,
-        Token::Type::KEYWORD_STATIC_CAST}, tokens, iterator))
+        Token::Type::KEYWORD_STATIC_CAST}, iterator, tokens.end()))
     {
         CastExpression::Kind castKind = CastExpression::Kind::NONE;
         
@@ -2149,29 +2149,29 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
         
         ++iterator;
         
-        expectToken(Token::Type::OPERATOR_LESS_THAN, tokens, iterator);
+        expectToken(Token::Type::OPERATOR_LESS_THAN, iterator, tokens.end());
         ++iterator;
         
         // TODO: parse qualifiers
         result->qualifiedType.typeDeclaration = parseType(tokens, iterator, declarationScopes);
         
-        expectToken(Token::Type::OPERATOR_GREATER_THAN, tokens, iterator);
+        expectToken(Token::Type::OPERATOR_GREATER_THAN, iterator, tokens.end());
         ++iterator;
         
-        expectToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator);
+        expectToken(Token::Type::LEFT_PARENTHESIS, iterator, tokens.end());
         ++iterator;
         
         if (!(result->expression = parseExpression(tokens, iterator, declarationScopes, result)))
             return nullptr;
         
-        expectToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator);
+        expectToken(Token::Type::RIGHT_PARENTHESIS, iterator, tokens.end());
         ++iterator;
         
         result->isLValue = false;
         
         return result;
     }
-    else if (isToken(Token::Type::KEYWORD_THIS, tokens, iterator))
+    else if (isToken(Token::Type::KEYWORD_THIS, iterator, tokens.end()))
     {
         // TODO: implement
         throw std::runtime_error("Expression \"this\" is not supported");
@@ -2191,7 +2191,7 @@ Expression* ASTContext::parseSubscriptExpression(const std::vector<Token>& token
     if (!(result = parsePrimaryExpression(tokens, iterator, declarationScopes, parent)))
         return nullptr;
 
-    while (isToken(Token::Type::LEFT_BRACKET, tokens, iterator))
+    while (isToken(Token::Type::LEFT_BRACKET, iterator, tokens.end()))
     {
         ++iterator;
 
@@ -2222,7 +2222,7 @@ Expression* ASTContext::parseSubscriptExpression(const std::vector<Token>& token
         if (scalarType->getScalarTypeKind() != ScalarTypeDeclaration::Kind::INTEGER)
             expression->subscript = addImplicitCast(expression->subscript, intTypeDeclaration);
 
-        expectToken(Token::Type::RIGHT_BRACKET, tokens, iterator);
+        expectToken(Token::Type::RIGHT_BRACKET, iterator, tokens.end());
 
         ++iterator;
 
@@ -2247,9 +2247,9 @@ Expression* ASTContext::parseMemberExpression(const std::vector<Token>& tokens,
     if (!(result = parseSubscriptExpression(tokens, iterator, declarationScopes, parent)))
         return nullptr;
 
-    while (isToken({Token::Type::OPERATOR_DOT, Token::Type::OPERATOR_ARROW}, tokens, iterator))
+    while (isToken({Token::Type::OPERATOR_DOT, Token::Type::OPERATOR_ARROW}, iterator, tokens.end()))
     {
-        if (isToken(Token::Type::OPERATOR_ARROW, tokens, iterator))
+        if (isToken(Token::Type::OPERATOR_ARROW, iterator, tokens.end()))
             throw std::runtime_error("Pointer member access is not supported");
 
         ++iterator;
@@ -2270,7 +2270,7 @@ Expression* ASTContext::parseMemberExpression(const std::vector<Token>& tokens,
 
         StructDeclaration* structDeclaration = static_cast<StructDeclaration*>(result->qualifiedType.typeDeclaration);
 
-        expectToken(Token::Type::IDENTIFIER, tokens, iterator);
+        expectToken(Token::Type::IDENTIFIER, iterator, tokens.end());
 
         Declaration* memberDeclaration = structDeclaration->findMemberDeclaration(iterator->value);
 
@@ -2303,7 +2303,7 @@ Expression* ASTContext::parseSignExpression(const std::vector<Token>& tokens,
                                             std::vector<std::vector<Declaration*>>& declarationScopes,
                                             Construct* parent)
 {
-    if (isToken({Token::Type::OPERATOR_PLUS, Token::Type::OPERATOR_MINUS}, tokens, iterator))
+    if (isToken({Token::Type::OPERATOR_PLUS, Token::Type::OPERATOR_MINUS}, iterator, tokens.end()))
     {
         UnaryOperatorExpression* result;
         constructs.push_back(std::unique_ptr<Construct>(result = new UnaryOperatorExpression()));
@@ -2346,7 +2346,7 @@ Expression* ASTContext::parseNotExpression(const std::vector<Token>& tokens,
                                            std::vector<std::vector<Declaration*>>& declarationScopes,
                                            Construct* parent)
 {
-    if (isToken({Token::Type::OPERATOR_NOT, Token::Type::KEYWORD_NOT}, tokens, iterator))
+    if (isToken({Token::Type::OPERATOR_NOT, Token::Type::KEYWORD_NOT}, iterator, tokens.end()))
     {
         UnaryOperatorExpression* result;
         constructs.push_back(std::unique_ptr<Construct>(result = new UnaryOperatorExpression()));
@@ -2383,7 +2383,7 @@ Expression* ASTContext::parseSizeofExpression(const std::vector<Token>& tokens,
                                               std::vector<std::vector<Declaration*>>& declarationScopes,
                                               Construct* parent)
 {
-    if (isToken(Token::Type::KEYWORD_SIZEOF, tokens, iterator))
+    if (isToken(Token::Type::KEYWORD_SIZEOF, iterator, tokens.end()))
     {
         SizeofExpression* result;
         constructs.push_back(std::unique_ptr<Construct>(result = new SizeofExpression()));
@@ -2391,7 +2391,7 @@ Expression* ASTContext::parseSizeofExpression(const std::vector<Token>& tokens,
         
         ++iterator;
         
-        expectToken(Token::Type::LEFT_PARENTHESIS, tokens, iterator);
+        expectToken(Token::Type::LEFT_PARENTHESIS, iterator, tokens.end());
         ++iterator;
         
         if (isType(tokens, iterator, declarationScopes))
@@ -2405,7 +2405,7 @@ Expression* ASTContext::parseSizeofExpression(const std::vector<Token>& tokens,
                 return nullptr;
         }
         
-        expectToken(Token::Type::RIGHT_PARENTHESIS, tokens, iterator);
+        expectToken(Token::Type::RIGHT_PARENTHESIS, iterator, tokens.end());
         ++iterator;
         
         result->qualifiedType.typeDeclaration = unsignedIntTypeDeclaration;
@@ -2431,7 +2431,7 @@ Expression* ASTContext::parseMultiplicationExpression(const std::vector<Token>& 
     if (!(result = parseSizeofExpression(tokens, iterator, declarationScopes, parent)))
         return nullptr;
 
-    while (isToken({Token::Type::OPERATOR_MULTIPLY, Token::Type::OPERATOR_DIVIDE}, tokens, iterator))
+    while (isToken({Token::Type::OPERATOR_MULTIPLY, Token::Type::OPERATOR_DIVIDE}, iterator, tokens.end()))
     {
         BinaryOperatorExpression* expression;
         constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression()));
@@ -2473,7 +2473,7 @@ Expression* ASTContext::parseAdditionExpression(const std::vector<Token>& tokens
     if (!(result = parseMultiplicationExpression(tokens, iterator, declarationScopes, parent)))
         return nullptr;
 
-    while (isToken({Token::Type::OPERATOR_PLUS, Token::Type::OPERATOR_MINUS}, tokens, iterator))
+    while (isToken({Token::Type::OPERATOR_PLUS, Token::Type::OPERATOR_MINUS}, iterator, tokens.end()))
     {
         BinaryOperatorExpression* expression;
         constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression()));
@@ -2515,7 +2515,7 @@ Expression* ASTContext::parseLessThanExpression(const std::vector<Token>& tokens
     if (!(result = parseAdditionExpression(tokens, iterator, declarationScopes, parent)))
         return nullptr;
 
-    while (isToken({Token::Type::OPERATOR_LESS_THAN, Token::Type::OPERATOR_LESS_THAN_EQUAL}, tokens, iterator))
+    while (isToken({Token::Type::OPERATOR_LESS_THAN, Token::Type::OPERATOR_LESS_THAN_EQUAL}, iterator, tokens.end()))
     {
         BinaryOperatorExpression* expression;
         constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression()));
@@ -2557,7 +2557,7 @@ Expression* ASTContext::parseGreaterThanExpression(const std::vector<Token>& tok
     if (!(result = parseLessThanExpression(tokens, iterator, declarationScopes, parent)))
         return nullptr;
 
-    while (isToken({Token::Type::OPERATOR_GREATER_THAN, Token::Type::OPERATOR_GREATER_THAN_EQUAL}, tokens, iterator))
+    while (isToken({Token::Type::OPERATOR_GREATER_THAN, Token::Type::OPERATOR_GREATER_THAN_EQUAL}, iterator, tokens.end()))
     {
         BinaryOperatorExpression* expression;
         constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression()));
@@ -2599,7 +2599,7 @@ Expression* ASTContext::parseEqualityExpression(const std::vector<Token>& tokens
     if (!(result = parseGreaterThanExpression(tokens, iterator, declarationScopes, parent)))
         return nullptr;
 
-    while (isToken({Token::Type::OPERATOR_EQUAL, Token::Type::OPERATOR_NOT_EQUAL, Token::Type::KEYWORD_NOT_EQ}, tokens, iterator))
+    while (isToken({Token::Type::OPERATOR_EQUAL, Token::Type::OPERATOR_NOT_EQUAL, Token::Type::KEYWORD_NOT_EQ}, iterator, tokens.end()))
     {
         BinaryOperatorExpression* expression;
         constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression()));
@@ -2641,7 +2641,7 @@ Expression* ASTContext::parseLogicalAndExpression(const std::vector<Token>& toke
     if (!(result = parseEqualityExpression(tokens, iterator, declarationScopes, parent)))
         return nullptr;
 
-    while (isToken({Token::Type::OPERATOR_AND, Token::Type::KEYWORD_AND}, tokens, iterator))
+    while (isToken({Token::Type::OPERATOR_AND, Token::Type::KEYWORD_AND}, iterator, tokens.end()))
     {
         ++iterator;
 
@@ -2679,7 +2679,7 @@ Expression* ASTContext::parseLogicalOrExpression(const std::vector<Token>& token
     if (!(result = parseLogicalAndExpression(tokens, iterator, declarationScopes, parent)))
         return nullptr;
 
-    while (isToken({Token::Type::OPERATOR_OR, Token::Type::KEYWORD_OR}, tokens, iterator))
+    while (isToken({Token::Type::OPERATOR_OR, Token::Type::KEYWORD_OR}, iterator, tokens.end()))
     {
         ++iterator;
 
@@ -2717,7 +2717,7 @@ Expression* ASTContext::parseTernaryExpression(const std::vector<Token>& tokens,
     if (!(result = parseLogicalOrExpression(tokens, iterator, declarationScopes, parent)))
         return nullptr;
 
-    while (isToken(Token::Type::OPERATOR_CONDITIONAL, tokens, iterator))
+    while (isToken(Token::Type::OPERATOR_CONDITIONAL, iterator, tokens.end()))
     {
         ++iterator;
 
@@ -2732,7 +2732,7 @@ Expression* ASTContext::parseTernaryExpression(const std::vector<Token>& tokens,
         if (!(expression->leftExpression = parseTernaryExpression(tokens, iterator, declarationScopes, expression)))
             return nullptr;
 
-        expectToken(Token::Type::COLON, tokens, iterator);
+        expectToken(Token::Type::COLON, iterator, tokens.end());
 
         ++iterator;
 
@@ -2759,7 +2759,7 @@ Expression* ASTContext::parseAssignmentExpression(const std::vector<Token>& toke
     if (!(result = parseTernaryExpression(tokens, iterator, declarationScopes, parent)))
         return nullptr;
 
-    while (isToken(Token::Type::OPERATOR_ASSIGNMENT, tokens, iterator))
+    while (isToken(Token::Type::OPERATOR_ASSIGNMENT, iterator, tokens.end()))
     {
         ++iterator;
 
@@ -2800,7 +2800,7 @@ Expression* ASTContext::parseAdditionAssignmentExpression(const std::vector<Toke
     if (!(result = parseAssignmentExpression(tokens, iterator, declarationScopes, parent)))
         return nullptr;
 
-    while (isToken({Token::Type::OPERATOR_PLUS_ASSIGNMENT, Token::Type::OPERATOR_MINUS_ASSIGNMENT}, tokens, iterator))
+    while (isToken({Token::Type::OPERATOR_PLUS_ASSIGNMENT, Token::Type::OPERATOR_MINUS_ASSIGNMENT}, iterator, tokens.end()))
     {
         BinaryOperatorExpression* expression;
         constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression()));
@@ -2848,7 +2848,7 @@ Expression* ASTContext::parseMultiplicationAssignmentExpression(const std::vecto
     if (!(result = parseAdditionAssignmentExpression(tokens, iterator, declarationScopes, parent)))
         return nullptr;
 
-    while (isToken({Token::Type::OPERATOR_MULTIPLY_ASSIGNMENT, Token::Type::OPERATOR_DIVIDE_ASSIGNMENT}, tokens, iterator))
+    while (isToken({Token::Type::OPERATOR_MULTIPLY_ASSIGNMENT, Token::Type::OPERATOR_DIVIDE_ASSIGNMENT}, iterator, tokens.end()))
     {
         BinaryOperatorExpression* expression;
         constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression()));
@@ -2897,7 +2897,7 @@ Expression* ASTContext::parseCommaExpression(const std::vector<Token>& tokens,
     if (!(result = parseMultiplicationAssignmentExpression(tokens, iterator, declarationScopes, parent)))
         return nullptr;
 
-    while (isToken(Token::Type::COMMA, tokens, iterator))
+    while (isToken(Token::Type::COMMA, iterator, tokens.end()))
     {
         BinaryOperatorExpression* expression;
         constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression()));

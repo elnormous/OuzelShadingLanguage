@@ -30,27 +30,27 @@ public:
 
 private:
     static bool isToken(Token::Type tokenType,
-                        const std::vector<Token>& tokens,
-                        std::vector<Token>::const_iterator iterator)
+                        std::vector<Token>::const_iterator iterator,
+                        std::vector<Token>::const_iterator end)
     {
-        return (iterator != tokens.end() && iterator->type == tokenType);
+        return (iterator != end && iterator->type == tokenType);
     }
 
     static void expectToken(Token::Type tokenType,
-                            const std::vector<Token>& tokens,
-                            std::vector<Token>::const_iterator iterator)
+                            std::vector<Token>::const_iterator iterator,
+                            std::vector<Token>::const_iterator end)
     {
-        if (iterator == tokens.end())
+        if (iterator == end)
             throw std::runtime_error("Unexpected end of file");
         if (iterator->type != tokenType)
             throw std::runtime_error("Expected " + toString(tokenType));
     }
 
     static bool isToken(const std::vector<Token::Type>& tokenTypes,
-                        const std::vector<Token>& tokens,
-                        std::vector<Token>::const_iterator iterator)
+                        std::vector<Token>::const_iterator iterator,
+                        std::vector<Token>::const_iterator end)
     {
-        if (iterator == tokens.end()) return false;
+        if (iterator == end) return false;
 
         for (Token::Type tokenType : tokenTypes)
             if (iterator->type == tokenType) return true;
@@ -59,10 +59,10 @@ private:
     }
 
     static void expectToken(const std::vector<Token::Type>& tokenTypes,
-                            const std::vector<Token>& tokens,
-                            std::vector<Token>::const_iterator iterator)
+                            std::vector<Token>::const_iterator iterator,
+                            std::vector<Token>::const_iterator end)
     {
-        if (iterator == tokens.end())
+        if (iterator == end)
             throw std::runtime_error("Unexpected end of file");
 
         for (Token::Type tokenType : tokenTypes)
