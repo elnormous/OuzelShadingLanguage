@@ -2171,6 +2171,11 @@ Expression* ASTContext::parsePrimaryExpression(const std::vector<Token>& tokens,
         
         return result;
     }
+    else if (isToken(Token::Type::KEYWORD_THIS, tokens, iterator))
+    {
+        // TODO: implement
+        throw std::runtime_error("Expression \"this\" is not supported");
+    }
     else
         throw std::runtime_error("Expected an expression");
 
