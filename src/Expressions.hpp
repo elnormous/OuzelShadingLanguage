@@ -29,12 +29,18 @@ public:
         SIZEOF
     };
 
+    enum class Category: uint8_t
+    {
+        Lvalue,
+        Rvalue
+    };
+
     Expression(Kind initExpressionKind): Construct(Construct::Kind::EXPRESSION), expressionKind(initExpressionKind) {}
 
     inline Kind getExpressionKind() const { return expressionKind; }
 
     QualifiedType qualifiedType;
-    bool isLValue = false;
+    Category category = Category::Rvalue;
 
 protected:
     Kind expressionKind = Kind::NONE;

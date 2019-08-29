@@ -1816,7 +1816,7 @@ Expression* ASTContext::parsePrimaryExpression(std::vector<Token>::const_iterato
         constructs.push_back(std::unique_ptr<Construct>(result = new IntegerLiteralExpression()));
         result->parent = parent;
         result->qualifiedType.typeDeclaration = intTypeDeclaration;
-        result->isLValue = false;
+        result->category = Expression::Category::Rvalue;
         result->value = strtoll(iterator->value.c_str(), nullptr, 0);
 
         ++iterator;
@@ -1829,7 +1829,7 @@ Expression* ASTContext::parsePrimaryExpression(std::vector<Token>::const_iterato
         constructs.push_back(std::unique_ptr<Construct>(result = new FloatingPointLiteralExpression()));
         result->parent = parent;
         result->qualifiedType.typeDeclaration = floatTypeDeclaration;
-        result->isLValue = false;
+        result->category = Expression::Category::Rvalue;
         result->value = strtod(iterator->value.c_str(), nullptr);
 
         ++iterator;
@@ -1846,7 +1846,7 @@ Expression* ASTContext::parsePrimaryExpression(std::vector<Token>::const_iterato
         constructs.push_back(std::unique_ptr<Construct>(result = new StringLiteralExpression()));
         result->parent = parent;
         result->qualifiedType.typeDeclaration = stringTypeDeclaration;
-        result->isLValue = false;
+        result->category = Expression::Category::Rvalue;
         result->value = iterator->value;
 
         ++iterator;
@@ -1859,7 +1859,7 @@ Expression* ASTContext::parsePrimaryExpression(std::vector<Token>::const_iterato
         constructs.push_back(std::unique_ptr<Construct>(result = new BooleanLiteralExpression()));
         result->parent = parent;
         result->qualifiedType.typeDeclaration = boolTypeDeclaration;
-        result->isLValue = false;
+        result->category = Expression::Category::Rvalue;
         result->value = (iterator->type == Token::Type::KEYWORD_TRUE);
 
         ++iterator;
@@ -1952,7 +1952,7 @@ Expression* ASTContext::parsePrimaryExpression(std::vector<Token>::const_iterato
                 constructs.push_back(std::unique_ptr<Construct>(result = new TemporaryObjectExpression()));
                 result->parent = parent;
                 result->qualifiedType.typeDeclaration = typeDeclaration;
-                result->isLValue = false;
+                result->category = Expression::Category::Rvalue;
 
                 std::vector<QualifiedType> parameters;
 
@@ -2039,10 +2039,10 @@ Expression* ASTContext::parsePrimaryExpression(std::vector<Token>::const_iterato
 
                 declRefExpression->declaration = functionDeclaration;
                 declRefExpression->qualifiedType = functionDeclaration->qualifiedType;
-                declRefExpression->isLValue = true;
+                declRefExpression->category = Expression::Category::Lvalue;
                 result->declarationReference = declRefExpression;
                 result->qualifiedType = functionDeclaration->qualifiedType;
-                result->isLValue = false;
+                result->category = Expression::Category::Rvalue;
 
                 return result;
             }
@@ -2063,21 +2063,21 @@ Expression* ASTContext::parsePrimaryExpression(std::vector<Token>::const_iterato
                 {
                     TypeDeclaration* typeDeclaration = static_cast<TypeDeclaration*>(result->declaration);
                     result->qualifiedType.typeDeclaration = typeDeclaration;
-                    result->isLValue = false;
+                    result->category = Expression::Category::Rvalue;
                     break;
                 }
                 case Declaration::Kind::VARIABLE:
                 {
                     VariableDeclaration* variableDeclaration = static_cast<VariableDeclaration*>(result->declaration);
                     result->qualifiedType = variableDeclaration->qualifiedType;
-                    result->isLValue = true;
+                    result->category = Expression::Category::Lvalue;
                     break;
                 }
                 case Declaration::Kind::PARAMETER:
                 {
                     ParameterDeclaration* parameterDeclaration = static_cast<ParameterDeclaration*>(result->declaration);
                     result->qualifiedType = parameterDeclaration->qualifiedType;
-                    result->isLValue = false;
+                    result->category = Expression::Category::Rvalue;
                     break;
                 }
                 default:
@@ -2104,7 +2104,7 @@ Expression* ASTContext::parsePrimaryExpression(std::vector<Token>::const_iterato
             ++iterator;
 
             result->expression = parseExpression(iterator, end, declarationScopes, result);
-            result->isLValue = false;
+            result->category = Expression::Category::Rvalue;
 
             return result;
         }
@@ -2122,7 +2122,7 @@ Expression* ASTContext::parsePrimaryExpression(std::vector<Token>::const_iterato
             ++iterator;
 
             result->qualifiedType = result->expression->qualifiedType;
-            result->isLValue = result->expression->isLValue;
+            result->category = result->expression->category;
 
             return result;
         }
@@ -2167,7 +2167,7 @@ Expression* ASTContext::parsePrimaryExpression(std::vector<Token>::const_iterato
         expectToken(Token::Type::RIGHT_PARENTHESIS, iterator, end);
         ++iterator;
         
-        result->isLValue = false;
+        result->category = Expression::Category::Rvalue;
         
         return result;
     }
@@ -2229,7 +2229,7 @@ Expression* ASTContext::parseSubscriptExpression(std::vector<Token>::const_itera
         ArrayTypeDeclaration* arrayTypeDeclaration = static_cast<ArrayTypeDeclaration*>(result->qualifiedType.typeDeclaration);
 
         expression->qualifiedType = arrayTypeDeclaration->elementType;
-        expression->isLValue = true;
+        expression->category = Expression::Category::Lvalue;
 
         result->parent = expression;
         result = expression;
@@ -2289,7 +2289,7 @@ Expression* ASTContext::parseMemberExpression(std::vector<Token>::const_iterator
 
         expression->qualifiedType = expression->fieldDeclaration->qualifiedType;
         if (result->qualifiedType.isConst) expression->qualifiedType.isConst = true;
-        expression->isLValue = true;
+        expression->category = Expression::Category::Lvalue;
 
         result->parent = expression;
         result = expression;
@@ -2327,7 +2327,7 @@ Expression* ASTContext::parseSignExpression(std::vector<Token>::const_iterator& 
             result->expression = addImplicitCast(result->expression, intTypeDeclaration);
 
         result->qualifiedType = result->operatorDeclaration->qualifiedType;
-        result->isLValue = false;
+        result->category = Expression::Category::Rvalue;
 
         return result;
     }
@@ -2365,7 +2365,7 @@ Expression* ASTContext::parseNotExpression(std::vector<Token>::const_iterator& i
             result->expression = addImplicitCast(result->expression, boolTypeDeclaration);
 
         result->qualifiedType = result->operatorDeclaration->qualifiedType;
-        result->isLValue = false;
+        result->category = Expression::Category::Rvalue;
 
         return result;
     }
@@ -2409,7 +2409,7 @@ Expression* ASTContext::parseSizeofExpression(std::vector<Token>::const_iterator
         ++iterator;
         
         result->qualifiedType.typeDeclaration = unsignedIntTypeDeclaration;
-        result->isLValue = false;
+        result->category = Expression::Category::Rvalue;
         
         return result;
     }
@@ -2455,7 +2455,7 @@ Expression* ASTContext::parseMultiplicationExpression(std::vector<Token>::const_
                                                                      {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
 
         expression->qualifiedType = expression->operatorDeclaration->qualifiedType;
-        expression->isLValue = false;
+        expression->category = Expression::Category::Rvalue;
 
         result->parent = expression;
         result = expression;
@@ -2497,7 +2497,7 @@ Expression* ASTContext::parseAdditionExpression(std::vector<Token>::const_iterat
                                                                      {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
 
         expression->qualifiedType = expression->operatorDeclaration->qualifiedType;
-        expression->isLValue = false;
+        expression->category = Expression::Category::Rvalue;
 
         result->parent = expression;
         result = expression;
@@ -2539,7 +2539,7 @@ Expression* ASTContext::parseLessThanExpression(std::vector<Token>::const_iterat
                                                                      {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
 
         expression->qualifiedType = expression->operatorDeclaration->qualifiedType;
-        expression->isLValue = false;
+        expression->category = Expression::Category::Rvalue;
 
         result->parent = expression;
         result = expression;
@@ -2581,7 +2581,7 @@ Expression* ASTContext::parseGreaterThanExpression(std::vector<Token>::const_ite
                                                                      {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
 
         expression->qualifiedType = expression->operatorDeclaration->qualifiedType;
-        expression->isLValue = false;
+        expression->category = Expression::Category::Rvalue;
 
         result->parent = expression;
         result = expression;
@@ -2623,7 +2623,7 @@ Expression* ASTContext::parseEqualityExpression(std::vector<Token>::const_iterat
                                                                      {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
 
         expression->qualifiedType = expression->operatorDeclaration->qualifiedType;
-        expression->isLValue = false;
+        expression->category = Expression::Category::Rvalue;
 
         result->parent = expression;
         result = expression;
@@ -2661,7 +2661,7 @@ Expression* ASTContext::parseLogicalAndExpression(std::vector<Token>::const_iter
 
         // TODO: check if both sides ar scalar
         expression->qualifiedType = expression->operatorDeclaration->qualifiedType;
-        expression->isLValue = false;
+        expression->category = Expression::Category::Rvalue;
 
         result->parent = expression;
         result = expression;
@@ -2699,7 +2699,7 @@ Expression* ASTContext::parseLogicalOrExpression(std::vector<Token>::const_itera
 
         // TODO: check if both sides ar scalar
         expression->qualifiedType = expression->operatorDeclaration->qualifiedType;
-        expression->isLValue = false;
+        expression->category = Expression::Category::Rvalue;
 
         result->parent = expression;
         result = expression;
@@ -2741,7 +2741,9 @@ Expression* ASTContext::parseTernaryExpression(std::vector<Token>::const_iterato
 
         // TODO: fix this
         expression->qualifiedType = expression->leftExpression->qualifiedType;
-        expression->isLValue = expression->leftExpression->isLValue && expression->rightExpression->isLValue;
+        expression->category = (expression->leftExpression->category == Expression::Category::Lvalue &&
+                                expression->rightExpression->category == Expression::Category::Lvalue) ?
+                                Expression::Category::Lvalue : Expression::Category::Rvalue;
 
         result->parent = expression;
         result = expression;
@@ -2771,7 +2773,7 @@ Expression* ASTContext::parseAssignmentExpression(std::vector<Token>::const_iter
         if (expression->leftExpression->qualifiedType.isConst)
             throw std::runtime_error("Cannot assign to const variable");
 
-        if (!expression->leftExpression->isLValue)
+        if (expression->leftExpression->category != Expression::Category::Lvalue)
             throw std::runtime_error("Expression is not assignable");
 
         if (!(expression->rightExpression = parseTernaryExpression(iterator, end, declarationScopes, expression)))
@@ -2782,7 +2784,7 @@ Expression* ASTContext::parseAssignmentExpression(std::vector<Token>::const_iter
                                                                      {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
 
         expression->qualifiedType = expression->operatorDeclaration->qualifiedType;
-        expression->isLValue = true;
+        expression->category = Expression::Category::Lvalue;
 
         result->parent = expression;
         result = expression;
@@ -2820,7 +2822,7 @@ Expression* ASTContext::parseAdditionAssignmentExpression(std::vector<Token>::co
         if (expression->leftExpression->qualifiedType.isConst)
             throw std::runtime_error("Cannot assign to const variable");
 
-        if (!expression->leftExpression->isLValue)
+        if (expression->leftExpression->category != Expression::Category::Lvalue)
             throw std::runtime_error("Expression is not assignable");
 
         if (!(expression->rightExpression = parseAssignmentExpression(iterator, end, declarationScopes, expression)))
@@ -2830,7 +2832,7 @@ Expression* ASTContext::parseAdditionAssignmentExpression(std::vector<Token>::co
                                                                      {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
 
         expression->qualifiedType = expression->operatorDeclaration->qualifiedType;
-        expression->isLValue = true;
+        expression->category = Expression::Category::Lvalue;
 
         result->parent = expression;
         result = expression;
@@ -2868,7 +2870,7 @@ Expression* ASTContext::parseMultiplicationAssignmentExpression(std::vector<Toke
         if (expression->leftExpression->qualifiedType.isConst)
             throw std::runtime_error("Cannot assign to const variable");
 
-        if (!expression->leftExpression->isLValue)
+        if (expression->leftExpression->category != Expression::Category::Lvalue)
             throw std::runtime_error("Expression is not assignable");
 
         std::unique_ptr<Construct> right;
@@ -2879,7 +2881,7 @@ Expression* ASTContext::parseMultiplicationAssignmentExpression(std::vector<Toke
                                                                      {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
 
         expression->qualifiedType = expression->operatorDeclaration->qualifiedType;
-        expression->isLValue = true;
+        expression->category = Expression::Category::Lvalue;
 
         result->parent = expression;
         result = expression;
@@ -2914,7 +2916,7 @@ Expression* ASTContext::parseCommaExpression(std::vector<Token>::const_iterator&
                                                                      {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
 
         expression->qualifiedType = expression->operatorDeclaration->qualifiedType;
-        expression->isLValue = expression->rightExpression->isLValue;
+        expression->category = expression->rightExpression->category;
 
         result->parent = expression;
         result = expression;
@@ -3390,9 +3392,19 @@ void ASTContext::dumpStatement(const Statement* statement, std::string indent) c
     }
 }
 
+static std::string toString(Expression::Category category)
+{
+    switch (category)
+    {
+        case Expression::Category::Lvalue: return "Lvalue";
+        case Expression::Category::Rvalue: return "Rvalue";
+        default: return "unknown";
+    }
+}
+
 void ASTContext::dumpExpression(const Expression* expression, std::string indent) const
 {
-    std::cout << " " << toString(expression->getExpressionKind()) << ", lvalue: " << (expression->isLValue ? "true" : "false");
+    std::cout << " " << toString(expression->getExpressionKind()) << ", category: " << toString(expression->category);
 
     switch (expression->getExpressionKind())
     {
