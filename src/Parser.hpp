@@ -111,7 +111,7 @@ private:
     {
         TypeDeclaration* typeDeclaration = findTypeDeclaration(name, declarationScopes);
 
-        if (typeDeclaration && typeDeclaration->getTypeKind() == TypeDeclaration::Kind::STRUCT)
+        if (typeDeclaration && typeDeclaration->getTypeKind() == TypeDeclaration::Kind::Struct)
             return static_cast<StructDeclaration*>(typeDeclaration);
 
         return nullptr;
@@ -131,7 +131,7 @@ private:
 
                     CallableDeclaration* callableDeclaration = static_cast<CallableDeclaration*>(*declarationIterator);
 
-                    if (callableDeclaration->getCallableDeclarationKind() != CallableDeclaration::Kind::FUNCTION) return nullptr;
+                    if (callableDeclaration->getCallableDeclarationKind() != CallableDeclaration::Kind::Function) return nullptr;
 
                     FunctionDeclaration* functionDeclaration = static_cast<FunctionDeclaration*>(callableDeclaration);
 

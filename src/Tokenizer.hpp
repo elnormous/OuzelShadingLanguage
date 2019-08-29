@@ -171,7 +171,7 @@ inline std::string toString(Token::Kind kind)
         case Token::Kind::PUNCTUATOR: return "PUNCTUATOR";
         case Token::Kind::OPERATOR: return "OPERATOR";
         case Token::Kind::IDENTIFIER: return "IDENTIFIER";
-        default: return "unknown";
+        default: return "Unknown";
     }
 }
 
@@ -309,7 +309,7 @@ inline std::string toString(Token::Type type)
         case Token::Type::OPERATOR_DOT: return "OPERATOR_DOT";
         case Token::Type::OPERATOR_ARROW: return "OPERATOR_ARROW";
         case Token::Type::OPERATOR_ELLIPSIS: return "OPERATOR_ELLIPSIS";
-        default: return "unknown";
+        default: return "Unknown";
     }
 }
 

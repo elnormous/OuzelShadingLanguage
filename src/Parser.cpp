@@ -15,14 +15,14 @@ ASTContext::ASTContext(const std::vector<Token>& tokens)
     std::vector<std::vector<Declaration*>> declarationScopes;
     declarationScopes.push_back(std::vector<Declaration*>());
 
-    boolTypeDeclaration = addScalarTypeDeclaration("bool", ScalarTypeDeclaration::Kind::BOOLEAN, 1, false, declarationScopes);
+    boolTypeDeclaration = addScalarTypeDeclaration("bool", ScalarTypeDeclaration::Kind::Boolean, 1, false, declarationScopes);
     addOperatorDeclaration(Operator::NEGATION, boolTypeDeclaration, {boolTypeDeclaration}, declarationScopes);
     addOperatorDeclaration(Operator::OR, boolTypeDeclaration, {boolTypeDeclaration, boolTypeDeclaration}, declarationScopes);
     addOperatorDeclaration(Operator::AND, boolTypeDeclaration, {boolTypeDeclaration, boolTypeDeclaration}, declarationScopes);
 
-    intTypeDeclaration = addScalarTypeDeclaration("int", ScalarTypeDeclaration::Kind::INTEGER, 4, false, declarationScopes);
-    unsignedIntTypeDeclaration = addScalarTypeDeclaration("unsigned int", ScalarTypeDeclaration::Kind::INTEGER, 4, true, declarationScopes);
-    floatTypeDeclaration = addScalarTypeDeclaration("float", ScalarTypeDeclaration::Kind::FLOATING_POINT, 4, false, declarationScopes);
+    intTypeDeclaration = addScalarTypeDeclaration("int", ScalarTypeDeclaration::Kind::Integer, 4, false, declarationScopes);
+    unsignedIntTypeDeclaration = addScalarTypeDeclaration("unsigned int", ScalarTypeDeclaration::Kind::Integer, 4, true, declarationScopes);
+    floatTypeDeclaration = addScalarTypeDeclaration("float", ScalarTypeDeclaration::Kind::FloatingPoint, 4, false, declarationScopes);
 
     for (ScalarTypeDeclaration* scalarTypeDeclaration : {intTypeDeclaration, unsignedIntTypeDeclaration, floatTypeDeclaration})
     {
@@ -239,7 +239,7 @@ CallableDeclaration* ASTContext::compareCallableDeclarations(CallableDeclaration
                 }
                 else
                 {
-                    if (parameter.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::ARRAY)
+                    if (parameter.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::Array)
                     {
                         ArrayTypeDeclaration* arrayTypeDeclaration = static_cast<ArrayTypeDeclaration*>(parameter.typeDeclaration);
                         ArrayTypeDeclaration* arrayTypeDeclaration1 = static_cast<ArrayTypeDeclaration*>(parameter1.typeDeclaration);
@@ -294,7 +294,7 @@ FunctionDeclaration* ASTContext::resolveFunctionDeclaration(const std::string& n
 
                 CallableDeclaration* callableDeclaration = static_cast<CallableDeclaration*>(*declarationIterator);
 
-                if (callableDeclaration->getCallableDeclarationKind() != CallableDeclaration::Kind::FUNCTION) return nullptr;
+                if (callableDeclaration->getCallableDeclarationKind() != CallableDeclaration::Kind::Function) return nullptr;
 
                 FunctionDeclaration* functionDeclaration = static_cast<FunctionDeclaration*>(callableDeclaration->getFirstDeclaration());
 
@@ -314,8 +314,8 @@ FunctionDeclaration* ASTContext::resolveFunctionDeclaration(const std::string& n
                            functionDeclaration->parameterDeclarations.begin(),
                            [](const QualifiedType& qualifiedType,
                               const ParameterDeclaration* parameterDeclaration) {
-                               bool scalar = qualifiedType.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::SCALAR &&
-                               qualifiedType.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::SCALAR;
+                               bool scalar = qualifiedType.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::Scalar &&
+                               qualifiedType.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::Scalar;
 
                                return (scalar || qualifiedType.typeDeclaration->getFirstDeclaration() == parameterDeclaration->qualifiedType.typeDeclaration->getFirstDeclaration());
                            }))
@@ -383,7 +383,7 @@ static std::string toString(Operator op)
         case Operator::AND: return "AND";
         case Operator::COMMA: return "COMMA";
         case Operator::CONDITIONAL: return "CONDITIONAL";
-        default: return "unknown";
+        default: return "Unknown";
     }
 }
 
@@ -401,7 +401,7 @@ OperatorDeclaration* ASTContext::resolveOperatorDeclaration(Operator op,
             {
                 CallableDeclaration* callableDeclaration = static_cast<CallableDeclaration*>(*declarationIterator);
 
-                if (callableDeclaration->getCallableDeclarationKind() == CallableDeclaration::Kind::OPERATOR)
+                if (callableDeclaration->getCallableDeclarationKind() == CallableDeclaration::Kind::Operator)
                 {
                     OperatorDeclaration* operatorDeclaration = static_cast<OperatorDeclaration*>(callableDeclaration->getFirstDeclaration());
 
@@ -426,8 +426,8 @@ OperatorDeclaration* ASTContext::resolveOperatorDeclaration(Operator op,
 
                                if (!qualifiedType.typeDeclaration) return true; // any type
 
-                               bool scalar = qualifiedType.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::SCALAR &&
-                                   qualifiedType.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::SCALAR;
+                               bool scalar = qualifiedType.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::Scalar &&
+                                   qualifiedType.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::Scalar;
 
                                return (scalar || qualifiedType.typeDeclaration->getFirstDeclaration() == parameterDeclaration->qualifiedType.typeDeclaration->getFirstDeclaration());
                            }))
@@ -729,7 +729,7 @@ Declaration* ASTContext::parseDeclaration(std::vector<Token>::const_iterator& it
             if (!(qualifiedType.typeDeclaration = parseType(iterator, end, declarationScopes)))
                 return nullptr;
 
-            if (qualifiedType.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::STRUCT)
+            if (qualifiedType.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::Struct)
             {
                 StructDeclaration* structDeclaration = static_cast<StructDeclaration*>(qualifiedType.typeDeclaration);
 
@@ -870,8 +870,8 @@ Declaration* ASTContext::parseDeclaration(std::vector<Token>::const_iterator& it
             constructs.push_back(std::unique_ptr<VariableDeclaration>(result = new VariableDeclaration()));
             result->parent = parent;
             result->qualifiedType = qualifiedType;
-            if (isExtern) result->storageClass = VariableDeclaration::StorageClass::EXTERN;
-            else if (isStatic) result->storageClass = VariableDeclaration::StorageClass::STATIC;
+            if (isExtern) result->storageClass = VariableDeclaration::StorageClass::Extern;
+            else if (isStatic) result->storageClass = VariableDeclaration::StorageClass::Static;
             result->name = name;
 
             while (isToken(Token::Type::LEFT_BRACKET, iterator, end))
@@ -1036,7 +1036,7 @@ Declaration* ASTContext::parseMemberDeclaration(std::vector<Token>::const_iterat
         if (!(result->qualifiedType.typeDeclaration = parseType(iterator, end, declarationScopes)))
             return nullptr;
 
-        if (result->qualifiedType.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::STRUCT)
+        if (result->qualifiedType.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::Struct)
         {
             StructDeclaration* structDeclaration = static_cast<StructDeclaration*>(result->qualifiedType.typeDeclaration);
 
@@ -1147,7 +1147,7 @@ ParameterDeclaration* ASTContext::parseParameterDeclaration(std::vector<Token>::
     if (!(result->qualifiedType.typeDeclaration = parseType(iterator, end, declarationScopes)))
         return nullptr;
 
-    if (result->qualifiedType.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::STRUCT)
+    if (result->qualifiedType.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::Struct)
     {
         StructDeclaration* structDeclaration = static_cast<StructDeclaration*>(result->qualifiedType.typeDeclaration);
 
@@ -1214,9 +1214,9 @@ ParameterDeclaration* ASTContext::parseParameterDeclaration(std::vector<Token>::
     TypeDefinitionDeclaration* result;
     constructs.push_back(std::unique_ptr<Construct>(result = new TypeDefinitionDeclaration()));
     result->parent = parent;
-    result->kind = Construct::Kind::DECLARATION;
-    result->declarationKind = Declaration::Kind::TYPE;
-    result->typeKind = TypeDeclaration::Kind::TYPE_DEFINITION;
+    result->kind = Construct::Kind::Declaration;
+    result->declarationKind = Declaration::Kind::Type;
+    result->typeKind = TypeDeclaration::Kind::TypeDefinition;
     result->Declaration = findTypeDeclaration(iterator->value, declarationScopes);
 
     if (!(result->qualifiedType.typeDeclaration = parseType(iterator, end, declarationScopes)))
@@ -1983,7 +1983,7 @@ Expression* ASTContext::parsePrimaryExpression(std::vector<Token>::const_iterato
                     ++iterator;
                 }
 
-                if (typeDeclaration->getTypeKind() != TypeDeclaration::Kind::STRUCT)
+                if (typeDeclaration->getTypeKind() != TypeDeclaration::Kind::Struct)
                     throw std::runtime_error("Expected a struct type");
 
                 StructDeclaration* structDeclaration = static_cast<StructDeclaration*>(typeDeclaration);
@@ -2203,23 +2203,23 @@ Expression* ASTContext::parseSubscriptExpression(std::vector<Token>::const_itera
         if (!result->qualifiedType.typeDeclaration)
             throw std::runtime_error("Subscript expression with a void type");
 
-        if (result->qualifiedType.typeDeclaration->getTypeKind() != TypeDeclaration::Kind::ARRAY)
+        if (result->qualifiedType.typeDeclaration->getTypeKind() != TypeDeclaration::Kind::Array)
             throw std::runtime_error("Subscript value is not an array");
 
         if (!(expression->subscript = parseExpression(iterator, end, declarationScopes, expression)))
             return nullptr;
 
         if (!expression->subscript->qualifiedType.typeDeclaration ||
-            expression->subscript->qualifiedType.typeDeclaration->getTypeKind() != TypeDeclaration::Kind::SCALAR)
+            expression->subscript->qualifiedType.typeDeclaration->getTypeKind() != TypeDeclaration::Kind::Scalar)
             throw std::runtime_error("Subscript is not an integer");
 
         ScalarTypeDeclaration* scalarType = static_cast<ScalarTypeDeclaration*>(expression->subscript->qualifiedType.typeDeclaration);
 
-        if (scalarType->getScalarTypeKind() != ScalarTypeDeclaration::Kind::BOOLEAN &&
-            scalarType->getScalarTypeKind() != ScalarTypeDeclaration::Kind::INTEGER)
+        if (scalarType->getScalarTypeKind() != ScalarTypeDeclaration::Kind::Boolean &&
+            scalarType->getScalarTypeKind() != ScalarTypeDeclaration::Kind::Integer)
             throw std::runtime_error("Subscript is not an integer");
 
-        if (scalarType->getScalarTypeKind() != ScalarTypeDeclaration::Kind::INTEGER)
+        if (scalarType->getScalarTypeKind() != ScalarTypeDeclaration::Kind::Integer)
             expression->subscript = addImplicitCast(expression->subscript, intTypeDeclaration);
 
         expectToken(Token::Type::RIGHT_BRACKET, iterator, end);
@@ -2262,7 +2262,7 @@ Expression* ASTContext::parseMemberExpression(std::vector<Token>::const_iterator
         if (!result->qualifiedType.typeDeclaration)
             throw std::runtime_error("Expression has a void type");
 
-        if (result->qualifiedType.typeDeclaration->getTypeKind() != TypeDeclaration::Kind::STRUCT)
+        if (result->qualifiedType.typeDeclaration->getTypeKind() != TypeDeclaration::Kind::Struct)
         {
             throw std::runtime_error(result->qualifiedType.typeDeclaration->name + " is not a structure");
             return nullptr;
@@ -2955,7 +2955,7 @@ static std::string toString(Statement::Kind kind)
         case Statement::Kind::BREAK: return "BREAK";
         case Statement::Kind::CONTINUE: return "CONTINUE";
         case Statement::Kind::RETURN: return "RETURN";
-        default: return "unknown";
+        default: return "Unknown";
     }
 }
 
@@ -2977,7 +2977,7 @@ static std::string toString(Expression::Kind kind)
         case Expression::Kind::INITIALIZER_LIST: return "INITIALIZER_LIST";
         case Expression::Kind::CAST: return "CAST";
         case Expression::Kind::SIZEOF: return "SIZEOF";
-        default: return "unknown";
+        default: return "Unknown";
     }
 }
 
@@ -2991,7 +2991,7 @@ static std::string toString(Declaration::Kind kind)
         case Declaration::Kind::Callable: return "Callable";
         case Declaration::Kind::Variable: return "Variable";
         case Declaration::Kind::Parameter: return "Parameter";
-        default: return "unknown";
+        default: return "Unknown";
     }
 }
 
@@ -2999,12 +2999,11 @@ static std::string toString(TypeDeclaration::Kind kind)
 {
     switch (kind)
     {
-        case TypeDeclaration::Kind::NONE: return "NONE";
-        case TypeDeclaration::Kind::ARRAY: return "ARRAY";
-        case TypeDeclaration::Kind::SCALAR: return "SCALAR";
-        case TypeDeclaration::Kind::STRUCT: return "STRUCT";
-        //case TypeDeclaration::Kind::TYPE_DEFINITION: return "TYPE_DEFINITION";
-        default: return "unknown";
+        case TypeDeclaration::Kind::Array: return "Array";
+        case TypeDeclaration::Kind::Scalar: return "Scalar";
+        case TypeDeclaration::Kind::Struct: return "Struct";
+        //case TypeDeclaration::Kind::TypeDefinition: return "TypeDefinition";
+        default: return "Unknown";
     }
 }
 
@@ -3012,11 +3011,10 @@ static std::string toString(ScalarTypeDeclaration::Kind kind)
 {
     switch (kind)
     {
-        case ScalarTypeDeclaration::Kind::NONE: return "NONE";
-        case ScalarTypeDeclaration::Kind::BOOLEAN: return "BOOLEAN";
-        case ScalarTypeDeclaration::Kind::INTEGER: return "INTEGER";
-        case ScalarTypeDeclaration::Kind::FLOATING_POINT: return "FLOATING_POINT";
-        default: return "unknown";
+        case ScalarTypeDeclaration::Kind::Boolean: return "Boolean";
+        case ScalarTypeDeclaration::Kind::Integer: return "Integer";
+        case ScalarTypeDeclaration::Kind::FloatingPoint: return "FloatingPoint";
+        default: return "Unknown";
     }
 }
 
@@ -3024,12 +3022,11 @@ static std::string toString(CallableDeclaration::Kind kind)
 {
     switch (kind)
     {
-        case CallableDeclaration::Kind::NONE: return "NONE";
-        case CallableDeclaration::Kind::FUNCTION: return "FUNCTION";
-        case CallableDeclaration::Kind::CONSTRUCTOR: return "CONSTRUCTOR";
-        case CallableDeclaration::Kind::METHOD: return "METHOD";
-        case CallableDeclaration::Kind::OPERATOR: return "OPERATOR";
-        default: return "unknown";
+        case CallableDeclaration::Kind::Function: return "Function";
+        case CallableDeclaration::Kind::Constructor: return "Constructor";
+        case CallableDeclaration::Kind::Method: return "Method";
+        case CallableDeclaration::Kind::Operator: return "Operator";
+        default: return "Unknown";
     }
 }
 
@@ -3042,7 +3039,7 @@ static std::string toString(LiteralExpression::Kind kind)
         case LiteralExpression::Kind::INTEGER: return "INTEGER";
         case LiteralExpression::Kind::FLOATING_POINT: return "FLOATING_POINT";
         case LiteralExpression::Kind::STRING: return "STRING";
-        default: return "unknown";
+        default: return "Unknown";
     }
 }
 
@@ -3057,7 +3054,7 @@ static std::string toString(CastExpression::Kind kind)
         case CastExpression::Kind::STATIC: return "STATIC";
         case CastExpression::Kind::DYNAMIC: return "DYNAMIC";
         case CastExpression::Kind::REINTERPRET: return "REINTERPRET";
-        default: return "unknown";
+        default: return "Unknown";
     }
 }
 
@@ -3081,7 +3078,7 @@ static std::string getPrintableTypeName(const QualifiedType& qualifiedType)
     else
     {
         TypeDeclaration* typeDeclaration = qualifiedType.typeDeclaration;
-        while (typeDeclaration->getTypeKind() == TypeDeclaration::Kind::ARRAY)
+        while (typeDeclaration->getTypeKind() == TypeDeclaration::Kind::Array)
         {
             ArrayTypeDeclaration* arrayTypeDeclaration = static_cast<ArrayTypeDeclaration*>(typeDeclaration);
 
@@ -3116,17 +3113,12 @@ void ASTContext::dumpDeclaration(const Declaration* declaration, std::string ind
 
             switch (typeDeclaration->getTypeKind())
             {
-                case TypeDeclaration::Kind::NONE:
+                case TypeDeclaration::Kind::Array: // array types can not be declared in code
                 {
                     break;
                 }
 
-                case TypeDeclaration::Kind::ARRAY: // array types can not be declared in code
-                {
-                    break;
-                }
-
-                case TypeDeclaration::Kind::STRUCT:
+                case TypeDeclaration::Kind::Struct:
                 {
                     const StructDeclaration* structDeclaration = static_cast<const StructDeclaration*>(typeDeclaration);
                     std::cout << ", name: " << structDeclaration->name;
@@ -3145,7 +3137,7 @@ void ASTContext::dumpDeclaration(const Declaration* declaration, std::string ind
                     break;
                 }
 
-                case TypeDeclaration::Kind::SCALAR:
+                case TypeDeclaration::Kind::Scalar:
                 {
                     const ScalarTypeDeclaration* scalarTypeDeclaration = static_cast<const ScalarTypeDeclaration*>(typeDeclaration);
                     std::cout << ", name: " << scalarTypeDeclaration->name << ", scalar type kind: " << toString(scalarTypeDeclaration->getScalarTypeKind());
@@ -3174,7 +3166,7 @@ void ASTContext::dumpDeclaration(const Declaration* declaration, std::string ind
 
             std::cout << ", callable kind: " << toString(callableDeclaration->getCallableDeclarationKind()) << ", name: " << callableDeclaration->name << ", result type: " << getPrintableTypeName(callableDeclaration->qualifiedType);
 
-            if (callableDeclaration->getCallableDeclarationKind() == CallableDeclaration::Kind::FUNCTION)
+            if (callableDeclaration->getCallableDeclarationKind() == CallableDeclaration::Kind::Function)
             {
                 const FunctionDeclaration* functionDeclaration = static_cast<const FunctionDeclaration*>(callableDeclaration);
 
@@ -3391,7 +3383,7 @@ static std::string toString(Expression::Category category)
     {
         case Expression::Category::Lvalue: return "Lvalue";
         case Expression::Category::Rvalue: return "Rvalue";
-        default: return "unknown";
+        default: return "Unknown";
     }
 }
 

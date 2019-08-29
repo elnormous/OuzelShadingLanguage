@@ -51,11 +51,10 @@ class TypeDeclaration: public Declaration
 public:
     enum class Kind
     {
-        NONE,
-        ARRAY,
-        SCALAR,
-        STRUCT
-        //TYPE_DEFINITION // typedef is not supported in GLSL
+        Array,
+        Scalar,
+        Struct
+        //TypeDefinition // typedef is not supported in GLSL
     };
 
     TypeDeclaration(Kind initTypeKind): Declaration(Declaration::Kind::Type), typeKind(initTypeKind) {}
@@ -66,13 +65,13 @@ public:
     bool isBuiltin = false;
 
 protected:
-    Kind typeKind = Kind::NONE;
+    Kind typeKind;
 };
 
 class ArrayTypeDeclaration: public TypeDeclaration
 {
 public:
-    ArrayTypeDeclaration(): TypeDeclaration(TypeDeclaration::Kind::ARRAY)
+    ArrayTypeDeclaration(): TypeDeclaration(TypeDeclaration::Kind::Array)
     {
         definition = this;
     }
@@ -86,13 +85,12 @@ class ScalarTypeDeclaration: public TypeDeclaration
 public:
     enum class Kind
     {
-        NONE,
-        BOOLEAN,
-        INTEGER,
-        FLOATING_POINT
+        Boolean,
+        Integer,
+        FloatingPoint
     };
 
-    ScalarTypeDeclaration(Kind initScalarTypeKind): TypeDeclaration(TypeDeclaration::Kind::SCALAR), scalarTypeKind(initScalarTypeKind)
+    ScalarTypeDeclaration(Kind initScalarTypeKind): TypeDeclaration(TypeDeclaration::Kind::Scalar), scalarTypeKind(initScalarTypeKind)
     {
         definition = this;
     }
@@ -138,13 +136,12 @@ public:
 class CallableDeclaration: public Declaration
 {
 public:
-    enum Kind
+    enum class Kind
     {
-        NONE,
-        FUNCTION,
-        CONSTRUCTOR,
-        METHOD,
-        OPERATOR
+        Function,
+        Constructor,
+        Method,
+        Operator
     };
 
     CallableDeclaration(Kind initCallableDeclarationKind): Declaration(Declaration::Kind::Callable), callableDeclarationKind(initCallableDeclarationKind) {}
@@ -162,7 +159,7 @@ protected:
 class FunctionDeclaration: public CallableDeclaration
 {
 public:
-    FunctionDeclaration(): CallableDeclaration(CallableDeclaration::Kind::FUNCTION) {}
+    FunctionDeclaration(): CallableDeclaration(CallableDeclaration::Kind::Function) {}
 
     bool isInline = false;
     bool isStatic = false;
@@ -173,13 +170,13 @@ public:
 class ConstructorDeclaration: public CallableDeclaration
 {
 public:
-    ConstructorDeclaration(): CallableDeclaration(CallableDeclaration::Kind::CONSTRUCTOR) {}
+    ConstructorDeclaration(): CallableDeclaration(CallableDeclaration::Kind::Constructor) {}
 };
 
 class MethodDeclaration: public CallableDeclaration
 {
 public:
-    MethodDeclaration(): CallableDeclaration(CallableDeclaration::Kind::METHOD) {}
+    MethodDeclaration(): CallableDeclaration(CallableDeclaration::Kind::Method) {}
 
     bool isInline = false;
     bool isStatic = false;
@@ -189,7 +186,7 @@ public:
 class OperatorDeclaration: public CallableDeclaration
 {
 public:
-    OperatorDeclaration(): CallableDeclaration(CallableDeclaration::Kind::OPERATOR) {}
+    OperatorDeclaration(): CallableDeclaration(CallableDeclaration::Kind::Operator) {}
 
     Operator op;
 };
@@ -197,7 +194,7 @@ public:
 class StructDeclaration: public TypeDeclaration
 {
 public:
-    StructDeclaration(): TypeDeclaration(TypeDeclaration::Kind::STRUCT) {}
+    StructDeclaration(): TypeDeclaration(TypeDeclaration::Kind::Struct) {}
 
     ConstructorDeclaration* findConstructorDeclaration(const std::vector<QualifiedType>& parameters) const
     {
@@ -207,7 +204,7 @@ public:
             {
                 CallableDeclaration* callableDeclaration = static_cast<CallableDeclaration*>(declaration);
 
-                if (callableDeclaration->getCallableDeclarationKind() == CallableDeclaration::Kind::CONSTRUCTOR)
+                if (callableDeclaration->getCallableDeclarationKind() == CallableDeclaration::Kind::Constructor)
                 {
                     ConstructorDeclaration* constructorDeclaration = static_cast<ConstructorDeclaration*>(callableDeclaration);
 
@@ -246,9 +243,9 @@ class VariableDeclaration: public Declaration
 public:
     enum class StorageClass
     {
-        NONE,
-        EXTERN,
-        STATIC
+        None,
+        Extern,
+        Static
     };
 
     VariableDeclaration(): Declaration(Declaration::Kind::Variable)
@@ -259,7 +256,7 @@ public:
     QualifiedType qualifiedType;
     Expression* initialization = nullptr;
 
-    StorageClass storageClass = StorageClass::NONE;
+    StorageClass storageClass = StorageClass::None;
 };
 
 #endif // DECLARATIONS_HPP

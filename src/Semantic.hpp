@@ -37,7 +37,7 @@ inline std::string toString(Semantic semantic)
         case Semantic::POINT_SIZE: return "POINT_SIZE";
         case Semantic::TANGENT: return "TANGENT";
         case Semantic::TEXTURE_COORDINATES: return "TEXTURE_COORDINATES";
-        default: return "unknown";
+        default: return "Unknown";
     }
 }
 

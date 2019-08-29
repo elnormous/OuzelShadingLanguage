@@ -51,7 +51,7 @@ static std::pair<std::string, std::string> getPrintableTypeName(const QualifiedT
     else
     {
         TypeDeclaration* typeDeclaration = qualifiedType.typeDeclaration;
-        while (typeDeclaration->getTypeKind() == TypeDeclaration::Kind::ARRAY)
+        while (typeDeclaration->getTypeKind() == TypeDeclaration::Kind::Array)
         {
             ArrayTypeDeclaration* arrayTypeDeclaration = static_cast<ArrayTypeDeclaration*>(typeDeclaration);
 
@@ -82,7 +82,7 @@ void OutputGLSL::printDeclaration(const Declaration* declaration, Options option
 
             const TypeDeclaration* typeDeclaration = static_cast<const TypeDeclaration*>(declaration);
 
-            if (typeDeclaration->getTypeKind() != TypeDeclaration::Kind::STRUCT)
+            if (typeDeclaration->getTypeKind() != TypeDeclaration::Kind::Struct)
                 throw std::runtime_error("Type declaration must be a struct");
 
             const StructDeclaration* structDeclaration = static_cast<const StructDeclaration*>(declaration);
@@ -164,7 +164,7 @@ void OutputGLSL::printDeclaration(const Declaration* declaration, Options option
 
             const CallableDeclaration* callableDeclaration = static_cast<const CallableDeclaration*>(declaration);
 
-            if (callableDeclaration->getCallableDeclarationKind() == CallableDeclaration::Kind::FUNCTION)
+            if (callableDeclaration->getCallableDeclarationKind() == CallableDeclaration::Kind::Function)
             {
                 const FunctionDeclaration* functionDeclaration = static_cast<const FunctionDeclaration*>(callableDeclaration);
 
@@ -206,7 +206,7 @@ void OutputGLSL::printDeclaration(const Declaration* declaration, Options option
             if (options.whitespaces) code.append(options.indentation, ' ');
 
             const VariableDeclaration* variableDeclaration = static_cast<const VariableDeclaration*>(declaration);
-            if (variableDeclaration->storageClass == VariableDeclaration::StorageClass::STATIC) code += "static ";
+            if (variableDeclaration->storageClass == VariableDeclaration::StorageClass::Static) code += "static ";
 
             std::pair<std::string, std::string> printableTypeName = getPrintableTypeName(variableDeclaration->qualifiedType);
 
@@ -592,7 +592,7 @@ void OutputGLSL::printExpression(const Expression* expression, Options options, 
                 {
                     const CallableDeclaration* callableDeclaration = static_cast<const CallableDeclaration*>(declaration);
 
-                    if (callableDeclaration->getCallableDeclarationKind() == CallableDeclaration::Kind::FUNCTION)
+                    if (callableDeclaration->getCallableDeclarationKind() == CallableDeclaration::Kind::Function)
                     {
                         const FunctionDeclaration* functionDeclaration = static_cast<const FunctionDeclaration*>(callableDeclaration);
                         code += functionDeclaration->name;
@@ -755,7 +755,7 @@ void OutputGLSL::printExpression(const Expression* expression, Options options, 
 
             const TypeDeclaration* typeDeclaration = static_cast<const TypeDeclaration*>(temporaryObjectExpression->constructorDeclaration->parent);
 
-            if (typeDeclaration->getTypeKind() != TypeDeclaration::Kind::STRUCT)
+            if (typeDeclaration->getTypeKind() != TypeDeclaration::Kind::Struct)
                 throw std::runtime_error("Temporary object must be a struct");
 
             const StructDeclaration* structDeclaration = static_cast<const StructDeclaration*>(typeDeclaration);

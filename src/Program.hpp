@@ -21,7 +21,7 @@ inline std::string toString(Program program)
         case Program::NONE: return "NONE";
         case Program::FRAGMENT: return "FRAGMENT";
         case Program::VERTEX: return "VERTEX";
-        default: return "unknown";
+        default: return "Unknown";
     }
 }
 
