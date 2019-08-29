@@ -391,10 +391,10 @@ private:
         scalarTypeDeclaration->definition = scalarTypeDeclaration;
         declarationScopes.back().push_back(scalarTypeDeclaration);
 
-        addOperatorDeclaration(Operator::COMMA, scalarTypeDeclaration, {nullptr, scalarTypeDeclaration}, declarationScopes);
-        addOperatorDeclaration(Operator::ASSIGNMENT, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
-        addOperatorDeclaration(Operator::EQUALITY, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
-        addOperatorDeclaration(Operator::INEQUALITY, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
+        addOperatorDeclaration(Operator::Comma, scalarTypeDeclaration, {nullptr, scalarTypeDeclaration}, declarationScopes);
+        addOperatorDeclaration(Operator::Assignment, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
+        addOperatorDeclaration(Operator::Equality, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
+        addOperatorDeclaration(Operator::Inequality, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
 
         return scalarTypeDeclaration;
     }
@@ -412,10 +412,10 @@ private:
         structDeclaration->definition = structDeclaration;
         declarationScopes.back().push_back(structDeclaration);
 
-        addOperatorDeclaration(Operator::COMMA, structDeclaration, {nullptr, structDeclaration}, declarationScopes);
-        addOperatorDeclaration(Operator::ASSIGNMENT, structDeclaration, {structDeclaration, structDeclaration}, declarationScopes);
-        addOperatorDeclaration(Operator::EQUALITY, structDeclaration, {structDeclaration, structDeclaration}, declarationScopes);
-        addOperatorDeclaration(Operator::INEQUALITY, structDeclaration, {structDeclaration, structDeclaration}, declarationScopes);
+        addOperatorDeclaration(Operator::Comma, structDeclaration, {nullptr, structDeclaration}, declarationScopes);
+        addOperatorDeclaration(Operator::Assignment, structDeclaration, {structDeclaration, structDeclaration}, declarationScopes);
+        addOperatorDeclaration(Operator::Equality, structDeclaration, {structDeclaration, structDeclaration}, declarationScopes);
+        addOperatorDeclaration(Operator::Inequality, structDeclaration, {structDeclaration, structDeclaration}, declarationScopes);
 
         return structDeclaration;
     }

@@ -16,9 +16,9 @@ ASTContext::ASTContext(const std::vector<Token>& tokens)
     declarationScopes.push_back(std::vector<Declaration*>());
 
     boolTypeDeclaration = addScalarTypeDeclaration("bool", ScalarTypeDeclaration::Kind::Boolean, 1, false, declarationScopes);
-    addOperatorDeclaration(Operator::NEGATION, boolTypeDeclaration, {boolTypeDeclaration}, declarationScopes);
-    addOperatorDeclaration(Operator::OR, boolTypeDeclaration, {boolTypeDeclaration, boolTypeDeclaration}, declarationScopes);
-    addOperatorDeclaration(Operator::AND, boolTypeDeclaration, {boolTypeDeclaration, boolTypeDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::Negation, boolTypeDeclaration, {boolTypeDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::Or, boolTypeDeclaration, {boolTypeDeclaration, boolTypeDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::And, boolTypeDeclaration, {boolTypeDeclaration, boolTypeDeclaration}, declarationScopes);
 
     intTypeDeclaration = addScalarTypeDeclaration("int", ScalarTypeDeclaration::Kind::Integer, 4, false, declarationScopes);
     unsignedIntTypeDeclaration = addScalarTypeDeclaration("unsigned int", ScalarTypeDeclaration::Kind::Integer, 4, true, declarationScopes);
@@ -26,26 +26,26 @@ ASTContext::ASTContext(const std::vector<Token>& tokens)
 
     for (ScalarTypeDeclaration* scalarTypeDeclaration : {intTypeDeclaration, unsignedIntTypeDeclaration, floatTypeDeclaration})
     {
-        addOperatorDeclaration(Operator::ADDITION, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
-        addOperatorDeclaration(Operator::ADDITION_ASSIGNMENT, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
+        addOperatorDeclaration(Operator::Addition, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
+        addOperatorDeclaration(Operator::AdditionAssignment, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
 
-        addOperatorDeclaration(Operator::SUBTRACTION, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
-        addOperatorDeclaration(Operator::SUBTRACTION_ASSIGNMENT, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
+        addOperatorDeclaration(Operator::Subtraction, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
+        addOperatorDeclaration(Operator::SubtractAssignment, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
 
-        addOperatorDeclaration(Operator::MULTIPLICATION, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
-        addOperatorDeclaration(Operator::MULTIPLICATION_ASSIGNMENT, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
+        addOperatorDeclaration(Operator::Multiplication, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
+        addOperatorDeclaration(Operator::MultiplicationAssignment, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
 
-        addOperatorDeclaration(Operator::DIVISION, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
-        addOperatorDeclaration(Operator::DIVISION_ASSIGNMENT, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
+        addOperatorDeclaration(Operator::Division, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
+        addOperatorDeclaration(Operator::DivisionAssignment, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
 
-        addOperatorDeclaration(Operator::POSITIVE, scalarTypeDeclaration, {scalarTypeDeclaration}, declarationScopes);
-        addOperatorDeclaration(Operator::NEGATIVE, scalarTypeDeclaration, {scalarTypeDeclaration}, declarationScopes);
+        addOperatorDeclaration(Operator::Positive, scalarTypeDeclaration, {scalarTypeDeclaration}, declarationScopes);
+        addOperatorDeclaration(Operator::Negative, scalarTypeDeclaration, {scalarTypeDeclaration}, declarationScopes);
 
-        addOperatorDeclaration(Operator::LESS_THAN, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
-        addOperatorDeclaration(Operator::LESS_THAN_EQUAL, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
+        addOperatorDeclaration(Operator::LessThan, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
+        addOperatorDeclaration(Operator::LessThanEqual, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
 
-        addOperatorDeclaration(Operator::GREATER_THAN, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
-        addOperatorDeclaration(Operator::GREATER_THAN_EQUAL, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
+        addOperatorDeclaration(Operator::GreaterThan, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
+        addOperatorDeclaration(Operator::GraterThanEqual, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
     }
 
     StructDeclaration* float2TypeDeclaration = addStructDeclaration("float2", 8, declarationScopes);
@@ -54,20 +54,20 @@ ASTContext::ASTContext(const std::vector<Token>& tokens)
 
     for (StructDeclaration* vectorTypeDeclaration : {float2TypeDeclaration, float3TypeDeclaration, float4TypeDeclaration})
     {
-        addOperatorDeclaration(Operator::ADDITION, vectorTypeDeclaration, {vectorTypeDeclaration, vectorTypeDeclaration}, declarationScopes);
-        addOperatorDeclaration(Operator::ADDITION_ASSIGNMENT, vectorTypeDeclaration, {vectorTypeDeclaration, vectorTypeDeclaration}, declarationScopes);
+        addOperatorDeclaration(Operator::Addition, vectorTypeDeclaration, {vectorTypeDeclaration, vectorTypeDeclaration}, declarationScopes);
+        addOperatorDeclaration(Operator::AdditionAssignment, vectorTypeDeclaration, {vectorTypeDeclaration, vectorTypeDeclaration}, declarationScopes);
 
-        addOperatorDeclaration(Operator::SUBTRACTION, vectorTypeDeclaration, {vectorTypeDeclaration, vectorTypeDeclaration}, declarationScopes);
-        addOperatorDeclaration(Operator::SUBTRACTION_ASSIGNMENT, vectorTypeDeclaration, {vectorTypeDeclaration, vectorTypeDeclaration}, declarationScopes);
+        addOperatorDeclaration(Operator::Subtraction, vectorTypeDeclaration, {vectorTypeDeclaration, vectorTypeDeclaration}, declarationScopes);
+        addOperatorDeclaration(Operator::SubtractAssignment, vectorTypeDeclaration, {vectorTypeDeclaration, vectorTypeDeclaration}, declarationScopes);
 
-        addOperatorDeclaration(Operator::MULTIPLICATION, vectorTypeDeclaration, {vectorTypeDeclaration, vectorTypeDeclaration}, declarationScopes);
-        addOperatorDeclaration(Operator::MULTIPLICATION_ASSIGNMENT, vectorTypeDeclaration, {vectorTypeDeclaration, vectorTypeDeclaration}, declarationScopes);
+        addOperatorDeclaration(Operator::Multiplication, vectorTypeDeclaration, {vectorTypeDeclaration, vectorTypeDeclaration}, declarationScopes);
+        addOperatorDeclaration(Operator::MultiplicationAssignment, vectorTypeDeclaration, {vectorTypeDeclaration, vectorTypeDeclaration}, declarationScopes);
 
-        addOperatorDeclaration(Operator::DIVISION, vectorTypeDeclaration, {vectorTypeDeclaration, vectorTypeDeclaration}, declarationScopes);
-        addOperatorDeclaration(Operator::DIVISION_ASSIGNMENT, vectorTypeDeclaration, {vectorTypeDeclaration, vectorTypeDeclaration}, declarationScopes);
+        addOperatorDeclaration(Operator::Division, vectorTypeDeclaration, {vectorTypeDeclaration, vectorTypeDeclaration}, declarationScopes);
+        addOperatorDeclaration(Operator::DivisionAssignment, vectorTypeDeclaration, {vectorTypeDeclaration, vectorTypeDeclaration}, declarationScopes);
 
-        addOperatorDeclaration(Operator::POSITIVE, vectorTypeDeclaration, {vectorTypeDeclaration}, declarationScopes);
-        addOperatorDeclaration(Operator::NEGATIVE, vectorTypeDeclaration, {vectorTypeDeclaration}, declarationScopes);
+        addOperatorDeclaration(Operator::Positive, vectorTypeDeclaration, {vectorTypeDeclaration}, declarationScopes);
+        addOperatorDeclaration(Operator::Negative, vectorTypeDeclaration, {vectorTypeDeclaration}, declarationScopes);
     }
 
     std::vector<std::pair<StructDeclaration*, std::vector<TypeDeclaration*>>> constructors = {
@@ -166,31 +166,31 @@ ASTContext::ASTContext(const std::vector<Token>& tokens)
 
     // TODO: add other arithmetic operators
     // float2x2
-    addOperatorDeclaration(Operator::MULTIPLICATION, float2x2TypeDeclaration, {float2x2TypeDeclaration, float2x2TypeDeclaration}, declarationScopes);
-    addOperatorDeclaration(Operator::MULTIPLICATION, float2TypeDeclaration, {float2x2TypeDeclaration, float2TypeDeclaration}, declarationScopes);
-    addOperatorDeclaration(Operator::MULTIPLICATION, float2TypeDeclaration, {float2TypeDeclaration, float2x2TypeDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::Multiplication, float2x2TypeDeclaration, {float2x2TypeDeclaration, float2x2TypeDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::Multiplication, float2TypeDeclaration, {float2x2TypeDeclaration, float2TypeDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::Multiplication, float2TypeDeclaration, {float2TypeDeclaration, float2x2TypeDeclaration}, declarationScopes);
 
-    addOperatorDeclaration(Operator::DIVISION, float2x2TypeDeclaration, {float2x2TypeDeclaration, float2x2TypeDeclaration}, declarationScopes);
-    addOperatorDeclaration(Operator::DIVISION, float2TypeDeclaration, {float2x2TypeDeclaration, float2TypeDeclaration}, declarationScopes);
-    addOperatorDeclaration(Operator::DIVISION, float2TypeDeclaration, {float2TypeDeclaration, float2x2TypeDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::Division, float2x2TypeDeclaration, {float2x2TypeDeclaration, float2x2TypeDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::Division, float2TypeDeclaration, {float2x2TypeDeclaration, float2TypeDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::Division, float2TypeDeclaration, {float2TypeDeclaration, float2x2TypeDeclaration}, declarationScopes);
 
     // float3x3
-    addOperatorDeclaration(Operator::MULTIPLICATION, float3x3TypeDeclaration, {float3x3TypeDeclaration, float3x3TypeDeclaration}, declarationScopes);
-    addOperatorDeclaration(Operator::MULTIPLICATION, float3TypeDeclaration, {float3x3TypeDeclaration, float3TypeDeclaration}, declarationScopes);
-    addOperatorDeclaration(Operator::MULTIPLICATION, float3TypeDeclaration, {float3TypeDeclaration, float3x3TypeDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::Multiplication, float3x3TypeDeclaration, {float3x3TypeDeclaration, float3x3TypeDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::Multiplication, float3TypeDeclaration, {float3x3TypeDeclaration, float3TypeDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::Multiplication, float3TypeDeclaration, {float3TypeDeclaration, float3x3TypeDeclaration}, declarationScopes);
 
-    addOperatorDeclaration(Operator::DIVISION, float3x3TypeDeclaration, {float3x3TypeDeclaration, float3x3TypeDeclaration}, declarationScopes);
-    addOperatorDeclaration(Operator::DIVISION, float3TypeDeclaration, {float3x3TypeDeclaration, float3TypeDeclaration}, declarationScopes);
-    addOperatorDeclaration(Operator::DIVISION, float3TypeDeclaration, {float3TypeDeclaration, float3x3TypeDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::Division, float3x3TypeDeclaration, {float3x3TypeDeclaration, float3x3TypeDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::Division, float3TypeDeclaration, {float3x3TypeDeclaration, float3TypeDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::Division, float3TypeDeclaration, {float3TypeDeclaration, float3x3TypeDeclaration}, declarationScopes);
 
     // float4x4
-    addOperatorDeclaration(Operator::MULTIPLICATION, float4x4TypeDeclaration, {float4x4TypeDeclaration, float4x4TypeDeclaration}, declarationScopes);
-    addOperatorDeclaration(Operator::MULTIPLICATION, float4TypeDeclaration, {float4x4TypeDeclaration, float4TypeDeclaration}, declarationScopes);
-    addOperatorDeclaration(Operator::MULTIPLICATION, float4TypeDeclaration, {float4TypeDeclaration, float4x4TypeDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::Multiplication, float4x4TypeDeclaration, {float4x4TypeDeclaration, float4x4TypeDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::Multiplication, float4TypeDeclaration, {float4x4TypeDeclaration, float4TypeDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::Multiplication, float4TypeDeclaration, {float4TypeDeclaration, float4x4TypeDeclaration}, declarationScopes);
     
-    addOperatorDeclaration(Operator::DIVISION, float4x4TypeDeclaration, {float4x4TypeDeclaration, float4x4TypeDeclaration}, declarationScopes);
-    addOperatorDeclaration(Operator::DIVISION, float4TypeDeclaration, {float4x4TypeDeclaration, float4TypeDeclaration}, declarationScopes);
-    addOperatorDeclaration(Operator::DIVISION, float4TypeDeclaration, {float4TypeDeclaration, float4x4TypeDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::Division, float4x4TypeDeclaration, {float4x4TypeDeclaration, float4x4TypeDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::Division, float4TypeDeclaration, {float4x4TypeDeclaration, float4TypeDeclaration}, declarationScopes);
+    addOperatorDeclaration(Operator::Division, float4TypeDeclaration, {float4TypeDeclaration, float4x4TypeDeclaration}, declarationScopes);
 
     for (auto iterator = tokens.begin(); iterator != tokens.end();)
     {
@@ -360,29 +360,28 @@ static std::string toString(Operator op)
 {
     switch (op)
     {
-        case Operator::NONE: return "NONE";
-        case Operator::NEGATION: return "NEGATION";
-        case Operator::POSITIVE: return "POSITIVE";
-        case Operator::NEGATIVE: return "NEGATIVE";
-        case Operator::ADDITION: return "ADDITION";
-        case Operator::SUBTRACTION: return "SUBTRACTION";
-        case Operator::MULTIPLICATION: return "MULTIPLICATION";
-        case Operator::DIVISION: return "DIVISION";
-        case Operator::ADDITION_ASSIGNMENT: return "ADDITION_ASSIGNMENT";
-        case Operator::SUBTRACTION_ASSIGNMENT: return "SUBTRACTION_ASSIGNMENT";
-        case Operator::MULTIPLICATION_ASSIGNMENT: return "MULTIPLICATION_ASSIGNMENT";
-        case Operator::DIVISION_ASSIGNMENT: return "DIVISION_ASSIGNMENT";
-        case Operator::LESS_THAN: return "LESS_THAN";
-        case Operator::LESS_THAN_EQUAL: return "LESS_THAN_EQUAL";
-        case Operator::GREATER_THAN: return "GREATER_THAN";
-        case Operator::GREATER_THAN_EQUAL: return "GREATER_THAN_EQUAL";
-        case Operator::EQUALITY: return "EQUALITY";
-        case Operator::INEQUALITY: return "INEQUALITY";
-        case Operator::ASSIGNMENT: return "ASSIGNMENT";
-        case Operator::OR: return "OR";
-        case Operator::AND: return "AND";
-        case Operator::COMMA: return "COMMA";
-        case Operator::CONDITIONAL: return "CONDITIONAL";
+        case Operator::Negation: return "Negation";
+        case Operator::Positive: return "Positive";
+        case Operator::Negative: return "Negative";
+        case Operator::Addition: return "Addition";
+        case Operator::Subtraction: return "Subtraction";
+        case Operator::Multiplication: return "Multiplication";
+        case Operator::Division: return "Division";
+        case Operator::AdditionAssignment: return "AdditionAssignment";
+        case Operator::SubtractAssignment: return "SubtractAssignment";
+        case Operator::MultiplicationAssignment: return "MultiplicationAssignment";
+        case Operator::DivisionAssignment: return "DivisionAssignment";
+        case Operator::LessThan: return "LessThan";
+        case Operator::LessThanEqual: return "LessThanEqual";
+        case Operator::GreaterThan: return "GreaterThan";
+        case Operator::GraterThanEqual: return "GraterThanEqual";
+        case Operator::Equality: return "Equality";
+        case Operator::Inequality: return "Inequality";
+        case Operator::Assignment: return "Assignment";
+        case Operator::Or: return "Or";
+        case Operator::And: return "And";
+        case Operator::Comma: return "Comma";
+        case Operator::Conditional: return "Conditional";
         default: return "Unknown";
     }
 }
@@ -994,10 +993,10 @@ StructDeclaration* ASTContext::parseStructDeclaration(std::vector<Token>::const_
 
     declarationScopes.back().push_back(result);
 
-    addOperatorDeclaration(Operator::COMMA, result, {nullptr, result}, declarationScopes);
-    addOperatorDeclaration(Operator::ASSIGNMENT, result, {result, result}, declarationScopes);
-    addOperatorDeclaration(Operator::EQUALITY, result, {result, result}, declarationScopes);
-    addOperatorDeclaration(Operator::INEQUALITY, result, {result, result}, declarationScopes);
+    addOperatorDeclaration(Operator::Comma, result, {nullptr, result}, declarationScopes);
+    addOperatorDeclaration(Operator::Assignment, result, {result, result}, declarationScopes);
+    addOperatorDeclaration(Operator::Equality, result, {result, result}, declarationScopes);
+    addOperatorDeclaration(Operator::Inequality, result, {result, result}, declarationScopes);
 
     return result;
 }
@@ -1091,19 +1090,19 @@ Declaration* ASTContext::parseMemberDeclaration(std::vector<Token>::const_iterat
             {
                 if (attribute.second.size() == 1)
                 {
-                    Semantic semantic = Semantic::NONE;
+                    Semantic semantic = Semantic::None;
 
                     // TODO: find slot number
-                    if (attribute.second.front() == "binormal") semantic = Semantic::BINORMAL;
-                    else if (attribute.second.front() == "blend_indices") semantic = Semantic::BLEND_INDICES;
-                    else if (attribute.second.front() == "blend_weight") semantic = Semantic::BLEND_WEIGHT;
-                    else if (attribute.second.front() == "color") semantic = Semantic::COLOR;
-                    else if (attribute.second.front() == "normal") semantic = Semantic::NORMAL;
-                    else if (attribute.second.front() == "position") semantic = Semantic::POSITION;
-                    else if (attribute.second.front() == "position_transformed") semantic = Semantic::POSITION_TRANSFORMED;
-                    else if (attribute.second.front() == "point_size") semantic = Semantic::POINT_SIZE;
-                    else if (attribute.second.front() == "tangent") semantic = Semantic::TANGENT;
-                    else if (attribute.second.front() == "texture_coordinates") semantic = Semantic::TEXTURE_COORDINATES;
+                    if (attribute.second.front() == "binormal") semantic = Semantic::Binormal;
+                    else if (attribute.second.front() == "blend_indices") semantic = Semantic::BlendIndices;
+                    else if (attribute.second.front() == "blend_weight") semantic = Semantic::BlendWeight;
+                    else if (attribute.second.front() == "color") semantic = Semantic::Color;
+                    else if (attribute.second.front() == "normal") semantic = Semantic::Normal;
+                    else if (attribute.second.front() == "position") semantic = Semantic::Position;
+                    else if (attribute.second.front() == "position_transformed") semantic = Semantic::PositionTransformed;
+                    else if (attribute.second.front() == "point_size") semantic = Semantic::PointSize;
+                    else if (attribute.second.front() == "tangent") semantic = Semantic::Tangent;
+                    else if (attribute.second.front() == "texture_coordinates") semantic = Semantic::TextureCoordinates;
                     else
                         throw std::runtime_error("Invalid semantic " + attribute.second.front());
 
@@ -2306,12 +2305,14 @@ Expression* ASTContext::parseSignExpression(std::vector<Token>::const_iterator& 
         constructs.push_back(std::unique_ptr<Construct>(result = new UnaryOperatorExpression()));
         result->parent = parent;
 
-        Operator op = Operator::NONE;
+        Operator op;
 
         if (iterator->type == Token::Type::OPERATOR_PLUS)
-            op = Operator::POSITIVE;
+            op = Operator::Positive;
         else if (iterator->type == Token::Type::OPERATOR_MINUS)
-            op = Operator::NEGATIVE;
+            op = Operator::Negative;
+        else
+            throw std::runtime_error("Invalid operator");
 
         ++iterator;
 
@@ -2349,7 +2350,7 @@ Expression* ASTContext::parseNotExpression(std::vector<Token>::const_iterator& i
         constructs.push_back(std::unique_ptr<Construct>(result = new UnaryOperatorExpression()));
         result->parent = parent;
 
-        Operator op = Operator::NEGATION;
+        Operator op = Operator::Negation;
 
         ++iterator;
 
@@ -2434,12 +2435,14 @@ Expression* ASTContext::parseMultiplicationExpression(std::vector<Token>::const_
         constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression()));
         expression->parent = parent;
 
-        Operator op = Operator::NONE;
+        Operator op;
 
         if (iterator->type == Token::Type::OPERATOR_MULTIPLY)
-            op = Operator::MULTIPLICATION;
+            op = Operator::Multiplication;
         else if (iterator->type == Token::Type::OPERATOR_DIVIDE)
-            op = Operator::DIVISION;
+            op = Operator::Division;
+        else
+            throw std::runtime_error("Invalid operator");
 
         expression->leftExpression = result;
 
@@ -2476,12 +2479,14 @@ Expression* ASTContext::parseAdditionExpression(std::vector<Token>::const_iterat
         constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression()));
         expression->parent = parent;
 
-        Operator op = Operator::NONE;
+        Operator op;
 
         if (iterator->type == Token::Type::OPERATOR_PLUS)
-            op = Operator::ADDITION;
+            op = Operator::Addition;
         else if (iterator->type == Token::Type::OPERATOR_MINUS)
-            op = Operator::SUBTRACTION;
+            op = Operator::Subtraction;
+        else
+            throw std::runtime_error("Invalid operator");
 
         expression->leftExpression = result;
 
@@ -2518,12 +2523,14 @@ Expression* ASTContext::parseLessThanExpression(std::vector<Token>::const_iterat
         constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression()));
         expression->parent = parent;
 
-        Operator op = Operator::NONE;
+        Operator op;
 
         if (iterator->type == Token::Type::OPERATOR_LESS_THAN)
-            op = Operator::LESS_THAN;
+            op = Operator::LessThan;
         else if (iterator->type == Token::Type::OPERATOR_LESS_THAN_EQUAL)
-            op = Operator::LESS_THAN_EQUAL;
+            op = Operator::LessThanEqual;
+        else
+            throw std::runtime_error("Invalid operator");
 
         ++iterator;
 
@@ -2560,12 +2567,14 @@ Expression* ASTContext::parseGreaterThanExpression(std::vector<Token>::const_ite
         constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression()));
         expression->parent = parent;
 
-        Operator op = Operator::NONE;
+        Operator op;
 
         if (iterator->type == Token::Type::OPERATOR_GREATER_THAN)
-            op = Operator::GREATER_THAN;
+            op = Operator::GreaterThan;
         else if (iterator->type == Token::Type::OPERATOR_GREATER_THAN_EQUAL)
-            op = Operator::GREATER_THAN_EQUAL;
+            op = Operator::GraterThanEqual;
+        else
+            throw std::runtime_error("Invalid operator");
 
         ++iterator;
 
@@ -2602,12 +2611,14 @@ Expression* ASTContext::parseEqualityExpression(std::vector<Token>::const_iterat
         constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression()));
         expression->parent = parent;
 
-        Operator op = Operator::NONE;
+        Operator op;
 
         if (iterator->type == Token::Type::OPERATOR_EQUAL)
-            op = Operator::EQUALITY;
+            op = Operator::Equality;
         else if (iterator->type == Token::Type::OPERATOR_NOT_EQUAL || iterator->type == Token::Type::KEYWORD_NOT_EQ)
-            op = Operator::INEQUALITY;
+            op = Operator::Inequality;
+        else
+            throw std::runtime_error("Invalid operator");
 
         ++iterator;
 
@@ -2646,7 +2657,7 @@ Expression* ASTContext::parseLogicalAndExpression(std::vector<Token>::const_iter
         constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression()));
         expression->parent = parent;
 
-        Operator op = Operator::AND;
+        Operator op = Operator::And;
 
         expression->leftExpression = result;
 
@@ -2684,7 +2695,7 @@ Expression* ASTContext::parseLogicalOrExpression(std::vector<Token>::const_itera
         constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression()));
         expression->parent = parent;
 
-        Operator op = Operator::OR;
+        Operator op = Operator::Or;
 
         expression->leftExpression = result;
 
@@ -2776,7 +2787,7 @@ Expression* ASTContext::parseAssignmentExpression(std::vector<Token>::const_iter
         if (!(expression->rightExpression = parseTernaryExpression(iterator, end, declarationScopes, expression)))
             return nullptr;
 
-        expression->operatorDeclaration = resolveOperatorDeclaration(Operator::ASSIGNMENT,
+        expression->operatorDeclaration = resolveOperatorDeclaration(Operator::Assignment,
                                                                      declarationScopes,
                                                                      {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
 
@@ -2805,12 +2816,14 @@ Expression* ASTContext::parseAdditionAssignmentExpression(std::vector<Token>::co
         constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression()));
         expression->parent = parent;
 
-        Operator op = Operator::NONE;
+        Operator op;
 
         if (iterator->type == Token::Type::OPERATOR_PLUS_ASSIGNMENT)
-            op = Operator::ADDITION_ASSIGNMENT;
+            op = Operator::AdditionAssignment;
         else if (iterator->type == Token::Type::OPERATOR_MINUS_ASSIGNMENT)
-            op = Operator::SUBTRACTION_ASSIGNMENT;
+            op = Operator::SubtractAssignment;
+        else
+            throw std::runtime_error("Invalid operator");
 
         ++iterator;
 
@@ -2853,12 +2866,14 @@ Expression* ASTContext::parseMultiplicationAssignmentExpression(std::vector<Toke
         constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression()));
         expression->parent = parent;
 
-        Operator op = Operator::NONE;
+        Operator op;
 
         if (iterator->type == Token::Type::OPERATOR_MULTIPLY_ASSIGNMENT)
-            op = Operator::MULTIPLICATION_ASSIGNMENT;
+            op = Operator::MultiplicationAssignment;
         else if (iterator->type == Token::Type::OPERATOR_DIVIDE_ASSIGNMENT)
-            op = Operator::DIVISION_ASSIGNMENT;
+            op = Operator::DivisionAssignment;
+        else
+            throw std::runtime_error("Invalid operator");
 
         ++iterator;
 
@@ -2909,7 +2924,7 @@ Expression* ASTContext::parseCommaExpression(std::vector<Token>::const_iterator&
         if (!(expression->rightExpression = parseAdditionAssignmentExpression(iterator, end, declarationScopes, expression)))
             return nullptr;
 
-        expression->operatorDeclaration = resolveOperatorDeclaration(Operator::COMMA, declarationScopes,
+        expression->operatorDeclaration = resolveOperatorDeclaration(Operator::Comma, declarationScopes,
                                                                      {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
 
         expression->qualifiedType = expression->operatorDeclaration->qualifiedType;
@@ -3146,7 +3161,7 @@ void ASTContext::dumpDeclaration(const Declaration* declaration, std::string ind
 
             std::cout << ", name: " << fieldDeclaration->name << ", type: " << getPrintableTypeName(fieldDeclaration->qualifiedType);
 
-            if (fieldDeclaration->semantic != Semantic::NONE)
+            if (fieldDeclaration->semantic != Semantic::None)
                 std::cout << ", semantic: " << toString(fieldDeclaration->semantic);
 
             std::cout << std::endl;

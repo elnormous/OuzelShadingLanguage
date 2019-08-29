@@ -113,7 +113,7 @@ public:
 
     QualifiedType qualifiedType;
 
-    Semantic semantic = Semantic::NONE;
+    Semantic semantic = Semantic::None;
 };
 
 class ParameterDeclaration: public Declaration
@@ -244,7 +244,7 @@ class VariableDeclaration: public Declaration
 public:
     enum class StorageClass
     {
-        None,
+        Auto,
         Extern,
         Static
     };
@@ -257,7 +257,7 @@ public:
     QualifiedType qualifiedType;
     Expression* initialization = nullptr;
 
-    StorageClass storageClass = StorageClass::None;
+    StorageClass storageClass = StorageClass::Auto;
 };
 
 #endif // DECLARATIONS_HPP

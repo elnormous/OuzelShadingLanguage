@@ -119,41 +119,41 @@ void OutputHLSL::printDeclaration(const Declaration* declaration, Options option
 
             code += printableTypeName.first + " " + fieldDeclaration->name + printableTypeName.second;
 
-            if (fieldDeclaration->semantic != Semantic::NONE)
+            if (fieldDeclaration->semantic != Semantic::None)
             {
                 code += ":";
 
                 switch (fieldDeclaration->semantic)
                 {
-                    case Semantic::NONE: break;
-                    case Semantic::BINORMAL:
+                    case Semantic::None: break;
+                    case Semantic::Binormal:
                         code += "BINORMAL";
                         break;
-                    case Semantic::BLEND_INDICES:
+                    case Semantic::BlendIndices:
                         code += "BLEND_INDICES";
                         break;
-                    case Semantic::BLEND_WEIGHT:
+                    case Semantic::BlendWeight:
                         code += "BLEND_WEIGHT";
                         break;
-                    case Semantic::COLOR:
+                    case Semantic::Color:
                         code += "COLOR";
                         break;
-                    case Semantic::NORMAL:
+                    case Semantic::Normal:
                         code += "NORMAL";
                         break;
-                    case Semantic::POSITION:
+                    case Semantic::Position:
                         code += "POSITION";
                         break;
-                    case Semantic::POSITION_TRANSFORMED:
+                    case Semantic::PositionTransformed:
                         code += "POSITION_TRANSFORMED";
                         break;
-                    case Semantic::POINT_SIZE:
+                    case Semantic::PointSize:
                         code += "POINT_SIZE";
                         break;
-                    case Semantic::TANGENT:
+                    case Semantic::Tangent:
                         code += "TANGENT";
                         break;
-                    case Semantic::TEXTURE_COORDINATES:
+                    case Semantic::TextureCoordinates:
                         code += "TEXTURE_COORDINATES";
                         break;
                 }
@@ -667,9 +667,9 @@ void OutputHLSL::printExpression(const Expression* expression, Options options, 
 
             switch (unaryOperatorExpression->operatorDeclaration->op)
             {
-                case Operator::NEGATION: code += "!"; break;
-                case Operator::POSITIVE: code += "+"; break;
-                case Operator::NEGATIVE: code += "-"; break;
+                case Operator::Negation: code += "!"; break;
+                case Operator::Positive: code += "+"; break;
+                case Operator::Negative: code += "-"; break;
                 default:
                     throw std::runtime_error("Unknown operator");
             }
@@ -686,28 +686,28 @@ void OutputHLSL::printExpression(const Expression* expression, Options options, 
             printConstruct(binaryOperatorExpression->leftExpression, Options(0, options.whitespaces), code);
 
             if (options.whitespaces &&
-                binaryOperatorExpression->operatorDeclaration->op != Operator::COMMA) code += " ";
+                binaryOperatorExpression->operatorDeclaration->op != Operator::Comma) code += " ";
 
             switch (binaryOperatorExpression->operatorDeclaration->op)
             {
-                case Operator::ADDITION: code += "+"; break;
-                case Operator::SUBTRACTION: code += "-"; break;
-                case Operator::MULTIPLICATION: code += "*"; break;
-                case Operator::DIVISION: code += "/"; break;
-                case Operator::ADDITION_ASSIGNMENT: code += "+="; break;
-                case Operator::SUBTRACTION_ASSIGNMENT: code += "-="; break;
-                case Operator::MULTIPLICATION_ASSIGNMENT: code += "*="; break;
-                case Operator::DIVISION_ASSIGNMENT: code += "/="; break;
-                case Operator::LESS_THAN: code += "<"; break;
-                case Operator::LESS_THAN_EQUAL: code += "<="; break;
-                case Operator::GREATER_THAN: code += ">"; break;
-                case Operator::GREATER_THAN_EQUAL: code += ">="; break;
-                case Operator::EQUALITY: code += "=="; break;
-                case Operator::INEQUALITY: code += "!="; break;
-                case Operator::ASSIGNMENT: code += "="; break;
-                case Operator::OR: code += "||"; break;
-                case Operator::AND: code += "&&"; break;
-                case Operator::COMMA: code += ","; break;
+                case Operator::Addition: code += "+"; break;
+                case Operator::Subtraction: code += "-"; break;
+                case Operator::Multiplication: code += "*"; break;
+                case Operator::Division: code += "/"; break;
+                case Operator::AdditionAssignment: code += "+="; break;
+                case Operator::SubtractAssignment: code += "-="; break;
+                case Operator::MultiplicationAssignment: code += "*="; break;
+                case Operator::DivisionAssignment: code += "/="; break;
+                case Operator::LessThan: code += "<"; break;
+                case Operator::LessThanEqual: code += "<="; break;
+                case Operator::GreaterThan: code += ">"; break;
+                case Operator::GraterThanEqual: code += ">="; break;
+                case Operator::Equality: code += "=="; break;
+                case Operator::Inequality: code += "!="; break;
+                case Operator::Assignment: code += "="; break;
+                case Operator::Or: code += "||"; break;
+                case Operator::And: code += "&&"; break;
+                case Operator::Comma: code += ","; break;
                 default:
                     throw std::runtime_error("Unknown operator");
             }
