@@ -7,81 +7,81 @@
 #include "Tokenizer.hpp"
 
 static const std::map<std::string, Token::Type> keywordMap = {
-    {"and", Token::Type::KEYWORD_AND},
-    {"and_eq", Token::Type::KEYWORD_AND_EQ},
-    {"asm", Token::Type::KEYWORD_ASM},
-    {"auto", Token::Type::KEYWORD_AUTO},
-    {"bitand", Token::Type::KEYWORD_BITAND},
-    {"bitor", Token::Type::KEYWORD_BITOR},
-    {"bool", Token::Type::KEYWORD_BOOL},
-    {"break", Token::Type::KEYWORD_BREAK},
-    {"case", Token::Type::KEYWORD_CASE},
-    {"catch", Token::Type::KEYWORD_CATCH},
-    {"char", Token::Type::KEYWORD_CHAR},
-    {"class", Token::Type::KEYWORD_CLASS},
-    {"compl", Token::Type::KEYWORD_COMPL},
-    {"const", Token::Type::KEYWORD_CONST},
-    {"continue", Token::Type::KEYWORD_CONTINUE},
-    {"default", Token::Type::KEYWORD_DEFAULT},
-    {"delete", Token::Type::KEYWORD_DELETE},
-    {"do", Token::Type::KEYWORD_DO},
-    {"double", Token::Type::KEYWORD_DOUBLE},
-    {"dynamic_cast", Token::Type::KEYWORD_DYNAMIC_CAST},
-    {"else", Token::Type::KEYWORD_ELSE},
-    {"enum", Token::Type::KEYWORD_ENUM},
-    {"explicit", Token::Type::KEYWORD_EXPLICIT},
-    {"export", Token::Type::KEYWORD_EXPORT},
-    {"extern", Token::Type::KEYWORD_EXTERN},
-    {"false", Token::Type::KEYWORD_FALSE},
-    {"float", Token::Type::KEYWORD_FLOAT},
-    {"for", Token::Type::KEYWORD_FOR},
-    {"friend", Token::Type::KEYWORD_FRIEND},
-    {"goto", Token::Type::KEYWORD_GOTO},
-    {"if", Token::Type::KEYWORD_IF},
-    {"inline", Token::Type::KEYWORD_INLINE},
-    {"int", Token::Type::KEYWORD_INT},
-    {"long", Token::Type::KEYWORD_LONG},
-    {"mutable", Token::Type::KEYWORD_MUTABLE},
-    {"namespace", Token::Type::KEYWORD_NAMESPACE},
-    {"new", Token::Type::KEYWORD_NEW},
-    {"noexcept", Token::Type::KEYWORD_NOEXCEPT},
-    {"not", Token::Type::KEYWORD_NOT},
-    {"not_eq", Token::Type::KEYWORD_NOT_EQ},
-    {"nullptr", Token::Type::KEYWORD_NULLPTR},
-    {"operator", Token::Type::KEYWORD_OPERATOR},
-    {"or", Token::Type::KEYWORD_OR},
-    {"or_eq", Token::Type::KEYWORD_OR_EQ},
-    {"private", Token::Type::KEYWORD_PRIVATE},
-    {"protected", Token::Type::KEYWORD_PROTECTED},
-    {"public", Token::Type::KEYWORD_PUBLIC},
-    {"register", Token::Type::KEYWORD_REGISTER},
-    {"reinterpret_cast", Token::Type::KEYWORD_REINTERPRET_CAST},
-    {"return", Token::Type::KEYWORD_RETURN},
-    {"short", Token::Type::KEYWORD_SHORT},
-    {"signed", Token::Type::KEYWORD_SIGNED},
-    {"sizeof", Token::Type::KEYWORD_SIZEOF},
-    {"static", Token::Type::KEYWORD_STATIC},
-    {"static_cast", Token::Type::KEYWORD_STATIC_CAST},
-    {"struct", Token::Type::KEYWORD_STRUCT},
-    {"switch", Token::Type::KEYWORD_SWITCH},
-    {"template", Token::Type::KEYWORD_TEMPLATE},
-    {"this", Token::Type::KEYWORD_THIS},
-    {"throw", Token::Type::KEYWORD_THROW},
-    {"true", Token::Type::KEYWORD_TRUE},
-    {"try", Token::Type::KEYWORD_TRY},
-    {"typedef", Token::Type::KEYWORD_TYPEDEF},
-    {"typeid", Token::Type::KEYWORD_TYPEID},
-    {"typename", Token::Type::KEYWORD_TYPENAME},
-    {"union", Token::Type::KEYWORD_UNION},
-    {"unsigned", Token::Type::KEYWORD_UNSIGNED},
-    {"using", Token::Type::KEYWORD_USING},
-    {"virtual", Token::Type::KEYWORD_VIRTUAL},
-    {"void", Token::Type::KEYWORD_VOID},
-    {"volatile", Token::Type::KEYWORD_VOLATILE},
-    {"wchar_t", Token::Type::KEYWORD_WCHAR_T},
-    {"while", Token::Type::KEYWORD_WHILE},
-    {"xor", Token::Type::KEYWORD_XOR},
-    {"xor_eq", Token::Type::KEYWORD_XOR_EQ}
+    {"and", Token::Type::And},
+    {"and_eq", Token::Type::BitwiseAndAssignment},
+    {"asm", Token::Type::Asm},
+    {"auto", Token::Type::Auto},
+    {"bitand", Token::Type::BitwiseAnd},
+    {"bitor", Token::Type::BitwiseOr},
+    {"bool", Token::Type::Bool},
+    {"break", Token::Type::Break},
+    {"case", Token::Type::Case},
+    {"catch", Token::Type::Catch},
+    {"char", Token::Type::Char},
+    {"class", Token::Type::Class},
+    {"compl", Token::Type::BitwiseNot},
+    {"const", Token::Type::Const},
+    {"continue", Token::Type::Continue},
+    {"default", Token::Type::Default},
+    {"delete", Token::Type::Delete},
+    {"do", Token::Type::Do},
+    {"double", Token::Type::Double},
+    {"dynamic_cast", Token::Type::DynamicCast},
+    {"else", Token::Type::Else},
+    {"enum", Token::Type::Enum},
+    {"explicit", Token::Type::Explicit},
+    {"export", Token::Type::Export},
+    {"extern", Token::Type::Extern},
+    {"false", Token::Type::False},
+    {"float", Token::Type::Float},
+    {"for", Token::Type::For},
+    {"friend", Token::Type::Friend},
+    {"goto", Token::Type::Goto},
+    {"if", Token::Type::If},
+    {"inline", Token::Type::Inline},
+    {"int", Token::Type::Int},
+    {"long", Token::Type::Long},
+    {"mutable", Token::Type::Mutable},
+    {"namespace", Token::Type::Namespace},
+    {"new", Token::Type::New},
+    {"noexcept", Token::Type::Noexcept},
+    {"not", Token::Type::Not},
+    {"not_eq", Token::Type::NotEq},
+    {"nullptr", Token::Type::Nullptr},
+    {"operator", Token::Type::Operator},
+    {"or", Token::Type::Or},
+    {"or_eq", Token::Type::BitwiseOrAssignment},
+    {"private", Token::Type::Private},
+    {"protected", Token::Type::Protected},
+    {"public", Token::Type::Public},
+    {"register", Token::Type::Register},
+    {"reinterpret_cast", Token::Type::ReinterpretCast},
+    {"return", Token::Type::Return},
+    {"short", Token::Type::Short},
+    {"signed", Token::Type::Signed},
+    {"sizeof", Token::Type::Sizeof},
+    {"static", Token::Type::Static},
+    {"static_cast", Token::Type::StaticCast},
+    {"struct", Token::Type::Struct},
+    {"switch", Token::Type::Switch},
+    {"template", Token::Type::Template},
+    {"this", Token::Type::This},
+    {"throw", Token::Type::Throw},
+    {"true", Token::Type::True},
+    {"try", Token::Type::Try},
+    {"typedef", Token::Type::Typedef},
+    {"typeid", Token::Type::Typeid},
+    {"typename", Token::Type::Typename},
+    {"union", Token::Type::Union},
+    {"unsigned", Token::Type::Unsigned},
+    {"using", Token::Type::Using},
+    {"virtual", Token::Type::Virtual},
+    {"void", Token::Type::Void},
+    {"volatile", Token::Type::Volatile},
+    {"wchar_t", Token::Type::WcharT},
+    {"while", Token::Type::While},
+    {"xor", Token::Type::BitwiseXor},
+    {"xor_eq", Token::Type::BitwiseXorAssignment}
 };
 
 std::vector<Token> tokenize(const std::vector<char>& code)
@@ -102,16 +102,16 @@ std::vector<Token> tokenize(const std::vector<char>& code)
             *i == ',' || *i == ';' ||
             *i == ':') // punctuation
         {
-            token.kind = Token::Kind::PUNCTUATOR;
-            if (*i == '(') token.type = Token::Type::LEFT_PARENTHESIS;
-            if (*i == ')') token.type = Token::Type::RIGHT_PARENTHESIS;
-            if (*i == '{') token.type = Token::Type::LEFT_BRACE;
-            if (*i == '}') token.type = Token::Type::RIGHT_BRACE;
-            if (*i == '[') token.type = Token::Type::LEFT_BRACKET;
-            if (*i == ']') token.type = Token::Type::RIGHT_BRACKET;
-            if (*i == ',') token.type = Token::Type::COMMA;
-            if (*i == ';') token.type = Token::Type::SEMICOLON;
-            if (*i == ':') token.type = Token::Type::COLON;
+            token.kind = Token::Kind::Punctuator;
+            if (*i == '(') token.type = Token::Type::LeftParenthesis;
+            if (*i == ')') token.type = Token::Type::RightParenthesis;
+            if (*i == '{') token.type = Token::Type::LeftBrace;
+            if (*i == '}') token.type = Token::Type::RightBrace;
+            if (*i == '[') token.type = Token::Type::LeftBracket;
+            if (*i == ']') token.type = Token::Type::RightBracket;
+            if (*i == ',') token.type = Token::Type::Comma;
+            if (*i == ';') token.type = Token::Type::Semicolon;
+            if (*i == ':') token.type = Token::Type::Colon;
             token.value.push_back(*i);
 
             ++i;
@@ -120,7 +120,7 @@ std::vector<Token> tokenize(const std::vector<char>& code)
                  (*i == '.' && (i + 1) != code.end() && *(i + 1) >= '0' && *(i + 1) <= '9')) // starts with a dot
         {
             bool integer = true;
-            token.kind = Token::Kind::LITERAL;
+            token.kind = Token::Kind::Literal;
 
             while (i != code.end() && (*i >= '0' && *i <= '9'))
             {
@@ -177,20 +177,20 @@ std::vector<Token> tokenize(const std::vector<char>& code)
 
             if (suffix.empty())
             {
-                if (integer) token.type = Token::Type::LITERAL_INT;
-                else token.type = Token::Type::LITERAL_DOUBLE;
+                if (integer) token.type = Token::Type::IntLiteral;
+                else token.type = Token::Type::DoubleLiteral;
             }
             else if (suffix == "f" || suffix == "F")
             {
                 if (integer) throw std::runtime_error("Invalid integer constant");
-                else token.type = Token::Type::LITERAL_FLOAT;
+                else token.type = Token::Type::FloatLiteral;
             }
             else throw std::runtime_error("Invalid suffix " + suffix);
         }
         else if (*i == '"') // string literal
         {
-            token.kind = Token::Kind::LITERAL;
-            token.type = Token::Type::LITERAL_STRING;
+            token.kind = Token::Kind::Literal;
+            token.type = Token::Type::StringLiteral;
 
             for (;;)
             {
@@ -229,8 +229,8 @@ std::vector<Token> tokenize(const std::vector<char>& code)
         }
         else if (*i == '\'') // char literal
         {
-            token.kind = Token::Kind::LITERAL;
-            token.type = Token::Type::LITERAL_CHAR;
+            token.kind = Token::Kind::Literal;
+            token.type = Token::Type::CharLiteral;
 
             if (++i == code.end()) // reached end of file
                 throw std::runtime_error("Unterminated char literal");
@@ -283,13 +283,13 @@ std::vector<Token> tokenize(const std::vector<char>& code)
 
             if (keywordIterator != keywordMap.end())
             {
-                token.kind = Token::Kind::KEYWORD;
+                token.kind = Token::Kind::Keyword;
                 token.type = keywordIterator->second;
             }
             else
             {
-                token.kind = Token::Kind::IDENTIFIER;
-                token.type = Token::Type::IDENTIFIER;
+                token.kind = Token::Kind::Identifier;
+                token.type = Token::Type::Identifier;
             }
         }
         else if (*i == '+' || *i == '-' ||
@@ -303,8 +303,8 @@ std::vector<Token> tokenize(const std::vector<char>& code)
         {
             if (*i == '+')
             {
-                token.kind = Token::Kind::OPERATOR;
-                token.type = Token::Type::OPERATOR_PLUS;
+                token.kind = Token::Kind::Operator;
+                token.type = Token::Type::Plus;
                 token.value.push_back(*i);
                 ++i;
 
@@ -312,13 +312,13 @@ std::vector<Token> tokenize(const std::vector<char>& code)
                 {
                     if (*i == '=') // +=
                     {
-                        token.type = Token::Type::OPERATOR_PLUS_ASSIGNMENT;
+                        token.type = Token::Type::PlusAssignment;
                         token.value.push_back(*i);
                         ++i;
                     }
                     else if (*i == '+') // ++
                     {
-                        token.type = Token::Type::OPERATOR_INCREMENT;
+                        token.type = Token::Type::Increment;
                         token.value.push_back(*i);
                         ++i;
                     }
@@ -326,8 +326,8 @@ std::vector<Token> tokenize(const std::vector<char>& code)
             }
             else if (*i == '-')
             {
-                token.kind = Token::Kind::OPERATOR;
-                token.type = Token::Type::OPERATOR_MINUS;
+                token.kind = Token::Kind::Operator;
+                token.type = Token::Type::Minus;
                 token.value.push_back(*i);
                 ++i;
 
@@ -335,19 +335,19 @@ std::vector<Token> tokenize(const std::vector<char>& code)
                 {
                     if (*i == '=') // -=
                     {
-                        token.type = Token::Type::OPERATOR_MINUS_ASSIGNMENT;
+                        token.type = Token::Type::MinusAssignment;
                         token.value.push_back(*i);
                         ++i;
                     }
                     else if (*i == '-') // --
                     {
-                        token.type = Token::Type::OPERATOR_DECREMENT;
+                        token.type = Token::Type::Decrement;
                         token.value.push_back(*i);
                         ++i;
                     }
                     else if (*i == '>') // ->
                     {
-                        token.type = Token::Type::OPERATOR_ARROW;
+                        token.type = Token::Type::Arrow;
                         token.value.push_back(*i);
                         ++i;
                     }
@@ -355,8 +355,8 @@ std::vector<Token> tokenize(const std::vector<char>& code)
             }
             else if (*i == '*')
             {
-                token.kind = Token::Kind::OPERATOR;
-                token.type = Token::Type::OPERATOR_MULTIPLY;
+                token.kind = Token::Kind::Operator;
+                token.type = Token::Type::Multiply;
                 token.value.push_back(*i);
                 ++i;
 
@@ -364,7 +364,7 @@ std::vector<Token> tokenize(const std::vector<char>& code)
                 {
                     if (*i == '=') // *=
                     {
-                        token.type = Token::Type::OPERATOR_MULTIPLY_ASSIGNMENT;
+                        token.type = Token::Type::Multiply;
                         token.value.push_back(*i);
                         ++i;
                     }
@@ -372,8 +372,8 @@ std::vector<Token> tokenize(const std::vector<char>& code)
             }
             else if (*i == '/')
             {
-                token.kind = Token::Kind::OPERATOR;
-                token.type = Token::Type::OPERATOR_DIVIDE;
+                token.kind = Token::Kind::Operator;
+                token.type = Token::Type::Divide;
                 token.value.push_back(*i);
                 ++i;
 
@@ -381,7 +381,7 @@ std::vector<Token> tokenize(const std::vector<char>& code)
                 {
                     if (*i == '=') // /=
                     {
-                        token.type = Token::Type::OPERATOR_MULTIPLY_ASSIGNMENT;
+                        token.type = Token::Type::Multiply;
                         token.value.push_back(*i);
                         ++i;
                     }
@@ -432,8 +432,8 @@ std::vector<Token> tokenize(const std::vector<char>& code)
             }
             else if (*i == '%')
             {
-                token.kind = Token::Kind::OPERATOR;
-                token.type = Token::Type::OPERATOR_MODULO;
+                token.kind = Token::Kind::Operator;
+                token.type = Token::Type::Modulo;
                 token.value.push_back(*i);
                 ++i;
 
@@ -441,7 +441,7 @@ std::vector<Token> tokenize(const std::vector<char>& code)
                 {
                     if (*i == '=') // %=
                     {
-                        token.type = Token::Type::OPERATOR_MODULO_ASSIGNMENT;
+                        token.type = Token::Type::ModuloAssignment;
                         token.value.push_back(*i);
                         ++i;
                     }
@@ -449,8 +449,8 @@ std::vector<Token> tokenize(const std::vector<char>& code)
             }
             else if (*i == '=')
             {
-                token.kind = Token::Kind::OPERATOR;
-                token.type = Token::Type::OPERATOR_ASSIGNMENT;
+                token.kind = Token::Kind::Operator;
+                token.type = Token::Type::Assignment;
                 token.value.push_back(*i);
                 ++i;
 
@@ -458,7 +458,7 @@ std::vector<Token> tokenize(const std::vector<char>& code)
                 {
                     if (*i == '=') // ==
                     {
-                        token.type = Token::Type::OPERATOR_EQUAL;
+                        token.type = Token::Type::Equal;
                         token.value.push_back(*i);
                         ++i;
                     }
@@ -466,8 +466,8 @@ std::vector<Token> tokenize(const std::vector<char>& code)
             }
             else if (*i == '&')
             {
-                token.kind = Token::Kind::OPERATOR;
-                token.type = Token::Type::OPERATOR_BITWISE_AND;
+                token.kind = Token::Kind::Operator;
+                token.type = Token::Type::BitwiseAnd;
                 token.value.push_back(*i);
                 ++i;
 
@@ -475,13 +475,13 @@ std::vector<Token> tokenize(const std::vector<char>& code)
                 {
                     if (*i == '=') // &=
                     {
-                        token.type = Token::Type::OPERATOR_BITWISE_AND_ASSIGNMENT;
+                        token.type = Token::Type::BitwiseAndAssignment;
                         token.value.push_back(*i);
                         ++i;
                     }
                     else if (*i == '&') // &&
                     {
-                        token.type = Token::Type::OPERATOR_AND;
+                        token.type = Token::Type::And;
                         token.value.push_back(*i);
                         ++i;
                     }
@@ -489,8 +489,8 @@ std::vector<Token> tokenize(const std::vector<char>& code)
             }
             else if (*i == '~')
             {
-                token.kind = Token::Kind::OPERATOR;
-                token.type = Token::Type::OPERATOR_BITWISE_NOT;
+                token.kind = Token::Kind::Operator;
+                token.type = Token::Type::BitwiseNot;
                 token.value.push_back(*i);
                 ++i;
 
@@ -498,7 +498,7 @@ std::vector<Token> tokenize(const std::vector<char>& code)
                 {
                     if (*i == '=') // ~=
                     {
-                        token.type = Token::Type::OPERATOR_BITWISE_NOT_ASSIGNMENT;
+                        token.type = Token::Type::BitwiseNotAssignment;
                         token.value.push_back(*i);
                         ++i;
                     }
@@ -506,8 +506,8 @@ std::vector<Token> tokenize(const std::vector<char>& code)
             }
             else if (*i == '^')
             {
-                token.kind = Token::Kind::OPERATOR;
-                token.type = Token::Type::OPERATOR_BITWISE_XOR;
+                token.kind = Token::Kind::Operator;
+                token.type = Token::Type::BitwiseXor;
                 token.value.push_back(*i);
                 ++i;
 
@@ -515,7 +515,7 @@ std::vector<Token> tokenize(const std::vector<char>& code)
                 {
                     if (*i == '=') // ^=
                     {
-                        token.type = Token::Type::OPERATOR_BITWISE_XOR_ASSIGNMENT;
+                        token.type = Token::Type::BitwiseXorAssignment;
                         token.value.push_back(*i);
                         ++i;
                     }
@@ -523,8 +523,8 @@ std::vector<Token> tokenize(const std::vector<char>& code)
             }
             else if (*i == '|')
             {
-                token.kind = Token::Kind::OPERATOR;
-                token.type = Token::Type::OPERATOR_BITWISE_OR;
+                token.kind = Token::Kind::Operator;
+                token.type = Token::Type::BitwiseOr;
                 token.value.push_back(*i);
                 ++i;
 
@@ -532,13 +532,13 @@ std::vector<Token> tokenize(const std::vector<char>& code)
                 {
                     if (*i == '=') // |=
                     {
-                        token.type = Token::Type::OPERATOR_BITWISE_OR_ASSIGNMENT;
+                        token.type = Token::Type::BitwiseOrAssignment;
                         token.value.push_back(*i);
                         ++i;
                     }
                     else if (*i == '|') // ||
                     {
-                        token.type = Token::Type::OPERATOR_OR;
+                        token.type = Token::Type::Or;
                         token.value.push_back(*i);
                         ++i;
                     }
@@ -546,8 +546,8 @@ std::vector<Token> tokenize(const std::vector<char>& code)
             }
             else if (*i == '<')
             {
-                token.kind = Token::Kind::OPERATOR;
-                token.type = Token::Type::OPERATOR_LESS_THAN;
+                token.kind = Token::Kind::Operator;
+                token.type = Token::Type::LessThan;
                 token.value.push_back(*i);
                 ++i;
 
@@ -555,13 +555,13 @@ std::vector<Token> tokenize(const std::vector<char>& code)
                 {
                     if (*i == '=') // <=
                     {
-                        token.type = Token::Type::OPERATOR_LESS_THAN_EQUAL;
+                        token.type = Token::Type::LessThanEqual;
                         token.value.push_back(*i);
                         ++i;
                     }
                     else if (*i == '<') // <<
                     {
-                        token.type = Token::Type::OPERATOR_SHIFT_LEFT;
+                        token.type = Token::Type::ShiftLeft;
                         token.value.push_back(*i);
                         ++i;
 
@@ -569,7 +569,7 @@ std::vector<Token> tokenize(const std::vector<char>& code)
                         {
                             if (*i == '=') // <<=
                             {
-                                token.type = Token::Type::OPERATOR_SHIFT_LEFT_ASSIGNMENT;
+                                token.type = Token::Type::ShiftLeftAssignment;
                                 token.value.push_back(*i);
                                 ++i;
                             }
@@ -579,8 +579,8 @@ std::vector<Token> tokenize(const std::vector<char>& code)
             }
             else if (*i == '>')
             {
-                token.kind = Token::Kind::OPERATOR;
-                token.type = Token::Type::OPERATOR_GREATER_THAN;
+                token.kind = Token::Kind::Operator;
+                token.type = Token::Type::GreaterThan;
                 token.value.push_back(*i);
                 ++i;
 
@@ -588,13 +588,13 @@ std::vector<Token> tokenize(const std::vector<char>& code)
                 {
                     if (*i == '=') // >=
                     {
-                        token.type = Token::Type::OPERATOR_GREATER_THAN_EQUAL;
+                        token.type = Token::Type::GreaterThanEqual;
                         token.value.push_back(*i);
                         ++i;
                     }
                     else if (*i == '>') // >>
                     {
-                        token.type = Token::Type::OPERATOR_SHIFT_RIGHT;
+                        token.type = Token::Type::ShiftRight;
                         token.value.push_back(*i);
                         ++i;
 
@@ -602,7 +602,7 @@ std::vector<Token> tokenize(const std::vector<char>& code)
                         {
                             if (*i == '=') // >>=
                             {
-                                token.type = Token::Type::OPERATOR_SHIFT_RIGHT_ASSIGNMENT;
+                                token.type = Token::Type::ShiftRightAssignment;
                                 token.value.push_back(*i);
                                 ++i;
                             }
@@ -612,8 +612,8 @@ std::vector<Token> tokenize(const std::vector<char>& code)
             }
             else if (*i == '!')
             {
-                token.kind = Token::Kind::OPERATOR;
-                token.type = Token::Type::OPERATOR_NOT;
+                token.kind = Token::Kind::Operator;
+                token.type = Token::Type::Not;
                 token.value.push_back(*i);
                 ++i;
 
@@ -621,7 +621,7 @@ std::vector<Token> tokenize(const std::vector<char>& code)
                 {
                     if (*i == '=') // !=
                     {
-                        token.type = Token::Type::OPERATOR_NOT_EQUAL;
+                        token.type = Token::Type::NotEq;
                         token.value.push_back(*i);
                         ++i;
                     }
@@ -629,8 +629,8 @@ std::vector<Token> tokenize(const std::vector<char>& code)
             }
             else if (*i == '?')
             {
-                token.kind = Token::Kind::OPERATOR;
-                token.type = Token::Type::OPERATOR_CONDITIONAL;
+                token.kind = Token::Kind::Operator;
+                token.type = Token::Type::Conditional;
                 token.value.push_back(*i);
                 ++i;
             }
@@ -642,8 +642,8 @@ std::vector<Token> tokenize(const std::vector<char>& code)
                 if (i != code.end() && *i == '.' &&
                     (i + 1) != code.end() && *(i + 1) == '.')
                 {
-                    token.kind = Token::Kind::OPERATOR;
-                    token.type = Token::Type::OPERATOR_ELLIPSIS;
+                    token.kind = Token::Kind::Operator;
+                    token.type = Token::Type::Ellipsis;
                     token.value.push_back(*i);
                     ++i;
                     token.value.push_back(*i);
@@ -651,8 +651,8 @@ std::vector<Token> tokenize(const std::vector<char>& code)
                 }
                 else
                 {
-                    token.kind = Token::Kind::OPERATOR;
-                    token.type = Token::Type::OPERATOR_DOT;
+                    token.kind = Token::Kind::Operator;
+                    token.type = Token::Type::Dot;
                 }
             }
         }
