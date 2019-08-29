@@ -850,26 +850,21 @@ void OutputHLSL::printConstruct(const Construct* construct, Options options, std
 {
     switch (construct->getKind())
     {
-        case Construct::Kind::NONE:
-        {
-            break;
-        }
-
-        case Construct::Kind::DECLARATION:
+        case Construct::Kind::Declaration:
         {
             const Declaration* declaration = static_cast<const Declaration*>(construct);
             printDeclaration(declaration, options, code);
             break;
         }
 
-        case Construct::Kind::STATEMENT:
+        case Construct::Kind::Statement:
         {
             const Statement* statement = static_cast<const Statement*>(construct);
             printStatement(statement, options, code);
             break;
         }
 
-        case Construct::Kind::EXPRESSION:
+        case Construct::Kind::Expression:
         {
             const Expression* expression = static_cast<const Expression*>(construct);
             printExpression(expression, options, code);

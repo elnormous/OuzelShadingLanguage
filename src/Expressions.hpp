@@ -35,7 +35,7 @@ public:
         Rvalue
     };
 
-    Expression(Kind initExpressionKind): Construct(Construct::Kind::EXPRESSION), expressionKind(initExpressionKind) {}
+    Expression(Kind initExpressionKind): Construct(Construct::Kind::Expression), expressionKind(initExpressionKind) {}
 
     inline Kind getExpressionKind() const { return expressionKind; }
 

@@ -1324,7 +1324,7 @@ Statement* ASTContext::parseStatement(std::vector<Token>::const_iterator& iterat
 
         while (currentParent)
         {
-            if (currentParent->getKind() == Construct::Kind::DECLARATION)
+            if (currentParent->getKind() == Construct::Kind::Declaration)
             {
                 Declaration* declaration = static_cast<Declaration*>(currentParent);
                 if (declaration->getDeclarationKind() == Declaration::Kind::CALLABLE)
@@ -2929,11 +2929,10 @@ static std::string toString(Construct::Kind kind)
 {
     switch (kind)
     {
-        case Construct::Kind::NONE: return "NONE";
-        case Construct::Kind::DECLARATION: return "DECLARATION";
-        case Construct::Kind::STATEMENT: return "STATEMENT";
-        case Construct::Kind::EXPRESSION: return "EXPRESSION";
-        default: return "unknown";
+        case Construct::Kind::Declaration: return "Declaration";
+        case Construct::Kind::Statement: return "Statement";
+        case Construct::Kind::Expression: return "Expression";
+        default: return "Unknown";
     }
 }
 
@@ -3601,27 +3600,21 @@ void ASTContext::dumpConstruct(const Construct* construct, std::string indent) c
 
     switch (construct->getKind())
     {
-        case Construct::Kind::NONE:
-        {
-            std::cout << std::endl;
-            break;
-        }
-
-        case Construct::Kind::DECLARATION:
+        case Construct::Kind::Declaration:
         {
             const Declaration* declaration = static_cast<const Declaration*>(construct);
             dumpDeclaration(declaration, indent);
             break;
         }
 
-        case Construct::Kind::STATEMENT:
+        case Construct::Kind::Statement:
         {
             const Statement* statement = static_cast<const Statement*>(construct);
             dumpStatement(statement, indent);
             break;
         }
 
-        case Construct::Kind::EXPRESSION:
+        case Construct::Kind::Expression:
         {
             const Expression* expression = static_cast<const Expression*>(construct);
             dumpExpression(expression, indent);

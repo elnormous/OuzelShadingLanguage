@@ -26,7 +26,7 @@ public:
         PARAMETER
     };
 
-    Declaration(Kind initDeclarationKind): Construct(Construct::Kind::DECLARATION), declarationKind(initDeclarationKind) {}
+    Declaration(Kind initDeclarationKind): Construct(Construct::Kind::Declaration), declarationKind(initDeclarationKind) {}
 
     inline Kind getDeclarationKind() const { return declarationKind; }
 

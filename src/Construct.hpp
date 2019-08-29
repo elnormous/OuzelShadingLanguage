@@ -10,21 +10,20 @@ class Construct
 public:
     enum class Kind
     {
-        NONE,
-        DECLARATION,
-        STATEMENT,
-        EXPRESSION
+        Declaration,
+        Statement,
+        Expression
     };
 
-    Construct(Kind initKind): kind(initKind) {}
+    explicit Construct(Kind initKind) noexcept: kind(initKind) {}
     virtual ~Construct() {}
 
-    inline Kind getKind() const { return kind; }
+    inline Kind getKind() const noexcept { return kind; }
 
     Construct* parent = nullptr;
 
 protected:
-    Kind kind = Kind::NONE;
+    Kind kind;
 };
 
 #endif // CONSTRUCT_HPP

@@ -32,7 +32,7 @@ public:
         RETURN,
     };
 
-    Statement(Kind initStatementKind): Construct(Construct::Kind::STATEMENT), statementKind(initStatementKind) {}
+    Statement(Kind initStatementKind): Construct(Construct::Kind::Statement), statementKind(initStatementKind) {}
 
     inline Kind getStatementKind() const { return statementKind; }
 
