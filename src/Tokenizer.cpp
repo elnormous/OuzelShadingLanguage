@@ -102,7 +102,6 @@ std::vector<Token> tokenize(const std::vector<char>& code)
             *i == ',' || *i == ';' ||
             *i == ':') // punctuation
         {
-            token.kind = Token::Kind::Punctuator;
             if (*i == '(') token.type = Token::Type::LeftParenthesis;
             if (*i == ')') token.type = Token::Type::RightParenthesis;
             if (*i == '{') token.type = Token::Type::LeftBrace;
@@ -120,7 +119,6 @@ std::vector<Token> tokenize(const std::vector<char>& code)
                  (*i == '.' && (i + 1) != code.end() && *(i + 1) >= '0' && *(i + 1) <= '9')) // starts with a dot
         {
             bool integer = true;
-            token.kind = Token::Kind::Literal;
 
             while (i != code.end() && (*i >= '0' && *i <= '9'))
             {
@@ -189,7 +187,6 @@ std::vector<Token> tokenize(const std::vector<char>& code)
         }
         else if (*i == '"') // string literal
         {
-            token.kind = Token::Kind::Literal;
             token.type = Token::Type::StringLiteral;
 
             for (;;)
@@ -229,7 +226,6 @@ std::vector<Token> tokenize(const std::vector<char>& code)
         }
         else if (*i == '\'') // char literal
         {
-            token.kind = Token::Kind::Literal;
             token.type = Token::Type::CharLiteral;
 
             if (++i == code.end()) // reached end of file
@@ -282,15 +278,9 @@ std::vector<Token> tokenize(const std::vector<char>& code)
             std::map<std::string, Token::Type>::const_iterator keywordIterator = keywordMap.find(token.value);
 
             if (keywordIterator != keywordMap.end())
-            {
-                token.kind = Token::Kind::Keyword;
                 token.type = keywordIterator->second;
-            }
             else
-            {
-                token.kind = Token::Kind::Identifier;
                 token.type = Token::Type::Identifier;
-            }
         }
         else if (*i == '+' || *i == '-' ||
                  *i == '*' || *i == '/' ||
@@ -303,7 +293,6 @@ std::vector<Token> tokenize(const std::vector<char>& code)
         {
             if (*i == '+')
             {
-                token.kind = Token::Kind::Operator;
                 token.type = Token::Type::Plus;
                 token.value.push_back(*i);
                 ++i;
@@ -326,7 +315,6 @@ std::vector<Token> tokenize(const std::vector<char>& code)
             }
             else if (*i == '-')
             {
-                token.kind = Token::Kind::Operator;
                 token.type = Token::Type::Minus;
                 token.value.push_back(*i);
                 ++i;
@@ -355,7 +343,6 @@ std::vector<Token> tokenize(const std::vector<char>& code)
             }
             else if (*i == '*')
             {
-                token.kind = Token::Kind::Operator;
                 token.type = Token::Type::Multiply;
                 token.value.push_back(*i);
                 ++i;
@@ -372,7 +359,6 @@ std::vector<Token> tokenize(const std::vector<char>& code)
             }
             else if (*i == '/')
             {
-                token.kind = Token::Kind::Operator;
                 token.type = Token::Type::Divide;
                 token.value.push_back(*i);
                 ++i;
@@ -432,7 +418,6 @@ std::vector<Token> tokenize(const std::vector<char>& code)
             }
             else if (*i == '%')
             {
-                token.kind = Token::Kind::Operator;
                 token.type = Token::Type::Modulo;
                 token.value.push_back(*i);
                 ++i;
@@ -449,7 +434,6 @@ std::vector<Token> tokenize(const std::vector<char>& code)
             }
             else if (*i == '=')
             {
-                token.kind = Token::Kind::Operator;
                 token.type = Token::Type::Assignment;
                 token.value.push_back(*i);
                 ++i;
@@ -466,7 +450,6 @@ std::vector<Token> tokenize(const std::vector<char>& code)
             }
             else if (*i == '&')
             {
-                token.kind = Token::Kind::Operator;
                 token.type = Token::Type::BitwiseAnd;
                 token.value.push_back(*i);
                 ++i;
@@ -489,7 +472,6 @@ std::vector<Token> tokenize(const std::vector<char>& code)
             }
             else if (*i == '~')
             {
-                token.kind = Token::Kind::Operator;
                 token.type = Token::Type::BitwiseNot;
                 token.value.push_back(*i);
                 ++i;
@@ -506,7 +488,6 @@ std::vector<Token> tokenize(const std::vector<char>& code)
             }
             else if (*i == '^')
             {
-                token.kind = Token::Kind::Operator;
                 token.type = Token::Type::BitwiseXor;
                 token.value.push_back(*i);
                 ++i;
@@ -523,7 +504,6 @@ std::vector<Token> tokenize(const std::vector<char>& code)
             }
             else if (*i == '|')
             {
-                token.kind = Token::Kind::Operator;
                 token.type = Token::Type::BitwiseOr;
                 token.value.push_back(*i);
                 ++i;
@@ -546,7 +526,6 @@ std::vector<Token> tokenize(const std::vector<char>& code)
             }
             else if (*i == '<')
             {
-                token.kind = Token::Kind::Operator;
                 token.type = Token::Type::LessThan;
                 token.value.push_back(*i);
                 ++i;
@@ -579,7 +558,6 @@ std::vector<Token> tokenize(const std::vector<char>& code)
             }
             else if (*i == '>')
             {
-                token.kind = Token::Kind::Operator;
                 token.type = Token::Type::GreaterThan;
                 token.value.push_back(*i);
                 ++i;
@@ -612,7 +590,6 @@ std::vector<Token> tokenize(const std::vector<char>& code)
             }
             else if (*i == '!')
             {
-                token.kind = Token::Kind::Operator;
                 token.type = Token::Type::Not;
                 token.value.push_back(*i);
                 ++i;
@@ -629,7 +606,6 @@ std::vector<Token> tokenize(const std::vector<char>& code)
             }
             else if (*i == '?')
             {
-                token.kind = Token::Kind::Operator;
                 token.type = Token::Type::Conditional;
                 token.value.push_back(*i);
                 ++i;
@@ -642,7 +618,6 @@ std::vector<Token> tokenize(const std::vector<char>& code)
                 if (i != code.end() && *i == '.' &&
                     (i + 1) != code.end() && *(i + 1) == '.')
                 {
-                    token.kind = Token::Kind::Operator;
                     token.type = Token::Type::Ellipsis;
                     token.value.push_back(*i);
                     ++i;
@@ -650,10 +625,7 @@ std::vector<Token> tokenize(const std::vector<char>& code)
                     ++i;
                 }
                 else
-                {
-                    token.kind = Token::Kind::Operator;
                     token.type = Token::Type::Dot;
-                }
             }
         }
         else if (*i == '\n')
@@ -681,8 +653,7 @@ void dump(const std::vector<Token>& tokens)
 {
     for (const Token& token : tokens)
     {
-        std::cout << "Token, kind: " << toString(token.kind) <<
-            ", type: " << toString(token.type) <<
+        std::cout << "Token, type: " << toString(token.type) <<
             ", value: " << token.value <<
             ", line: " << token.line <<
             ", column: " << token.column << std::endl;

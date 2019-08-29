@@ -10,16 +10,6 @@
 
 struct Token
 {
-    enum class Kind
-    {
-        None,
-        Literal,
-        Keyword,
-        Punctuator,
-        Operator,
-        Identifier
-    };
-
     enum class Type
     {
         None,
@@ -143,26 +133,11 @@ struct Token
         Identifier
     };
 
-    Kind kind = Kind::None;
     Type type = Type::None;
     std::string value;
     uint32_t line = 0;
     uint32_t column = 0;
 };
-
-inline std::string toString(Token::Kind kind)
-{
-    switch (kind)
-    {
-        case Token::Kind::None: return "None";
-        case Token::Kind::Literal: return "Literal";
-        case Token::Kind::Keyword: return "Keyword";
-        case Token::Kind::Punctuator: return "Punctuator";
-        case Token::Kind::Operator: return "Operator";
-        case Token::Kind::Identifier: return "Identifier";
-        default: return "Unknown";
-    }
-}
 
 inline std::string toString(Token::Type type)
 {
