@@ -13,20 +13,19 @@ class Expression: public Construct
 public:
     enum class Kind
     {
-        NONE,
-        CALL,
-        LITERAL,
-        DECLARATION_REFERENCE,
-        PAREN,
-        MEMBER,
-        ARRAY_SUBSCRIPT,
-        UNARY_OPERATOR,
-        BINARY_OPERATOR,
-        TERNARY_OPERATOR,
-        TEMPORARY_OBJECT,
-        INITIALIZER_LIST,
-        CAST,
-        SIZEOF
+        Call,
+        Literal,
+        DeclarationReference,
+        Paren,
+        Member,
+        ArraySubscript,
+        UnaryOperator,
+        BinaryOperator,
+        TernaryOperator,
+        TemporaryObject,
+        InitializerList,
+        Cast,
+        Sizeof
     };
 
     enum class Category: uint8_t
@@ -35,15 +34,15 @@ public:
         Rvalue
     };
 
-    Expression(Kind initExpressionKind): Construct(Construct::Kind::Expression), expressionKind(initExpressionKind) {}
+    Expression(Kind initExpressionKind) noexcept: Construct(Construct::Kind::Expression), expressionKind(initExpressionKind) {}
 
-    inline Kind getExpressionKind() const { return expressionKind; }
+    inline Kind getExpressionKind() const noexcept { return expressionKind; }
 
     QualifiedType qualifiedType;
     Category category = Category::Rvalue;
 
 protected:
-    Kind expressionKind = Kind::NONE;
+    Kind expressionKind;
 };
 
 class LiteralExpression: public Expression
@@ -51,34 +50,33 @@ class LiteralExpression: public Expression
 public:
     enum class Kind
     {
-        NONE,
-        BOOLEAN,
-        INTEGER,
-        FLOATING_POINT,
-        STRING
+        Boolean,
+        Integer,
+        FloatingPoint,
+        String
     };
 
-    LiteralExpression(Kind initLiteralKind): Expression(Expression::Kind::LITERAL), literalKind(initLiteralKind) {}
+    LiteralExpression(Kind initLiteralKind) noexcept: Expression(Expression::Kind::Literal), literalKind(initLiteralKind) {}
 
-    inline Kind getLiteralKind() const { return literalKind; }
+    inline Kind getLiteralKind() const noexcept { return literalKind; }
 
     TypeDeclaration* typeDeclaration = nullptr;
 
 protected:
-    Kind literalKind = Kind::NONE;
+    Kind literalKind;
 };
 
 class BooleanLiteralExpression: public LiteralExpression
 {
 public:
-    BooleanLiteralExpression(): LiteralExpression(LiteralExpression::Kind::BOOLEAN) {}
+    BooleanLiteralExpression(): LiteralExpression(LiteralExpression::Kind::Boolean) {}
     bool value;
 };
 
 class IntegerLiteralExpression: public LiteralExpression
 {
 public:
-    IntegerLiteralExpression(): LiteralExpression(LiteralExpression::Kind::INTEGER) {}
+    IntegerLiteralExpression(): LiteralExpression(LiteralExpression::Kind::Integer) {}
 
     int64_t value;
 };
@@ -86,7 +84,7 @@ public:
 class FloatingPointLiteralExpression: public LiteralExpression
 {
 public:
-    FloatingPointLiteralExpression(): LiteralExpression(LiteralExpression::Kind::FLOATING_POINT) {}
+    FloatingPointLiteralExpression(): LiteralExpression(LiteralExpression::Kind::FloatingPoint) {}
 
     double value;
 };
@@ -94,7 +92,7 @@ public:
 class StringLiteralExpression: public LiteralExpression
 {
 public:
-    StringLiteralExpression(): LiteralExpression(LiteralExpression::Kind::STRING) {}
+    StringLiteralExpression(): LiteralExpression(LiteralExpression::Kind::String) {}
 
     std::string value;
 };
@@ -102,7 +100,7 @@ public:
 class DeclarationReferenceExpression: public Expression
 {
 public:
-    DeclarationReferenceExpression(): Expression(Expression::Kind::DECLARATION_REFERENCE) {}
+    DeclarationReferenceExpression(): Expression(Expression::Kind::DeclarationReference) {}
 
     Declaration* declaration = nullptr;
 };
@@ -110,7 +108,7 @@ public:
 class CallExpression: public Expression
 {
 public:
-    CallExpression(): Expression(Expression::Kind::CALL) {}
+    CallExpression(): Expression(Expression::Kind::Call) {}
 
     DeclarationReferenceExpression* declarationReference = nullptr;
     std::vector<Expression*> parameters;
@@ -119,7 +117,7 @@ public:
 class ParenExpression: public Expression
 {
 public:
-    ParenExpression(): Expression(Expression::Kind::PAREN) {}
+    ParenExpression(): Expression(Expression::Kind::Paren) {}
 
     Expression* expression = nullptr;
 };
@@ -127,7 +125,7 @@ public:
 class MemberExpression: public Expression
 {
 public:
-    MemberExpression(): Expression(Expression::Kind::MEMBER) {}
+    MemberExpression(): Expression(Expression::Kind::Member) {}
 
     Expression* expression = nullptr;
     FieldDeclaration* fieldDeclaration = nullptr;
@@ -136,7 +134,7 @@ public:
 class ArraySubscriptExpression: public Expression
 {
 public:
-    ArraySubscriptExpression(): Expression(Expression::Kind::ARRAY_SUBSCRIPT) {}
+    ArraySubscriptExpression(): Expression(Expression::Kind::ArraySubscript) {}
 
     Expression* expression = nullptr;
     Expression* subscript = nullptr;
@@ -145,7 +143,7 @@ public:
 class UnaryOperatorExpression: public Expression
 {
 public:
-    UnaryOperatorExpression(): Expression(Expression::Kind::UNARY_OPERATOR) {}
+    UnaryOperatorExpression(): Expression(Expression::Kind::UnaryOperator) {}
 
     OperatorDeclaration* operatorDeclaration = nullptr;
 
@@ -155,7 +153,7 @@ public:
 class BinaryOperatorExpression: public Expression
 {
 public:
-    BinaryOperatorExpression(): Expression(Expression::Kind::BINARY_OPERATOR) {}
+    BinaryOperatorExpression(): Expression(Expression::Kind::BinaryOperator) {}
 
     OperatorDeclaration* operatorDeclaration = nullptr;
 
@@ -166,7 +164,7 @@ public:
 class TernaryOperatorExpression: public Expression
 {
 public:
-    TernaryOperatorExpression(): Expression(Expression::Kind::TERNARY_OPERATOR) {}
+    TernaryOperatorExpression(): Expression(Expression::Kind::TernaryOperator) {}
 
     OperatorDeclaration* operatorDeclaration = nullptr;
 
@@ -178,7 +176,7 @@ public:
 class TemporaryObjectExpression: public Expression
 {
 public:
-    TemporaryObjectExpression(): Expression(Expression::Kind::TEMPORARY_OBJECT) {}
+    TemporaryObjectExpression(): Expression(Expression::Kind::TemporaryObject) {}
 
     ConstructorDeclaration* constructorDeclaration = nullptr;
     std::vector<Expression*> parameters;
@@ -187,7 +185,7 @@ public:
 class InitializerListExpression: public Expression
 {
 public:
-    InitializerListExpression(): Expression(Expression::Kind::INITIALIZER_LIST) {}
+    InitializerListExpression(): Expression(Expression::Kind::InitializerList) {}
 
     std::vector<Expression*> expressions;
 };
@@ -197,17 +195,16 @@ class CastExpression: public Expression
 public:
     enum class Kind
     {
-        NONE,
-        IMPLICIT,
-        C_STYLE,
-        FUNCTIONAL,
-        CONST,
-        DYNAMIC,
-        REINTERPRET,
-        STATIC
+        Implicit,
+        CStyle,
+        Functional,
+        Const,
+        Dynamic,
+        Reinterpet,
+        Static
     };
 
-    CastExpression(Kind initCastKind): Expression(Expression::Kind::CAST), castKind(initCastKind) {}
+    CastExpression(Kind initCastKind): Expression(Expression::Kind::Cast), castKind(initCastKind) {}
 
     inline Kind getCastKind() const { return castKind; }
 
@@ -220,7 +217,7 @@ protected:
 class SizeofExpression: public Expression
 {
 public:
-    SizeofExpression(): Expression(Expression::Kind::SIZEOF) {}
+    SizeofExpression(): Expression(Expression::Kind::Sizeof) {}
     
     Expression* expression;
     TypeDeclaration* type;

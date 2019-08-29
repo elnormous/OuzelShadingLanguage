@@ -484,12 +484,7 @@ void OutputMSL::printExpression(const Expression* expression, Options options, s
 {
     switch (expression->getExpressionKind())
     {
-        case Expression::Kind::NONE:
-        {
-            break;
-        }
-
-        case Expression::Kind::CALL:
+        case Expression::Kind::Call:
         {
             if (options.whitespaces) code.append(options.indentation, ' ');
 
@@ -517,7 +512,7 @@ void OutputMSL::printExpression(const Expression* expression, Options options, s
             break;
         }
 
-        case Expression::Kind::LITERAL:
+        case Expression::Kind::Literal:
         {
             if (options.whitespaces) code.append(options.indentation, ' ');
 
@@ -525,26 +520,25 @@ void OutputMSL::printExpression(const Expression* expression, Options options, s
 
             switch (literalExpression->getLiteralKind())
             {
-                case LiteralExpression::Kind::NONE: break;
-                case LiteralExpression::Kind::BOOLEAN:
+                case LiteralExpression::Kind::Boolean:
                 {
                     const BooleanLiteralExpression* booleanLiteralExpression = static_cast<const BooleanLiteralExpression*>(literalExpression);
                     code += (booleanLiteralExpression->value ? "true" : "false");
                     break;
                 }
-                case LiteralExpression::Kind::INTEGER:
+                case LiteralExpression::Kind::Integer:
                 {
                     const IntegerLiteralExpression* integerLiteralExpression = static_cast<const IntegerLiteralExpression*>(literalExpression);
                     code += std::to_string(integerLiteralExpression->value);
                     break;
                 }
-                case LiteralExpression::Kind::FLOATING_POINT:
+                case LiteralExpression::Kind::FloatingPoint:
                 {
                     const FloatingPointLiteralExpression* floatingPointLiteralExpression = static_cast<const FloatingPointLiteralExpression*>(literalExpression);
                     code += std::to_string(floatingPointLiteralExpression->value);
                     break;
                 }
-                case LiteralExpression::Kind::STRING:
+                case LiteralExpression::Kind::String:
                 {
                     const StringLiteralExpression* stringLiteralExpression = static_cast<const StringLiteralExpression*>(literalExpression);
                     code += stringLiteralExpression->value;
@@ -554,7 +548,7 @@ void OutputMSL::printExpression(const Expression* expression, Options options, s
             break;
         }
 
-        case Expression::Kind::DECLARATION_REFERENCE:
+        case Expression::Kind::DeclarationReference:
         {
             if (options.whitespaces) code.append(options.indentation, ' ');
 
@@ -593,7 +587,7 @@ void OutputMSL::printExpression(const Expression* expression, Options options, s
             break;
         }
 
-        case Expression::Kind::PAREN:
+        case Expression::Kind::Paren:
         {
             if (options.whitespaces) code.append(options.indentation, ' ');
 
@@ -606,7 +600,7 @@ void OutputMSL::printExpression(const Expression* expression, Options options, s
             break;
         }
 
-        case Expression::Kind::MEMBER:
+        case Expression::Kind::Member:
         {
             if (options.whitespaces) code.append(options.indentation, ' ');
 
@@ -624,7 +618,7 @@ void OutputMSL::printExpression(const Expression* expression, Options options, s
             break;
         }
 
-        case Expression::Kind::ARRAY_SUBSCRIPT:
+        case Expression::Kind::ArraySubscript:
         {
             if (options.whitespaces) code.append(options.indentation, ' ');
 
@@ -641,7 +635,7 @@ void OutputMSL::printExpression(const Expression* expression, Options options, s
             break;
         }
 
-        case Expression::Kind::UNARY_OPERATOR:
+        case Expression::Kind::UnaryOperator:
         {
             if (options.whitespaces) code.append(options.indentation, ' ');
 
@@ -660,7 +654,7 @@ void OutputMSL::printExpression(const Expression* expression, Options options, s
             break;
         }
 
-        case Expression::Kind::BINARY_OPERATOR:
+        case Expression::Kind::BinaryOperator:
         {
             if (options.whitespaces) code.append(options.indentation, ' ');
 
@@ -700,7 +694,7 @@ void OutputMSL::printExpression(const Expression* expression, Options options, s
             break;
         }
 
-        case Expression::Kind::TERNARY_OPERATOR:
+        case Expression::Kind::TernaryOperator:
         {
             if (options.whitespaces) code.append(options.indentation, ' ');
 
@@ -722,7 +716,7 @@ void OutputMSL::printExpression(const Expression* expression, Options options, s
             break;
         }
 
-        case Expression::Kind::TEMPORARY_OBJECT:
+        case Expression::Kind::TemporaryObject:
         {
             if (options.whitespaces) code.append(options.indentation, ' ');
 
@@ -756,7 +750,7 @@ void OutputMSL::printExpression(const Expression* expression, Options options, s
             break;
         }
 
-        case Expression::Kind::INITIALIZER_LIST:
+        case Expression::Kind::InitializerList:
         {
             if (options.whitespaces) code.append(options.indentation, ' ');
 
@@ -783,13 +777,13 @@ void OutputMSL::printExpression(const Expression* expression, Options options, s
             break;
         }
 
-        case Expression::Kind::CAST:
+        case Expression::Kind::Cast:
         {
             if (options.whitespaces) code.append(options.indentation, ' ');
 
             const CastExpression* castExpression = static_cast<const CastExpression*>(expression);
 
-            if (castExpression->getCastKind() != CastExpression::Kind::IMPLICIT)
+            if (castExpression->getCastKind() != CastExpression::Kind::Implicit)
             {
                 code += castExpression->qualifiedType.typeDeclaration->name + "(";
 
@@ -803,7 +797,7 @@ void OutputMSL::printExpression(const Expression* expression, Options options, s
             }
             break;
         }
-        case Expression::Kind::SIZEOF:
+        case Expression::Kind::Sizeof:
         {
             // TODO: implement
             break;

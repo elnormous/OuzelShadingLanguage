@@ -1794,7 +1794,7 @@ DoStatement* ASTContext::parseDoStatement(std::vector<Token>::const_iterator& it
 CastExpression* ASTContext::addImplicitCast(Expression* expression,
                                             TypeDeclaration* typeDeclaration)
 {
-    CastExpression* result = new CastExpression(CastExpression::Kind::IMPLICIT);
+    CastExpression* result = new CastExpression(CastExpression::Kind::Implicit);
     constructs.push_back(std::unique_ptr<Construct>(result));
     result->parent = expression->parent;
     result->qualifiedType.typeDeclaration = typeDeclaration;
@@ -1870,7 +1870,7 @@ Expression* ASTContext::parsePrimaryExpression(std::vector<Token>::const_iterato
     {
         // TODO: parse type and fix precedence
         CastExpression* result;
-        constructs.push_back(std::unique_ptr<Construct>(result = new CastExpression(CastExpression::Kind::FUNCTIONAL)));
+        constructs.push_back(std::unique_ptr<Construct>(result = new CastExpression(CastExpression::Kind::Functional)));
 
         if (isToken(Token::Type::KEYWORD_BOOL, iterator, end)) result->qualifiedType.typeDeclaration = boolTypeDeclaration;
         else if(isToken(Token::Type::KEYWORD_INT, iterator, end)) result->qualifiedType.typeDeclaration = intTypeDeclaration;
@@ -2093,7 +2093,7 @@ Expression* ASTContext::parsePrimaryExpression(std::vector<Token>::const_iterato
 
         if (isType(iterator, end, declarationScopes))
         {
-            CastExpression* result = new CastExpression(CastExpression::Kind::C_STYLE);
+            CastExpression* result = new CastExpression(CastExpression::Kind::CStyle);
             constructs.push_back(std::unique_ptr<Construct>(result));
             result->parent = parent;
 
@@ -2132,15 +2132,15 @@ Expression* ASTContext::parsePrimaryExpression(std::vector<Token>::const_iterato
         Token::Type::KEYWORD_REINTERPRET_CAST,
         Token::Type::KEYWORD_STATIC_CAST}, iterator, end))
     {
-        CastExpression::Kind castKind = CastExpression::Kind::NONE;
+        CastExpression::Kind castKind;
         
         switch (iterator->type)
         {
-            case Token::Type::KEYWORD_CONST_CAST: castKind = CastExpression::Kind::CONST; break;
-            case Token::Type::KEYWORD_DYNAMIC_CAST: castKind = CastExpression::Kind::DYNAMIC; break;
-            case Token::Type::KEYWORD_REINTERPRET_CAST: castKind = CastExpression::Kind::REINTERPRET; break;
-            case Token::Type::KEYWORD_STATIC_CAST: castKind = CastExpression::Kind::STATIC; break;
-            default: break;
+            case Token::Type::KEYWORD_CONST_CAST: castKind = CastExpression::Kind::Const; break;
+            case Token::Type::KEYWORD_DYNAMIC_CAST: castKind = CastExpression::Kind::Dynamic; break;
+            case Token::Type::KEYWORD_REINTERPRET_CAST: castKind = CastExpression::Kind::Reinterpet; break;
+            case Token::Type::KEYWORD_STATIC_CAST: castKind = CastExpression::Kind::Static; break;
+            default: throw std::runtime_error("Invalid cast");
         }
         
         CastExpression* result;
@@ -2963,20 +2963,19 @@ static std::string toString(Expression::Kind kind)
 {
     switch (kind)
     {
-        case Expression::Kind::NONE: return "NONE";
-        case Expression::Kind::CALL: return "CALL";
-        case Expression::Kind::LITERAL: return "LITERAL";
-        case Expression::Kind::DECLARATION_REFERENCE: return "DECLARATION_REFERENCE";
-        case Expression::Kind::PAREN: return "PAREN";
-        case Expression::Kind::MEMBER: return "MEMBER";
-        case Expression::Kind::ARRAY_SUBSCRIPT: return "ARRAY_SUBSCRIPT";
-        case Expression::Kind::UNARY_OPERATOR: return "UNARY_OPERATOR";
-        case Expression::Kind::BINARY_OPERATOR: return "BINARY_OPERATOR";
-        case Expression::Kind::TERNARY_OPERATOR: return "TERNARY_OPERATOR";
-        case Expression::Kind::TEMPORARY_OBJECT: return "TEMPORARY_OBJECT";
-        case Expression::Kind::INITIALIZER_LIST: return "INITIALIZER_LIST";
-        case Expression::Kind::CAST: return "CAST";
-        case Expression::Kind::SIZEOF: return "SIZEOF";
+        case Expression::Kind::Call: return "Call";
+        case Expression::Kind::Literal: return "Literal";
+        case Expression::Kind::DeclarationReference: return "DeclarationReference";
+        case Expression::Kind::Paren: return "Paren";
+        case Expression::Kind::Member: return "Member";
+        case Expression::Kind::ArraySubscript: return "ArraySubscript";
+        case Expression::Kind::UnaryOperator: return "UnaryOperator";
+        case Expression::Kind::BinaryOperator: return "BinaryOperator";
+        case Expression::Kind::TernaryOperator: return "TernaryOperator";
+        case Expression::Kind::TemporaryObject: return "TemporaryObject";
+        case Expression::Kind::InitializerList: return "InitializerList";
+        case Expression::Kind::Cast: return "Cast";
+        case Expression::Kind::Sizeof: return "Sizeof";
         default: return "Unknown";
     }
 }
@@ -3034,11 +3033,10 @@ static std::string toString(LiteralExpression::Kind kind)
 {
     switch (kind)
     {
-        case LiteralExpression::Kind::NONE: return "NONE";
-        case LiteralExpression::Kind::BOOLEAN: return "BOOLEAN";
-        case LiteralExpression::Kind::INTEGER: return "INTEGER";
-        case LiteralExpression::Kind::FLOATING_POINT: return "FLOATING_POINT";
-        case LiteralExpression::Kind::STRING: return "STRING";
+        case LiteralExpression::Kind::Boolean: return "Boolean";
+        case LiteralExpression::Kind::Integer: return "Integer";
+        case LiteralExpression::Kind::FloatingPoint: return "FloatingPoint";
+        case LiteralExpression::Kind::String: return "String";
         default: return "Unknown";
     }
 }
@@ -3047,13 +3045,12 @@ static std::string toString(CastExpression::Kind kind)
 {
     switch (kind)
     {
-        case CastExpression::Kind::NONE: return "NONE";
-        case CastExpression::Kind::IMPLICIT: return "IMPLICIT";
-        case CastExpression::Kind::C_STYLE: return "C_STYLE";
-        case CastExpression::Kind::FUNCTIONAL: return "FUNCTIONAL";
-        case CastExpression::Kind::STATIC: return "STATIC";
-        case CastExpression::Kind::DYNAMIC: return "DYNAMIC";
-        case CastExpression::Kind::REINTERPRET: return "REINTERPRET";
+        case CastExpression::Kind::Implicit: return "Implicit";
+        case CastExpression::Kind::CStyle: return "CStyle";
+        case CastExpression::Kind::Functional: return "Functional";
+        case CastExpression::Kind::Dynamic: return "Dynamic";
+        case CastExpression::Kind::Reinterpet: return "Reinterpet";
+        case CastExpression::Kind::Static: return "Static";
         default: return "Unknown";
     }
 }
@@ -3393,12 +3390,7 @@ void ASTContext::dumpExpression(const Expression* expression, std::string indent
 
     switch (expression->getExpressionKind())
     {
-        case Expression::Kind::NONE:
-        {
-            break;
-        }
-
-        case Expression::Kind::CALL:
+        case Expression::Kind::Call:
         {
             const CallExpression* callExpression = static_cast<const CallExpression*>(expression);
 
@@ -3412,7 +3404,7 @@ void ASTContext::dumpExpression(const Expression* expression, std::string indent
             break;
         }
 
-        case Expression::Kind::LITERAL:
+        case Expression::Kind::Literal:
         {
             const LiteralExpression* literalExpression = static_cast<const LiteralExpression*>(expression);
 
@@ -3420,26 +3412,25 @@ void ASTContext::dumpExpression(const Expression* expression, std::string indent
 
             switch (literalExpression->getLiteralKind())
             {
-                case LiteralExpression::Kind::NONE: break;
-                case LiteralExpression::Kind::BOOLEAN:
+                case LiteralExpression::Kind::Boolean:
                 {
                     const BooleanLiteralExpression* booleanLiteralExpression = static_cast<const BooleanLiteralExpression*>(literalExpression);
                     std::cout << (booleanLiteralExpression->value ? "true" : "false");
                     break;
                 }
-                case LiteralExpression::Kind::INTEGER:
+                case LiteralExpression::Kind::Integer:
                 {
                     const IntegerLiteralExpression* integerLiteralExpression = static_cast<const IntegerLiteralExpression*>(literalExpression);
                     std::cout << integerLiteralExpression->value;
                     break;
                 }
-                case LiteralExpression::Kind::FLOATING_POINT:
+                case LiteralExpression::Kind::FloatingPoint:
                 {
                     const FloatingPointLiteralExpression* floatingPointLiteralExpression = static_cast<const FloatingPointLiteralExpression*>(literalExpression);
                     std::cout << floatingPointLiteralExpression->value;
                     break;
                 }
-                case LiteralExpression::Kind::STRING:
+                case LiteralExpression::Kind::String:
                 {
                     const StringLiteralExpression* stringLiteralExpression = static_cast<const StringLiteralExpression*>(literalExpression);
                     std::cout << stringLiteralExpression->value;
@@ -3451,7 +3442,7 @@ void ASTContext::dumpExpression(const Expression* expression, std::string indent
             break;
         }
 
-        case Expression::Kind::DECLARATION_REFERENCE:
+        case Expression::Kind::DeclarationReference:
         {
             const DeclarationReferenceExpression* declarationReferenceExpression = static_cast<const DeclarationReferenceExpression*>(expression);
 
@@ -3461,7 +3452,7 @@ void ASTContext::dumpExpression(const Expression* expression, std::string indent
             break;
         }
 
-        case Expression::Kind::PAREN:
+        case Expression::Kind::Paren:
         {
             const ParenExpression* parenExpression = static_cast<const ParenExpression*>(expression);
 
@@ -3471,7 +3462,7 @@ void ASTContext::dumpExpression(const Expression* expression, std::string indent
             break;
         }
 
-        case Expression::Kind::MEMBER:
+        case Expression::Kind::Member:
         {
             const MemberExpression* memberExpression = static_cast<const MemberExpression*>(expression);
 
@@ -3481,7 +3472,7 @@ void ASTContext::dumpExpression(const Expression* expression, std::string indent
             break;
         }
 
-        case Expression::Kind::ARRAY_SUBSCRIPT:
+        case Expression::Kind::ArraySubscript:
         {
             const ArraySubscriptExpression* arraySubscriptExpression = static_cast<const ArraySubscriptExpression*>(expression);
 
@@ -3492,7 +3483,7 @@ void ASTContext::dumpExpression(const Expression* expression, std::string indent
             break;
         }
 
-        case Expression::Kind::UNARY_OPERATOR:
+        case Expression::Kind::UnaryOperator:
         {
             const UnaryOperatorExpression* unaryOperatorExpression = static_cast<const UnaryOperatorExpression*>(expression);
 
@@ -3502,7 +3493,7 @@ void ASTContext::dumpExpression(const Expression* expression, std::string indent
             break;
         }
 
-        case Expression::Kind::BINARY_OPERATOR:
+        case Expression::Kind::BinaryOperator:
         {
             const BinaryOperatorExpression* binaryOperatorExpression = static_cast<const BinaryOperatorExpression*>(expression);
 
@@ -3513,7 +3504,7 @@ void ASTContext::dumpExpression(const Expression* expression, std::string indent
             break;
         }
 
-        case Expression::Kind::TERNARY_OPERATOR:
+        case Expression::Kind::TernaryOperator:
         {
             const TernaryOperatorExpression* ternaryOperatorExpression = static_cast<const TernaryOperatorExpression*>(expression);
 
@@ -3525,7 +3516,7 @@ void ASTContext::dumpExpression(const Expression* expression, std::string indent
             break;
         }
 
-        case Expression::Kind::TEMPORARY_OBJECT:
+        case Expression::Kind::TemporaryObject:
         {
             const TemporaryObjectExpression* temporaryObjectExpression = static_cast<const TemporaryObjectExpression*>(expression);
 
@@ -3539,7 +3530,7 @@ void ASTContext::dumpExpression(const Expression* expression, std::string indent
             break;
         }
 
-        case Expression::Kind::INITIALIZER_LIST:
+        case Expression::Kind::InitializerList:
         {
             const InitializerListExpression* initializerListExpression = static_cast<const InitializerListExpression*>(expression);
 
@@ -3551,7 +3542,7 @@ void ASTContext::dumpExpression(const Expression* expression, std::string indent
             break;
         }
 
-        case Expression::Kind::CAST:
+        case Expression::Kind::Cast:
         {
             const CastExpression* castExpression = static_cast<const CastExpression*>(expression);
 
@@ -3563,7 +3554,7 @@ void ASTContext::dumpExpression(const Expression* expression, std::string indent
 
             break;
         }
-        case Expression::Kind::SIZEOF:
+        case Expression::Kind::Sizeof:
         {
             const SizeofExpression* sizeofExpression = static_cast<const SizeofExpression*>(expression);
 
