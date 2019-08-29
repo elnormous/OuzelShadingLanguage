@@ -27,7 +27,7 @@ std::string OutputGLSL::output(const ASTContext& context, bool whitespaces)
     {
         printConstruct(declaration, Options(0, whitespaces), result);
 
-        if (declaration->getDeclarationKind() != Declaration::Kind::CALLABLE ||
+        if (declaration->getDeclarationKind() != Declaration::Kind::Callable ||
             !static_cast<const CallableDeclaration*>(declaration)->body) // function doesn't have a body
             result += ";";
 
@@ -70,18 +70,13 @@ void OutputGLSL::printDeclaration(const Declaration* declaration, Options option
 {
     switch (declaration->getDeclarationKind())
     {
-        case Declaration::Kind::NONE:
-        {
-            break;
-        }
-
-        case Declaration::Kind::EMPTY:
+        case Declaration::Kind::Empty:
         {
             if (options.whitespaces) code.append(options.indentation, ' ');
             break;
         }
 
-        case Declaration::Kind::TYPE:
+        case Declaration::Kind::Type:
         {
             if (options.whitespaces) code.append(options.indentation, ' ');
 
@@ -116,7 +111,7 @@ void OutputGLSL::printDeclaration(const Declaration* declaration, Options option
             break;
         }
 
-        case Declaration::Kind::FIELD:
+        case Declaration::Kind::Field:
         {
             if (options.whitespaces) code.append(options.indentation, ' ');
 
@@ -163,7 +158,7 @@ void OutputGLSL::printDeclaration(const Declaration* declaration, Options option
             break;
         }
 
-        case Declaration::Kind::CALLABLE:
+        case Declaration::Kind::Callable:
         {
             if (options.whitespaces) code.append(options.indentation, ' ');
 
@@ -206,7 +201,7 @@ void OutputGLSL::printDeclaration(const Declaration* declaration, Options option
             break;
         }
 
-        case Declaration::Kind::VARIABLE:
+        case Declaration::Kind::Variable:
         {
             if (options.whitespaces) code.append(options.indentation, ' ');
 
@@ -228,7 +223,7 @@ void OutputGLSL::printDeclaration(const Declaration* declaration, Options option
             break;
         }
 
-        case Declaration::Kind::PARAMETER:
+        case Declaration::Kind::Parameter:
         {
             if (options.whitespaces) code.append(options.indentation, ' ');
 
@@ -593,7 +588,7 @@ void OutputGLSL::printExpression(const Expression* expression, Options options, 
 
             switch (declaration->getDeclarationKind())
             {
-                case Declaration::Kind::CALLABLE:
+                case Declaration::Kind::Callable:
                 {
                     const CallableDeclaration* callableDeclaration = static_cast<const CallableDeclaration*>(declaration);
 
@@ -604,13 +599,13 @@ void OutputGLSL::printExpression(const Expression* expression, Options options, 
                     }
                     break;
                 }
-                case Declaration::Kind::VARIABLE:
+                case Declaration::Kind::Variable:
                 {
                     const VariableDeclaration* variableDeclaration = static_cast<const VariableDeclaration*>(declaration);
                     code += variableDeclaration->name;
                     break;
                 }
-                case Declaration::Kind::PARAMETER:
+                case Declaration::Kind::Parameter:
                 {
                     const ParameterDeclaration* parameterDeclaration = static_cast<const ParameterDeclaration*>(declaration);
                     code += parameterDeclaration->name;

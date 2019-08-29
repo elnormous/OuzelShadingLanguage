@@ -17,20 +17,19 @@ class Declaration: public Construct
 public:
     enum class Kind
     {
-        NONE,
-        EMPTY,
-        TYPE,
-        FIELD,
-        CALLABLE,
-        VARIABLE,
-        PARAMETER
+        Empty,
+        Type,
+        Field,
+        Callable,
+        Variable,
+        Parameter
     };
 
     Declaration(Kind initDeclarationKind): Construct(Construct::Kind::Declaration), declarationKind(initDeclarationKind) {}
 
-    inline Kind getDeclarationKind() const { return declarationKind; }
+    inline Kind getDeclarationKind() const noexcept { return declarationKind; }
 
-    Declaration* getFirstDeclaration()
+    Declaration* getFirstDeclaration() noexcept
     {
         Declaration* result = this;
 
@@ -44,7 +43,7 @@ public:
     Declaration* definition = nullptr;
 
 protected:
-    Kind declarationKind = Kind::NONE;
+    Kind declarationKind;
 };
 
 class TypeDeclaration: public Declaration
@@ -59,7 +58,7 @@ public:
         //TYPE_DEFINITION // typedef is not supported in GLSL
     };
 
-    TypeDeclaration(Kind initTypeKind): Declaration(Declaration::Kind::TYPE), typeKind(initTypeKind) {}
+    TypeDeclaration(Kind initTypeKind): Declaration(Declaration::Kind::Type), typeKind(initTypeKind) {}
 
     inline Kind getTypeKind() const { return typeKind; }
 
@@ -109,7 +108,7 @@ protected:
 class FieldDeclaration: public Declaration
 {
 public:
-    FieldDeclaration(): Declaration(Declaration::Kind::FIELD)
+    FieldDeclaration(): Declaration(Declaration::Kind::Field)
     {
         definition = this;
     }
@@ -122,7 +121,7 @@ public:
 class ParameterDeclaration: public Declaration
 {
 public:
-    ParameterDeclaration(): Declaration(Declaration::Kind::PARAMETER)
+    ParameterDeclaration(): Declaration(Declaration::Kind::Parameter)
     {
         definition = this;
     }
@@ -148,7 +147,7 @@ public:
         OPERATOR
     };
 
-    CallableDeclaration(Kind initCallableDeclarationKind): Declaration(Declaration::Kind::CALLABLE), callableDeclarationKind(initCallableDeclarationKind) {}
+    CallableDeclaration(Kind initCallableDeclarationKind): Declaration(Declaration::Kind::Callable), callableDeclarationKind(initCallableDeclarationKind) {}
 
     inline Kind getCallableDeclarationKind() const { return callableDeclarationKind; }
 
@@ -204,7 +203,7 @@ public:
     {
         for (Declaration* declaration : memberDeclarations)
         {
-            if (declaration->getDeclarationKind() == Declaration::Kind::CALLABLE)
+            if (declaration->getDeclarationKind() == Declaration::Kind::Callable)
             {
                 CallableDeclaration* callableDeclaration = static_cast<CallableDeclaration*>(declaration);
 
@@ -252,7 +251,7 @@ public:
         STATIC
     };
 
-    VariableDeclaration(): Declaration(Declaration::Kind::VARIABLE)
+    VariableDeclaration(): Declaration(Declaration::Kind::Variable)
     {
         definition = this;
     }

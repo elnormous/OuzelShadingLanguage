@@ -101,7 +101,7 @@ private:
     {
         Declaration* declaration = findDeclaration(name, declarationScopes);
 
-        if (declaration && declaration->getDeclarationKind() == Declaration::Kind::TYPE)
+        if (declaration && declaration->getDeclarationKind() == Declaration::Kind::Type)
             return static_cast<TypeDeclaration*>(declaration);
 
         return nullptr;
@@ -127,7 +127,7 @@ private:
             {
                 if ((*declarationIterator)->name == name)
                 {
-                    if ((*declarationIterator)->getDeclarationKind() != Declaration::Kind::CALLABLE) return nullptr;
+                    if ((*declarationIterator)->getDeclarationKind() != Declaration::Kind::Callable) return nullptr;
 
                     CallableDeclaration* callableDeclaration = static_cast<CallableDeclaration*>(*declarationIterator);
 

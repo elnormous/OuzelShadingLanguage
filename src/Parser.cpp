@@ -290,7 +290,7 @@ FunctionDeclaration* ASTContext::resolveFunctionDeclaration(const std::string& n
         {
             if ((*declarationIterator)->name == name)
             {
-                if ((*declarationIterator)->getDeclarationKind() != Declaration::Kind::CALLABLE) return nullptr;
+                if ((*declarationIterator)->getDeclarationKind() != Declaration::Kind::Callable) return nullptr;
 
                 CallableDeclaration* callableDeclaration = static_cast<CallableDeclaration*>(*declarationIterator);
 
@@ -397,7 +397,7 @@ OperatorDeclaration* ASTContext::resolveOperatorDeclaration(Operator op,
     {
         for (auto declarationIterator = scopeIterator->crbegin(); declarationIterator != scopeIterator->crend(); ++declarationIterator)
         {
-            if ((*declarationIterator)->getDeclarationKind() == Declaration::Kind::CALLABLE)
+            if ((*declarationIterator)->getDeclarationKind() == Declaration::Kind::Callable)
             {
                 CallableDeclaration* callableDeclaration = static_cast<CallableDeclaration*>(*declarationIterator);
 
@@ -558,7 +558,7 @@ Declaration* ASTContext::parseTopLevelDeclaration(std::vector<Token>::const_iter
     if (!(declaration = parseDeclaration(iterator, end, declarationScopes, nullptr)))
         throw std::runtime_error("Failed to parse a declaration");
 
-    if (declaration->getDeclarationKind() == Declaration::Kind::CALLABLE)
+    if (declaration->getDeclarationKind() == Declaration::Kind::Callable)
     {
         CallableDeclaration* callableDeclaration = static_cast<CallableDeclaration*>(declaration);
 
@@ -683,7 +683,7 @@ Declaration* ASTContext::parseDeclaration(std::vector<Token>::const_iterator& it
     if (isToken(Token::Type::SEMICOLON, iterator, end))
     {
         Declaration* declaration;
-        constructs.push_back(std::unique_ptr<Construct>(declaration = new Declaration(Declaration::Kind::EMPTY)));
+        constructs.push_back(std::unique_ptr<Construct>(declaration = new Declaration(Declaration::Kind::Empty)));
 
         return declaration;
     }
@@ -1013,7 +1013,7 @@ Declaration* ASTContext::parseMemberDeclaration(std::vector<Token>::const_iterat
     if (isToken(Token::Type::SEMICOLON, iterator, end))
     {
         Declaration* result;
-        constructs.push_back(std::unique_ptr<Construct>(result = new Declaration(Declaration::Kind::EMPTY)));
+        constructs.push_back(std::unique_ptr<Construct>(result = new Declaration(Declaration::Kind::Empty)));
         result->parent = parent;
 
         return result;
@@ -1327,7 +1327,7 @@ Statement* ASTContext::parseStatement(std::vector<Token>::const_iterator& iterat
             if (currentParent->getKind() == Construct::Kind::Declaration)
             {
                 Declaration* declaration = static_cast<Declaration*>(currentParent);
-                if (declaration->getDeclarationKind() == Declaration::Kind::CALLABLE)
+                if (declaration->getDeclarationKind() == Declaration::Kind::Callable)
                 {
                     callableDeclaration = static_cast<CallableDeclaration*>(currentParent);
                     break;
@@ -1358,7 +1358,7 @@ Statement* ASTContext::parseStatement(std::vector<Token>::const_iterator& iterat
         if (!(result->declaration = parseDeclaration(iterator, end, declarationScopes, result)))
             return nullptr;
 
-        if (result->declaration->getDeclarationKind() != Declaration::Kind::VARIABLE)
+        if (result->declaration->getDeclarationKind() != Declaration::Kind::Variable)
             throw std::runtime_error("Expected a variable declaration");
 
         expectToken(Token::Type::SEMICOLON, iterator, end);
@@ -1471,8 +1471,8 @@ IfStatement* ASTContext::parseIfStatement(std::vector<Token>::const_iterator& it
         if (!(declaration = parseDeclaration(iterator, end, declarationScopes, result)))
             return nullptr;
 
-        if (declaration->getDeclarationKind() != Declaration::Kind::VARIABLE &&
-            declaration->getDeclarationKind() != Declaration::Kind::PARAMETER)
+        if (declaration->getDeclarationKind() != Declaration::Kind::Variable &&
+            declaration->getDeclarationKind() != Declaration::Kind::Parameter)
             throw std::runtime_error("Expected a variable declaration");
 
         result->condition = declaration;
@@ -1529,8 +1529,8 @@ ForStatement* ASTContext::parseForStatement(std::vector<Token>::const_iterator& 
         if (!(declaration = parseDeclaration(iterator, end, declarationScopes, result)))
             return nullptr;
 
-        if (declaration->getDeclarationKind() != Declaration::Kind::VARIABLE &&
-            declaration->getDeclarationKind() != Declaration::Kind::PARAMETER)
+        if (declaration->getDeclarationKind() != Declaration::Kind::Variable &&
+            declaration->getDeclarationKind() != Declaration::Kind::Parameter)
             throw std::runtime_error("Expected a variable declaration");
 
         result->condition = declaration;
@@ -1562,8 +1562,8 @@ ForStatement* ASTContext::parseForStatement(std::vector<Token>::const_iterator& 
         if (!(declaration = parseDeclaration(iterator, end, declarationScopes, result)))
             return nullptr;
 
-        if (declaration->getDeclarationKind() != Declaration::Kind::VARIABLE &&
-            declaration->getDeclarationKind() != Declaration::Kind::PARAMETER)
+        if (declaration->getDeclarationKind() != Declaration::Kind::Variable &&
+            declaration->getDeclarationKind() != Declaration::Kind::Parameter)
             throw std::runtime_error("Expected a variable declaration");
 
         result->condition = declaration;
@@ -1634,8 +1634,8 @@ SwitchStatement* ASTContext::parseSwitchStatement(std::vector<Token>::const_iter
         if (!(declaration = parseDeclaration(iterator, end, declarationScopes, result)))
             return nullptr;
 
-        if (declaration->getDeclarationKind() != Declaration::Kind::VARIABLE &&
-            declaration->getDeclarationKind() != Declaration::Kind::PARAMETER)
+        if (declaration->getDeclarationKind() != Declaration::Kind::Variable &&
+            declaration->getDeclarationKind() != Declaration::Kind::Parameter)
             throw std::runtime_error("Expected a variable declaration");
 
         result->condition = declaration;
@@ -1729,8 +1729,8 @@ WhileStatement* ASTContext::parseWhileStatement(std::vector<Token>::const_iterat
         if (!(declaration = parseDeclaration(iterator, end, declarationScopes, result)))
             return nullptr;
 
-        if (declaration->getDeclarationKind() != Declaration::Kind::VARIABLE &&
-            declaration->getDeclarationKind() != Declaration::Kind::PARAMETER)
+        if (declaration->getDeclarationKind() != Declaration::Kind::Variable &&
+            declaration->getDeclarationKind() != Declaration::Kind::Parameter)
             throw std::runtime_error("Expected a variable declaration");
 
         result->condition = declaration;
@@ -2059,21 +2059,21 @@ Expression* ASTContext::parsePrimaryExpression(std::vector<Token>::const_iterato
 
             switch (result->declaration->getDeclarationKind())
             {
-                case Declaration::Kind::TYPE:
+                case Declaration::Kind::Type:
                 {
                     TypeDeclaration* typeDeclaration = static_cast<TypeDeclaration*>(result->declaration);
                     result->qualifiedType.typeDeclaration = typeDeclaration;
                     result->category = Expression::Category::Rvalue;
                     break;
                 }
-                case Declaration::Kind::VARIABLE:
+                case Declaration::Kind::Variable:
                 {
                     VariableDeclaration* variableDeclaration = static_cast<VariableDeclaration*>(result->declaration);
                     result->qualifiedType = variableDeclaration->qualifiedType;
                     result->category = Expression::Category::Lvalue;
                     break;
                 }
-                case Declaration::Kind::PARAMETER:
+                case Declaration::Kind::Parameter:
                 {
                     ParameterDeclaration* parameterDeclaration = static_cast<ParameterDeclaration*>(result->declaration);
                     result->qualifiedType = parameterDeclaration->qualifiedType;
@@ -2280,7 +2280,7 @@ Expression* ASTContext::parseMemberExpression(std::vector<Token>::const_iterator
             return nullptr;
         }
 
-        if (memberDeclaration->getDeclarationKind() != Declaration::Kind::FIELD)
+        if (memberDeclaration->getDeclarationKind() != Declaration::Kind::Field)
             throw std::runtime_error(iterator->value + " is not a field");
 
         expression->fieldDeclaration = static_cast<FieldDeclaration*>(memberDeclaration);
@@ -2985,13 +2985,12 @@ static std::string toString(Declaration::Kind kind)
 {
     switch (kind)
     {
-        case Declaration::Kind::NONE: return "NONE";
-        case Declaration::Kind::EMPTY: return "EMPTY";
-        case Declaration::Kind::TYPE: return "TYPE";
-        case Declaration::Kind::FIELD: return "FIELD";
-        case Declaration::Kind::CALLABLE: return "CALLABLE";
-        case Declaration::Kind::VARIABLE: return "VARIABLE";
-        case Declaration::Kind::PARAMETER: return "PARAMETER";
+        case Declaration::Kind::Empty: return "Empty";
+        case Declaration::Kind::Type: return "Type";
+        case Declaration::Kind::Field: return "Field";
+        case Declaration::Kind::Callable: return "Callable";
+        case Declaration::Kind::Variable: return "Variable";
+        case Declaration::Kind::Parameter: return "Parameter";
         default: return "unknown";
     }
 }
@@ -3103,18 +3102,13 @@ void ASTContext::dumpDeclaration(const Declaration* declaration, std::string ind
 
     switch (declaration->getDeclarationKind())
     {
-        case Declaration::Kind::NONE:
-        {
-            break;
-        }
-
-        case Declaration::Kind::EMPTY:
+        case Declaration::Kind::Empty:
         {
             std::cout << std::endl;
             break;
         }
 
-        case Declaration::Kind::TYPE:
+        case Declaration::Kind::Type:
         {
             const TypeDeclaration* typeDeclaration = static_cast<const TypeDeclaration*>(declaration);
 
@@ -3161,7 +3155,7 @@ void ASTContext::dumpDeclaration(const Declaration* declaration, std::string ind
             break;
         }
 
-        case Declaration::Kind::FIELD:
+        case Declaration::Kind::Field:
         {
             const FieldDeclaration* fieldDeclaration = static_cast<const FieldDeclaration*>(declaration);
 
@@ -3174,7 +3168,7 @@ void ASTContext::dumpDeclaration(const Declaration* declaration, std::string ind
             break;
         }
 
-        case Declaration::Kind::CALLABLE:
+        case Declaration::Kind::Callable:
         {
             const CallableDeclaration* callableDeclaration = static_cast<const CallableDeclaration*>(declaration);
 
@@ -3208,7 +3202,7 @@ void ASTContext::dumpDeclaration(const Declaration* declaration, std::string ind
             break;
         }
 
-        case Declaration::Kind::VARIABLE:
+        case Declaration::Kind::Variable:
         {
             const VariableDeclaration* variableDeclaration = static_cast<const VariableDeclaration*>(declaration);
             std::cout << ", name: " << variableDeclaration->name << ", type: " << getPrintableTypeName(variableDeclaration->qualifiedType) << std::endl;
@@ -3221,7 +3215,7 @@ void ASTContext::dumpDeclaration(const Declaration* declaration, std::string ind
             break;
         }
 
-        case Declaration::Kind::PARAMETER:
+        case Declaration::Kind::Parameter:
         {
             const ParameterDeclaration* parameterDeclaration = static_cast<const ParameterDeclaration*>(declaration);
             std::cout << ", name: " << parameterDeclaration->name << ", type: " << getPrintableTypeName(parameterDeclaration->qualifiedType) << std::endl;
