@@ -245,19 +245,14 @@ void OutputHLSL::printStatement(const Statement* statement, Options options, std
 {
     switch (statement->getStatementKind())
     {
-        case Statement::Kind::NONE:
-        {
-            break;
-        }
-
-        case Statement::Kind::EMPTY:
+        case Statement::Kind::Empty:
         {
             if (options.whitespaces) code.append(options.indentation, ' ');
             code += ";";
             break;
         }
 
-        case Statement::Kind::EXPRESSION:
+        case Statement::Kind::Expression:
         {
             if (options.whitespaces) code.append(options.indentation, ' ');
 
@@ -268,7 +263,7 @@ void OutputHLSL::printStatement(const Statement* statement, Options options, std
             break;
         }
 
-        case Statement::Kind::DECLARATION:
+        case Statement::Kind::Declaration:
         {
             if (options.whitespaces) code.append(options.indentation, ' ');
 
@@ -279,7 +274,7 @@ void OutputHLSL::printStatement(const Statement* statement, Options options, std
             break;
         }
 
-        case Statement::Kind::COMPOUND:
+        case Statement::Kind::Compound:
         {
             const CompoundStatement* compoundStatement = static_cast<const CompoundStatement*>(statement);
 
@@ -298,7 +293,7 @@ void OutputHLSL::printStatement(const Statement* statement, Options options, std
             break;
         }
 
-        case Statement::Kind::IF:
+        case Statement::Kind::If:
         {
             if (options.whitespaces) code.append(options.indentation, ' ');
 
@@ -312,7 +307,7 @@ void OutputHLSL::printStatement(const Statement* statement, Options options, std
             code += ")";
             if (options.whitespaces) code += "\n";
 
-            if (ifStatement->body->getStatementKind() == Statement::Kind::COMPOUND)
+            if (ifStatement->body->getStatementKind() == Statement::Kind::Compound)
                 printConstruct(ifStatement->body, options, code);
             else
                 printConstruct(ifStatement->body, Options(options.indentation + 4, options.whitespaces), code);
@@ -324,7 +319,7 @@ void OutputHLSL::printStatement(const Statement* statement, Options options, std
                 code += "else";
                 if (options.whitespaces) code += "\n";
 
-                if (ifStatement->elseBody->getStatementKind() == Statement::Kind::COMPOUND)
+                if (ifStatement->elseBody->getStatementKind() == Statement::Kind::Compound)
                     printConstruct(ifStatement->elseBody, options, code);
                 else
                     printConstruct(ifStatement->elseBody, Options(options.indentation + 4, options.whitespaces), code);
@@ -332,7 +327,7 @@ void OutputHLSL::printStatement(const Statement* statement, Options options, std
             break;
         }
 
-        case Statement::Kind::FOR:
+        case Statement::Kind::For:
         {
             if (options.whitespaces) code.append(options.indentation, ' ');
 
@@ -359,14 +354,14 @@ void OutputHLSL::printStatement(const Statement* statement, Options options, std
             code += ")";
             if (options.whitespaces) code += "\n";
 
-            if (forStatement->body->getStatementKind() == Statement::Kind::COMPOUND)
+            if (forStatement->body->getStatementKind() == Statement::Kind::Compound)
                 printConstruct(forStatement->body, options, code);
             else
                 printConstruct(forStatement->body, Options(options.indentation + 4, options.whitespaces), code);
             break;
         }
 
-        case Statement::Kind::SWITCH:
+        case Statement::Kind::Switch:
         {
             if (options.whitespaces) code.append(options.indentation, ' ');
 
@@ -380,7 +375,7 @@ void OutputHLSL::printStatement(const Statement* statement, Options options, std
             code += ")";
             if (options.whitespaces) code += "\n";
 
-            if (switchStatement->body->getStatementKind() == Statement::Kind::COMPOUND)
+            if (switchStatement->body->getStatementKind() == Statement::Kind::Compound)
                 printConstruct(switchStatement->body, options, code);
             else
                 printConstruct(switchStatement->body, Options(options.indentation + 4, options.whitespaces), code);
@@ -388,7 +383,7 @@ void OutputHLSL::printStatement(const Statement* statement, Options options, std
             break;
         }
 
-        case Statement::Kind::CASE:
+        case Statement::Kind::Case:
         {
             if (options.whitespaces) code.append(options.indentation, ' ');
 
@@ -400,7 +395,7 @@ void OutputHLSL::printStatement(const Statement* statement, Options options, std
             code += ":";
             if (options.whitespaces) code += "\n";
 
-            if (caseStatement->body->getStatementKind() == Statement::Kind::COMPOUND)
+            if (caseStatement->body->getStatementKind() == Statement::Kind::Compound)
                 printConstruct(caseStatement->body, options, code);
             else
                 printConstruct(caseStatement->body, Options(options.indentation + 4, options.whitespaces), code);
@@ -408,7 +403,7 @@ void OutputHLSL::printStatement(const Statement* statement, Options options, std
             break;
         }
 
-        case Statement::Kind::DEFAULT:
+        case Statement::Kind::Default:
         {
             if (options.whitespaces) code.append(options.indentation, ' ');
 
@@ -416,7 +411,7 @@ void OutputHLSL::printStatement(const Statement* statement, Options options, std
             code += "default:";
             if (options.whitespaces) code += "\n";
 
-            if (defaultStatement->body->getStatementKind() == Statement::Kind::COMPOUND)
+            if (defaultStatement->body->getStatementKind() == Statement::Kind::Compound)
                 printConstruct(defaultStatement->body, options, code);
             else
                 printConstruct(defaultStatement->body, Options(options.indentation + 4, options.whitespaces), code);
@@ -424,7 +419,7 @@ void OutputHLSL::printStatement(const Statement* statement, Options options, std
             break;
         }
 
-        case Statement::Kind::WHILE:
+        case Statement::Kind::While:
         {
             if (options.whitespaces) code.append(options.indentation, ' ');
 
@@ -438,14 +433,14 @@ void OutputHLSL::printStatement(const Statement* statement, Options options, std
             code += ")";
             if (options.whitespaces) code += "\n";
 
-            if (whileStatement->body->getStatementKind() == Statement::Kind::COMPOUND)
+            if (whileStatement->body->getStatementKind() == Statement::Kind::Compound)
                 printConstruct(whileStatement->body, options, code);
             else
                 printConstruct(whileStatement->body, Options(options.indentation + 4, options.whitespaces), code);
             break;
         }
 
-        case Statement::Kind::DO:
+        case Statement::Kind::Do:
         {
             if (options.whitespaces) code.append(options.indentation, ' ');
 
@@ -453,7 +448,7 @@ void OutputHLSL::printStatement(const Statement* statement, Options options, std
             code += "do";
             if (options.whitespaces) code += "\n";
 
-            if (doStatement->body->getStatementKind() == Statement::Kind::COMPOUND)
+            if (doStatement->body->getStatementKind() == Statement::Kind::Compound)
                 printConstruct(doStatement->body, options, code);
             else
             {
@@ -475,21 +470,21 @@ void OutputHLSL::printStatement(const Statement* statement, Options options, std
             break;
         }
 
-        case Statement::Kind::BREAK:
+        case Statement::Kind::Break:
         {
             if (options.whitespaces) code.append(options.indentation, ' ');
             code += "break;";
             break;
         }
 
-        case Statement::Kind::CONTINUE:
+        case Statement::Kind::Continue:
         {
             if (options.whitespaces) code.append(options.indentation, ' ');
             code += "continue;";
             break;
         }
 
-        case Statement::Kind::RETURN:
+        case Statement::Kind::Return:
         {
             if (options.whitespaces) code.append(options.indentation, ' ');
 

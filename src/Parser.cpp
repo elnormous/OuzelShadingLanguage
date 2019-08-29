@@ -809,14 +809,11 @@ Declaration* ASTContext::parseDeclaration(std::vector<Token>::const_iterator& it
                 {
                     if (attribute.second.size() == 1)
                     {
-                        Program program = Program::NONE;
-
-                        if (attribute.second.front() == "fragment") program = Program::FRAGMENT;
-                        else if (attribute.second.front() == "vertex") program = Program::VERTEX;
+                        result->isProgram = true;
+                        if (attribute.second.front() == "fragment") result->program = Program::Fragment;
+                        else if (attribute.second.front() == "vertex") result->program = Program::Vertex;
                         else
                             throw std::runtime_error("Invalid program" + attribute.second.front());
-
-                        result->program = program;
                     }
                     else
                         throw std::runtime_error("Invalid parameters for attribute " + attribute.first);
@@ -1371,7 +1368,7 @@ Statement* ASTContext::parseStatement(std::vector<Token>::const_iterator& iterat
     {
         ++iterator;
 
-        Statement* statement = new Statement(Statement::Kind::EMPTY);
+        Statement* statement = new Statement(Statement::Kind::Empty);
         constructs.push_back(std::unique_ptr<Construct>(statement));
         statement->parent = parent;
 
@@ -2940,21 +2937,20 @@ static std::string toString(Statement::Kind kind)
 {
     switch (kind)
     {
-        case Statement::Kind::NONE: return "NONE";
-        case Statement::Kind::EMPTY: return "EMPTY";
-        case Statement::Kind::EXPRESSION: return "EXPRESSION";
-        case Statement::Kind::DECLARATION: return "DECLARATION";
-        case Statement::Kind::COMPOUND: return "COMPOUND";
-        case Statement::Kind::IF: return "IF";
-        case Statement::Kind::FOR: return "FOR";
-        case Statement::Kind::SWITCH: return "SWITCH";
-        case Statement::Kind::CASE: return "CASE";
-        case Statement::Kind::DEFAULT: return "DEFAULT";
-        case Statement::Kind::WHILE: return "WHILE";
-        case Statement::Kind::DO: return "DO";
-        case Statement::Kind::BREAK: return "BREAK";
-        case Statement::Kind::CONTINUE: return "CONTINUE";
-        case Statement::Kind::RETURN: return "RETURN";
+        case Statement::Kind::Empty: return "Empty";
+        case Statement::Kind::Expression: return "Expression";
+        case Statement::Kind::Declaration: return "Declaration";
+        case Statement::Kind::Compound: return "Compound";
+        case Statement::Kind::If: return "If";
+        case Statement::Kind::For: return "For";
+        case Statement::Kind::Switch: return "Switch";
+        case Statement::Kind::Case: return "Case";
+        case Statement::Kind::Default: return "Default";
+        case Statement::Kind::While: return "While";
+        case Statement::Kind::Do: return "Do";
+        case Statement::Kind::Break: return "Break";
+        case Statement::Kind::Continue: return "Continue";
+        case Statement::Kind::Return: return "Return";
         default: return "Unknown";
     }
 }
@@ -3170,7 +3166,7 @@ void ASTContext::dumpDeclaration(const Declaration* declaration, std::string ind
                 if (functionDeclaration->isStatic) std::cout << " static";
                 if (functionDeclaration->isInline) std::cout << " inline";
 
-                if (functionDeclaration->program != Program::NONE)
+                if (functionDeclaration->isProgram)
                     std::cout << ", program: " << toString(functionDeclaration->program);
             }
 
@@ -3222,18 +3218,13 @@ void ASTContext::dumpStatement(const Statement* statement, std::string indent) c
 
     switch (statement->getStatementKind())
     {
-        case Statement::Kind::NONE:
-        {
-            break;
-        }
-
-        case Statement::Kind::EMPTY:
+        case Statement::Kind::Empty:
         {
             std::cout << std::endl;
             break;
         }
 
-        case Statement::Kind::EXPRESSION:
+        case Statement::Kind::Expression:
         {
             const ExpressionStatement* expressionStatement = static_cast<const ExpressionStatement*>(statement);
 
@@ -3243,7 +3234,7 @@ void ASTContext::dumpStatement(const Statement* statement, std::string indent) c
             break;
         }
 
-        case Statement::Kind::DECLARATION:
+        case Statement::Kind::Declaration:
         {
             const DeclarationStatement* declarationStatement = static_cast<const DeclarationStatement*>(statement);
 
@@ -3253,7 +3244,7 @@ void ASTContext::dumpStatement(const Statement* statement, std::string indent) c
             break;
         }
 
-        case Statement::Kind::COMPOUND:
+        case Statement::Kind::Compound:
         {
             const CompoundStatement* compoundStatement = static_cast<const CompoundStatement*>(statement);
 
@@ -3265,7 +3256,7 @@ void ASTContext::dumpStatement(const Statement* statement, std::string indent) c
             break;
         }
 
-        case Statement::Kind::IF:
+        case Statement::Kind::If:
         {
             const IfStatement* ifStatement = static_cast<const IfStatement*>(statement);
 
@@ -3277,7 +3268,7 @@ void ASTContext::dumpStatement(const Statement* statement, std::string indent) c
             break;
         }
 
-        case Statement::Kind::FOR:
+        case Statement::Kind::For:
         {
             const ForStatement* forStatement = static_cast<const ForStatement*>(statement);
 
@@ -3290,7 +3281,7 @@ void ASTContext::dumpStatement(const Statement* statement, std::string indent) c
             break;
         }
 
-        case Statement::Kind::SWITCH:
+        case Statement::Kind::Switch:
         {
             const SwitchStatement* switchStatement = static_cast<const SwitchStatement*>(statement);
 
@@ -3301,7 +3292,7 @@ void ASTContext::dumpStatement(const Statement* statement, std::string indent) c
             break;
         }
 
-        case Statement::Kind::CASE:
+        case Statement::Kind::Case:
         {
             const CaseStatement* caseStatement = static_cast<const CaseStatement*>(statement);
 
@@ -3312,7 +3303,7 @@ void ASTContext::dumpStatement(const Statement* statement, std::string indent) c
             break;
         }
 
-        case Statement::Kind::DEFAULT:
+        case Statement::Kind::Default:
         {
             const DefaultStatement* defaultStatement = static_cast<const DefaultStatement*>(statement);
 
@@ -3322,7 +3313,7 @@ void ASTContext::dumpStatement(const Statement* statement, std::string indent) c
             break;
         }
 
-        case Statement::Kind::WHILE:
+        case Statement::Kind::While:
         {
             const WhileStatement* whileStatement = static_cast<const WhileStatement*>(statement);
 
@@ -3333,7 +3324,7 @@ void ASTContext::dumpStatement(const Statement* statement, std::string indent) c
             break;
         }
 
-        case Statement::Kind::DO:
+        case Statement::Kind::Do:
         {
             const DoStatement* doStatement = static_cast<const DoStatement*>(statement);
 
@@ -3344,19 +3335,19 @@ void ASTContext::dumpStatement(const Statement* statement, std::string indent) c
             break;
         }
 
-        case Statement::Kind::BREAK:
+        case Statement::Kind::Break:
         {
             std::cout << std::endl;
             break;
         }
 
-        case Statement::Kind::CONTINUE:
+        case Statement::Kind::Continue:
         {
             std::cout << std::endl;
             break;
         }
 
-        case Statement::Kind::RETURN:
+        case Statement::Kind::Return:
         {
             const ReturnStatement* returnStatement = static_cast<const ReturnStatement*>(statement);
 

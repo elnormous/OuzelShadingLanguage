@@ -9,18 +9,16 @@
 
 enum class Program
 {
-    NONE,
-    FRAGMENT,
-    VERTEX
+    Fragment,
+    Vertex
 };
 
 inline std::string toString(Program program)
 {
     switch (program)
     {
-        case Program::NONE: return "NONE";
-        case Program::FRAGMENT: return "FRAGMENT";
-        case Program::VERTEX: return "VERTEX";
+        case Program::Fragment: return "Fragment";
+        case Program::Vertex: return "Vertex";
         default: return "Unknown";
     }
 }

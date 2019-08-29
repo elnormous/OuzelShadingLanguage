@@ -164,7 +164,8 @@ public:
     bool isInline = false;
     bool isStatic = false;
     bool isBuiltin = false;
-    Program program = Program::NONE;
+    bool isProgram = false;
+    Program program;
 };
 
 class ConstructorDeclaration: public CallableDeclaration

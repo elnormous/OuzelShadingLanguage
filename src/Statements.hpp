@@ -15,35 +15,34 @@ class Statement: public Construct
 public:
     enum class Kind
     {
-        NONE,
-        EMPTY,
-        EXPRESSION,
-        DECLARATION,
-        COMPOUND,
-        IF,
-        FOR,
-        SWITCH,
-        CASE,
-        DEFAULT,
-        WHILE,
-        DO,
-        BREAK,
-        CONTINUE,
-        RETURN,
+        Empty,
+        Expression,
+        Declaration,
+        Compound,
+        If,
+        For,
+        Switch,
+        Case,
+        Default,
+        While,
+        Do,
+        Break,
+        Continue,
+        Return,
     };
 
-    Statement(Kind initStatementKind): Construct(Construct::Kind::Statement), statementKind(initStatementKind) {}
+    Statement(Kind initStatementKind) noexcept: Construct(Construct::Kind::Statement), statementKind(initStatementKind) {}
 
-    inline Kind getStatementKind() const { return statementKind; }
+    inline Kind getStatementKind() const noexcept { return statementKind; }
 
 protected:
-    Kind statementKind = Kind::NONE;
+    Kind statementKind;
 };
 
 class ExpressionStatement: public Statement
 {
 public:
-    ExpressionStatement(): Statement(Statement::Kind::EXPRESSION) {}
+    ExpressionStatement(): Statement(Statement::Kind::Expression) {}
 
     Expression* expression = nullptr;
 };
@@ -51,7 +50,7 @@ public:
 class DeclarationStatement: public Statement
 {
 public:
-    DeclarationStatement(): Statement(Statement::Kind::DECLARATION) {}
+    DeclarationStatement(): Statement(Statement::Kind::Declaration) {}
 
     Declaration* declaration = nullptr;
 };
@@ -59,7 +58,7 @@ public:
 class CompoundStatement: public Statement
 {
 public:
-    CompoundStatement(): Statement(Statement::Kind::COMPOUND) {}
+    CompoundStatement(): Statement(Statement::Kind::Compound) {}
 
     std::vector<Statement*> statements;
 };
@@ -67,7 +66,7 @@ public:
 class IfStatement: public Statement
 {
 public:
-    IfStatement(): Statement(Statement::Kind::IF) {}
+    IfStatement(): Statement(Statement::Kind::If) {}
 
     Construct* condition = nullptr;
     Statement* body = nullptr;
@@ -77,7 +76,7 @@ public:
 class ForStatement: public Statement
 {
 public:
-    ForStatement(): Statement(Statement::Kind::FOR) {}
+    ForStatement(): Statement(Statement::Kind::For) {}
 
     Construct* initialization = nullptr;
     Construct* condition = nullptr;
@@ -88,7 +87,7 @@ public:
 class SwitchStatement: public Statement
 {
 public:
-    SwitchStatement(): Statement(Statement::Kind::SWITCH) {}
+    SwitchStatement(): Statement(Statement::Kind::Switch) {}
 
     Construct* condition = nullptr;
     Statement* body = nullptr;
@@ -97,7 +96,7 @@ public:
 class CaseStatement: public Statement
 {
 public:
-    CaseStatement(): Statement(Statement::Kind::CASE) {}
+    CaseStatement(): Statement(Statement::Kind::Case) {}
 
     Expression* condition = nullptr;
     Statement* body = nullptr;
@@ -106,7 +105,7 @@ public:
 class DefaultStatement: public Statement
 {
 public:
-    DefaultStatement(): Statement(Statement::Kind::DEFAULT) {}
+    DefaultStatement(): Statement(Statement::Kind::Default) {}
 
     Statement* body = nullptr;
 };
@@ -114,7 +113,7 @@ public:
 class WhileStatement: public Statement
 {
 public:
-    WhileStatement(): Statement(Statement::Kind::WHILE) {}
+    WhileStatement(): Statement(Statement::Kind::While) {}
 
     Construct* condition = nullptr;
     Statement* body = nullptr;
@@ -123,7 +122,7 @@ public:
 class DoStatement: public Statement
 {
 public:
-    DoStatement(): Statement(Statement::Kind::DO) {}
+    DoStatement(): Statement(Statement::Kind::Do) {}
 
     Expression* condition = nullptr;
     Statement* body = nullptr;
@@ -132,19 +131,19 @@ public:
 class BreakStatement: public Statement
 {
 public:
-    BreakStatement(): Statement(Statement::Kind::BREAK) {}
+    BreakStatement(): Statement(Statement::Kind::Break) {}
 };
 
 class ContinueStatement: public Statement
 {
 public:
-    ContinueStatement(): Statement(Statement::Kind::CONTINUE) {}
+    ContinueStatement(): Statement(Statement::Kind::Continue) {}
 };
 
 class ReturnStatement: public Statement
 {
 public:
-    ReturnStatement(): Statement(Statement::Kind::RETURN) {}
+    ReturnStatement(): Statement(Statement::Kind::Return) {}
 
     Expression* result = nullptr;
 };

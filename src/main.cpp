@@ -11,6 +11,20 @@
 #include "OutputGLSL.hpp"
 #include "OutputMSL.hpp"
 
+enum class OutputProgram
+{
+    None,
+    Fragment,
+    Vertex
+};
+
+static constexpr Program getProgram(OutputProgram outputProgram)
+{
+    return (outputProgram == OutputProgram::Fragment) ? Program::Fragment :
+        (outputProgram == OutputProgram::Vertex) ? Program::Vertex :
+        throw std::runtime_error("Invalid program");
+}
+
 int main(int argc, const char* argv[])
 {
     std::string inputFilename;
@@ -20,7 +34,7 @@ int main(int argc, const char* argv[])
     std::string format;
     std::string outputFilename;
     uint32_t outputVersion = 0;
-    Program program = Program::NONE;
+    OutputProgram program = OutputProgram::None;
 
     try
     {
@@ -61,8 +75,8 @@ int main(int argc, const char* argv[])
                 if (++i >= argc)
                     throw std::runtime_error("Argument to " + std::string(argv[i]) + " is missing");
                 
-                if (std::string(argv[i]) == "fragment") program = Program::FRAGMENT;
-                else if (std::string(argv[i]) == "vertex") program = Program::VERTEX;
+                if (std::string(argv[i]) == "fragment") program = OutputProgram::Fragment;
+                else if (std::string(argv[i]) == "vertex") program = OutputProgram::Vertex;
                 else
                     throw std::runtime_error("Invalid program: " + std::string(argv[i]));
             }
@@ -93,19 +107,16 @@ int main(int argc, const char* argv[])
                 context.dump();
             else
             {
-                if (program == Program::NONE)
-                    throw std::runtime_error("No program");
-
                 std::unique_ptr<Output> output;
 
                 if (format.empty())
                     throw std::runtime_error("No format");
                 if (format == "hlsl")
-                    output.reset(new OutputHLSL(program));
+                    output.reset(new OutputHLSL(getProgram(program)));
                 else if (format == "glsl")
-                    output.reset(new OutputGLSL(program, outputVersion, {}));
+                    output.reset(new OutputGLSL(getProgram(program), outputVersion, {}));
                 else if (format == "msl")
-                    output.reset(new OutputMSL(program, {}));
+                    output.reset(new OutputMSL(getProgram(program), {}));
                 else
                     throw std::runtime_error("Invalid format");
 
