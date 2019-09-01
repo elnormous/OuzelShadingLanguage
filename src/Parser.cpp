@@ -1788,12 +1788,14 @@ DoStatement* ASTContext::parseDoStatement(std::vector<Token>::const_iterator& it
 }
 
 CastExpression* ASTContext::addImplicitCast(Expression* expression,
-                                            TypeDeclaration* typeDeclaration)
+                                            TypeDeclaration* typeDeclaration,
+                                            Expression::Category category)
 {
     CastExpression* result = new CastExpression(CastExpression::Kind::Implicit);
     constructs.push_back(std::unique_ptr<Construct>(result));
     result->parent = expression->parent;
     result->qualifiedType.typeDeclaration = typeDeclaration;
+    result->category = category;
 
     result->expression = expression;
     expression->parent = result;
@@ -2216,7 +2218,9 @@ Expression* ASTContext::parseSubscriptExpression(std::vector<Token>::const_itera
             throw std::runtime_error("Subscript is not an integer");
 
         if (scalarType->getScalarTypeKind() != ScalarTypeDeclaration::Kind::Integer)
-            expression->subscript = addImplicitCast(expression->subscript, intTypeDeclaration);
+            expression->subscript = addImplicitCast(expression->subscript,
+                                                    intTypeDeclaration,
+                                                    expression->subscript->category);
 
         expectToken(Token::Type::RightBracket, iterator, end);
 
@@ -2322,7 +2326,9 @@ Expression* ASTContext::parseSignExpression(std::vector<Token>::const_iterator& 
         result->operatorDeclaration = resolveOperatorDeclaration(op, declarationScopes, {result->expression->qualifiedType});
 
         if (result->expression->qualifiedType.typeDeclaration == boolTypeDeclaration)
-            result->expression = addImplicitCast(result->expression, intTypeDeclaration);
+            result->expression = addImplicitCast(result->expression,
+                                                 intTypeDeclaration,
+                                                 result->expression->category);
 
         result->qualifiedType = result->operatorDeclaration->qualifiedType;
         result->category = Expression::Category::Rvalue;
@@ -2360,7 +2366,9 @@ Expression* ASTContext::parseNotExpression(std::vector<Token>::const_iterator& i
         result->operatorDeclaration = resolveOperatorDeclaration(op, declarationScopes, {result->expression->qualifiedType});
 
         if (result->expression->qualifiedType.typeDeclaration != boolTypeDeclaration)
-            result->expression = addImplicitCast(result->expression, boolTypeDeclaration);
+            result->expression = addImplicitCast(result->expression,
+                                                 boolTypeDeclaration,
+                                                 result->expression->category);
 
         result->qualifiedType = result->operatorDeclaration->qualifiedType;
         result->category = Expression::Category::Rvalue;

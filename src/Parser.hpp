@@ -270,7 +270,8 @@ private:
                                   Construct* parent);
 
     CastExpression* addImplicitCast(Expression* expression,
-                                    TypeDeclaration* typeDeclaration);
+                                    TypeDeclaration* typeDeclaration,
+                                    Expression::Category category);
 
     Expression* parsePrimaryExpression(std::vector<Token>::const_iterator& iterator,
                                        std::vector<Token>::const_iterator end,
