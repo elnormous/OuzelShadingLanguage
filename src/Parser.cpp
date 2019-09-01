@@ -3560,9 +3560,8 @@ void ASTContext::dumpExpression(const Expression* expression, std::string indent
         {
             const CastExpression* castExpression = static_cast<const CastExpression*>(expression);
 
-            std::cout << " " << toString(castExpression->getCastKind()) << " " <<
-                castExpression->expression->qualifiedType.typeDeclaration->name << " to " <<
-                castExpression->qualifiedType.typeDeclaration->name << std::endl;
+            std::cout << ", cast kind: " << toString(castExpression->getCastKind()) <<
+                ", type: " << castExpression->qualifiedType.typeDeclaration->name << std::endl;
 
             dumpConstruct(castExpression->expression, indent + "  ");
 
