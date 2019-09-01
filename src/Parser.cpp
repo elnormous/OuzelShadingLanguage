@@ -201,47 +201,47 @@ ASTContext::ASTContext(const std::vector<Token>& tokens)
 
 CallableDeclaration* ASTContext::compareCallableDeclarations(CallableDeclaration* callableDeclaration1,
                                                              CallableDeclaration* callableDeclaration2,
-                                                             const std::vector<QualifiedType>& parameters)
+                                                             const std::vector<QualifiedType>& arguments)
 {
     CallableDeclaration* result = nullptr;
 
-    if (!parameters.empty() && // both functions should have arguments
-        parameters.size() == callableDeclaration1->parameterDeclarations.size() &&
-        parameters.size() == callableDeclaration2->parameterDeclarations.size()) // they should have the same number of parameters
+    if (!arguments.empty() && // both functions should have arguments
+        arguments.size() == callableDeclaration1->parameterDeclarations.size() &&
+        arguments.size() == callableDeclaration2->parameterDeclarations.size()) // they should have the same number of parameters
     {
-        for (uint32_t i = 0; i < parameters.size(); ++i)
+        for (uint32_t i = 0; i < arguments.size(); ++i)
         {
-            const QualifiedType& parameter = parameters[i];
+            const QualifiedType& argument = arguments[i];
             const QualifiedType& parameter1 = callableDeclaration1->parameterDeclarations[i]->qualifiedType;
             const QualifiedType& parameter2 = callableDeclaration2->parameterDeclarations[i]->qualifiedType;
 
-            if (!parameter.typeDeclaration ||
+            if (!argument.typeDeclaration ||
                 !parameter1.typeDeclaration ||
                 !parameter2.typeDeclaration) continue; // any type
 
-            if (parameter1.typeDeclaration->getTypeKind() == parameter.typeDeclaration->getTypeKind() &&
-                parameter2.typeDeclaration->getTypeKind() == parameter.typeDeclaration->getTypeKind())
+            if (parameter1.typeDeclaration->getTypeKind() == argument.typeDeclaration->getTypeKind() &&
+                parameter2.typeDeclaration->getTypeKind() == argument.typeDeclaration->getTypeKind())
             {
-                if (parameter1.typeDeclaration == parameter.typeDeclaration &&
-                    parameter2.typeDeclaration == parameter.typeDeclaration)
+                if (parameter1.typeDeclaration == argument.typeDeclaration &&
+                    parameter2.typeDeclaration == argument.typeDeclaration)
                 {
                     continue;
                 }
-                else if (parameter1.typeDeclaration == parameter.typeDeclaration)
+                else if (parameter1.typeDeclaration == argument.typeDeclaration)
                 {
                     if (result == callableDeclaration2) return nullptr;
                     result = callableDeclaration1;
                 }
-                else if (parameter2.typeDeclaration == parameter.typeDeclaration)
+                else if (parameter2.typeDeclaration == argument.typeDeclaration)
                 {
                     if (result == callableDeclaration1) return nullptr;
                     result = callableDeclaration2;
                 }
                 else
                 {
-                    if (parameter.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::Array)
+                    if (argument.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::Array)
                     {
-                        ArrayTypeDeclaration* arrayTypeDeclaration = static_cast<ArrayTypeDeclaration*>(parameter.typeDeclaration);
+                        ArrayTypeDeclaration* arrayTypeDeclaration = static_cast<ArrayTypeDeclaration*>(argument.typeDeclaration);
                         ArrayTypeDeclaration* arrayTypeDeclaration1 = static_cast<ArrayTypeDeclaration*>(parameter1.typeDeclaration);
                         ArrayTypeDeclaration* arrayTypeDeclaration2 = static_cast<ArrayTypeDeclaration*>(parameter2.typeDeclaration);
 
@@ -262,12 +262,12 @@ CallableDeclaration* ASTContext::compareCallableDeclarations(CallableDeclaration
                     }
                 }
             }
-            else if (parameter1.typeDeclaration->getTypeKind() == parameter.typeDeclaration->getTypeKind())
+            else if (parameter1.typeDeclaration->getTypeKind() == argument.typeDeclaration->getTypeKind())
             {
                 if (result == callableDeclaration2) return nullptr;
                 result = callableDeclaration1;
             }
-            else if (parameter2.typeDeclaration->getTypeKind() == parameter.typeDeclaration->getTypeKind())
+            else if (parameter2.typeDeclaration->getTypeKind() == argument.typeDeclaration->getTypeKind())
             {
                 if (result == callableDeclaration1) return nullptr;
                 result = callableDeclaration2;
@@ -280,7 +280,7 @@ CallableDeclaration* ASTContext::compareCallableDeclarations(CallableDeclaration
 
 FunctionDeclaration* ASTContext::resolveFunctionDeclaration(const std::string& name,
                                                             const std::vector<std::vector<Declaration*>>& declarationScopes,
-                                                            const std::vector<QualifiedType>& parameters)
+                                                            const std::vector<QualifiedType>& arguments)
 {
     std::vector<FunctionDeclaration*> candidateFunctionDeclarations;
 
@@ -308,9 +308,9 @@ FunctionDeclaration* ASTContext::resolveFunctionDeclaration(const std::string& n
 
     for (FunctionDeclaration* functionDeclaration : candidateFunctionDeclarations)
     {
-        if (functionDeclaration->parameterDeclarations.size() == parameters.size())
+        if (functionDeclaration->parameterDeclarations.size() == arguments.size())
         {
-            if (std::equal(parameters.begin(), parameters.end(),
+            if (std::equal(arguments.begin(), arguments.end(),
                            functionDeclaration->parameterDeclarations.begin(),
                            [](const QualifiedType& qualifiedType,
                               const ParameterDeclaration* parameterDeclaration) {
@@ -331,7 +331,7 @@ FunctionDeclaration* ASTContext::resolveFunctionDeclaration(const std::string& n
         return *viableFunctionDeclarations.begin();
     else
     {
-        if (parameters.empty()) // two or more functions with zero parameters
+        if (arguments.empty()) // two or more functions with zero parameters
             throw std::runtime_error("Ambiguous call to " + name);
 
         for (auto first = viableFunctionDeclarations.begin(); first != viableFunctionDeclarations.end(); ++first)
@@ -340,7 +340,7 @@ FunctionDeclaration* ASTContext::resolveFunctionDeclaration(const std::string& n
             for (auto second = viableFunctionDeclarations.begin(); second != viableFunctionDeclarations.end(); ++second)
             {
                 if (first != second &&
-                    compareCallableDeclarations(*first, *second, parameters) != *first)
+                    compareCallableDeclarations(*first, *second, arguments) != *first)
                 {
                     best = false;
                     break;
@@ -1997,7 +1997,7 @@ Expression* ASTContext::parsePrimaryExpression(std::vector<Token>::const_iterato
                 constructs.push_back(std::unique_ptr<Construct>(result = new CallExpression()));
                 result->parent = parent;
 
-                std::vector<QualifiedType> parameters;
+                std::vector<QualifiedType> arguments;
 
                 if (isToken(Token::Type::RightParenthesis, iterator, end)) // no arguments
                 {
@@ -2007,13 +2007,13 @@ Expression* ASTContext::parsePrimaryExpression(std::vector<Token>::const_iterato
                 {
                     for (;;)
                     {
-                        Expression* parameter;
+                        Expression* argument;
 
-                        if (!(parameter = parseMultiplicationAssignmentExpression(iterator, end, declarationScopes, result)))
+                        if (!(argument = parseMultiplicationAssignmentExpression(iterator, end, declarationScopes, result)))
                             return nullptr;
 
-                        result->parameters.push_back(parameter);
-                        parameters.push_back(parameter->qualifiedType);
+                        result->arguments.push_back(argument);
+                        arguments.push_back(argument->qualifiedType);
 
                         if (isToken(Token::Type::Comma, iterator, end))
                             ++iterator;
@@ -2030,7 +2030,7 @@ Expression* ASTContext::parsePrimaryExpression(std::vector<Token>::const_iterato
                 constructs.push_back(std::unique_ptr<Construct>(declRefExpression = new DeclarationReferenceExpression()));
                 declRefExpression->parent = result;
 
-                FunctionDeclaration* functionDeclaration = resolveFunctionDeclaration(name, declarationScopes, parameters);
+                FunctionDeclaration* functionDeclaration = resolveFunctionDeclaration(name, declarationScopes, arguments);
 
                 if (!functionDeclaration)
                     throw std::runtime_error("Invalid function reference: " + name);
@@ -3412,8 +3412,8 @@ void ASTContext::dumpExpression(const Expression* expression, std::string indent
 
             dumpConstruct(callExpression->declarationReference, indent + "  ");
 
-            for (Expression* parameter : callExpression->parameters)
-                dumpConstruct(parameter, indent + "  ");
+            for (Expression* argument : callExpression->arguments)
+                dumpConstruct(argument, indent + "  ");
 
             break;
         }

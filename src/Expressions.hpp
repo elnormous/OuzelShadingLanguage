@@ -111,7 +111,7 @@ public:
     CallExpression(): Expression(Expression::Kind::Call) {}
 
     DeclarationReferenceExpression* declarationReference = nullptr;
-    std::vector<Expression*> parameters;
+    std::vector<Expression*> arguments;
 };
 
 class ParenExpression: public Expression

@@ -520,7 +520,7 @@ void OutputHLSL::printExpression(const Expression* expression, Options options, 
 
             bool firstParameter = true;
 
-            for (Expression* parameter : callExpression->parameters)
+            for (Expression* argument : callExpression->arguments)
             {
                 if (!firstParameter)
                 {
@@ -529,7 +529,7 @@ void OutputHLSL::printExpression(const Expression* expression, Options options, 
                     firstParameter = false;
                 }
 
-                printConstruct(parameter, Options(0, options.whitespaces), code);
+                printConstruct(argument, Options(0, options.whitespaces), code);
             }
 
             code += ")";
