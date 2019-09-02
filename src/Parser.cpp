@@ -29,7 +29,10 @@ ASTContext::ASTContext(const std::vector<Token>& tokens)
         // binary operators
         for (ScalarTypeDeclaration* secondScalarTypeDeclaration : {intTypeDeclaration, unsignedIntTypeDeclaration, floatTypeDeclaration})
         {
+            addOperatorDeclaration(Operator::Comma, scalarTypeDeclaration, {scalarTypeDeclaration, secondScalarTypeDeclaration}, declarationScopes);
             addOperatorDeclaration(Operator::Assignment, scalarTypeDeclaration, {scalarTypeDeclaration, secondScalarTypeDeclaration}, declarationScopes);
+            addOperatorDeclaration(Operator::Equality, scalarTypeDeclaration, {scalarTypeDeclaration, secondScalarTypeDeclaration}, declarationScopes);
+            addOperatorDeclaration(Operator::Inequality, scalarTypeDeclaration, {scalarTypeDeclaration, secondScalarTypeDeclaration}, declarationScopes);
 
             addOperatorDeclaration(Operator::Addition, scalarTypeDeclaration, {scalarTypeDeclaration, secondScalarTypeDeclaration}, declarationScopes);
             addOperatorDeclaration(Operator::AdditionAssignment, scalarTypeDeclaration, {scalarTypeDeclaration, secondScalarTypeDeclaration}, declarationScopes);

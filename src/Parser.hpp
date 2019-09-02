@@ -392,11 +392,6 @@ private:
         scalarTypeDeclaration->definition = scalarTypeDeclaration;
         declarationScopes.back().push_back(scalarTypeDeclaration);
 
-        addOperatorDeclaration(Operator::Comma, scalarTypeDeclaration, {nullptr, scalarTypeDeclaration}, declarationScopes);
-        addOperatorDeclaration(Operator::Assignment, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
-        addOperatorDeclaration(Operator::Equality, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
-        addOperatorDeclaration(Operator::Inequality, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
-
         return scalarTypeDeclaration;
     }
 
