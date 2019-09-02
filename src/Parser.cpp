@@ -7,10 +7,6 @@
 #include "Parser.hpp"
 #include "Utils.hpp"
 
-ASTContext::ASTContext()
-{
-}
-
 ASTContext::ASTContext(const std::vector<Token>& tokens)
 {
     std::vector<std::vector<Declaration*>> declarationScopes;

@@ -21,8 +21,8 @@
 class ASTContext
 {
 public:
-    ASTContext();
-    ASTContext(const std::vector<Token>& tokens);
+    ASTContext() = default;
+    explicit ASTContext(const std::vector<Token>& tokens);
 
     void dump() const;
 
