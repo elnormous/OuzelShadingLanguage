@@ -243,12 +243,15 @@ static Rank getRank(const QualifiedType& parameterType,
             auto parameterTypeDeclaration = static_cast<const ScalarTypeDeclaration*>(parameterType.typeDeclaration);
 
             if (argumentTypeDeclaration->getScalarTypeKind() == parameterTypeDeclaration->getScalarTypeKind() &&
-                argumentTypeDeclaration->size == parameterTypeDeclaration->size &&
                 argumentTypeDeclaration->isUnsigned == parameterTypeDeclaration->isUnsigned)
-                return Rank::Identity;
-            else if (argumentTypeDeclaration->size == parameterTypeDeclaration->size &&
-                     argumentTypeDeclaration->isUnsigned == parameterTypeDeclaration->isUnsigned)
-                return Rank::Promotion;
+            {
+                if (argumentTypeDeclaration->size == parameterTypeDeclaration->size)
+                    return Rank::Identity;
+                else if (argumentTypeDeclaration->size < parameterTypeDeclaration->size)
+                    return Rank::Promotion;
+                else
+                    return Rank::Conversion;
+            }
             else
                 return Rank::Conversion;
         }
