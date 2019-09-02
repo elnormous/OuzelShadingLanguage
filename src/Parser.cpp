@@ -3133,7 +3133,7 @@ static std::string getPrintableTypeName(const QualifiedType& qualifiedType)
     return result;
 }
 
-void ASTContext::dumpDeclaration(const Declaration* declaration, std::string indent) const
+void ASTContext::dumpDeclaration(const Declaration* declaration, std::string indent)
 {
     std::cout << " " << toString(declaration->getDeclarationKind());
 
@@ -3259,7 +3259,7 @@ void ASTContext::dumpDeclaration(const Declaration* declaration, std::string ind
     }
 }
 
-void ASTContext::dumpStatement(const Statement* statement, std::string indent) const
+void ASTContext::dumpStatement(const Statement* statement, std::string indent)
 {
     std::cout << " " << toString(statement->getStatementKind());
 
@@ -3422,7 +3422,7 @@ static std::string toString(Expression::Category category)
     }
 }
 
-void ASTContext::dumpExpression(const Expression* expression, std::string indent) const
+void ASTContext::dumpExpression(const Expression* expression, std::string indent)
 {
     std::cout << " " << toString(expression->getExpressionKind()) << ", category: " << toString(expression->category);
 
@@ -3606,7 +3606,7 @@ void ASTContext::dumpExpression(const Expression* expression, std::string indent
     }
 }
 
-void ASTContext::dumpConstruct(const Construct* construct, std::string indent) const
+void ASTContext::dumpConstruct(const Construct* construct, std::string indent)
 {
     std::cout << indent << construct;
     if (construct->parent) std::cout << ", parent: " << construct->parent;
