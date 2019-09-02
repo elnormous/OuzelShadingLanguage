@@ -211,9 +211,9 @@ ASTContext::ASTContext(const std::vector<Token>& tokens)
 enum Rank
 {
     NoRank = 0,
-    Identity = 1,
+    Conversion = 1,
     Promotion = 2,
-    Conversion = 3
+    Identity = 3
 };
 
 static Rank getRank(const QualifiedType& parameterType,
@@ -412,7 +412,7 @@ static std::string toString(Operator op)
 
 OperatorDeclaration* ASTContext::resolveOperatorDeclaration(Operator op,
                                                             const std::vector<std::vector<Declaration*>>& declarationScopes,
-                                                            const std::vector<QualifiedType>& parameters)
+                                                            const std::vector<QualifiedType>& arguments)
 {
     std::vector<OperatorDeclaration*> candidateOperatorDeclarations;
 
@@ -440,9 +440,9 @@ OperatorDeclaration* ASTContext::resolveOperatorDeclaration(Operator op,
 
     for (OperatorDeclaration* operatorDeclaration : candidateOperatorDeclarations)
     {
-        if (operatorDeclaration->parameterDeclarations.size() == parameters.size())
+        if (operatorDeclaration->parameterDeclarations.size() == arguments.size())
         {
-            if (std::equal(parameters.begin(), parameters.end(),
+            if (std::equal(arguments.begin(), arguments.end(),
                            operatorDeclaration->parameterDeclarations.begin(),
                            [](const QualifiedType& qualifiedType,
                               const ParameterDeclaration* parameterDeclaration) {
@@ -466,7 +466,7 @@ OperatorDeclaration* ASTContext::resolveOperatorDeclaration(Operator op,
         return *viableOperatorDeclarations.begin();
     else
     {
-        if (parameters.empty()) // two or more functions with zero parameters
+        if (arguments.empty()) // two or more functions with zero parameters
             throw std::runtime_error("Ambiguous call to operator " + toString(op));
 
         for (auto first = viableOperatorDeclarations.begin(); first != viableOperatorDeclarations.end(); ++first)
@@ -475,7 +475,7 @@ OperatorDeclaration* ASTContext::resolveOperatorDeclaration(Operator op,
             for (auto second = viableOperatorDeclarations.begin(); second != viableOperatorDeclarations.end(); ++second)
             {
                 if (first != second &&
-                    compareCallableDeclarations(*first, *second, parameters) != *first)
+                    compareCallableDeclarations(*first, *second, arguments) != *first)
                 {
                     best = false;
                     break;

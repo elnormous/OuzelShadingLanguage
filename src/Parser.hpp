@@ -156,15 +156,15 @@ private:
 
     static const CallableDeclaration* compareCallableDeclarations(const CallableDeclaration* callableDeclaration1,
                                                             const CallableDeclaration* callableDeclaration2,
-                                                            const std::vector<QualifiedType>& parameters);
+                                                            const std::vector<QualifiedType>& arguments);
 
     static FunctionDeclaration* resolveFunctionDeclaration(const std::string& name,
                                                            const std::vector<std::vector<Declaration*>>& declarationScopes,
-                                                           const std::vector<QualifiedType>& parameters);
+                                                           const std::vector<QualifiedType>& arguments);
 
     static OperatorDeclaration* resolveOperatorDeclaration(Operator op,
                                                            const std::vector<std::vector<Declaration*>>& declarationScopes,
-                                                           const std::vector<QualifiedType>& parameters);
+                                                           const std::vector<QualifiedType>& arguments);
 
     ArrayTypeDeclaration* getArrayTypeDeclaration(QualifiedType qualifiedType, uint32_t size);
     
