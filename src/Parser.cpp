@@ -64,8 +64,6 @@ ASTContext::ASTContext(const std::vector<Token>& tokens)
 
     for (StructDeclaration* vectorTypeDeclaration : {float2TypeDeclaration, float3TypeDeclaration, float4TypeDeclaration})
     {
-        addOperatorDeclaration(Operator::Assignment, vectorTypeDeclaration, {vectorTypeDeclaration, vectorTypeDeclaration}, declarationScopes);
-
         addOperatorDeclaration(Operator::Addition, vectorTypeDeclaration, {vectorTypeDeclaration, vectorTypeDeclaration}, declarationScopes);
         addOperatorDeclaration(Operator::AdditionAssignment, vectorTypeDeclaration, {vectorTypeDeclaration, vectorTypeDeclaration}, declarationScopes);
 
@@ -487,6 +485,12 @@ OperatorDeclaration* ASTContext::resolveOperatorDeclaration(Operator op,
 
             if (best) return *first;
         };
+
+        for (auto first = viableOperatorDeclarations.begin(); first != viableOperatorDeclarations.end(); ++first)
+        {
+            dumpConstruct(*first);
+            std::cout << "----------------\n";
+        }
 
         throw std::runtime_error("Ambiguous call to operator " + toString(op));
     }
