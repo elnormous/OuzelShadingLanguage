@@ -26,26 +26,33 @@ ASTContext::ASTContext(const std::vector<Token>& tokens)
 
     for (ScalarTypeDeclaration* scalarTypeDeclaration : {intTypeDeclaration, unsignedIntTypeDeclaration, floatTypeDeclaration})
     {
-        addOperatorDeclaration(Operator::Addition, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
-        addOperatorDeclaration(Operator::AdditionAssignment, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
+        // binary operators
+        for (ScalarTypeDeclaration* secondScalarTypeDeclaration : {intTypeDeclaration, unsignedIntTypeDeclaration, floatTypeDeclaration})
+        {
+            addOperatorDeclaration(Operator::Assignment, scalarTypeDeclaration, {scalarTypeDeclaration, secondScalarTypeDeclaration}, declarationScopes);
 
-        addOperatorDeclaration(Operator::Subtraction, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
-        addOperatorDeclaration(Operator::SubtractAssignment, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
+            addOperatorDeclaration(Operator::Addition, scalarTypeDeclaration, {scalarTypeDeclaration, secondScalarTypeDeclaration}, declarationScopes);
+            addOperatorDeclaration(Operator::AdditionAssignment, scalarTypeDeclaration, {scalarTypeDeclaration, secondScalarTypeDeclaration}, declarationScopes);
 
-        addOperatorDeclaration(Operator::Multiplication, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
-        addOperatorDeclaration(Operator::MultiplicationAssignment, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
+            addOperatorDeclaration(Operator::Subtraction, scalarTypeDeclaration, {scalarTypeDeclaration, secondScalarTypeDeclaration}, declarationScopes);
+            addOperatorDeclaration(Operator::SubtractAssignment, scalarTypeDeclaration, {scalarTypeDeclaration, secondScalarTypeDeclaration}, declarationScopes);
 
-        addOperatorDeclaration(Operator::Division, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
-        addOperatorDeclaration(Operator::DivisionAssignment, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
+            addOperatorDeclaration(Operator::Multiplication, scalarTypeDeclaration, {scalarTypeDeclaration, secondScalarTypeDeclaration}, declarationScopes);
+            addOperatorDeclaration(Operator::MultiplicationAssignment, scalarTypeDeclaration, {scalarTypeDeclaration, secondScalarTypeDeclaration}, declarationScopes);
 
+            addOperatorDeclaration(Operator::Division, scalarTypeDeclaration, {scalarTypeDeclaration, secondScalarTypeDeclaration}, declarationScopes);
+            addOperatorDeclaration(Operator::DivisionAssignment, scalarTypeDeclaration, {scalarTypeDeclaration, secondScalarTypeDeclaration}, declarationScopes);
+
+            addOperatorDeclaration(Operator::LessThan, scalarTypeDeclaration, {scalarTypeDeclaration, secondScalarTypeDeclaration}, declarationScopes);
+            addOperatorDeclaration(Operator::LessThanEqual, scalarTypeDeclaration, {scalarTypeDeclaration, secondScalarTypeDeclaration}, declarationScopes);
+
+            addOperatorDeclaration(Operator::GreaterThan, scalarTypeDeclaration, {scalarTypeDeclaration, secondScalarTypeDeclaration}, declarationScopes);
+            addOperatorDeclaration(Operator::GraterThanEqual, scalarTypeDeclaration, {scalarTypeDeclaration, secondScalarTypeDeclaration}, declarationScopes);
+        }
+
+        // unary operators
         addOperatorDeclaration(Operator::Positive, scalarTypeDeclaration, {scalarTypeDeclaration}, declarationScopes);
         addOperatorDeclaration(Operator::Negative, scalarTypeDeclaration, {scalarTypeDeclaration}, declarationScopes);
-
-        addOperatorDeclaration(Operator::LessThan, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
-        addOperatorDeclaration(Operator::LessThanEqual, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
-
-        addOperatorDeclaration(Operator::GreaterThan, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
-        addOperatorDeclaration(Operator::GraterThanEqual, scalarTypeDeclaration, {scalarTypeDeclaration, scalarTypeDeclaration}, declarationScopes);
     }
 
     StructDeclaration* float2TypeDeclaration = addStructDeclaration("float2", 8, declarationScopes);
@@ -54,6 +61,8 @@ ASTContext::ASTContext(const std::vector<Token>& tokens)
 
     for (StructDeclaration* vectorTypeDeclaration : {float2TypeDeclaration, float3TypeDeclaration, float4TypeDeclaration})
     {
+        addOperatorDeclaration(Operator::Assignment, vectorTypeDeclaration, {vectorTypeDeclaration, vectorTypeDeclaration}, declarationScopes);
+
         addOperatorDeclaration(Operator::Addition, vectorTypeDeclaration, {vectorTypeDeclaration, vectorTypeDeclaration}, declarationScopes);
         addOperatorDeclaration(Operator::AdditionAssignment, vectorTypeDeclaration, {vectorTypeDeclaration, vectorTypeDeclaration}, declarationScopes);
 
@@ -199,11 +208,62 @@ ASTContext::ASTContext(const std::vector<Token>& tokens)
     }
 }
 
-CallableDeclaration* ASTContext::compareCallableDeclarations(CallableDeclaration* callableDeclaration1,
-                                                             CallableDeclaration* callableDeclaration2,
+enum Rank
+{
+    NoRank = 0,
+    Identity = 1,
+    Promotion = 2,
+    Conversion = 3
+};
+
+static Rank getRank(const QualifiedType& parameterType,
+                    const QualifiedType& argumentType)
+{
+    if (!parameterType.typeDeclaration)
+        throw std::runtime_error("Parameter does not have a type");
+
+    if (!argumentType.typeDeclaration)
+        throw std::runtime_error("Argument does not have a type");
+
+    if (argumentType.typeDeclaration->getTypeKind() == parameterType.typeDeclaration->getTypeKind())
+    {
+        if (parameterType.typeDeclaration == argumentType.typeDeclaration)
+            return Rank::Identity;
+        else if (argumentType.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::Array)
+        {
+            auto argumentTypeDeclaration = static_cast<const ArrayTypeDeclaration*>(argumentType.typeDeclaration);
+            auto parameterTypeDeclaration = static_cast<const ArrayTypeDeclaration*>(parameterType.typeDeclaration);
+
+            if (argumentTypeDeclaration->size == parameterTypeDeclaration->size)
+                return Rank::Identity;
+            else
+                return Rank::NoRank;
+        }
+        else if (argumentType.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::Scalar)
+        {
+            auto argumentTypeDeclaration = static_cast<const ScalarTypeDeclaration*>(argumentType.typeDeclaration);
+            auto parameterTypeDeclaration = static_cast<const ScalarTypeDeclaration*>(parameterType.typeDeclaration);
+
+            if (argumentTypeDeclaration->getScalarTypeKind() == parameterTypeDeclaration->getScalarTypeKind() &&
+                argumentTypeDeclaration->size == parameterTypeDeclaration->size &&
+                argumentTypeDeclaration->isUnsigned == parameterTypeDeclaration->isUnsigned)
+                return Rank::Identity;
+            else if (argumentTypeDeclaration->size == parameterTypeDeclaration->size &&
+                     argumentTypeDeclaration->isUnsigned == parameterTypeDeclaration->isUnsigned)
+                return Rank::Promotion;
+            else
+                return Rank::Conversion;
+        }
+    }
+
+    return Rank::NoRank;
+}
+
+const CallableDeclaration* ASTContext::compareCallableDeclarations(const CallableDeclaration* callableDeclaration1,
+                                                             const CallableDeclaration* callableDeclaration2,
                                                              const std::vector<QualifiedType>& arguments)
 {
-    CallableDeclaration* result = nullptr;
+    const CallableDeclaration* result = nullptr;
 
     if (!arguments.empty() && // both functions should have arguments
         arguments.size() == callableDeclaration1->parameterDeclarations.size() &&
@@ -215,62 +275,26 @@ CallableDeclaration* ASTContext::compareCallableDeclarations(CallableDeclaration
             const QualifiedType& parameter1 = callableDeclaration1->parameterDeclarations[i]->qualifiedType;
             const QualifiedType& parameter2 = callableDeclaration2->parameterDeclarations[i]->qualifiedType;
 
-            if (!argument.typeDeclaration ||
-                !parameter1.typeDeclaration ||
-                !parameter2.typeDeclaration) continue; // any type
+            Rank rank1 = getRank(parameter1, argument);
+            Rank rank2 = getRank(parameter2, argument);
 
-            if (parameter1.typeDeclaration->getTypeKind() == argument.typeDeclaration->getTypeKind() &&
-                parameter2.typeDeclaration->getTypeKind() == argument.typeDeclaration->getTypeKind())
+            if (rank1 == NoRank && rank2 == NoRank) // no valid rank for both
+                return nullptr;
+            else if (rank1 == rank2) // equal ranks
+                continue;
+            else if (rank1 > rank2)
             {
-                if (parameter1.typeDeclaration == argument.typeDeclaration &&
-                    parameter2.typeDeclaration == argument.typeDeclaration)
-                {
-                    continue;
-                }
-                else if (parameter1.typeDeclaration == argument.typeDeclaration)
-                {
-                    if (result == callableDeclaration2) return nullptr;
+                if (result == nullptr)
                     result = callableDeclaration1;
-                }
-                else if (parameter2.typeDeclaration == argument.typeDeclaration)
-                {
-                    if (result == callableDeclaration1) return nullptr;
+                else if (result != callableDeclaration1)
+                    return nullptr;
+            }
+            else if (rank2 > rank1)
+            {
+                if (result == nullptr)
                     result = callableDeclaration2;
-                }
-                else
-                {
-                    if (argument.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::Array)
-                    {
-                        ArrayTypeDeclaration* arrayTypeDeclaration = static_cast<ArrayTypeDeclaration*>(argument.typeDeclaration);
-                        ArrayTypeDeclaration* arrayTypeDeclaration1 = static_cast<ArrayTypeDeclaration*>(parameter1.typeDeclaration);
-                        ArrayTypeDeclaration* arrayTypeDeclaration2 = static_cast<ArrayTypeDeclaration*>(parameter2.typeDeclaration);
-
-                        if (arrayTypeDeclaration1->size == arrayTypeDeclaration->size &&
-                            arrayTypeDeclaration2->size == arrayTypeDeclaration->size)
-                        {
-                        }
-                        else if (arrayTypeDeclaration1->size == arrayTypeDeclaration->size)
-                        {
-                            if (result == callableDeclaration2) return nullptr;
-                            result = callableDeclaration1;
-                        }
-                        else if (arrayTypeDeclaration2->size == arrayTypeDeclaration->size)
-                        {
-                            if (result == callableDeclaration1) return nullptr;
-                            result = callableDeclaration2;
-                        }
-                    }
-                }
-            }
-            else if (parameter1.typeDeclaration->getTypeKind() == argument.typeDeclaration->getTypeKind())
-            {
-                if (result == callableDeclaration2) return nullptr;
-                result = callableDeclaration1;
-            }
-            else if (parameter2.typeDeclaration->getTypeKind() == argument.typeDeclaration->getTypeKind())
-            {
-                if (result == callableDeclaration1) return nullptr;
-                result = callableDeclaration2;
+                else if (result != callableDeclaration2)
+                    return nullptr;
             }
         }
     }

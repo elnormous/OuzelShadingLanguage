@@ -154,8 +154,8 @@ private:
         return nullptr;
     }
 
-    static CallableDeclaration* compareCallableDeclarations(CallableDeclaration* callableDeclaration1,
-                                                            CallableDeclaration* callableDeclaration2,
+    static const CallableDeclaration* compareCallableDeclarations(const CallableDeclaration* callableDeclaration1,
+                                                            const CallableDeclaration* callableDeclaration2,
                                                             const std::vector<QualifiedType>& parameters);
 
     static FunctionDeclaration* resolveFunctionDeclaration(const std::string& name,
