@@ -986,7 +986,7 @@ StructDeclaration* ASTContext::parseStructDeclaration(std::vector<Token>::const_
 
     declarationScopes.back().push_back(result);
 
-    addOperatorDeclaration(Operator::Comma, result, {nullptr, result}, declarationScopes);
+    addOperatorDeclaration(Operator::Comma, result, {result, result}, declarationScopes);
     addOperatorDeclaration(Operator::Assignment, result, {result, result}, declarationScopes);
     addOperatorDeclaration(Operator::Equality, result, {result, result}, declarationScopes);
     addOperatorDeclaration(Operator::Inequality, result, {result, result}, declarationScopes);

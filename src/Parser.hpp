@@ -403,7 +403,7 @@ private:
         structDeclaration->definition = structDeclaration;
         declarationScopes.back().push_back(structDeclaration);
 
-        addOperatorDeclaration(Operator::Comma, structDeclaration, {nullptr, structDeclaration}, declarationScopes);
+        addOperatorDeclaration(Operator::Comma, structDeclaration, {structDeclaration, structDeclaration}, declarationScopes);
         addOperatorDeclaration(Operator::Assignment, structDeclaration, {structDeclaration, structDeclaration}, declarationScopes);
         addOperatorDeclaration(Operator::Equality, structDeclaration, {structDeclaration, structDeclaration}, declarationScopes);
         addOperatorDeclaration(Operator::Inequality, structDeclaration, {structDeclaration, structDeclaration}, declarationScopes);
