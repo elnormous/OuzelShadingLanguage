@@ -455,9 +455,7 @@ OperatorDeclaration* ASTContext::resolveOperatorDeclaration(Operator op,
 
                                return (scalar || qualifiedType.typeDeclaration->getFirstDeclaration() == parameterDeclaration->qualifiedType.typeDeclaration->getFirstDeclaration());
                            }))
-            {
                 viableOperatorDeclarations.push_back(operatorDeclaration);
-            }
         }
     }
 
@@ -470,27 +468,21 @@ OperatorDeclaration* ASTContext::resolveOperatorDeclaration(Operator op,
         if (arguments.empty()) // two or more functions with zero parameters
             throw std::runtime_error("Ambiguous call to operator " + toString(op));
 
-        for (auto first = viableOperatorDeclarations.begin(); first != viableOperatorDeclarations.end(); ++first)
+        for (auto first : viableOperatorDeclarations)
         {
             bool best = true;
-            for (auto second = viableOperatorDeclarations.begin(); second != viableOperatorDeclarations.end(); ++second)
+            for (auto second : viableOperatorDeclarations)
             {
                 if (first != second &&
-                    compareCallableDeclarations(*first, *second, arguments) != *first)
+                    compareCallableDeclarations(first, second, arguments) != first)
                 {
                     best = false;
                     break;
                 }
             }
 
-            if (best) return *first;
+            if (best) return first;
         };
-
-        for (auto first = viableOperatorDeclarations.begin(); first != viableOperatorDeclarations.end(); ++first)
-        {
-            dumpConstruct(*first);
-            std::cout << "----------------\n";
-        }
 
         throw std::runtime_error("Ambiguous call to operator " + toString(op));
     }
