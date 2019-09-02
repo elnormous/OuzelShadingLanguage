@@ -171,6 +171,7 @@
     <ClInclude Include="src\Semantic.hpp" />
     <ClInclude Include="src\Statements.hpp" />
     <ClInclude Include="src\Tokenizer.hpp" />
+    <ClInclude Include="src\Utils.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

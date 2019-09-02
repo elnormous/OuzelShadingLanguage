@@ -30,6 +30,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		303917C6231C9E1D00D8BA56 /* Utils.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Utils.hpp; sourceTree = "<group>"; };
 		308340D51F9238B6000AE853 /* Output.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Output.cpp; sourceTree = "<group>"; };
 		308340D61F9238B6000AE853 /* Output.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Output.hpp; sourceTree = "<group>"; };
 		308340D81F9238D7000AE853 /* OutputHLSL.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OutputHLSL.cpp; sourceTree = "<group>"; };
@@ -109,6 +110,7 @@
 				30D57FA6210AA42D00377C5E /* Statements.hpp */,
 				30DD17471EAF967B004CAD77 /* Tokenizer.cpp */,
 				30DD17481EAF967B004CAD77 /* Tokenizer.hpp */,
+				303917C6231C9E1D00D8BA56 /* Utils.hpp */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -153,6 +155,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 			);
 			mainGroup = 30DD17341EAE944F004CAD77;

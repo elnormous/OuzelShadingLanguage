@@ -371,11 +371,6 @@ private:
         return parseCommaExpression(iterator, end, declarationScopes, parent);
     }
 
-    static void dumpDeclaration(const Declaration* declaration, std::string indent = std::string());
-    static void dumpStatement(const Statement* statement, std::string indent = std::string());
-    static void dumpExpression(const Expression* expression, std::string indent = std::string());
-    static void dumpConstruct(const Construct* construct, std::string indent = std::string());
-
     ScalarTypeDeclaration* addScalarTypeDeclaration(const std::string& name,
                                                     ScalarTypeDeclaration::Kind kind,
                                                     uint32_t size,
