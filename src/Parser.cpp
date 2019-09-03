@@ -1453,9 +1453,9 @@ IfStatement* ASTContext::parseIfStatement(std::vector<Token>::const_iterator& it
 
     ++iterator;
 
-    // TODO: add implicit cast to bool
     if (isDeclaration(iterator, end, declarationScopes))
     {
+        // TODO: add implicit cast to bool
         Declaration* declaration;
         if (!(declaration = parseDeclaration(iterator, end, declarationScopes, result)))
             return nullptr;
@@ -1468,8 +1468,15 @@ IfStatement* ASTContext::parseIfStatement(std::vector<Token>::const_iterator& it
     }
     else
     {
-        if (!(result->condition = parseExpression(iterator, end, declarationScopes, result)))
+        Expression* condition = parseExpression(iterator, end, declarationScopes, result);
+
+        if (!condition)
             return nullptr;
+
+        if (condition->qualifiedType.typeDeclaration != boolTypeDeclaration)
+            condition = addImplicitCast(condition, boolTypeDeclaration, condition->category);
+
+        result->condition = condition;
     }
 
     expectToken(Token::Type::RightParenthesis, iterator, end);
@@ -1544,9 +1551,9 @@ ForStatement* ASTContext::parseForStatement(std::vector<Token>::const_iterator& 
         ++iterator;
     }
 
-    // TODO: add implicit cast to bool
     if (isDeclaration(iterator, end, declarationScopes))
     {
+        // TODO: add implicit cast to bool
         Declaration* declaration;
         if (!(declaration = parseDeclaration(iterator, end, declarationScopes, result)))
             return nullptr;
@@ -1569,8 +1576,15 @@ ForStatement* ASTContext::parseForStatement(std::vector<Token>::const_iterator& 
     }
     else
     {
-        if (!(result->condition = parseExpression(iterator, end, declarationScopes, result)))
+        Expression* condition = parseExpression(iterator, end, declarationScopes, result);
+
+        if (!condition)
             return nullptr;
+
+        if (condition->qualifiedType.typeDeclaration != boolTypeDeclaration)
+            condition = addImplicitCast(condition, boolTypeDeclaration, condition->category);
+
+        result->condition = condition;
 
         expectToken(Token::Type::Semicolon, iterator, end);
 
@@ -1711,9 +1725,9 @@ WhileStatement* ASTContext::parseWhileStatement(std::vector<Token>::const_iterat
 
     ++iterator;
 
-    // TODO: add implicit cast to bool
     if (isDeclaration(iterator, end, declarationScopes))
     {
+        // TODO: add implicit cast to bool
         Declaration* declaration;
         if (!(declaration = parseDeclaration(iterator, end, declarationScopes, result)))
             return nullptr;
@@ -1726,8 +1740,15 @@ WhileStatement* ASTContext::parseWhileStatement(std::vector<Token>::const_iterat
     }
     else
     {
-        if (!(result->condition = parseExpression(iterator, end, declarationScopes, result)))
+        Expression* condition = parseExpression(iterator, end, declarationScopes, result);
+
+        if (!condition)
             return nullptr;
+
+        if (condition->qualifiedType.typeDeclaration != boolTypeDeclaration)
+            condition = addImplicitCast(condition, boolTypeDeclaration, condition->category);
+
+        result->condition = condition;
     }
 
     expectToken(Token::Type::RightParenthesis, iterator, end);
@@ -1764,10 +1785,15 @@ DoStatement* ASTContext::parseDoStatement(std::vector<Token>::const_iterator& it
 
     ++iterator;
 
-    // TODO: add implicit cast to bool
-    // expression
-    if (!(result->condition = parseExpression(iterator, end, declarationScopes, result)))
+    Expression* condition = parseExpression(iterator, end, declarationScopes, result);
+
+    if (!condition)
         return nullptr;
+
+    if (condition->qualifiedType.typeDeclaration != boolTypeDeclaration)
+        condition = addImplicitCast(condition, boolTypeDeclaration, condition->category);
+
+    result->condition = condition;
 
     expectToken(Token::Type::RightParenthesis, iterator, end);
 
