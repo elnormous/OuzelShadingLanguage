@@ -2543,7 +2543,7 @@ Expression* ASTContext::parseLessThanExpression(std::vector<Token>::const_iterat
         expression->operatorDeclaration = resolveOperatorDeclaration(op, declarationScopes,
                                                                      {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
 
-        expression->qualifiedType = expression->operatorDeclaration->qualifiedType;
+        expression->qualifiedType.typeDeclaration = boolTypeDeclaration;
         expression->category = Expression::Category::Rvalue;
 
         result->parent = expression;
@@ -2587,7 +2587,7 @@ Expression* ASTContext::parseGreaterThanExpression(std::vector<Token>::const_ite
         expression->operatorDeclaration = resolveOperatorDeclaration(op, declarationScopes,
                                                                      {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
 
-        expression->qualifiedType = expression->operatorDeclaration->qualifiedType;
+        expression->qualifiedType.typeDeclaration = boolTypeDeclaration;
         expression->category = Expression::Category::Rvalue;
 
         result->parent = expression;
@@ -2631,7 +2631,7 @@ Expression* ASTContext::parseEqualityExpression(std::vector<Token>::const_iterat
         expression->operatorDeclaration = resolveOperatorDeclaration(op, declarationScopes,
                                                                      {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
 
-        expression->qualifiedType = expression->operatorDeclaration->qualifiedType;
+        expression->qualifiedType.typeDeclaration = boolTypeDeclaration;
         expression->category = Expression::Category::Rvalue;
 
         result->parent = expression;
@@ -2669,7 +2669,7 @@ Expression* ASTContext::parseLogicalAndExpression(std::vector<Token>::const_iter
                                                                      {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
 
         // TODO: check if both sides ar scalar
-        expression->qualifiedType = expression->operatorDeclaration->qualifiedType;
+        expression->qualifiedType.typeDeclaration = boolTypeDeclaration;
         expression->category = Expression::Category::Rvalue;
 
         result->parent = expression;
@@ -2707,7 +2707,7 @@ Expression* ASTContext::parseLogicalOrExpression(std::vector<Token>::const_itera
                                                                      {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
 
         // TODO: check if both sides ar scalar
-        expression->qualifiedType = expression->operatorDeclaration->qualifiedType;
+        expression->qualifiedType.typeDeclaration = boolTypeDeclaration;
         expression->category = Expression::Category::Rvalue;
 
         result->parent = expression;
