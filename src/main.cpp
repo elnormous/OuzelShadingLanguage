@@ -31,6 +31,7 @@ int main(int argc, const char* argv[])
     bool printTokens = false;
     bool printAST = false;
     bool whitespaces = false;
+    bool preprocess = false;
     std::string format;
     std::string outputFilename;
     uint32_t outputVersion = 0;
@@ -38,7 +39,7 @@ int main(int argc, const char* argv[])
 
     try
     {
-        for (int i = 0; i < argc; ++i)
+        for (int i = 1; i < argc; ++i)
         {
             if (std::string(argv[i]) == "--input")
             {
@@ -50,6 +51,8 @@ int main(int argc, const char* argv[])
                 printTokens = true;
             else if (std::string(argv[i]) == "--print-ast")
                 printAST = true;
+            else if (std::string(argv[i]) == "--preprocess")
+                preprocess = true;
             else if (std::string(argv[i]) == "--whitespaces")
                 whitespaces = true;
             else if (std::string(argv[i]) == "--format")
@@ -80,6 +83,8 @@ int main(int argc, const char* argv[])
                 else
                     throw std::runtime_error("Invalid program: " + std::string(argv[i]));
             }
+            else
+                throw std::runtime_error("Invalid argument " + std::string(argv[i]));
         }
 
         if (inputFilename.empty())
@@ -94,51 +99,59 @@ int main(int argc, const char* argv[])
         inCode.assign(std::istreambuf_iterator<char>(inputFile), std::istreambuf_iterator<char>());
 
         Preprocessor preprocessor;
+        auto preprocessed = preprocessor.preprocess(inCode);
 
-        std::vector<Token> tokens = tokenize(preprocessor.preprocess(inCode));
-
-        if (printTokens)
-            dump(tokens);
+        if (preprocess)
+        {
+            std::cout << std::string(preprocessed.begin(), preprocessed.end()) << "\n";
+        }
         else
         {
-            ASTContext context(tokens);
+            std::vector<Token> tokens = tokenize(preprocessed);
 
-            if (printAST)
-                context.dump();
+            if (printTokens)
+                dump(tokens);
             else
             {
-                std::unique_ptr<Output> output;
+                ASTContext context(tokens);
 
-                if (format.empty())
-                    throw std::runtime_error("No format");
-                if (format == "hlsl")
-                    output.reset(new OutputHLSL(getProgram(program)));
-                else if (format == "glsl")
-                    output.reset(new OutputGLSL(getProgram(program), outputVersion, {}));
-                else if (format == "msl")
-                    output.reset(new OutputMSL(getProgram(program), {}));
+                if (printAST)
+                    context.dump();
                 else
-                    throw std::runtime_error("Invalid format");
-
-                try
                 {
-                    std::string outCode = output->output(context, whitespaces);
+                    std::unique_ptr<Output> output;
 
-                    if (outputFilename.empty())
-                        std::cout << outCode << std::endl;
+                    if (format.empty())
+                        throw std::runtime_error("No format");
+                    if (format == "hlsl")
+                        output.reset(new OutputHLSL(getProgram(program)));
+                    else if (format == "glsl")
+                        output.reset(new OutputGLSL(getProgram(program), outputVersion, {}));
+                    else if (format == "msl")
+                        output.reset(new OutputMSL(getProgram(program), {}));
                     else
+                        throw std::runtime_error("Invalid format");
+
+                    try
                     {
-                        std::ofstream outputFile(outputFilename, std::ios::binary);
+                        std::string outCode = output->output(context, whitespaces);
 
-                        if (!outputFile)
-                            throw std::runtime_error("Failed to open file " + outputFilename);
+                        if (outputFilename.empty())
+                            std::cout << outCode << std::endl;
+                        else
+                        {
+                            std::ofstream outputFile(outputFilename, std::ios::binary);
 
-                        outputFile << outCode;
+                            if (!outputFile)
+                                throw std::runtime_error("Failed to open file " + outputFilename);
+
+                            outputFile << outCode;
+                        }
                     }
-                }
-                catch (const std::exception& e)
-                {
-                    throw std::runtime_error(std::string("Failed to output code: ") + e.what());
+                    catch (const std::exception& e)
+                    {
+                        throw std::runtime_error(std::string("Failed to output code: ") + e.what());
+                    }
                 }
             }
         }
