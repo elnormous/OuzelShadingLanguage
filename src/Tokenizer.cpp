@@ -371,49 +371,6 @@ std::vector<Token> tokenize(const std::vector<char>& code)
                         token.value.push_back(*i);
                         ++i;
                     }
-                    else if (*i == '/') // single-line comment
-                    {
-                        ++i;
-
-                        for (; i != code.end(); ++i)
-                        {
-                            if (*i == '\n') // reached newline
-                            {
-                                ++i; // skip the newline
-                                ++line;
-                                lineStart = i;
-                                break;
-                            }
-                        }
-
-                        continue; // skip this token
-                    }
-                    else if (*i == '*') // multi-line comment
-                    {
-                        ++i;
-
-                        bool terminated = false;
-                        for (; i != code.end(); ++i)
-                        {
-                            if (*i == '\n') // reached newline
-                            {
-                                ++line;
-                                lineStart = i;
-                            }
-
-                            if (*i == '*' && ++i != code.end() && *i == '/')
-                            {
-                                terminated = true;
-                                ++i;
-                                break;
-                            }
-                        }
-
-                        if (!terminated)
-                            throw std::runtime_error("Unterminated block comment");
-
-                        continue; // skip this token
-                    }
                 }
             }
             else if (*i == '%')
