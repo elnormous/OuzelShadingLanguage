@@ -32,7 +32,7 @@ std::vector<char> Preprocessor::preprocess(const std::vector<char>& code)
             ++i; // skip the star
 
             bool terminated = false;
-            while (++i != code.end())
+            while (++i != code.end()) // TODO: insert #line directives
                 if (*i == '*' && ++i != code.end() && *i == '/')
                 {
                     terminated = true;
