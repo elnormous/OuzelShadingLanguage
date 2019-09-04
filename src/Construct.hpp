@@ -16,14 +16,14 @@ public:
     };
 
     explicit Construct(Kind initKind) noexcept: kind(initKind) {}
-    virtual ~Construct() {}
+    virtual ~Construct() = default;
 
     inline Kind getKind() const noexcept { return kind; }
 
     Construct* parent = nullptr;
 
 protected:
-    Kind kind;
+    const Kind kind;
 };
 
 #endif // CONSTRUCT_HPP

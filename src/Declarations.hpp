@@ -43,7 +43,7 @@ public:
     Declaration* definition = nullptr;
 
 protected:
-    Kind declarationKind;
+    const Kind declarationKind;
 };
 
 class TypeDeclaration: public Declaration
@@ -57,21 +57,21 @@ public:
         //TypeDefinition // typedef is not supported in GLSL
     };
 
-    TypeDeclaration(Kind initTypeKind): Declaration(Declaration::Kind::Type), typeKind(initTypeKind) {}
+    TypeDeclaration(Kind initTypeKind) noexcept: Declaration(Declaration::Kind::Type), typeKind(initTypeKind) {}
 
-    inline Kind getTypeKind() const { return typeKind; }
+    inline Kind getTypeKind() const noexcept { return typeKind; }
 
     uint32_t size = 0;
     bool isBuiltin = false;
 
 protected:
-    Kind typeKind;
+    const Kind typeKind;
 };
 
 class ArrayTypeDeclaration: public TypeDeclaration
 {
 public:
-    ArrayTypeDeclaration(): TypeDeclaration(TypeDeclaration::Kind::Array)
+    ArrayTypeDeclaration() noexcept: TypeDeclaration(TypeDeclaration::Kind::Array)
     {
         definition = this;
     }
@@ -90,23 +90,23 @@ public:
         FloatingPoint
     };
 
-    ScalarTypeDeclaration(Kind initScalarTypeKind): TypeDeclaration(TypeDeclaration::Kind::Scalar), scalarTypeKind(initScalarTypeKind)
+    ScalarTypeDeclaration(Kind initScalarTypeKind) noexcept: TypeDeclaration(TypeDeclaration::Kind::Scalar), scalarTypeKind(initScalarTypeKind)
     {
         definition = this;
     }
 
-    inline Kind getScalarTypeKind() const { return scalarTypeKind; }
+    inline Kind getScalarTypeKind() const noexcept { return scalarTypeKind; }
 
     bool isUnsigned = false;
     
 protected:
-    Kind scalarTypeKind;
+    const Kind scalarTypeKind;
 };
 
 class FieldDeclaration: public Declaration
 {
 public:
-    FieldDeclaration(): Declaration(Declaration::Kind::Field)
+    FieldDeclaration() noexcept: Declaration(Declaration::Kind::Field)
     {
         definition = this;
     }
@@ -119,7 +119,7 @@ public:
 class ParameterDeclaration: public Declaration
 {
 public:
-    ParameterDeclaration(): Declaration(Declaration::Kind::Parameter)
+    ParameterDeclaration() noexcept: Declaration(Declaration::Kind::Parameter)
     {
         definition = this;
     }
@@ -153,7 +153,7 @@ public:
     Statement* body = nullptr;
 
 protected:
-    Kind callableDeclarationKind;
+    const Kind callableDeclarationKind;
 };
 
 class FunctionDeclaration: public CallableDeclaration
@@ -197,7 +197,7 @@ class StructDeclaration: public TypeDeclaration
 public:
     StructDeclaration(): TypeDeclaration(TypeDeclaration::Kind::Struct) {}
 
-    ConstructorDeclaration* findConstructorDeclaration(const std::vector<QualifiedType>& parameters) const
+    ConstructorDeclaration* findConstructorDeclaration(const std::vector<QualifiedType>& parameters) const noexcept
     {
         for (Declaration* declaration : memberDeclarations)
         {
@@ -228,7 +228,7 @@ public:
         return nullptr;
     }
 
-    Declaration* findMemberDeclaration(const std::string& name) const
+    Declaration* findMemberDeclaration(const std::string& name) const noexcept
     {
         for (Declaration* memberDeclaration : memberDeclarations)
             if (memberDeclaration->name == name) return memberDeclaration;
@@ -249,7 +249,7 @@ public:
         Static
     };
 
-    VariableDeclaration(): Declaration(Declaration::Kind::Variable)
+    VariableDeclaration() noexcept: Declaration(Declaration::Kind::Variable)
     {
         definition = this;
     }

@@ -36,7 +36,7 @@ public:
     inline Kind getStatementKind() const noexcept { return statementKind; }
 
 protected:
-    Kind statementKind;
+    const Kind statementKind;
 };
 
 class ExpressionStatement: public Statement

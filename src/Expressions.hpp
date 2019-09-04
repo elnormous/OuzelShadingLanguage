@@ -42,7 +42,7 @@ public:
     Category category = Category::Rvalue;
 
 protected:
-    Kind expressionKind;
+    const Kind expressionKind;
 };
 
 class LiteralExpression: public Expression
@@ -63,7 +63,7 @@ public:
     TypeDeclaration* typeDeclaration = nullptr;
 
 protected:
-    Kind literalKind;
+    const Kind literalKind;
 };
 
 class BooleanLiteralExpression: public LiteralExpression
@@ -204,14 +204,14 @@ public:
         Static
     };
 
-    CastExpression(Kind initCastKind): Expression(Expression::Kind::Cast), castKind(initCastKind) {}
+    CastExpression(Kind initCastKind) noexcept: Expression(Expression::Kind::Cast), castKind(initCastKind) {}
 
-    inline Kind getCastKind() const { return castKind; }
+    inline Kind getCastKind() const noexcept { return castKind; }
 
     Expression* expression;
 
 protected:
-    Kind castKind;
+    const Kind castKind;
 };
 
 class SizeofExpression: public Expression
