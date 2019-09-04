@@ -69,14 +69,14 @@ protected:
 class BooleanLiteralExpression: public LiteralExpression
 {
 public:
-    BooleanLiteralExpression(): LiteralExpression(LiteralExpression::Kind::Boolean) {}
+    BooleanLiteralExpression() noexcept: LiteralExpression(LiteralExpression::Kind::Boolean) {}
     bool value;
 };
 
 class IntegerLiteralExpression: public LiteralExpression
 {
 public:
-    IntegerLiteralExpression(): LiteralExpression(LiteralExpression::Kind::Integer) {}
+    IntegerLiteralExpression() noexcept: LiteralExpression(LiteralExpression::Kind::Integer) {}
 
     int64_t value;
 };
@@ -84,7 +84,7 @@ public:
 class FloatingPointLiteralExpression: public LiteralExpression
 {
 public:
-    FloatingPointLiteralExpression(): LiteralExpression(LiteralExpression::Kind::FloatingPoint) {}
+    FloatingPointLiteralExpression() noexcept: LiteralExpression(LiteralExpression::Kind::FloatingPoint) {}
 
     double value;
 };
@@ -117,7 +117,7 @@ public:
 class ParenExpression: public Expression
 {
 public:
-    ParenExpression(): Expression(Expression::Kind::Paren) {}
+    ParenExpression() noexcept: Expression(Expression::Kind::Paren) {}
 
     Expression* expression = nullptr;
 };
@@ -125,7 +125,7 @@ public:
 class MemberExpression: public Expression
 {
 public:
-    MemberExpression(): Expression(Expression::Kind::Member) {}
+    MemberExpression() noexcept: Expression(Expression::Kind::Member) {}
 
     Expression* expression = nullptr;
     FieldDeclaration* fieldDeclaration = nullptr;
@@ -134,7 +134,7 @@ public:
 class ArraySubscriptExpression: public Expression
 {
 public:
-    ArraySubscriptExpression(): Expression(Expression::Kind::ArraySubscript) {}
+    ArraySubscriptExpression() noexcept: Expression(Expression::Kind::ArraySubscript) {}
 
     Expression* expression = nullptr;
     Expression* subscript = nullptr;
@@ -143,7 +143,7 @@ public:
 class UnaryOperatorExpression: public Expression
 {
 public:
-    UnaryOperatorExpression(): Expression(Expression::Kind::UnaryOperator) {}
+    UnaryOperatorExpression() noexcept: Expression(Expression::Kind::UnaryOperator) {}
 
     OperatorDeclaration* operatorDeclaration = nullptr;
 
@@ -153,7 +153,7 @@ public:
 class BinaryOperatorExpression: public Expression
 {
 public:
-    BinaryOperatorExpression(): Expression(Expression::Kind::BinaryOperator) {}
+    BinaryOperatorExpression() noexcept: Expression(Expression::Kind::BinaryOperator) {}
 
     OperatorDeclaration* operatorDeclaration = nullptr;
 
@@ -164,7 +164,7 @@ public:
 class TernaryOperatorExpression: public Expression
 {
 public:
-    TernaryOperatorExpression(): Expression(Expression::Kind::TernaryOperator) {}
+    TernaryOperatorExpression() noexcept: Expression(Expression::Kind::TernaryOperator) {}
 
     OperatorDeclaration* operatorDeclaration = nullptr;
 
@@ -217,7 +217,7 @@ protected:
 class SizeofExpression: public Expression
 {
 public:
-    SizeofExpression(): Expression(Expression::Kind::Sizeof) {}
+    SizeofExpression() noexcept: Expression(Expression::Kind::Sizeof) {}
     
     Expression* expression;
     TypeDeclaration* type;

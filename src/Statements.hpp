@@ -42,7 +42,7 @@ protected:
 class ExpressionStatement: public Statement
 {
 public:
-    ExpressionStatement(): Statement(Statement::Kind::Expression) {}
+    ExpressionStatement() noexcept: Statement(Statement::Kind::Expression) {}
 
     Expression* expression = nullptr;
 };
@@ -50,7 +50,7 @@ public:
 class DeclarationStatement: public Statement
 {
 public:
-    DeclarationStatement(): Statement(Statement::Kind::Declaration) {}
+    DeclarationStatement() noexcept: Statement(Statement::Kind::Declaration) {}
 
     Declaration* declaration = nullptr;
 };
@@ -58,7 +58,7 @@ public:
 class CompoundStatement: public Statement
 {
 public:
-    CompoundStatement(): Statement(Statement::Kind::Compound) {}
+    CompoundStatement() noexcept: Statement(Statement::Kind::Compound) {}
 
     std::vector<Statement*> statements;
 };
@@ -66,7 +66,7 @@ public:
 class IfStatement: public Statement
 {
 public:
-    IfStatement(): Statement(Statement::Kind::If) {}
+    IfStatement() noexcept: Statement(Statement::Kind::If) {}
 
     Construct* condition = nullptr;
     Statement* body = nullptr;
@@ -76,7 +76,7 @@ public:
 class ForStatement: public Statement
 {
 public:
-    ForStatement(): Statement(Statement::Kind::For) {}
+    ForStatement() noexcept: Statement(Statement::Kind::For) {}
 
     Construct* initialization = nullptr;
     Construct* condition = nullptr;
@@ -87,7 +87,7 @@ public:
 class SwitchStatement: public Statement
 {
 public:
-    SwitchStatement(): Statement(Statement::Kind::Switch) {}
+    SwitchStatement() noexcept: Statement(Statement::Kind::Switch) {}
 
     Construct* condition = nullptr;
     Statement* body = nullptr;
@@ -96,7 +96,7 @@ public:
 class CaseStatement: public Statement
 {
 public:
-    CaseStatement(): Statement(Statement::Kind::Case) {}
+    CaseStatement() noexcept: Statement(Statement::Kind::Case) {}
 
     Expression* condition = nullptr;
     Statement* body = nullptr;
@@ -105,7 +105,7 @@ public:
 class DefaultStatement: public Statement
 {
 public:
-    DefaultStatement(): Statement(Statement::Kind::Default) {}
+    DefaultStatement() noexcept: Statement(Statement::Kind::Default) {}
 
     Statement* body = nullptr;
 };
@@ -113,7 +113,7 @@ public:
 class WhileStatement: public Statement
 {
 public:
-    WhileStatement(): Statement(Statement::Kind::While) {}
+    WhileStatement() noexcept: Statement(Statement::Kind::While) {}
 
     Construct* condition = nullptr;
     Statement* body = nullptr;
@@ -122,7 +122,7 @@ public:
 class DoStatement: public Statement
 {
 public:
-    DoStatement(): Statement(Statement::Kind::Do) {}
+    DoStatement() noexcept: Statement(Statement::Kind::Do) {}
 
     Expression* condition = nullptr;
     Statement* body = nullptr;
@@ -131,19 +131,19 @@ public:
 class BreakStatement: public Statement
 {
 public:
-    BreakStatement(): Statement(Statement::Kind::Break) {}
+    BreakStatement() noexcept: Statement(Statement::Kind::Break) {}
 };
 
 class ContinueStatement: public Statement
 {
 public:
-    ContinueStatement(): Statement(Statement::Kind::Continue) {}
+    ContinueStatement() noexcept: Statement(Statement::Kind::Continue) {}
 };
 
 class ReturnStatement: public Statement
 {
 public:
-    ReturnStatement(): Statement(Statement::Kind::Return) {}
+    ReturnStatement() noexcept: Statement(Statement::Kind::Return) {}
 
     Expression* result = nullptr;
 };

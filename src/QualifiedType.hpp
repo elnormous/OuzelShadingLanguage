@@ -10,7 +10,7 @@ class TypeDeclaration;
 class QualifiedType
 {
 public:
-    bool operator<(const QualifiedType& other) const
+    bool operator<(const QualifiedType& other) const noexcept
     {
         if (typeDeclaration != other.typeDeclaration)
             return typeDeclaration < other.typeDeclaration;
