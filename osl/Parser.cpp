@@ -206,12 +206,12 @@ ASTContext::ASTContext(const std::vector<Token>& tokens)
     }
 }
 
-enum Rank
+enum class Rank
 {
     NoRank = 0,
     Conversion = 1,
     Promotion = 2,
-    Identity = 3
+    ExactMatch = 3
 };
 
 static Rank getRank(const QualifiedType& parameterType,
@@ -226,14 +226,14 @@ static Rank getRank(const QualifiedType& parameterType,
     if (argumentType.typeDeclaration->getTypeKind() == parameterType.typeDeclaration->getTypeKind())
     {
         if (parameterType.typeDeclaration == argumentType.typeDeclaration)
-            return Rank::Identity;
+            return Rank::ExactMatch;
         else if (argumentType.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::Array)
         {
             auto argumentTypeDeclaration = static_cast<const ArrayTypeDeclaration*>(argumentType.typeDeclaration);
             auto parameterTypeDeclaration = static_cast<const ArrayTypeDeclaration*>(parameterType.typeDeclaration);
 
             if (argumentTypeDeclaration->size == parameterTypeDeclaration->size)
-                return Rank::Identity;
+                return Rank::ExactMatch;
             else
                 return Rank::NoRank;
         }
@@ -246,7 +246,7 @@ static Rank getRank(const QualifiedType& parameterType,
                 argumentTypeDeclaration->isUnsigned == parameterTypeDeclaration->isUnsigned)
             {
                 if (argumentTypeDeclaration->size == parameterTypeDeclaration->size)
-                    return Rank::Identity;
+                    return Rank::ExactMatch;
                 else if (argumentTypeDeclaration->size < parameterTypeDeclaration->size)
                     return Rank::Promotion;
                 else
@@ -279,7 +279,7 @@ const CallableDeclaration* ASTContext::compareCallableDeclarations(const Callabl
             Rank rank1 = getRank(parameter1, argument);
             Rank rank2 = getRank(parameter2, argument);
 
-            if (rank1 == NoRank && rank2 == NoRank) // no valid rank for both
+            if (rank1 == Rank::NoRank && rank2 == Rank::NoRank) // no valid rank for both
                 return nullptr;
             else if (rank1 == rank2) // equal ranks
                 continue;
