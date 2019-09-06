@@ -1,13 +1,15 @@
 CXXFLAGS=-c -std=c++11 -Wpedantic -O2
-SOURCES=src/main.cpp \
-	src/Output.cpp \
-	src/OutputGLSL.cpp \
-	src/OutputHLSL.cpp \
-	src/OutputMSL.cpp \
-	src/Parser.cpp \
-	src/Tokenizer.cpp
+SOURCES=osl/main.cpp \
+	osl/Output.cpp \
+	osl/OutputGLSL.cpp \
+	osl/OutputHLSL.cpp \
+	osl/OutputMSL.cpp \
+	osl/Parser.cpp \
+	osl/Preprocessor.cpp \
+	osl/Tokenizer.cpp
 BASE_NAMES=$(basename $(SOURCES))
 OBJECTS=$(BASE_NAMES:=.o)
+OUTDIR=bin
 EXECUTABLE=osl
 DEPENDENCIES=$(OBJECTS:.o=.d)
 
@@ -19,7 +21,8 @@ endif
 all: $(EXECUTABLE)
 
 $(EXECUTABLE): $(OBJECTS)
-	$(CXX) $(OBJECTS) $(LDFLAGS) -o $@
+	mkdir -p $(OUTDIR)
+	$(CXX) $(OBJECTS) $(LDFLAGS) -o $(OUTDIR)/$@
 
 -include $(DEPENDENCIES)
 
@@ -28,6 +31,6 @@ $(EXECUTABLE): $(OBJECTS)
 
 .PHONY: clean
 clean:
-	$(RM) $(EXECUTABLE)
-	find "src" -name "*.o" -type f -delete
-	find "src" -name "*.d" -type f -delete
+	$(RM) $(OUTDIR)/$(EXECUTABLE)
+	find "osl" -name "*.o" -type f -delete
+	find "osl" -name "*.d" -type f -delete

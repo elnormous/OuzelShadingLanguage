@@ -15,78 +15,78 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Output.cpp">
+    <ClCompile Include="osl\Output.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\OutputGLSL.cpp">
+    <ClCompile Include="osl\OutputGLSL.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\OutputHLSL.cpp">
+    <ClCompile Include="osl\OutputHLSL.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\OutputMSL.cpp">
+    <ClCompile Include="osl\OutputMSL.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Parser.cpp">
+    <ClCompile Include="osl\Parser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Preprocessor.cpp">
+    <ClCompile Include="osl\Preprocessor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Tokenizer.cpp">
+    <ClCompile Include="osl\Tokenizer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\main.cpp">
+    <ClCompile Include="osl\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\Output.hpp">
+    <ClInclude Include="osl\Output.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\OutputGLSL.hpp">
+    <ClInclude Include="osl\OutputGLSL.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\OutputHLSL.hpp">
+    <ClInclude Include="osl\OutputHLSL.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\OutputMSL.hpp">
+    <ClInclude Include="osl\OutputMSL.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Tokenizer.hpp">
+    <ClInclude Include="osl\Tokenizer.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Utils.hpp">
+    <ClInclude Include="osl\Utils.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Parser.hpp">
+    <ClInclude Include="osl\Parser.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Preprocessor.hpp">
+    <ClInclude Include="osl\Preprocessor.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Construct.hpp">
+    <ClInclude Include="osl\Construct.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Declarations.hpp">
+    <ClInclude Include="osl\Declarations.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Expressions.hpp">
+    <ClInclude Include="osl\Expressions.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Operator.hpp">
+    <ClInclude Include="osl\Operator.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Program.hpp">
+    <ClInclude Include="osl\Program.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\QualifiedType.hpp">
+    <ClInclude Include="osl\QualifiedType.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Semantic.hpp">
+    <ClInclude Include="osl\Semantic.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Statements.hpp">
+    <ClInclude Include="osl\Statements.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

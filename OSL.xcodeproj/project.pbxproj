@@ -11,6 +11,7 @@
 		308340DA1F9238D7000AE853 /* OutputHLSL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 308340D81F9238D7000AE853 /* OutputHLSL.cpp */; };
 		308340DD1F9238F2000AE853 /* OutputGLSL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 308340DB1F9238F2000AE853 /* OutputGLSL.cpp */; };
 		308340E01F923900000AE853 /* OutputMSL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 308340DE1F923900000AE853 /* OutputMSL.cpp */; };
+		30CD92FC2321E52A00720C9F /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 30CD92FB2321E52A00720C9F /* main.cpp */; };
 		30DD17411EAE944F004CAD77 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 30DD17401EAE944F004CAD77 /* main.cpp */; };
 		30DD17491EAF967B004CAD77 /* Tokenizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 30DD17471EAF967B004CAD77 /* Tokenizer.cpp */; };
 		30DD174C1EAF96CE004CAD77 /* Parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 30DD174A1EAF96CE004CAD77 /* Parser.cpp */; };
@@ -18,6 +19,15 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		30CD92F72321E52A00720C9F /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
 		30DD173B1EAE944F004CAD77 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -41,6 +51,8 @@
 		308340DF1F923900000AE853 /* OutputMSL.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = OutputMSL.hpp; sourceTree = "<group>"; };
 		3093EE6E201FB2E7006D1667 /* Semantic.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Semantic.hpp; sourceTree = "<group>"; };
 		3093EE6F201FB362006D1667 /* Program.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Program.hpp; sourceTree = "<group>"; };
+		30CD92F92321E52A00720C9F /* test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = test; sourceTree = BUILT_PRODUCTS_DIR; };
+		30CD92FB2321E52A00720C9F /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		30D57FA4210AA3B800377C5E /* Construct.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Construct.hpp; sourceTree = "<group>"; };
 		30D57FA5210AA3F100377C5E /* QualifiedType.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = QualifiedType.hpp; sourceTree = "<group>"; };
 		30D57FA6210AA42D00377C5E /* Statements.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Statements.hpp; sourceTree = "<group>"; };
@@ -58,6 +70,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		30CD92F62321E52A00720C9F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		30DD173A1EAE944F004CAD77 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -68,10 +87,19 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		30CD92FA2321E52A00720C9F /* test */ = {
+			isa = PBXGroup;
+			children = (
+				30CD92FB2321E52A00720C9F /* main.cpp */,
+			);
+			path = test;
+			sourceTree = "<group>";
+		};
 		30DD17341EAE944F004CAD77 = {
 			isa = PBXGroup;
 			children = (
-				30DD173F1EAE944F004CAD77 /* src */,
+				30DD173F1EAE944F004CAD77 /* osl */,
+				30CD92FA2321E52A00720C9F /* test */,
 				30DD173E1EAE944F004CAD77 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -80,11 +108,12 @@
 			isa = PBXGroup;
 			children = (
 				30DD173D1EAE944F004CAD77 /* OSL */,
+				30CD92F92321E52A00720C9F /* test */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		30DD173F1EAE944F004CAD77 /* src */ = {
+		30DD173F1EAE944F004CAD77 /* osl */ = {
 			isa = PBXGroup;
 			children = (
 				30D57FA4210AA3B800377C5E /* Construct.hpp */,
@@ -112,12 +141,29 @@
 				30DD17481EAF967B004CAD77 /* Tokenizer.hpp */,
 				303917C6231C9E1D00D8BA56 /* Utils.hpp */,
 			);
-			path = src;
+			path = osl;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		30CD92F82321E52A00720C9F /* test */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 30CD92FF2321E52A00720C9F /* Build configuration list for PBXNativeTarget "test" */;
+			buildPhases = (
+				30CD92F52321E52A00720C9F /* Sources */,
+				30CD92F62321E52A00720C9F /* Frameworks */,
+				30CD92F72321E52A00720C9F /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = test;
+			productName = test;
+			productReference = 30CD92F92321E52A00720C9F /* test */;
+			productType = "com.apple.product-type.tool";
+		};
 		30DD173C1EAE944F004CAD77 /* OSL */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 30DD17441EAE944F004CAD77 /* Build configuration list for PBXNativeTarget "OSL" */;
@@ -144,6 +190,11 @@
 				LastUpgradeCheck = 0830;
 				ORGANIZATIONNAME = "Elviss Strazdins";
 				TargetAttributes = {
+					30CD92F82321E52A00720C9F = {
+						CreatedOnToolsVersion = 10.3;
+						DevelopmentTeam = 259JLMZDG3;
+						ProvisioningStyle = Automatic;
+					};
 					30DD173C1EAE944F004CAD77 = {
 						CreatedOnToolsVersion = 8.3.2;
 						ProvisioningStyle = Automatic;
@@ -164,11 +215,20 @@
 			projectRoot = "";
 			targets = (
 				30DD173C1EAE944F004CAD77 /* OSL */,
+				30CD92F82321E52A00720C9F /* test */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
+		30CD92F52321E52A00720C9F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				30CD92FC2321E52A00720C9F /* main.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		30DD17391EAE944F004CAD77 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -187,6 +247,57 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
+		30CD92FD2321E52A00720C9F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 259JLMZDG3;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				HEADER_SEARCH_PATHS = .;
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		30CD92FE2321E52A00720C9F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 259JLMZDG3;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				HEADER_SEARCH_PATHS = .;
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		30DD17421EAE944F004CAD77 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -303,6 +414,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		30CD92FF2321E52A00720C9F /* Build configuration list for PBXNativeTarget "test" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				30CD92FD2321E52A00720C9F /* Debug */,
+				30CD92FE2321E52A00720C9F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		30DD17381EAE944F004CAD77 /* Build configuration list for PBXProject "OSL" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

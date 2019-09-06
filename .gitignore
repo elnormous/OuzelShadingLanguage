@@ -5,6 +5,6 @@ OSL.VC.VC.opendb
 OSL.VC.db
 Debug/
 Release/
-osl
 *.d
 *.o
+bin
