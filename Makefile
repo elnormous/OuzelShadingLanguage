@@ -21,6 +21,7 @@ all: CFLAGS+=-DDEBUG -g
 endif
 all: libosl
 all: osl
+all: test
 
 .PHONY: libosl
 libosl: $(LIBRARY)
