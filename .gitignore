@@ -8,3 +8,5 @@ Release/
 *.d
 *.o
 bin
+*.db
+*.opendb
