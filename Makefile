@@ -1,6 +1,5 @@
 CXXFLAGS=-c -std=c++11 -Wpedantic -O2
-SOURCES=osl/main.cpp \
-	osl/Output.cpp \
+SOURCES=osl/Output.cpp \
 	osl/OutputGLSL.cpp \
 	osl/OutputHLSL.cpp \
 	osl/OutputMSL.cpp \
@@ -10,7 +9,8 @@ SOURCES=osl/main.cpp \
 BASE_NAMES=$(basename $(SOURCES))
 OBJECTS=$(BASE_NAMES:=.o)
 OUTDIR=bin
-EXECUTABLE=osl
+EXECUTABLE=$(OUTDIR)/osl
+LIBRARY=$(OUTDIR)/libosl.a
 DEPENDENCIES=$(OBJECTS:.o=.d)
 
 .PHONY: all
@@ -18,11 +18,19 @@ ifeq ($(debug),1)
 all: CXXFLAGS+=-DDEBUG -g
 all: CFLAGS+=-DDEBUG -g
 endif
-all: $(EXECUTABLE)
+all: libosl
+all: osl
 
-$(EXECUTABLE): $(OBJECTS)
+libosl: $(LIBRARY)
+osl: $(EXECUTABLE)
+
+$(LIBRARY): $(OBJECTS)
 	mkdir -p $(OUTDIR)
-	$(CXX) $(OBJECTS) $(LDFLAGS) -o $(OUTDIR)/$@
+	$(AR) rs $@ $^
+
+$(EXECUTABLE): osl/main.o $(LIBRARY)
+	mkdir -p $(OUTDIR)
+	$(CXX) $^ $(LDFLAGS) -o $@
 
 -include $(DEPENDENCIES)
 
@@ -31,6 +39,6 @@ $(EXECUTABLE): $(OBJECTS)
 
 .PHONY: clean
 clean:
-	$(RM) $(OUTDIR)/$(EXECUTABLE)
+	$(RM) -r $(OUTDIR)
 	find "osl" -name "*.o" -type f -delete
 	find "osl" -name "*.d" -type f -delete
