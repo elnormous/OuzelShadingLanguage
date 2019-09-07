@@ -3,7 +3,7 @@
 //
 
 #include <iostream>
-#include "osl/Parser.hpp"
+#include "Parser.hpp"
 
 int main(int argc, const char * argv[])
 {

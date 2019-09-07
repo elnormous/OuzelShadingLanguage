@@ -1,3 +1,4 @@
+CFLAGS=-c -Wpedantic -O2 -Iosl
 CXXFLAGS=-c -std=c++11 -Wpedantic -O2 -Iosl
 SOURCES=osl/Output.cpp \
 	osl/OutputGLSL.cpp \
@@ -10,6 +11,7 @@ BASE_NAMES=$(basename $(SOURCES))
 OBJECTS=$(BASE_NAMES:=.o)
 OUTDIR=bin
 EXECUTABLE=$(OUTDIR)/osl
+TEST_EXECUTABLE=$(OUTDIR)/test
 LIBRARY=$(OUTDIR)/libosl.a
 DEPENDENCIES=$(OBJECTS:.o=.d)
 
@@ -24,14 +26,21 @@ all: osl
 .PHONY: libosl
 libosl: $(LIBRARY)
 
-.PHONY: osl
-osl: $(EXECUTABLE)
-
 $(LIBRARY): $(OBJECTS)
 	mkdir -p $(OUTDIR)
 	$(AR) rs $@ $^
 
+.PHONY: osl
+osl: $(EXECUTABLE)
+
 $(EXECUTABLE): src/main.o $(LIBRARY)
+	mkdir -p $(OUTDIR)
+	$(CXX) $^ $(LDFLAGS) -o $@
+
+.PHONY: test
+test: $(TEST_EXECUTABLE)
+
+$(TEST_EXECUTABLE): test/main.o $(LIBRARY)
 	mkdir -p $(OUTDIR)
 	$(CXX) $^ $(LDFLAGS) -o $@
 
