@@ -1,5 +1,0 @@
-//
-//  OSL
-//
-
-#include "Output.hpp"

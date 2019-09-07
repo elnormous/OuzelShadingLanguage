@@ -19,7 +19,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="osl\Output.cpp" />
     <ClCompile Include="osl\OutputGLSL.cpp" />
     <ClCompile Include="osl\OutputHLSL.cpp" />
     <ClCompile Include="osl\OutputMSL.cpp" />

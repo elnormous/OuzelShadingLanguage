@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		30CD92FC2321E52A00720C9F /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 30CD92FB2321E52A00720C9F /* main.cpp */; };
-		30CD9308232316F800720C9F /* Output.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 308340D51F9238B6000AE853 /* Output.cpp */; };
 		30CD9309232316F800720C9F /* OutputGLSL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 308340DB1F9238F2000AE853 /* OutputGLSL.cpp */; };
 		30CD930A232316F800720C9F /* OutputHLSL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 308340D81F9238D7000AE853 /* OutputHLSL.cpp */; };
 		30CD930B232316F800720C9F /* OutputMSL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 308340DE1F923900000AE853 /* OutputMSL.cpp */; };
@@ -43,7 +42,6 @@
 
 /* Begin PBXFileReference section */
 		303917C6231C9E1D00D8BA56 /* Utils.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Utils.hpp; sourceTree = "<group>"; };
-		308340D51F9238B6000AE853 /* Output.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Output.cpp; sourceTree = "<group>"; };
 		308340D61F9238B6000AE853 /* Output.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Output.hpp; sourceTree = "<group>"; };
 		308340D81F9238D7000AE853 /* OutputHLSL.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OutputHLSL.cpp; sourceTree = "<group>"; };
 		308340D91F9238D7000AE853 /* OutputHLSL.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = OutputHLSL.hpp; sourceTree = "<group>"; };
@@ -150,7 +148,6 @@
 				30D57FA8210AA47600377C5E /* Declarations.hpp */,
 				30D57FA7210AA46A00377C5E /* Expressions.hpp */,
 				30D57FA9210AA52200377C5E /* Operator.hpp */,
-				308340D51F9238B6000AE853 /* Output.cpp */,
 				308340D61F9238B6000AE853 /* Output.hpp */,
 				308340DB1F9238F2000AE853 /* OutputGLSL.cpp */,
 				308340DC1F9238F2000AE853 /* OutputGLSL.hpp */,
@@ -297,7 +294,6 @@
 				30CD930E232316F800720C9F /* Tokenizer.cpp in Sources */,
 				30CD930D232316F800720C9F /* Preprocessor.cpp in Sources */,
 				30CD9309232316F800720C9F /* OutputGLSL.cpp in Sources */,
-				30CD9308232316F800720C9F /* Output.cpp in Sources */,
 				30CD930A232316F800720C9F /* OutputHLSL.cpp in Sources */,
 				30CD930C232316F800720C9F /* Parser.cpp in Sources */,
 				30CD930B232316F800720C9F /* OutputMSL.cpp in Sources */,
