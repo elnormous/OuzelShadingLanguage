@@ -1,4 +1,4 @@
-CXXFLAGS=-c -std=c++11 -Wpedantic -O2
+CXXFLAGS=-c -std=c++11 -Wpedantic -O2 -Iosl
 SOURCES=osl/Output.cpp \
 	osl/OutputGLSL.cpp \
 	osl/OutputHLSL.cpp \
@@ -21,14 +21,17 @@ endif
 all: libosl
 all: osl
 
+.PHONY: libosl
 libosl: $(LIBRARY)
+
+.PHONY: osl
 osl: $(EXECUTABLE)
 
 $(LIBRARY): $(OBJECTS)
 	mkdir -p $(OUTDIR)
 	$(AR) rs $@ $^
 
-$(EXECUTABLE): osl/main.o $(LIBRARY)
+$(EXECUTABLE): src/main.o $(LIBRARY)
 	mkdir -p $(OUTDIR)
 	$(CXX) $^ $(LDFLAGS) -o $@
 

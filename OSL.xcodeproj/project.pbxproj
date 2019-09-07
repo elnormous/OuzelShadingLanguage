@@ -114,9 +114,18 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		30CD931223244D5200720C9F /* src */ = {
+			isa = PBXGroup;
+			children = (
+				30DD17401EAE944F004CAD77 /* main.cpp */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
 		30DD17341EAE944F004CAD77 = {
 			isa = PBXGroup;
 			children = (
+				30CD931223244D5200720C9F /* src */,
 				30DD173F1EAE944F004CAD77 /* osl */,
 				30CD92FA2321E52A00720C9F /* test */,
 				30DD173E1EAE944F004CAD77 /* Products */,
@@ -140,7 +149,6 @@
 				30D57FA4210AA3B800377C5E /* Construct.hpp */,
 				30D57FA8210AA47600377C5E /* Declarations.hpp */,
 				30D57FA7210AA46A00377C5E /* Expressions.hpp */,
-				30DD17401EAE944F004CAD77 /* main.cpp */,
 				30D57FA9210AA52200377C5E /* Operator.hpp */,
 				308340D51F9238B6000AE853 /* Output.cpp */,
 				308340D61F9238B6000AE853 /* Output.hpp */,
