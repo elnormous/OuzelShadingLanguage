@@ -10,6 +10,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OSL", "OSL.vcxproj", "{B41B
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libosl", "libosl.vcxproj", "{76EAB0C1-DA46-401D-9C5A-CBC6860E6B30}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test", "test.vcxproj", "{070B2A76-6332-41D0-912C-D2C7A4FC407F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -34,6 +36,14 @@ Global
 		{76EAB0C1-DA46-401D-9C5A-CBC6860E6B30}.Release|x64.Build.0 = Release|x64
 		{76EAB0C1-DA46-401D-9C5A-CBC6860E6B30}.Release|x86.ActiveCfg = Release|Win32
 		{76EAB0C1-DA46-401D-9C5A-CBC6860E6B30}.Release|x86.Build.0 = Release|Win32
+		{070B2A76-6332-41D0-912C-D2C7A4FC407F}.Debug|x64.ActiveCfg = Debug|x64
+		{070B2A76-6332-41D0-912C-D2C7A4FC407F}.Debug|x64.Build.0 = Debug|x64
+		{070B2A76-6332-41D0-912C-D2C7A4FC407F}.Debug|x86.ActiveCfg = Debug|Win32
+		{070B2A76-6332-41D0-912C-D2C7A4FC407F}.Debug|x86.Build.0 = Debug|Win32
+		{070B2A76-6332-41D0-912C-D2C7A4FC407F}.Release|x64.ActiveCfg = Release|x64
+		{070B2A76-6332-41D0-912C-D2C7A4FC407F}.Release|x64.Build.0 = Release|x64
+		{070B2A76-6332-41D0-912C-D2C7A4FC407F}.Release|x86.ActiveCfg = Release|Win32
+		{070B2A76-6332-41D0-912C-D2C7A4FC407F}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
