@@ -10,3 +10,6 @@ Release/
 bin
 *.db
 *.opendb
+.vs/OSL/v15/ipch
+*.db-shm
+*.db-wal
