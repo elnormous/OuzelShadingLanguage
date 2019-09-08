@@ -431,10 +431,10 @@ private:
         return fieldDeclaration;
     }
 
-    FunctionDeclaration* addFunctionDeclaration(const std::string& name,
-                                                TypeDeclaration* resultType,
-                                                const std::vector<TypeDeclaration*>& parameters,
-                                                std::vector<std::vector<Declaration*>>& declarationScopes)
+    FunctionDeclaration* addBuiltinFunctionDeclaration(const std::string& name,
+                                                       TypeDeclaration* resultType,
+                                                       const std::vector<TypeDeclaration*>& parameters,
+                                                       std::vector<std::vector<Declaration*>>& declarationScopes)
     {
         FunctionDeclaration* functionDeclaration;
         constructs.push_back(std::unique_ptr<Construct>(functionDeclaration = new FunctionDeclaration()));

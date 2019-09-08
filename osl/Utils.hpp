@@ -550,7 +550,7 @@ static void dumpExpression(const Expression* expression, const std::string& inde
         {
             const DeclarationReferenceExpression* declarationReferenceExpression = static_cast<const DeclarationReferenceExpression*>(expression);
 
-            std::cout << " " << declarationReferenceExpression->declaration->name << " " << declarationReferenceExpression->declaration;
+            std::cout << ", name: " << declarationReferenceExpression->declaration->name << ", declaration: " << declarationReferenceExpression->declaration;
 
             std::cout << std::endl;
             break;

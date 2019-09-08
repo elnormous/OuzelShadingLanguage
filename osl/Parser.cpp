@@ -12,6 +12,8 @@ ASTContext::ASTContext(const std::vector<Token>& tokens)
     std::vector<std::vector<Declaration*>> declarationScopes;
     declarationScopes.push_back(std::vector<Declaration*>());
 
+    addBuiltinFunctionDeclaration("discard", nullptr, {}, declarationScopes);
+
     boolTypeDeclaration = addScalarTypeDeclaration("bool", ScalarTypeDeclaration::Kind::Boolean, 1, false, declarationScopes);
     addOperatorDeclaration(Operator::Negation, boolTypeDeclaration, {boolTypeDeclaration}, declarationScopes);
     addOperatorDeclaration(Operator::Or, boolTypeDeclaration, {boolTypeDeclaration, boolTypeDeclaration}, declarationScopes);
@@ -165,11 +167,11 @@ ASTContext::ASTContext(const std::vector<Token>& tokens)
     stringTypeDeclaration = addStructDeclaration("string", 8, declarationScopes);
     StructDeclaration* texture2DTypeDeclaration = addStructDeclaration("Texture2D", 0, declarationScopes);
 
-    addFunctionDeclaration("sample", float4TypeDeclaration, {texture2DTypeDeclaration, float2TypeDeclaration}, declarationScopes);
+    addBuiltinFunctionDeclaration("sample", float4TypeDeclaration, {texture2DTypeDeclaration, float2TypeDeclaration}, declarationScopes);
 
     StructDeclaration* texture2DMSTypeDeclaration = addStructDeclaration("Texture2DMS", 0, declarationScopes);
 
-    addFunctionDeclaration("load", float4TypeDeclaration, {texture2DMSTypeDeclaration, float2TypeDeclaration}, declarationScopes);
+    addBuiltinFunctionDeclaration("load", float4TypeDeclaration, {texture2DMSTypeDeclaration, float2TypeDeclaration}, declarationScopes);
 
     // TODO: add other arithmetic operators
     // float2x2
