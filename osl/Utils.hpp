@@ -197,9 +197,9 @@ static std::string getPrintableTypeName(const QualifiedType& qualifiedType)
     return result;
 }
 
-static void dumpConstruct(const Construct* construct, const std::string& indent = std::string());
+static void dumpConstruct(const Construct* construct, const uint32_t level = 0);
 
-static void dumpDeclaration(const Declaration* declaration, const std::string& indent = std::string())
+static void dumpDeclaration(const Declaration* declaration, const uint32_t level = 0)
 {
     std::cout << " " << toString(declaration->getDeclarationKind());
 
@@ -238,7 +238,7 @@ static void dumpDeclaration(const Declaration* declaration, const std::string& i
                     std::cout << std::endl;
 
                     for (const Declaration* memberDeclaration : structDeclaration->memberDeclarations)
-                        dumpConstruct(memberDeclaration, indent + "  ");
+                        dumpConstruct(memberDeclaration, level + 1);
 
                     break;
                 }
@@ -292,10 +292,10 @@ static void dumpDeclaration(const Declaration* declaration, const std::string& i
             std::cout << std::endl;
 
             for (ParameterDeclaration* parameter : callableDeclaration->parameterDeclarations)
-                dumpConstruct(parameter, indent + "  ");
+                dumpConstruct(parameter, level + 1);
 
             if (callableDeclaration->body)
-                dumpConstruct(callableDeclaration->body, indent + "  ");
+                dumpConstruct(callableDeclaration->body, level + 1);
 
             break;
         }
@@ -307,7 +307,7 @@ static void dumpDeclaration(const Declaration* declaration, const std::string& i
 
             if (variableDeclaration->initialization)
             {
-                dumpConstruct(variableDeclaration->initialization, indent + "  ");
+                dumpConstruct(variableDeclaration->initialization, level + 1);
             }
 
             break;
@@ -325,7 +325,7 @@ static void dumpDeclaration(const Declaration* declaration, const std::string& i
     }
 }
 
-static void dumpStatement(const Statement* statement, const std::string& indent = std::string())
+static void dumpStatement(const Statement* statement, const uint32_t level = 0)
 {
     std::cout << " " << toString(statement->getStatementKind());
 
@@ -343,7 +343,7 @@ static void dumpStatement(const Statement* statement, const std::string& indent 
 
             std::cout << std::endl;
 
-            dumpConstruct(expressionStatement->expression, indent + "  ");
+            dumpConstruct(expressionStatement->expression, level + 1);
             break;
         }
 
@@ -353,7 +353,7 @@ static void dumpStatement(const Statement* statement, const std::string& indent 
 
             std::cout << std::endl;
 
-            dumpConstruct(declarationStatement->declaration, indent + "  ");
+            dumpConstruct(declarationStatement->declaration, level + 1);
             break;
         }
 
@@ -364,7 +364,7 @@ static void dumpStatement(const Statement* statement, const std::string& indent 
             std::cout << std::endl;
 
             for (Statement* subSstatement : compoundStatement->statements)
-                dumpConstruct(subSstatement, indent + "  ");
+                dumpConstruct(subSstatement, level + 1);
 
             break;
         }
@@ -375,9 +375,9 @@ static void dumpStatement(const Statement* statement, const std::string& indent 
 
             std::cout << std::endl;
 
-            dumpConstruct(ifStatement->condition, indent + "  ");
-            dumpConstruct(ifStatement->body, indent + "  ");
-            if (ifStatement->elseBody) dumpConstruct(ifStatement->elseBody, indent + "  ");
+            dumpConstruct(ifStatement->condition, level + 1);
+            dumpConstruct(ifStatement->body, level + 1);
+            if (ifStatement->elseBody) dumpConstruct(ifStatement->elseBody, level + 1);
             break;
         }
 
@@ -387,10 +387,10 @@ static void dumpStatement(const Statement* statement, const std::string& indent 
 
             std::cout << std::endl;
 
-            if (forStatement->initialization) dumpConstruct(forStatement->initialization, indent + "  ");
-            if (forStatement->condition) dumpConstruct(forStatement->condition, indent + "  ");
-            if (forStatement->increment) dumpConstruct(forStatement->increment, indent + "  ");
-            dumpConstruct(forStatement->body, indent + "  ");
+            if (forStatement->initialization) dumpConstruct(forStatement->initialization, level + 1);
+            if (forStatement->condition) dumpConstruct(forStatement->condition, level + 1);
+            if (forStatement->increment) dumpConstruct(forStatement->increment, level + 1);
+            dumpConstruct(forStatement->body, level + 1);
             break;
         }
 
@@ -400,8 +400,8 @@ static void dumpStatement(const Statement* statement, const std::string& indent 
 
             std::cout << std::endl;
 
-            dumpConstruct(switchStatement->condition, indent + "  ");
-            dumpConstruct(switchStatement->body, indent + "  ");
+            dumpConstruct(switchStatement->condition, level + 1);
+            dumpConstruct(switchStatement->body, level + 1);
             break;
         }
 
@@ -411,8 +411,8 @@ static void dumpStatement(const Statement* statement, const std::string& indent 
 
             std::cout << std::endl;
 
-            dumpConstruct(caseStatement->condition, indent + "  ");
-            dumpConstruct(caseStatement->body, indent + "  ");
+            dumpConstruct(caseStatement->condition, level + 1);
+            dumpConstruct(caseStatement->body, level + 1);
             break;
         }
 
@@ -422,7 +422,7 @@ static void dumpStatement(const Statement* statement, const std::string& indent 
 
             std::cout << std::endl;
 
-            dumpConstruct(defaultStatement->body, indent + "  ");
+            dumpConstruct(defaultStatement->body, level + 1);
             break;
         }
 
@@ -432,8 +432,8 @@ static void dumpStatement(const Statement* statement, const std::string& indent 
 
             std::cout << std::endl;
 
-            dumpConstruct(whileStatement->condition, indent + "  ");
-            dumpConstruct(whileStatement->body, indent + "  ");
+            dumpConstruct(whileStatement->condition, level + 1);
+            dumpConstruct(whileStatement->body, level + 1);
             break;
         }
 
@@ -443,8 +443,8 @@ static void dumpStatement(const Statement* statement, const std::string& indent 
 
             std::cout << std::endl;
 
-            dumpConstruct(doStatement->body, indent + "  ");
-            dumpConstruct(doStatement->condition, indent + "  ");
+            dumpConstruct(doStatement->body, level + 1);
+            dumpConstruct(doStatement->condition, level + 1);
             break;
         }
 
@@ -468,7 +468,7 @@ static void dumpStatement(const Statement* statement, const std::string& indent 
 
             if (returnStatement->result)
             {
-                dumpConstruct(returnStatement->result, indent + "  ");
+                dumpConstruct(returnStatement->result, level + 1);
             }
             break;
         }
@@ -488,7 +488,7 @@ static std::string toString(Expression::Category category)
     }
 }
 
-static void dumpExpression(const Expression* expression, const std::string& indent = std::string())
+static void dumpExpression(const Expression* expression, const uint32_t level = 0)
 {
     std::cout << " " << toString(expression->getExpressionKind()) << ", category: " << toString(expression->category);
 
@@ -500,10 +500,10 @@ static void dumpExpression(const Expression* expression, const std::string& inde
 
             std::cout << std::endl;
 
-            dumpConstruct(callExpression->declarationReference, indent + "  ");
+            dumpConstruct(callExpression->declarationReference, level + 1);
 
             for (Expression* argument : callExpression->arguments)
-                dumpConstruct(argument, indent + "  ");
+                dumpConstruct(argument, level + 1);
 
             break;
         }
@@ -562,7 +562,7 @@ static void dumpExpression(const Expression* expression, const std::string& inde
 
             std::cout << std::endl;
 
-            dumpConstruct(parenExpression->expression, indent + "  ");
+            dumpConstruct(parenExpression->expression, level + 1);
             break;
         }
 
@@ -572,7 +572,7 @@ static void dumpExpression(const Expression* expression, const std::string& inde
 
             std::cout << ", field: " << memberExpression->fieldDeclaration->name << std::endl;
 
-            dumpConstruct(memberExpression->expression, indent + "  ");
+            dumpConstruct(memberExpression->expression, level + 1);
             break;
         }
 
@@ -582,8 +582,8 @@ static void dumpExpression(const Expression* expression, const std::string& inde
 
             std::cout << std::endl;
 
-            dumpConstruct(arraySubscriptExpression->expression, indent + "  ");
-            dumpConstruct(arraySubscriptExpression->subscript, indent + "  ");
+            dumpConstruct(arraySubscriptExpression->expression, level + 1);
+            dumpConstruct(arraySubscriptExpression->subscript, level + 1);
             break;
         }
 
@@ -593,7 +593,7 @@ static void dumpExpression(const Expression* expression, const std::string& inde
 
             std::cout <<", operator: " << toString(unaryOperatorExpression->operatorDeclaration->op) << std::endl;
 
-            dumpConstruct(unaryOperatorExpression->expression, indent + "  ");
+            dumpConstruct(unaryOperatorExpression->expression, level + 1);
             break;
         }
 
@@ -603,8 +603,8 @@ static void dumpExpression(const Expression* expression, const std::string& inde
 
             std::cout << ", operator: " << toString(binaryOperatorExpression->operatorDeclaration->op) << std::endl;
 
-            dumpConstruct(binaryOperatorExpression->leftExpression, indent + "  ");
-            dumpConstruct(binaryOperatorExpression->rightExpression, indent + "  ");
+            dumpConstruct(binaryOperatorExpression->leftExpression, level + 1);
+            dumpConstruct(binaryOperatorExpression->rightExpression, level + 1);
             break;
         }
 
@@ -614,9 +614,9 @@ static void dumpExpression(const Expression* expression, const std::string& inde
 
             std::cout << std::endl;
 
-            dumpConstruct(ternaryOperatorExpression->condition, indent + "  ");
-            dumpConstruct(ternaryOperatorExpression->leftExpression, indent + "  ");
-            dumpConstruct(ternaryOperatorExpression->rightExpression, indent + "  ");
+            dumpConstruct(ternaryOperatorExpression->condition, level + 1);
+            dumpConstruct(ternaryOperatorExpression->leftExpression, level + 1);
+            dumpConstruct(ternaryOperatorExpression->rightExpression, level + 1);
             break;
         }
 
@@ -629,7 +629,7 @@ static void dumpExpression(const Expression* expression, const std::string& inde
             std::cout << " " << typeDeclaration->name << std::endl;
 
             for (Expression* parameter : temporaryObjectExpression->parameters)
-                dumpConstruct(parameter, indent + "  ");
+                dumpConstruct(parameter, level + 1);
 
             break;
         }
@@ -641,7 +641,7 @@ static void dumpExpression(const Expression* expression, const std::string& inde
             std::cout << std::endl;
 
             for (Expression* subExpression : initializerListExpression->expressions)
-                dumpConstruct(subExpression, indent + "  ");
+                dumpConstruct(subExpression, level + 1);
 
             break;
         }
@@ -653,7 +653,7 @@ static void dumpExpression(const Expression* expression, const std::string& inde
             std::cout << ", cast kind: " << toString(castExpression->getCastKind()) <<
             ", type: " << castExpression->qualifiedType.typeDeclaration->name << std::endl;
 
-            dumpConstruct(castExpression->expression, indent + "  ");
+            dumpConstruct(castExpression->expression, level + 1);
 
             break;
         }
@@ -664,17 +664,21 @@ static void dumpExpression(const Expression* expression, const std::string& inde
             std::cout << std::endl;
 
             if (sizeofExpression->expression)
-                dumpConstruct(sizeofExpression->expression, indent + "  ");
+                dumpConstruct(sizeofExpression->expression, level + 1);
             else if (sizeofExpression->type)
-                dumpConstruct(sizeofExpression->type, indent + "  ");
+                dumpConstruct(sizeofExpression->type, level + 1);
             break;
         }
     }
 }
 
-static void dumpConstruct(const Construct* construct, const std::string& indent)
+static void dumpConstruct(const Construct* construct, const uint32_t level)
 {
-    std::cout << indent << construct;
+    for (uint32_t i = 0; i < level; ++i)
+        std::cout << "  ";
+
+    std::cout << construct;
+
     if (construct->parent) std::cout << ", parent: " << construct->parent;
     std::cout << " " << toString(construct->getKind());
 
@@ -683,21 +687,21 @@ static void dumpConstruct(const Construct* construct, const std::string& indent)
         case Construct::Kind::Declaration:
         {
             const Declaration* declaration = static_cast<const Declaration*>(construct);
-            dumpDeclaration(declaration, indent);
+            dumpDeclaration(declaration, level);
             break;
         }
 
         case Construct::Kind::Statement:
         {
             const Statement* statement = static_cast<const Statement*>(construct);
-            dumpStatement(statement, indent);
+            dumpStatement(statement, level);
             break;
         }
 
         case Construct::Kind::Expression:
         {
             const Expression* expression = static_cast<const Expression*>(construct);
-            dumpExpression(expression, indent);
+            dumpExpression(expression, level);
             break;
         }
     }
