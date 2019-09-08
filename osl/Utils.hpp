@@ -5,6 +5,7 @@
 #ifndef UTILS_HPP
 #define UTILS_HPP
 
+#include <iostream>
 #include "Declarations.hpp"
 #include "Expressions.hpp"
 #include "Statements.hpp"
