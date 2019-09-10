@@ -1381,6 +1381,11 @@ Statement* ASTContext::parseStatement(std::vector<Token>::const_iterator& iterat
     {
         throw std::runtime_error("Exceptions are not supported");
     }
+    else if (iterator == end ||
+             isToken(Token::Type::RightBrace, iterator, end))
+    {
+        throw std::runtime_error("Exceptions a statement");
+    }
     else
     {
         ExpressionStatement* result;
