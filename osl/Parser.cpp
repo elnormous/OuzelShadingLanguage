@@ -2003,6 +2003,7 @@ Expression* ASTContext::parsePrimaryExpression(std::vector<Token>::const_iterato
                 constructs.push_back(std::unique_ptr<Construct>(result = new TemporaryObjectExpression()));
                 result->parent = parent;
                 result->qualifiedType.typeDeclaration = typeDeclaration;
+                result->qualifiedType.isConst = true;
                 result->category = Expression::Category::Rvalue;
 
                 std::vector<QualifiedType> parameters;
