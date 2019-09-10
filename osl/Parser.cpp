@@ -1614,6 +1614,13 @@ ForStatement* ASTContext::parseForStatement(std::vector<Token>::const_iterator& 
     return result;
 }
 
+static bool isInteger(const TypeDeclaration* typeDeclaration) noexcept
+{
+    return typeDeclaration &&
+        typeDeclaration->getTypeKind() == TypeDeclaration::Kind::Scalar &&
+        static_cast<const ScalarTypeDeclaration*>(typeDeclaration)->getScalarTypeKind() == ScalarTypeDeclaration::Kind::Integer;
+}
+
 SwitchStatement* ASTContext::parseSwitchStatement(std::vector<Token>::const_iterator& iterator,
                                                   std::vector<Token>::const_iterator end,
                                                   std::vector<std::vector<Declaration*>>& declarationScopes,
@@ -1646,8 +1653,15 @@ SwitchStatement* ASTContext::parseSwitchStatement(std::vector<Token>::const_iter
     }
     else
     {
-        if (!(result->condition = parseExpression(iterator, end, declarationScopes, result)))
-            return nullptr;
+        Expression* condition = parseExpression(iterator, end, declarationScopes, result);
+
+        if (!condition)
+            throw std::runtime_error("Expected an expression");
+
+        if (!isInteger(condition->qualifiedType.typeDeclaration))
+            throw std::runtime_error("Statement requires expression of integer type");
+
+        result->condition = condition;
     }
 
     expectToken(Token::Type::RightParenthesis, iterator, end);
@@ -1673,8 +1687,18 @@ CaseStatement* ASTContext::parseCaseStatement(std::vector<Token>::const_iterator
     constructs.push_back(std::unique_ptr<Construct>(result = new CaseStatement()));
     result->parent = parent;
 
-    if (!(result->condition = parseExpression(iterator, end, declarationScopes, result)))
+    Expression* condition = parseExpression(iterator, end, declarationScopes, result);
+
+    if (!condition)
         throw std::runtime_error("Expected an expression");
+
+    if (!isInteger(condition->qualifiedType.typeDeclaration))
+        throw std::runtime_error("Statement requires expression of integer type");
+
+    if (!condition->qualifiedType.isConst)
+        throw std::runtime_error("Expression must be constant");
+
+    result->condition = condition;
 
     expectToken(Token::Type::Colon, iterator, end);
 
