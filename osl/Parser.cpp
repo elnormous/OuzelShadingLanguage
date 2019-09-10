@@ -1621,9 +1621,14 @@ ForStatement* ASTContext::parseForStatement(std::vector<Token>::const_iterator& 
 
 static bool isInteger(const TypeDeclaration* typeDeclaration) noexcept
 {
-    return typeDeclaration &&
-        typeDeclaration->getTypeKind() == TypeDeclaration::Kind::Scalar &&
-        static_cast<const ScalarTypeDeclaration*>(typeDeclaration)->getScalarTypeKind() == ScalarTypeDeclaration::Kind::Integer;
+    if (!typeDeclaration &&
+        typeDeclaration->getTypeKind() != TypeDeclaration::Kind::Scalar)
+        return false;
+
+    const ScalarTypeDeclaration* scalarTypeDeclaration = static_cast<const ScalarTypeDeclaration*>(typeDeclaration);
+
+    return scalarTypeDeclaration->getScalarTypeKind() == ScalarTypeDeclaration::Kind::Boolean ||
+        scalarTypeDeclaration->getScalarTypeKind() == ScalarTypeDeclaration::Kind::Integer;
 }
 
 SwitchStatement* ASTContext::parseSwitchStatement(std::vector<Token>::const_iterator& iterator,
@@ -1666,6 +1671,14 @@ SwitchStatement* ASTContext::parseSwitchStatement(std::vector<Token>::const_iter
         if (!isInteger(condition->qualifiedType.typeDeclaration))
             throw std::runtime_error("Statement requires expression of integer type");
 
+        ScalarTypeDeclaration* scalarType = static_cast<ScalarTypeDeclaration*>(condition->qualifiedType.typeDeclaration);
+
+        if (scalarType->getScalarTypeKind() != ScalarTypeDeclaration::Kind::Integer ||
+            scalarType->size < 4)
+            condition = addImplicitCast(condition,
+                                        intTypeDeclaration,
+                                        condition->category);
+
         result->condition = condition;
     }
 
@@ -1702,6 +1715,14 @@ CaseStatement* ASTContext::parseCaseStatement(std::vector<Token>::const_iterator
 
     if (!condition->qualifiedType.isConst)
         throw std::runtime_error("Expression must be constant");
+
+    ScalarTypeDeclaration* scalarType = static_cast<ScalarTypeDeclaration*>(condition->qualifiedType.typeDeclaration);
+
+    if (scalarType->getScalarTypeKind() != ScalarTypeDeclaration::Kind::Integer ||
+        scalarType->size < 4)
+        condition = addImplicitCast(condition,
+                                    intTypeDeclaration,
+                                    condition->category);
 
     result->condition = condition;
 
@@ -2261,17 +2282,13 @@ Expression* ASTContext::parseSubscriptExpression(std::vector<Token>::const_itera
         if (!(expression->subscript = parseExpression(iterator, end, declarationScopes, expression)))
             return nullptr;
 
-        if (!expression->subscript->qualifiedType.typeDeclaration ||
-            expression->subscript->qualifiedType.typeDeclaration->getTypeKind() != TypeDeclaration::Kind::Scalar)
+        if (!isInteger(expression->subscript->qualifiedType.typeDeclaration))
             throw std::runtime_error("Subscript is not an integer");
 
         ScalarTypeDeclaration* scalarType = static_cast<ScalarTypeDeclaration*>(expression->subscript->qualifiedType.typeDeclaration);
 
-        if (scalarType->getScalarTypeKind() != ScalarTypeDeclaration::Kind::Boolean &&
-            scalarType->getScalarTypeKind() != ScalarTypeDeclaration::Kind::Integer)
-            throw std::runtime_error("Subscript is not an integer");
-
-        if (scalarType->getScalarTypeKind() != ScalarTypeDeclaration::Kind::Integer)
+        if (scalarType->getScalarTypeKind() != ScalarTypeDeclaration::Kind::Integer ||
+            scalarType->size < 4)
             expression->subscript = addImplicitCast(expression->subscript,
                                                     intTypeDeclaration,
                                                     expression->subscript->category);
