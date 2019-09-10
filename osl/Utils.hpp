@@ -182,17 +182,25 @@ static std::string getPrintableTypeName(const QualifiedType& qualifiedType)
     }
     else
     {
-        TypeDeclaration* typeDeclaration = qualifiedType.typeDeclaration;
-        while (typeDeclaration->getTypeKind() == TypeDeclaration::Kind::Array)
+        const TypeDeclaration* typeDeclaration = qualifiedType.typeDeclaration;
+
+        if (typeDeclaration->getTypeKind() == TypeDeclaration::Kind::Array)
         {
-            ArrayTypeDeclaration* arrayTypeDeclaration = static_cast<ArrayTypeDeclaration*>(typeDeclaration);
+            const TypeDeclaration* currentTypeDeclaration = typeDeclaration;
 
-            result = "[" + std::to_string(arrayTypeDeclaration->size) + "]" + result;
+            std::string arrayDimensions;
+            while (currentTypeDeclaration->getTypeKind() == TypeDeclaration::Kind::Array)
+            {
+                const ArrayTypeDeclaration* arrayTypeDeclaration = static_cast<const ArrayTypeDeclaration*>(typeDeclaration);
+                arrayDimensions += "[" + std::to_string(arrayTypeDeclaration->size) + "]";
 
-            typeDeclaration = arrayTypeDeclaration->elementType.typeDeclaration;
+                currentTypeDeclaration = arrayTypeDeclaration->elementType.typeDeclaration;
+            }
+
+            result += (currentTypeDeclaration ? currentTypeDeclaration->name : "void") + arrayDimensions;
         }
-
-        result = typeDeclaration->name + result;
+        else
+            result += typeDeclaration->name;
     }
 
     return result;
