@@ -1858,6 +1858,7 @@ Expression* ASTContext::parsePrimaryExpression(std::vector<Token>::const_iterato
         constructs.push_back(std::unique_ptr<Construct>(result = new IntegerLiteralExpression()));
         result->parent = parent;
         result->qualifiedType.typeDeclaration = intTypeDeclaration;
+        result->qualifiedType.isConst = true;
         result->category = Expression::Category::Rvalue;
         result->value = strtoll(iterator->value.c_str(), nullptr, 0);
 
@@ -1871,6 +1872,7 @@ Expression* ASTContext::parsePrimaryExpression(std::vector<Token>::const_iterato
         constructs.push_back(std::unique_ptr<Construct>(result = new FloatingPointLiteralExpression()));
         result->parent = parent;
         result->qualifiedType.typeDeclaration = floatTypeDeclaration;
+        result->qualifiedType.isConst = true;
         result->category = Expression::Category::Rvalue;
         result->value = strtod(iterator->value.c_str(), nullptr);
 
@@ -1888,6 +1890,7 @@ Expression* ASTContext::parsePrimaryExpression(std::vector<Token>::const_iterato
         constructs.push_back(std::unique_ptr<Construct>(result = new StringLiteralExpression()));
         result->parent = parent;
         result->qualifiedType.typeDeclaration = stringTypeDeclaration;
+        result->qualifiedType.isConst = true;
         result->category = Expression::Category::Rvalue;
         result->value = iterator->value;
 
@@ -1901,6 +1904,7 @@ Expression* ASTContext::parsePrimaryExpression(std::vector<Token>::const_iterato
         constructs.push_back(std::unique_ptr<Construct>(result = new BooleanLiteralExpression()));
         result->parent = parent;
         result->qualifiedType.typeDeclaration = boolTypeDeclaration;
+        result->qualifiedType.isConst = true;
         result->category = Expression::Category::Rvalue;
         result->value = (iterator->type == Token::Type::True);
 
