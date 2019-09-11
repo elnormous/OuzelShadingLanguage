@@ -2812,12 +2812,10 @@ Expression* ASTContext::parseTernaryExpression(std::vector<Token>::const_iterato
         constructs.push_back(std::unique_ptr<Construct>(expression = new TernaryOperatorExpression()));
         expression->parent = parent;
 
-        Expression* condition = result;
+        if (result->qualifiedType.typeDeclaration != boolTypeDeclaration)
+            result = addImplicitCast(result, boolTypeDeclaration, result->category);
 
-        if (condition->qualifiedType.typeDeclaration != boolTypeDeclaration)
-            condition = addImplicitCast(condition, boolTypeDeclaration, condition->category);
-
-        expression->condition = condition;
+        expression->condition = result;
 
         if (!expression->condition->qualifiedType.typeDeclaration)
             throw std::runtime_error("Ternary expression with a void condition");
