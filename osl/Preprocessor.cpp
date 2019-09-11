@@ -4,9 +4,9 @@
 
 #include "Preprocessor.hpp"
 
-std::vector<char> Preprocessor::preprocess(const std::vector<char>& code)
+std::string Preprocessor::preprocess(const std::string& code)
 {
-    std::vector<char> result;
+    std::string result;
 
     for (auto i = code.begin(); i != code.end();)
     {

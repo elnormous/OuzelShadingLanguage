@@ -95,7 +95,7 @@ int main(int argc, const char* argv[])
         if (!inputFile)
             throw std::runtime_error("Failed to open file " + inputFilename);
 
-        std::vector<char> inCode;
+        std::string inCode;
         inCode.assign(std::istreambuf_iterator<char>(inputFile), std::istreambuf_iterator<char>());
 
         Preprocessor preprocessor;

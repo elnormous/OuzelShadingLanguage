@@ -5,12 +5,12 @@
 #ifndef PREPROCESSOR_HPP
 #define PREPROCESSOR_HPP
 
-#include <vector>
+#include <string>
 
 class Preprocessor
 {
 public:
-    std::vector<char> preprocess(const std::vector<char>& code);
+    std::string preprocess(const std::string& code);
 };
 
 #endif // PREPROCESSOR_HPP

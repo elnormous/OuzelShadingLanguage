@@ -84,7 +84,7 @@ static const std::map<std::string, Token::Type> keywordMap = {
     {"xor_eq", Token::Type::BitwiseXorAssignment}
 };
 
-std::vector<Token> tokenize(const std::vector<char>& code)
+std::vector<Token> tokenize(const std::string& code)
 {
     std::vector<Token> tokens;
     uint32_t line = 1;

@@ -5,8 +5,8 @@
 #ifndef TOKENIZER_HPP
 #define TOKENIZER_HPP
 
-#include <vector>
 #include <string>
+#include <vector>
 
 struct Token
 {
@@ -266,7 +266,7 @@ inline std::string toString(Token::Type type)
     }
 }
 
-std::vector<Token> tokenize(const std::vector<char>& code);
+std::vector<Token> tokenize(const std::string& code);
 void dump(const std::vector<Token>& tokens);
 
 #endif // TOKENIZER_HPP
