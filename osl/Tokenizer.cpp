@@ -88,9 +88,9 @@ std::vector<Token> tokenize(const std::string& code)
 {
     std::vector<Token> tokens;
     uint32_t line = 1;
-    std::vector<char>::const_iterator lineStart = code.begin();
+    auto lineStart = code.begin();
 
-    for (std::vector<char>::const_iterator i = code.begin(); i != code.end();)
+    for (auto i = code.begin(); i != code.end();)
     {
         Token token;
         token.line = line;
