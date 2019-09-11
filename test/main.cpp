@@ -3,6 +3,7 @@
 //
 
 #include <iostream>
+#include <stdexcept>
 #include "Parser.hpp"
 
 void testDeclaration()
