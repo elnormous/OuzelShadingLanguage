@@ -1535,7 +1535,7 @@ ForStatement* ASTContext::parseForStatement(std::vector<Token>::const_iterator& 
             declaration->getDeclarationKind() != Declaration::Kind::Parameter)
             throw std::runtime_error("Expected a variable declaration");
 
-        result->condition = declaration;
+        result->initialization = declaration;
 
         expectToken(Token::Type::Semicolon, iterator, end);
 
