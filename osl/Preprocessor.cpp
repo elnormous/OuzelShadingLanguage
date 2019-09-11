@@ -2,6 +2,7 @@
 //  OSL
 //
 
+#include <stdexcept>
 #include "Preprocessor.hpp"
 
 std::string Preprocessor::preprocess(const std::string& code)
