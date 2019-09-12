@@ -27,7 +27,7 @@ static const CompoundStatement* getMainBody(const Declaration* declaration)
 static void testDeclaration()
 {
     std::string code = R"CODE(
-    int main()
+    void main()
     {
         int i = 3;
     }
@@ -84,7 +84,7 @@ static void testDeclaration()
 static void testIfStatement()
 {
     std::string code = R"CODE(
-    int main()
+    void main()
     {
         if (true)
         {
