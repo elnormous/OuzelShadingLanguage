@@ -6,7 +6,25 @@
 #include <stdexcept>
 #include "Parser.hpp"
 
-void testDeclaration()
+static const CompoundStatement* getMainBody(const Declaration* declaration)
+{
+    if (!declaration ||
+        declaration->name != "main" ||
+        declaration->getDeclarationKind() != Declaration::Kind::Callable)
+        throw std::runtime_error("Expected a callable declaration of main");
+
+    auto callableDeclaration = static_cast<const CallableDeclaration*>(declaration);
+
+    auto body = callableDeclaration->body;
+
+    if (!body ||
+        body->getStatementKind() != Statement::Kind::Compound)
+        throw std::runtime_error("Expected a compound statement");
+
+    return static_cast<const CompoundStatement*>(body);
+}
+
+static void testDeclaration()
 {
     std::string code = R"CODE(
     int main()
@@ -22,33 +40,22 @@ void testDeclaration()
     if (topDeclarations.size() != 1)
         throw std::runtime_error("Expected the main function");
 
-    auto mainDeclaration = topDeclarations.front();
-
-    if (mainDeclaration->name != "main" ||
-        mainDeclaration->getDeclarationKind() != Declaration::Kind::Callable)
-        throw std::runtime_error("Expected a callable declaration of main");
-
-    auto mainCallableDeclaration = static_cast<const CallableDeclaration*>(mainDeclaration);
-
-    auto mainBody = mainCallableDeclaration->body;
-
-    if (mainBody->getStatementKind() != Statement::Kind::Compound)
-        throw std::runtime_error("Expected a compound statement");
-
-    auto mainCompoundStatement = static_cast<const CompoundStatement*>(mainBody);
+    auto mainCompoundStatement = getMainBody(topDeclarations.front());
 
     if (mainCompoundStatement->statements.size() != 1)
+        throw std::runtime_error("Expected a statement");
+
+    auto statement = mainCompoundStatement->statements.front();
+
+    if (!statement ||
+        statement->getStatementKind() != Statement::Kind::Declaration)
         throw std::runtime_error("Expected a declaration");
 
-    auto iStatement = mainCompoundStatement->statements.front();
-
-    if (iStatement->getStatementKind() != Statement::Kind::Declaration)
-        throw std::runtime_error("Expected a declaration");
-
-    auto iDeclarationStatement = static_cast<const DeclarationStatement*>(iStatement);
+    auto iDeclarationStatement = static_cast<const DeclarationStatement*>(statement);
     auto iDeclaration = iDeclarationStatement->declaration;
 
-    if (iDeclaration->name != "i" ||
+    if (!iDeclaration ||
+        iDeclaration->name != "i" ||
         iDeclaration->getDeclarationKind() != Declaration::Kind::Variable)
         throw std::runtime_error("Expected a variable declaration of i");
 
@@ -74,11 +81,67 @@ void testDeclaration()
         throw std::runtime_error("Expected a literal 3");
 }
 
+static void testIfStatement()
+{
+    std::string code = R"CODE(
+    int main()
+    {
+        if (true)
+        {
+        }
+    }
+    )CODE";
+
+    std::vector<Token> tokens = tokenize(code);
+    ASTContext context(tokens);
+
+    auto topDeclarations = context.getDeclarations();
+    if (topDeclarations.size() != 1)
+        throw std::runtime_error("Expected the main function");
+
+    auto mainCompoundStatement = getMainBody(topDeclarations.front());
+
+    if (mainCompoundStatement->statements.size() != 1)
+        throw std::runtime_error("Expected a statement");
+
+    auto statement = mainCompoundStatement->statements.front();
+
+    if (!statement ||
+        statement->getStatementKind() != Statement::Kind::If)
+        throw std::runtime_error("Expected an if statement");
+
+    auto ifStatement = static_cast<const IfStatement*>(statement);
+
+    if (!ifStatement->condition ||
+        ifStatement->condition->getKind() != Construct::Kind::Expression)
+        throw std::runtime_error("Expected an expression condition");
+
+    auto condition = static_cast<const Expression*>(ifStatement->condition);
+
+    if (condition->getExpressionKind() != Expression::Kind::Literal)
+        throw std::runtime_error("Expected a literal condition");
+
+    auto literalCondition = static_cast<const LiteralExpression*>(condition);
+
+    if (literalCondition->getLiteralKind() != LiteralExpression::Kind::Boolean)
+        throw std::runtime_error("Expected a bool literal condition");
+
+    auto boolLiteralCondition = static_cast<const BooleanLiteralExpression*>(literalCondition);
+
+    if (boolLiteralCondition->value != true)
+        throw std::runtime_error("Expected a literal with a value \"true\"");
+
+    if (!ifStatement->body ||
+        ifStatement->body->getStatementKind() != Statement::Kind::Compound)
+        throw std::runtime_error("Expected a compound statement body");
+}
+
 int main(int argc, const char * argv[])
 {
     try
     {
         testDeclaration();
+        testIfStatement();
     }
     catch (const std::exception& e)
     {
