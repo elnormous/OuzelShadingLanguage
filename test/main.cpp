@@ -26,12 +26,12 @@ static const CompoundStatement* getMainBody(const Declaration* declaration)
 
 static void testDeclaration()
 {
-    std::string code = R"CODE(
+    std::string code = R"OSL(
     void main()
     {
         int i = 3;
     }
-    )CODE";
+    )OSL";
 
     std::vector<Token> tokens = tokenize(code);
     ASTContext context(tokens);
@@ -83,14 +83,17 @@ static void testDeclaration()
 
 static void testIfStatement()
 {
-    std::string code = R"CODE(
+    std::string code = R"OSL(
     void main()
     {
         if (true)
         {
         }
+        else
+        {
+        }
     }
-    )CODE";
+    )OSL";
 
     std::vector<Token> tokens = tokenize(code);
     ASTContext context(tokens);
@@ -133,7 +136,10 @@ static void testIfStatement()
 
     if (!ifStatement->body ||
         ifStatement->body->getStatementKind() != Statement::Kind::Compound)
-        throw std::runtime_error("Expected a compound statement body");
+        throw std::runtime_error("Expected a compound statement if part");
+
+    if (ifStatement->elseBody->getStatementKind() != Statement::Kind::Compound)
+        throw std::runtime_error("Expected a compound statement else part");
 }
 
 int main(int argc, const char * argv[])
