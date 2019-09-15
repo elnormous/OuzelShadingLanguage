@@ -24,6 +24,34 @@ static const CompoundStatement* getMainBody(const Declaration* declaration)
     return static_cast<const CompoundStatement*>(body);
 }
 
+static void testEmptyStatement()
+{
+    std::string code = R"OSL(
+    void main()
+    {
+        ;
+    }
+    )OSL";
+
+    std::vector<Token> tokens = tokenize(code);
+    ASTContext context(tokens);
+
+    auto topDeclarations = context.getDeclarations();
+    if (topDeclarations.size() != 1)
+        throw std::runtime_error("Expected the main function");
+
+    auto mainCompoundStatement = getMainBody(topDeclarations.front());
+
+    if (mainCompoundStatement->statements.size() != 1)
+        throw std::runtime_error("Expected a statement");
+
+    auto statement = mainCompoundStatement->statements.front();
+
+    if (!statement ||
+        statement->getStatementKind() != Statement::Kind::Empty)
+        throw std::runtime_error("Expected an empty statement");
+}
+
 static void testDeclaration()
 {
     std::string code = R"OSL(
@@ -197,11 +225,11 @@ static void testWhileStatement()
         throw std::runtime_error("Expected a compound statement");
 }
 
-
 int main(int argc, const char * argv[])
 {
     try
     {
+        testEmptyStatement();
         testDeclaration();
         testIfStatement();
         testWhileStatement();
