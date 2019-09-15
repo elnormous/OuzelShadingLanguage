@@ -225,6 +225,62 @@ static void testWhileStatement()
         throw std::runtime_error("Expected a compound statement");
 }
 
+static void testDoStatement()
+{
+    std::string code = R"OSL(
+    void main()
+    {
+        do
+        {
+        }
+        while (true);
+    }
+    )OSL";
+
+    std::vector<Token> tokens = tokenize(code);
+    ASTContext context(tokens);
+
+    auto topDeclarations = context.getDeclarations();
+    if (topDeclarations.size() != 1)
+        throw std::runtime_error("Expected the main function");
+
+    auto mainCompoundStatement = getMainBody(topDeclarations.front());
+
+    if (mainCompoundStatement->statements.size() != 1)
+        throw std::runtime_error("Expected a statement");
+
+    auto statement = mainCompoundStatement->statements.front();
+
+    if (!statement ||
+        statement->getStatementKind() != Statement::Kind::Do)
+        throw std::runtime_error("Expected a while statement");
+
+    auto whileStatement = static_cast<const WhileStatement*>(statement);
+
+    if (!whileStatement->condition ||
+        whileStatement->condition->getKind() != Construct::Kind::Expression)
+        throw std::runtime_error("Expected an expression condition");
+
+    auto condition = static_cast<const Expression*>(whileStatement->condition);
+
+    if (condition->getExpressionKind() != Expression::Kind::Literal)
+        throw std::runtime_error("Expected a literal condition");
+
+    auto literalCondition = static_cast<const LiteralExpression*>(condition);
+
+    if (literalCondition->getLiteralKind() != LiteralExpression::Kind::Boolean)
+        throw std::runtime_error("Expected a bool literal condition");
+
+    auto boolLiteralCondition = static_cast<const BooleanLiteralExpression*>(literalCondition);
+
+    if (boolLiteralCondition->value != true)
+        throw std::runtime_error("Expected a literal with a value \"true\"");
+
+    if (!whileStatement->body ||
+        whileStatement->body->getStatementKind() != Statement::Kind::Compound)
+        throw std::runtime_error("Expected a compound statement");
+}
+
 int main(int argc, const char * argv[])
 {
     try
@@ -233,6 +289,7 @@ int main(int argc, const char * argv[])
         testDeclaration();
         testIfStatement();
         testWhileStatement();
+        testDoStatement();
     }
     catch (const std::exception& e)
     {
