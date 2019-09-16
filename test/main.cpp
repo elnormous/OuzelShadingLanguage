@@ -31,6 +31,12 @@ static void expectLiteral(const Expression* expression, T value)
     if (!expression)
         throw std::runtime_error("Expected an expression");
 
+    if (expression->category != Expression::Category::Rvalue)
+        throw std::runtime_error("Expected must rvalue");
+
+    if (!expression->qualifiedType.isConst)
+        throw std::runtime_error("Expected must be const");
+
     if (expression->getExpressionKind() != Expression::Kind::Literal)
         throw std::runtime_error("Expected a literal expression");
 
