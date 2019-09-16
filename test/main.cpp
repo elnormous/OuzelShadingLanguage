@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <stdexcept>
+#include <type_traits>
 #include "Parser.hpp"
 
 static const CompoundStatement* getMainBody(const Declaration* declaration)
@@ -22,6 +23,46 @@ static const CompoundStatement* getMainBody(const Declaration* declaration)
         throw std::runtime_error("Expected a compound statement");
 
     return static_cast<const CompoundStatement*>(body);
+}
+
+template <class T, typename std::enable_if<std::is_same<T, bool>::value>::type* = nullptr>
+static void expectLiteral(const Expression* expression, T value)
+{
+    if (!expression)
+        throw std::runtime_error("Expected an expression");
+
+    if (expression->getExpressionKind() != Expression::Kind::Literal)
+        throw std::runtime_error("Expected a literal expression");
+
+    auto literalExpression = static_cast<const LiteralExpression*>(expression);
+
+    if (literalExpression->getLiteralKind() != LiteralExpression::Kind::Boolean)
+        throw std::runtime_error("Expected a boolean literal expression");
+
+    auto booleanLiteralExpression = static_cast<const BooleanLiteralExpression*>(literalExpression);
+
+    if (booleanLiteralExpression->value != value)
+        throw std::runtime_error("Wrong literal value");
+}
+
+template <class T, typename std::enable_if<std::is_integral<T>::value && !std::is_same<T, bool>::value>::type* = nullptr>
+static void expectLiteral(const Expression* expression, T value)
+{
+    if (!expression)
+        throw std::runtime_error("Expected an expression");
+
+    if (expression->getExpressionKind() != Expression::Kind::Literal)
+        throw std::runtime_error("Expected a literal expression");
+
+    auto literalExpression = static_cast<const LiteralExpression*>(expression);
+
+    if (literalExpression->getLiteralKind() != LiteralExpression::Kind::Integer)
+        throw std::runtime_error("Expected an integer literal expression");
+
+    auto integerLiteralExpression = static_cast<const IntegerLiteralExpression*>(literalExpression);
+
+    if (integerLiteralExpression->value != value)
+        throw std::runtime_error("Wrong literal value");
 }
 
 static void testEmptyStatement()
@@ -94,19 +135,7 @@ static void testDeclaration()
         iVariableDeclaration->qualifiedType.typeDeclaration->name != "int")
         throw std::runtime_error("Expected a declaration of a variable of type int");
 
-    if (!iVariableDeclaration->initialization ||
-        iVariableDeclaration->initialization->getExpressionKind() != Expression::Kind::Literal)
-        throw std::runtime_error("Expected an initialization with a literal");
-
-    auto literalExpression = static_cast<const LiteralExpression*>(iVariableDeclaration->initialization);
-
-    if (literalExpression->getLiteralKind() != LiteralExpression::Kind::Integer)
-        throw std::runtime_error("Expected an integer literal");
-
-    auto integerLiteralExpression = static_cast<const IntegerLiteralExpression*>(literalExpression);
-
-    if (integerLiteralExpression->value != 3)
-        throw std::runtime_error("Expected a literal 3");
+    expectLiteral(iVariableDeclaration->initialization, 3);
 }
 
 static void testIfStatement()
@@ -149,18 +178,7 @@ static void testIfStatement()
 
     auto condition = static_cast<const Expression*>(ifStatement->condition);
 
-    if (condition->getExpressionKind() != Expression::Kind::Literal)
-        throw std::runtime_error("Expected a literal condition");
-
-    auto literalCondition = static_cast<const LiteralExpression*>(condition);
-
-    if (literalCondition->getLiteralKind() != LiteralExpression::Kind::Boolean)
-        throw std::runtime_error("Expected a bool literal condition");
-
-    auto boolLiteralCondition = static_cast<const BooleanLiteralExpression*>(literalCondition);
-
-    if (boolLiteralCondition->value != true)
-        throw std::runtime_error("Expected a literal with a value \"true\"");
+    expectLiteral(condition, true);
 
     if (!ifStatement->body ||
         ifStatement->body->getStatementKind() != Statement::Kind::Compound)
@@ -207,18 +225,7 @@ static void testWhileStatement()
 
     auto condition = static_cast<const Expression*>(whileStatement->condition);
 
-    if (condition->getExpressionKind() != Expression::Kind::Literal)
-        throw std::runtime_error("Expected a literal condition");
-
-    auto literalCondition = static_cast<const LiteralExpression*>(condition);
-
-    if (literalCondition->getLiteralKind() != LiteralExpression::Kind::Boolean)
-        throw std::runtime_error("Expected a bool literal condition");
-
-    auto boolLiteralCondition = static_cast<const BooleanLiteralExpression*>(literalCondition);
-
-    if (boolLiteralCondition->value != true)
-        throw std::runtime_error("Expected a literal with a value \"true\"");
+    expectLiteral(condition, true);
 
     if (!whileStatement->body ||
         whileStatement->body->getStatementKind() != Statement::Kind::Compound)
@@ -263,18 +270,7 @@ static void testDoStatement()
 
     auto condition = static_cast<const Expression*>(doStatement->condition);
 
-    if (condition->getExpressionKind() != Expression::Kind::Literal)
-        throw std::runtime_error("Expected a literal condition");
-
-    auto literalCondition = static_cast<const LiteralExpression*>(condition);
-
-    if (literalCondition->getLiteralKind() != LiteralExpression::Kind::Boolean)
-        throw std::runtime_error("Expected a bool literal condition");
-
-    auto boolLiteralCondition = static_cast<const BooleanLiteralExpression*>(literalCondition);
-
-    if (boolLiteralCondition->value != true)
-        throw std::runtime_error("Expected a literal with a value \"true\"");
+    expectLiteral(condition, true);
 
     if (!doStatement->body ||
         doStatement->body->getStatementKind() != Statement::Kind::Compound)
@@ -318,22 +314,94 @@ static void testForStatement()
 
     auto condition = static_cast<const Expression*>(forStatement->condition);
 
-    if (condition->getExpressionKind() != Expression::Kind::Literal)
-        throw std::runtime_error("Expected a literal condition");
-
-    auto literalCondition = static_cast<const LiteralExpression*>(condition);
-
-    if (literalCondition->getLiteralKind() != LiteralExpression::Kind::Boolean)
-        throw std::runtime_error("Expected a bool literal condition");
-
-    auto boolLiteralCondition = static_cast<const BooleanLiteralExpression*>(literalCondition);
-
-    if (boolLiteralCondition->value != true)
-        throw std::runtime_error("Expected a literal with a value \"true\"");
+    expectLiteral(condition, true);
 
     if (!forStatement->body ||
         forStatement->body->getStatementKind() != Statement::Kind::Compound)
         throw std::runtime_error("Expected a compound statement");
+}
+
+static void testSwitchStatement()
+{
+    std::string code = R"OSL(
+    void main()
+    {
+        switch (1)
+        {
+            case 1:;
+            case 2: break;
+            default:;
+        }
+    }
+    )OSL";
+
+    std::vector<Token> tokens = tokenize(code);
+    ASTContext context(tokens);
+
+    auto topDeclarations = context.getDeclarations();
+    if (topDeclarations.size() != 1)
+        throw std::runtime_error("Expected the main function");
+
+    auto mainCompoundStatement = getMainBody(topDeclarations.front());
+
+    if (mainCompoundStatement->statements.size() != 1)
+        throw std::runtime_error("Expected a statement");
+
+    auto statement = mainCompoundStatement->statements.front();
+
+    if (!statement ||
+        statement->getStatementKind() != Statement::Kind::Switch)
+        throw std::runtime_error("Expected a switch statement");
+
+    auto switchStatement = static_cast<const SwitchStatement*>(statement);
+
+    if (!switchStatement->condition ||
+        switchStatement->condition->getKind() != Construct::Kind::Expression)
+        throw std::runtime_error("Expected an expression condition");
+
+    auto condition = static_cast<const Expression*>(switchStatement->condition);
+
+    expectLiteral(condition, 1);
+
+    if (!switchStatement->body ||
+        switchStatement->body->getStatementKind() != Statement::Kind::Compound)
+        throw std::runtime_error("Expected a compound statement");
+
+    auto body = static_cast<const CompoundStatement*>(switchStatement->body);
+
+    if (body->statements.size() != 3)
+        throw std::runtime_error("Expected 3 statements");
+
+    if (body->statements[0]->getStatementKind() != Statement::Kind::Case)
+        throw std::runtime_error("Expected a case statement");
+
+    auto firstCaseStatement = static_cast<const CaseStatement*>(body->statements[0]);
+
+    expectLiteral(firstCaseStatement->condition, 1);
+
+    if (!firstCaseStatement->body ||
+        firstCaseStatement->body->getStatementKind() != Statement::Kind::Empty)
+        throw std::runtime_error("Expected an empty statement");
+
+    if (body->statements[1]->getStatementKind() != Statement::Kind::Case)
+        throw std::runtime_error("Expected a case statement");
+
+    auto secondCaseStatement = static_cast<const CaseStatement*>(body->statements[1]);
+
+    expectLiteral(secondCaseStatement->condition, 2);
+
+    if (!secondCaseStatement->body ||
+        secondCaseStatement->body->getStatementKind() != Statement::Kind::Break)
+        throw std::runtime_error("Expected an break statement");
+
+    if (body->statements[2]->getStatementKind() != Statement::Kind::Default)
+        throw std::runtime_error("Expected a default statement");
+
+    auto defaultStatement = static_cast<const DefaultStatement*>(body->statements[2]);
+
+    if (!defaultStatement->body ||
+        defaultStatement->body->getStatementKind() != Statement::Kind::Empty)
+        throw std::runtime_error("Expected an empty statement");
 }
 
 int main(int argc, const char * argv[])
@@ -346,6 +414,7 @@ int main(int argc, const char * argv[])
         testWhileStatement();
         testDoStatement();
         testForStatement();
+        testSwitchStatement();
     }
     catch (const std::exception& e)
     {
