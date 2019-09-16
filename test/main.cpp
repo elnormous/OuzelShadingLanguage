@@ -404,6 +404,37 @@ static void testSwitchStatement()
         throw std::runtime_error("Expected an empty statement");
 }
 
+static void testReturnStatement()
+{
+    std::string code = R"OSL(
+    int main()
+    {
+        return 1;
+    }
+    )OSL";
+
+    std::vector<Token> tokens = tokenize(code);
+    ASTContext context(tokens);
+
+    auto topDeclarations = context.getDeclarations();
+    if (topDeclarations.size() != 1)
+        throw std::runtime_error("Expected the main function");
+
+    auto mainCompoundStatement = getMainBody(topDeclarations.front());
+
+    if (mainCompoundStatement->statements.size() != 1)
+        throw std::runtime_error("Expected a statement");
+
+    auto statement = mainCompoundStatement->statements.front();
+
+    if (!statement ||
+        statement->getStatementKind() != Statement::Kind::Return)
+        throw std::runtime_error("Expected a return statement");
+
+    auto returnStatement = static_cast<const ReturnStatement*>(statement);
+
+    expectLiteral(returnStatement->result, 1);
+}
 int main(int argc, const char * argv[])
 {
     try
@@ -415,6 +446,7 @@ int main(int argc, const char * argv[])
         testDoStatement();
         testForStatement();
         testSwitchStatement();
+        testReturnStatement();
     }
     catch (const std::exception& e)
     {
