@@ -7,8 +7,14 @@
 #include <type_traits>
 #include "Parser.hpp"
 
-static const CompoundStatement* getMainBody(const Declaration* declaration)
+static const CompoundStatement* getMainBody(const ASTContext& context)
 {
+    auto topDeclarations = context.getDeclarations();
+    if (topDeclarations.size() != 1)
+        throw std::runtime_error("Expected the main function");
+
+    auto declaration = static_cast<const Declaration*>(topDeclarations.front());
+
     if (!declaration ||
         declaration->name != "main" ||
         declaration->getDeclarationKind() != Declaration::Kind::Callable)
@@ -80,14 +86,8 @@ static void testEmptyStatement()
     }
     )OSL";
 
-    std::vector<Token> tokens = tokenize(code);
-    ASTContext context(tokens);
-
-    auto topDeclarations = context.getDeclarations();
-    if (topDeclarations.size() != 1)
-        throw std::runtime_error("Expected the main function");
-
-    auto mainCompoundStatement = getMainBody(topDeclarations.front());
+    ASTContext context(tokenize(code));
+    auto mainCompoundStatement = getMainBody(context);
 
     if (mainCompoundStatement->statements.size() != 1)
         throw std::runtime_error("Expected a statement");
@@ -108,14 +108,8 @@ static void testDeclaration()
     }
     )OSL";
 
-    std::vector<Token> tokens = tokenize(code);
-    ASTContext context(tokens);
-
-    auto topDeclarations = context.getDeclarations();
-    if (topDeclarations.size() != 1)
-        throw std::runtime_error("Expected the main function");
-
-    auto mainCompoundStatement = getMainBody(topDeclarations.front());
+    ASTContext context(tokenize(code));
+    auto mainCompoundStatement = getMainBody(context);
 
     if (mainCompoundStatement->statements.size() != 1)
         throw std::runtime_error("Expected a statement");
@@ -158,14 +152,8 @@ static void testIfStatement()
     }
     )OSL";
 
-    std::vector<Token> tokens = tokenize(code);
-    ASTContext context(tokens);
-
-    auto topDeclarations = context.getDeclarations();
-    if (topDeclarations.size() != 1)
-        throw std::runtime_error("Expected the main function");
-
-    auto mainCompoundStatement = getMainBody(topDeclarations.front());
+    ASTContext context(tokenize(code));
+    auto mainCompoundStatement = getMainBody(context);
 
     if (mainCompoundStatement->statements.size() != 1)
         throw std::runtime_error("Expected a statement");
@@ -205,14 +193,8 @@ static void testWhileStatement()
     }
     )OSL";
 
-    std::vector<Token> tokens = tokenize(code);
-    ASTContext context(tokens);
-
-    auto topDeclarations = context.getDeclarations();
-    if (topDeclarations.size() != 1)
-        throw std::runtime_error("Expected the main function");
-
-    auto mainCompoundStatement = getMainBody(topDeclarations.front());
+    ASTContext context(tokenize(code));
+    auto mainCompoundStatement = getMainBody(context);
 
     if (mainCompoundStatement->statements.size() != 1)
         throw std::runtime_error("Expected a statement");
@@ -250,14 +232,8 @@ static void testDoStatement()
     }
     )OSL";
 
-    std::vector<Token> tokens = tokenize(code);
-    ASTContext context(tokens);
-
-    auto topDeclarations = context.getDeclarations();
-    if (topDeclarations.size() != 1)
-        throw std::runtime_error("Expected the main function");
-
-    auto mainCompoundStatement = getMainBody(topDeclarations.front());
+    ASTContext context(tokenize(code));
+    auto mainCompoundStatement = getMainBody(context);
 
     if (mainCompoundStatement->statements.size() != 1)
         throw std::runtime_error("Expected a statement");
@@ -294,14 +270,8 @@ static void testForStatement()
     }
     )OSL";
 
-    std::vector<Token> tokens = tokenize(code);
-    ASTContext context(tokens);
-
-    auto topDeclarations = context.getDeclarations();
-    if (topDeclarations.size() != 1)
-        throw std::runtime_error("Expected the main function");
-
-    auto mainCompoundStatement = getMainBody(topDeclarations.front());
+    ASTContext context(tokenize(code));
+    auto mainCompoundStatement = getMainBody(context);
 
     if (mainCompoundStatement->statements.size() != 1)
         throw std::runtime_error("Expected a statement");
@@ -341,14 +311,8 @@ static void testSwitchStatement()
     }
     )OSL";
 
-    std::vector<Token> tokens = tokenize(code);
-    ASTContext context(tokens);
-
-    auto topDeclarations = context.getDeclarations();
-    if (topDeclarations.size() != 1)
-        throw std::runtime_error("Expected the main function");
-
-    auto mainCompoundStatement = getMainBody(topDeclarations.front());
+    ASTContext context(tokenize(code));
+    auto mainCompoundStatement = getMainBody(context);
 
     if (mainCompoundStatement->statements.size() != 1)
         throw std::runtime_error("Expected a statement");
@@ -419,14 +383,8 @@ static void testReturnStatement()
     }
     )OSL";
 
-    std::vector<Token> tokens = tokenize(code);
-    ASTContext context(tokens);
-
-    auto topDeclarations = context.getDeclarations();
-    if (topDeclarations.size() != 1)
-        throw std::runtime_error("Expected the main function");
-
-    auto mainCompoundStatement = getMainBody(topDeclarations.front());
+    ASTContext context(tokenize(code));
+    auto mainCompoundStatement = getMainBody(context);
 
     if (mainCompoundStatement->statements.size() != 1)
         throw std::runtime_error("Expected a statement");
