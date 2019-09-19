@@ -215,50 +215,53 @@ enum class Rank
     ExactMatch = 3
 };
 
-static Rank getRank(const QualifiedType& parameterType,
-                    const QualifiedType& argumentType)
+namespace
 {
-    if (!parameterType.typeDeclaration)
-        throw std::runtime_error("Parameter does not have a type");
-
-    if (!argumentType.typeDeclaration)
-        throw std::runtime_error("Argument does not have a type");
-
-    if (argumentType.typeDeclaration->getTypeKind() == parameterType.typeDeclaration->getTypeKind())
+    Rank getRank(const QualifiedType& parameterType,
+                 const QualifiedType& argumentType)
     {
-        if (parameterType.typeDeclaration == argumentType.typeDeclaration)
-            return Rank::ExactMatch;
-        else if (argumentType.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::Array)
-        {
-            auto argumentTypeDeclaration = static_cast<const ArrayTypeDeclaration*>(argumentType.typeDeclaration);
-            auto parameterTypeDeclaration = static_cast<const ArrayTypeDeclaration*>(parameterType.typeDeclaration);
+        if (!parameterType.typeDeclaration)
+            throw std::runtime_error("Parameter does not have a type");
 
-            if (argumentTypeDeclaration->size == parameterTypeDeclaration->size)
+        if (!argumentType.typeDeclaration)
+            throw std::runtime_error("Argument does not have a type");
+
+        if (argumentType.typeDeclaration->getTypeKind() == parameterType.typeDeclaration->getTypeKind())
+        {
+            if (parameterType.typeDeclaration == argumentType.typeDeclaration)
                 return Rank::ExactMatch;
-            else
-                return Rank::NoRank;
-        }
-        else if (argumentType.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::Scalar)
-        {
-            auto argumentTypeDeclaration = static_cast<const ScalarTypeDeclaration*>(argumentType.typeDeclaration);
-            auto parameterTypeDeclaration = static_cast<const ScalarTypeDeclaration*>(parameterType.typeDeclaration);
-
-            if (argumentTypeDeclaration->getScalarTypeKind() == parameterTypeDeclaration->getScalarTypeKind() &&
-                argumentTypeDeclaration->isUnsigned == parameterTypeDeclaration->isUnsigned)
+            else if (argumentType.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::Array)
             {
+                auto argumentTypeDeclaration = static_cast<const ArrayTypeDeclaration*>(argumentType.typeDeclaration);
+                auto parameterTypeDeclaration = static_cast<const ArrayTypeDeclaration*>(parameterType.typeDeclaration);
+
                 if (argumentTypeDeclaration->size == parameterTypeDeclaration->size)
                     return Rank::ExactMatch;
-                else if (argumentTypeDeclaration->size < parameterTypeDeclaration->size)
-                    return Rank::Promotion;
+                else
+                    return Rank::NoRank;
+            }
+            else if (argumentType.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::Scalar)
+            {
+                auto argumentTypeDeclaration = static_cast<const ScalarTypeDeclaration*>(argumentType.typeDeclaration);
+                auto parameterTypeDeclaration = static_cast<const ScalarTypeDeclaration*>(parameterType.typeDeclaration);
+
+                if (argumentTypeDeclaration->getScalarTypeKind() == parameterTypeDeclaration->getScalarTypeKind() &&
+                    argumentTypeDeclaration->isUnsigned == parameterTypeDeclaration->isUnsigned)
+                {
+                    if (argumentTypeDeclaration->size == parameterTypeDeclaration->size)
+                        return Rank::ExactMatch;
+                    else if (argumentTypeDeclaration->size < parameterTypeDeclaration->size)
+                        return Rank::Promotion;
+                    else
+                        return Rank::Conversion;
+                }
                 else
                     return Rank::Conversion;
             }
-            else
-                return Rank::Conversion;
         }
-    }
 
-    return Rank::NoRank;
+        return Rank::NoRank;
+    }
 }
 
 const CallableDeclaration* ASTContext::compareCallableDeclarations(const CallableDeclaration* callableDeclaration1,
@@ -1619,16 +1622,19 @@ ForStatement* ASTContext::parseForStatement(std::vector<Token>::const_iterator& 
     return result;
 }
 
-static bool isInteger(const TypeDeclaration* typeDeclaration) noexcept
+namespace
 {
-    if (!typeDeclaration &&
-        typeDeclaration->getTypeKind() != TypeDeclaration::Kind::Scalar)
-        return false;
+    bool isInteger(const TypeDeclaration* typeDeclaration) noexcept
+    {
+        if (!typeDeclaration &&
+            typeDeclaration->getTypeKind() != TypeDeclaration::Kind::Scalar)
+            return false;
 
-    const ScalarTypeDeclaration* scalarTypeDeclaration = static_cast<const ScalarTypeDeclaration*>(typeDeclaration);
+        const ScalarTypeDeclaration* scalarTypeDeclaration = static_cast<const ScalarTypeDeclaration*>(typeDeclaration);
 
-    return scalarTypeDeclaration->getScalarTypeKind() == ScalarTypeDeclaration::Kind::Boolean ||
-        scalarTypeDeclaration->getScalarTypeKind() == ScalarTypeDeclaration::Kind::Integer;
+        return scalarTypeDeclaration->getScalarTypeKind() == ScalarTypeDeclaration::Kind::Boolean ||
+            scalarTypeDeclaration->getScalarTypeKind() == ScalarTypeDeclaration::Kind::Integer;
+    }
 }
 
 SwitchStatement* ASTContext::parseSwitchStatement(std::vector<Token>::const_iterator& iterator,

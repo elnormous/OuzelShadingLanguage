@@ -4,13 +4,16 @@
 
 #include "OutputGLSL.hpp"
 
-struct BuiltinFunction
+namespace
 {
-    BuiltinFunction(const std::string& initName): name(initName) {}
-    std::string name;
-};
+    struct BuiltinFunction
+    {
+        BuiltinFunction(const std::string& initName): name(initName) {}
+        std::string name;
+    };
 
-static std::map<std::string, BuiltinFunction> builtinFunctions;
+    std::map<std::string, BuiltinFunction> builtinFunctions;
+}
 
 OutputGLSL::OutputGLSL(Program initProgram,
                        uint32_t initGLSLVersion,
@@ -37,33 +40,36 @@ std::string OutputGLSL::output(const ASTContext& context, bool whitespaces)
     return result;
 }
 
-static std::pair<std::string, std::string> getPrintableTypeName(const QualifiedType& qualifiedType)
+namespace
 {
-    std::pair<std::string, std::string> result;
-
-    if (qualifiedType.isVolatile) result.first += "volatile ";
-    if (qualifiedType.isConst) result.first += "const ";
-
-    if (!qualifiedType.typeDeclaration)
+    std::pair<std::string, std::string> getPrintableTypeName(const QualifiedType& qualifiedType)
     {
-        result.first += "void";
-    }
-    else
-    {
-        TypeDeclaration* typeDeclaration = qualifiedType.typeDeclaration;
-        while (typeDeclaration->getTypeKind() == TypeDeclaration::Kind::Array)
+        std::pair<std::string, std::string> result;
+
+        if (qualifiedType.isVolatile) result.first += "volatile ";
+        if (qualifiedType.isConst) result.first += "const ";
+
+        if (!qualifiedType.typeDeclaration)
         {
-            ArrayTypeDeclaration* arrayTypeDeclaration = static_cast<ArrayTypeDeclaration*>(typeDeclaration);
+            result.first += "void";
+        }
+        else
+        {
+            TypeDeclaration* typeDeclaration = qualifiedType.typeDeclaration;
+            while (typeDeclaration->getTypeKind() == TypeDeclaration::Kind::Array)
+            {
+                ArrayTypeDeclaration* arrayTypeDeclaration = static_cast<ArrayTypeDeclaration*>(typeDeclaration);
 
-            result.second = "[" + std::to_string(arrayTypeDeclaration->size) + "]" + result.second;
+                result.second = "[" + std::to_string(arrayTypeDeclaration->size) + "]" + result.second;
 
-            typeDeclaration = arrayTypeDeclaration->elementType.typeDeclaration;
+                typeDeclaration = arrayTypeDeclaration->elementType.typeDeclaration;
+            }
+
+            result.first = typeDeclaration->name;
         }
 
-        result.first = typeDeclaration->name;
+        return result;
     }
-
-    return result;
 }
 
 void OutputGLSL::printDeclaration(const Declaration* declaration, Options options, std::string& code)

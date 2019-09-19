@@ -11,18 +11,21 @@
 #include "OutputGLSL.hpp"
 #include "OutputMSL.hpp"
 
-enum class OutputProgram
+namespace
 {
-    None,
-    Fragment,
-    Vertex
-};
+    enum class OutputProgram
+    {
+        None,
+        Fragment,
+        Vertex
+    };
 
-static constexpr Program getProgram(OutputProgram outputProgram)
-{
-    return (outputProgram == OutputProgram::Fragment) ? Program::Fragment :
-        (outputProgram == OutputProgram::Vertex) ? Program::Vertex :
-        throw std::runtime_error("Invalid program");
+    constexpr Program getProgram(OutputProgram outputProgram)
+    {
+        return (outputProgram == OutputProgram::Fragment) ? Program::Fragment :
+            (outputProgram == OutputProgram::Vertex) ? Program::Vertex :
+            throw std::runtime_error("Invalid program");
+    }
 }
 
 int main(int argc, const char* argv[])
