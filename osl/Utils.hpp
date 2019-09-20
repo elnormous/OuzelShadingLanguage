@@ -218,7 +218,7 @@ namespace
         {
             case Declaration::Kind::Empty:
             {
-                std::cout << std::endl;
+                std::cout << '\n';
                 break;
             }
 
@@ -246,7 +246,7 @@ namespace
                         if (structDeclaration->definition)
                             std::cout << ", definition: " << structDeclaration->definition;
 
-                        std::cout << std::endl;
+                        std::cout << '\n';
 
                         for (const Declaration* memberDeclaration : structDeclaration->memberDeclarations)
                             dumpConstruct(memberDeclaration, level + 1);
@@ -273,7 +273,7 @@ namespace
                 if (fieldDeclaration->semantic != Semantic::None)
                     std::cout << ", semantic: " << toString(fieldDeclaration->semantic);
 
-                std::cout << std::endl;
+                std::cout << '\n';
                 break;
             }
 
@@ -300,7 +300,7 @@ namespace
                 if (callableDeclaration->definition)
                     std::cout << ", definition: " << callableDeclaration->definition;
 
-                std::cout << std::endl;
+                std::cout << '\n';
 
                 for (ParameterDeclaration* parameter : callableDeclaration->parameterDeclarations)
                     dumpConstruct(parameter, level + 1);
@@ -314,7 +314,7 @@ namespace
             case Declaration::Kind::Variable:
             {
                 const VariableDeclaration* variableDeclaration = static_cast<const VariableDeclaration*>(declaration);
-                std::cout << ", name: " << variableDeclaration->name << ", type: " << getPrintableTypeName(variableDeclaration->qualifiedType) << std::endl;
+                std::cout << ", name: " << variableDeclaration->name << ", type: " << getPrintableTypeName(variableDeclaration->qualifiedType) << '\n';
 
                 if (variableDeclaration->initialization)
                 {
@@ -327,7 +327,7 @@ namespace
             case Declaration::Kind::Parameter:
             {
                 const ParameterDeclaration* parameterDeclaration = static_cast<const ParameterDeclaration*>(declaration);
-                std::cout << ", name: " << parameterDeclaration->name << ", type: " << getPrintableTypeName(parameterDeclaration->qualifiedType) << std::endl;
+                std::cout << ", name: " << parameterDeclaration->name << ", type: " << getPrintableTypeName(parameterDeclaration->qualifiedType) << '\n';
                 break;
             }
 
@@ -344,7 +344,7 @@ namespace
         {
             case Statement::Kind::Empty:
             {
-                std::cout << std::endl;
+                std::cout << '\n';
                 break;
             }
 
@@ -352,7 +352,7 @@ namespace
             {
                 const ExpressionStatement* expressionStatement = static_cast<const ExpressionStatement*>(statement);
 
-                std::cout << std::endl;
+                std::cout << '\n';
 
                 dumpConstruct(expressionStatement->expression, level + 1);
                 break;
@@ -362,7 +362,7 @@ namespace
             {
                 const DeclarationStatement* declarationStatement = static_cast<const DeclarationStatement*>(statement);
 
-                std::cout << std::endl;
+                std::cout << '\n';
 
                 dumpConstruct(declarationStatement->declaration, level + 1);
                 break;
@@ -372,7 +372,7 @@ namespace
             {
                 const CompoundStatement* compoundStatement = static_cast<const CompoundStatement*>(statement);
 
-                std::cout << std::endl;
+                std::cout << '\n';
 
                 for (Statement* subSstatement : compoundStatement->statements)
                     dumpConstruct(subSstatement, level + 1);
@@ -384,7 +384,7 @@ namespace
             {
                 const IfStatement* ifStatement = static_cast<const IfStatement*>(statement);
 
-                std::cout << std::endl;
+                std::cout << '\n';
 
                 dumpConstruct(ifStatement->condition, level + 1);
                 dumpConstruct(ifStatement->body, level + 1);
@@ -396,7 +396,7 @@ namespace
             {
                 const ForStatement* forStatement = static_cast<const ForStatement*>(statement);
 
-                std::cout << std::endl;
+                std::cout << '\n';
 
                 if (forStatement->initialization) dumpConstruct(forStatement->initialization, level + 1);
                 if (forStatement->condition) dumpConstruct(forStatement->condition, level + 1);
@@ -409,7 +409,7 @@ namespace
             {
                 const SwitchStatement* switchStatement = static_cast<const SwitchStatement*>(statement);
 
-                std::cout << std::endl;
+                std::cout << '\n';
 
                 dumpConstruct(switchStatement->condition, level + 1);
                 dumpConstruct(switchStatement->body, level + 1);
@@ -420,7 +420,7 @@ namespace
             {
                 const CaseStatement* caseStatement = static_cast<const CaseStatement*>(statement);
 
-                std::cout << std::endl;
+                std::cout << '\n';
 
                 dumpConstruct(caseStatement->condition, level + 1);
                 dumpConstruct(caseStatement->body, level + 1);
@@ -431,7 +431,7 @@ namespace
             {
                 const DefaultStatement* defaultStatement = static_cast<const DefaultStatement*>(statement);
 
-                std::cout << std::endl;
+                std::cout << '\n';
 
                 dumpConstruct(defaultStatement->body, level + 1);
                 break;
@@ -441,7 +441,7 @@ namespace
             {
                 const WhileStatement* whileStatement = static_cast<const WhileStatement*>(statement);
 
-                std::cout << std::endl;
+                std::cout << '\n';
 
                 dumpConstruct(whileStatement->condition, level + 1);
                 dumpConstruct(whileStatement->body, level + 1);
@@ -452,7 +452,7 @@ namespace
             {
                 const DoStatement* doStatement = static_cast<const DoStatement*>(statement);
 
-                std::cout << std::endl;
+                std::cout << '\n';
 
                 dumpConstruct(doStatement->body, level + 1);
                 dumpConstruct(doStatement->condition, level + 1);
@@ -461,13 +461,13 @@ namespace
 
             case Statement::Kind::Break:
             {
-                std::cout << std::endl;
+                std::cout << '\n';
                 break;
             }
 
             case Statement::Kind::Continue:
             {
-                std::cout << std::endl;
+                std::cout << '\n';
                 break;
             }
 
@@ -475,7 +475,7 @@ namespace
             {
                 const ReturnStatement* returnStatement = static_cast<const ReturnStatement*>(statement);
 
-                std::cout << std::endl;
+                std::cout << '\n';
 
                 if (returnStatement->result)
                 {
@@ -509,7 +509,7 @@ namespace
             {
                 const CallExpression* callExpression = static_cast<const CallExpression*>(expression);
 
-                std::cout << std::endl;
+                std::cout << '\n';
 
                 dumpConstruct(callExpression->declarationReference, level + 1);
 
@@ -553,7 +553,7 @@ namespace
                     }
                 }
 
-                std::cout << std::endl;
+                std::cout << '\n';
                 break;
             }
 
@@ -563,7 +563,7 @@ namespace
 
                 std::cout << ", name: " << declarationReferenceExpression->declaration->name << ", declaration: " << declarationReferenceExpression->declaration;
 
-                std::cout << std::endl;
+                std::cout << '\n';
                 break;
             }
 
@@ -571,7 +571,7 @@ namespace
             {
                 const ParenExpression* parenExpression = static_cast<const ParenExpression*>(expression);
 
-                std::cout << std::endl;
+                std::cout << '\n';
 
                 dumpConstruct(parenExpression->expression, level + 1);
                 break;
@@ -581,7 +581,7 @@ namespace
             {
                 const MemberExpression* memberExpression = static_cast<const MemberExpression*>(expression);
 
-                std::cout << ", field: " << memberExpression->fieldDeclaration->name << std::endl;
+                std::cout << ", field: " << memberExpression->fieldDeclaration->name << '\n';
 
                 dumpConstruct(memberExpression->expression, level + 1);
                 break;
@@ -591,7 +591,7 @@ namespace
             {
                 const ArraySubscriptExpression* arraySubscriptExpression = static_cast<const ArraySubscriptExpression*>(expression);
 
-                std::cout << std::endl;
+                std::cout << '\n';
 
                 dumpConstruct(arraySubscriptExpression->expression, level + 1);
                 dumpConstruct(arraySubscriptExpression->subscript, level + 1);
@@ -602,7 +602,7 @@ namespace
             {
                 const UnaryOperatorExpression* unaryOperatorExpression = static_cast<const UnaryOperatorExpression*>(expression);
 
-                std::cout <<", operator: " << toString(unaryOperatorExpression->operatorDeclaration->op) << std::endl;
+                std::cout <<", operator: " << toString(unaryOperatorExpression->operatorDeclaration->op) << '\n';
 
                 dumpConstruct(unaryOperatorExpression->expression, level + 1);
                 break;
@@ -612,7 +612,7 @@ namespace
             {
                 const BinaryOperatorExpression* binaryOperatorExpression = static_cast<const BinaryOperatorExpression*>(expression);
 
-                std::cout << ", operator: " << toString(binaryOperatorExpression->operatorDeclaration->op) << std::endl;
+                std::cout << ", operator: " << toString(binaryOperatorExpression->operatorDeclaration->op) << '\n';
 
                 dumpConstruct(binaryOperatorExpression->leftExpression, level + 1);
                 dumpConstruct(binaryOperatorExpression->rightExpression, level + 1);
@@ -623,7 +623,7 @@ namespace
             {
                 const TernaryOperatorExpression* ternaryOperatorExpression = static_cast<const TernaryOperatorExpression*>(expression);
 
-                std::cout << std::endl;
+                std::cout << '\n';
 
                 dumpConstruct(ternaryOperatorExpression->condition, level + 1);
                 dumpConstruct(ternaryOperatorExpression->leftExpression, level + 1);
@@ -637,7 +637,7 @@ namespace
 
                 const TypeDeclaration* typeDeclaration = static_cast<const TypeDeclaration*>(temporaryObjectExpression->constructorDeclaration->parent);
 
-                std::cout << " " << typeDeclaration->name << std::endl;
+                std::cout << " " << typeDeclaration->name << '\n';
 
                 for (Expression* parameter : temporaryObjectExpression->parameters)
                     dumpConstruct(parameter, level + 1);
@@ -649,7 +649,7 @@ namespace
             {
                 const InitializerListExpression* initializerListExpression = static_cast<const InitializerListExpression*>(expression);
 
-                std::cout << std::endl;
+                std::cout << '\n';
 
                 for (Expression* subExpression : initializerListExpression->expressions)
                     dumpConstruct(subExpression, level + 1);
@@ -662,7 +662,7 @@ namespace
                 const CastExpression* castExpression = static_cast<const CastExpression*>(expression);
 
                 std::cout << ", cast kind: " << toString(castExpression->getCastKind()) <<
-                ", type: " << castExpression->qualifiedType.typeDeclaration->name << std::endl;
+                ", type: " << castExpression->qualifiedType.typeDeclaration->name << '\n';
 
                 dumpConstruct(castExpression->expression, level + 1);
 
@@ -672,7 +672,7 @@ namespace
             {
                 const SizeofExpression* sizeofExpression = static_cast<const SizeofExpression*>(expression);
 
-                std::cout << std::endl;
+                std::cout << '\n';
 
                 if (sizeofExpression->expression)
                     dumpConstruct(sizeofExpression->expression, level + 1);

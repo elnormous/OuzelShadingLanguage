@@ -616,6 +616,6 @@ void dump(const std::vector<Token>& tokens)
         std::cout << "Token, type: " << toString(token.type) <<
             ", value: " << token.value <<
             ", line: " << token.line <<
-            ", column: " << token.column << std::endl;
+            ", column: " << token.column << '\n';
     }
 }

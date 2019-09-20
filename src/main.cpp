@@ -140,7 +140,7 @@ int main(int argc, const char* argv[])
                         std::string outCode = output->output(context, whitespaces);
 
                         if (outputFilename.empty())
-                            std::cout << outCode << std::endl;
+                            std::cout << outCode << '\n';
                         else
                         {
                             std::ofstream outputFile(outputFilename, std::ios::binary);
@@ -161,7 +161,7 @@ int main(int argc, const char* argv[])
     }
     catch (const std::exception& e)
     {
-        std::cerr << e.what() << std::endl;
+        std::cerr << e.what() << '\n';
         return EXIT_FAILURE;
     }
 
