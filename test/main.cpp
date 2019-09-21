@@ -33,8 +33,7 @@ namespace
         return static_cast<const CompoundStatement*>(body);
     }
 
-    template <class T, typename std::enable_if<std::is_same<T, bool>::value>::type* = nullptr>
-    void expectLiteral(const Expression* expression, T value)
+    const LiteralExpression* getLiteralExpression(const Expression* expression)
     {
         if (!expression)
             throw std::runtime_error("Expected an expression");
@@ -48,7 +47,13 @@ namespace
         if (expression->getExpressionKind() != Expression::Kind::Literal)
             throw std::runtime_error("Expected a literal expression");
 
-        auto literalExpression = static_cast<const LiteralExpression*>(expression);
+        return static_cast<const LiteralExpression*>(expression);
+    }
+
+    template <class T, typename std::enable_if<std::is_same<T, bool>::value>::type* = nullptr>
+    void expectLiteral(const Expression* expression, T value)
+    {
+        auto literalExpression = getLiteralExpression(expression);
 
         if (literalExpression->getLiteralKind() != LiteralExpression::Kind::Boolean)
             throw std::runtime_error("Expected a boolean literal expression");
@@ -62,13 +67,7 @@ namespace
     template <class T, typename std::enable_if<std::is_integral<T>::value && !std::is_same<T, bool>::value>::type* = nullptr>
     void expectLiteral(const Expression* expression, T value)
     {
-        if (!expression)
-            throw std::runtime_error("Expected an expression");
-
-        if (expression->getExpressionKind() != Expression::Kind::Literal)
-            throw std::runtime_error("Expected a literal expression");
-
-        auto literalExpression = static_cast<const LiteralExpression*>(expression);
+        auto literalExpression = getLiteralExpression(expression);
 
         if (literalExpression->getLiteralKind() != LiteralExpression::Kind::Integer)
             throw std::runtime_error("Expected an integer literal expression");
