@@ -147,6 +147,9 @@ namespace
             if (true)
             {
             }
+            else if (false)
+            {
+            }
             else
             {
             }
@@ -179,7 +182,22 @@ namespace
             ifStatement->body->getStatementKind() != Statement::Kind::Compound)
             throw std::runtime_error("Expected a compound statement if part");
 
-        if (ifStatement->elseBody->getStatementKind() != Statement::Kind::Compound)
+        if (!ifStatement->elseBody ||
+            ifStatement->elseBody->getStatementKind() != Statement::Kind::If)
+            throw std::runtime_error("Expected a compound statement else if part");
+
+        auto elseIfStatement = static_cast<const IfStatement*>(ifStatement->elseBody);
+
+        if (!elseIfStatement->condition ||
+            elseIfStatement->condition->getKind() != Construct::Kind::Expression)
+            throw std::runtime_error("Expected an expression condition");
+
+        auto elseIfCondition = static_cast<const Expression*>(elseIfStatement->condition);
+
+        expectLiteral(elseIfCondition, false);
+
+        if (!elseIfStatement->elseBody ||
+            elseIfStatement->elseBody->getStatementKind() != Statement::Kind::Compound)
             throw std::runtime_error("Expected a compound statement else part");
     }
 
