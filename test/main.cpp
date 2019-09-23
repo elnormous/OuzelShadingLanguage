@@ -78,6 +78,20 @@ namespace
             throw std::runtime_error("Wrong literal value");
     }
 
+    template <class T, typename std::enable_if<std::is_floating_point<T>::value>::type* = nullptr>
+    void expectLiteral(const Expression* expression, T value)
+    {
+        auto literalExpression = getLiteralExpression(expression);
+
+        if (literalExpression->getLiteralKind() != LiteralExpression::Kind::FloatingPoint)
+            throw std::runtime_error("Expected a floating point literal expression");
+
+        auto floatLiteralExpression = static_cast<const FloatingPointLiteralExpression*>(literalExpression);
+
+        if (floatLiteralExpression->value != value)
+            throw std::runtime_error("Wrong literal value");
+    }
+
     void testEmptyStatement()
     {
         std::string code = R"OSL(
@@ -98,6 +112,32 @@ namespace
         if (!statement ||
             statement->getStatementKind() != Statement::Kind::Empty)
             throw std::runtime_error("Expected an empty statement");
+    }
+
+    void testExpressionStatement()
+    {
+        std::string code = R"OSL(
+        void main()
+        {
+            0.0F;
+        }
+        )OSL";
+
+        ASTContext context(tokenize(code));
+        auto mainCompoundStatement = getMainBody(context);
+
+        if (mainCompoundStatement->statements.size() != 1)
+            throw std::runtime_error("Expected a statement");
+
+        auto statement = mainCompoundStatement->statements.front();
+
+        if (!statement ||
+            statement->getStatementKind() != Statement::Kind::Expression)
+            throw std::runtime_error("Expected an expression statement");
+
+        auto expressionStatement = static_cast<const ExpressionStatement*>(statement);
+
+        expectLiteral(expressionStatement->expression, 0.0F);
     }
 
     void testDeclaration()
@@ -425,6 +465,7 @@ int main(int argc, const char * argv[])
     try
     {
         testEmptyStatement();
+        testExpressionStatement();
         testDeclaration();
         testIfStatement();
         testWhileStatement();
