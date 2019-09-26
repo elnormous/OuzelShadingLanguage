@@ -33,6 +33,24 @@ namespace
         return static_cast<const CompoundStatement*>(body);
     }
 
+    const Expression* getMainExpression(const ASTContext& context)
+    {
+        auto mainCompoundStatement = getMainBody(context);
+
+        if (mainCompoundStatement->statements.size() != 1)
+            throw std::runtime_error("Expected a statement");
+
+        auto statement = mainCompoundStatement->statements.front();
+
+        if (!statement ||
+            statement->getStatementKind() != Statement::Kind::Expression)
+            throw std::runtime_error("Expected an expression statement");
+
+        auto expressionStatement = static_cast<const ExpressionStatement*>(statement);
+
+        return expressionStatement->expression;
+    }
+
     const LiteralExpression* getLiteralExpression(const Expression* expression)
     {
         if (!expression)
@@ -112,32 +130,6 @@ namespace
         if (!statement ||
             statement->getStatementKind() != Statement::Kind::Empty)
             throw std::runtime_error("Expected an empty statement");
-    }
-
-    void testExpressionStatement()
-    {
-        std::string code = R"OSL(
-        void main()
-        {
-            0.0F;
-        }
-        )OSL";
-
-        ASTContext context(tokenize(code));
-        auto mainCompoundStatement = getMainBody(context);
-
-        if (mainCompoundStatement->statements.size() != 1)
-            throw std::runtime_error("Expected a statement");
-
-        auto statement = mainCompoundStatement->statements.front();
-
-        if (!statement ||
-            statement->getStatementKind() != Statement::Kind::Expression)
-            throw std::runtime_error("Expected an expression statement");
-
-        auto expressionStatement = static_cast<const ExpressionStatement*>(statement);
-
-        expectLiteral(expressionStatement->expression, 0.0F);
     }
 
     void testDeclaration()
@@ -458,6 +450,57 @@ namespace
 
         expectLiteral(returnStatement->result, 1);
     }
+
+    void testBoolLiteral()
+    {
+        std::string code = R"OSL(
+        void main()
+        {
+            true;
+        }
+        )OSL";
+
+        ASTContext context(tokenize(code));
+        expectLiteral(getMainExpression(context), true);
+    }
+
+    void testIntLiteral()
+    {
+        std::string code = R"OSL(
+        void main()
+        {
+            1;
+        }
+        )OSL";
+
+        ASTContext context(tokenize(code));
+        expectLiteral(getMainExpression(context), 1);
+    }
+
+    void testFloatLiteral()
+    {
+        std::string code = R"OSL(
+        void main()
+        {
+            1.0F;
+        }
+        )OSL";
+
+        ASTContext context(tokenize(code));
+        expectLiteral(getMainExpression(context), 1.0F);
+    }
+
+    void testLiteralExpressions()
+    {
+        testBoolLiteral();
+        testIntLiteral();
+        testFloatLiteral();
+    }
+
+    void testExpressions()
+    {
+        testLiteralExpressions();
+    }
 }
 
 int main(int argc, const char * argv[])
@@ -465,7 +508,6 @@ int main(int argc, const char * argv[])
     try
     {
         testEmptyStatement();
-        testExpressionStatement();
         testDeclaration();
         testIfStatement();
         testWhileStatement();
@@ -473,6 +515,7 @@ int main(int argc, const char * argv[])
         testForStatement();
         testSwitchStatement();
         testReturnStatement();
+        testExpressions();
     }
     catch (const std::exception& e)
     {
