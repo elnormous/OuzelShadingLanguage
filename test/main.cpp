@@ -9,6 +9,29 @@
 
 namespace
 {
+    class TestRunner
+    {
+    public:
+        template <class T, class ...Args>
+        void run(T test, Args ...args)
+        {
+            try
+            {
+                test(args...);
+            }
+            catch (std::exception& e)
+            {
+                std::cerr << e.what() << '\n';
+                result = false;
+            }
+        }
+
+        bool getResult() const noexcept { return result; }
+
+    private:
+        bool result = true;
+    };
+
     const CompoundStatement* getMainBody(const ASTContext& context)
     {
         auto topDeclarations = context.getDeclarations();
@@ -505,25 +528,19 @@ namespace
 
 int main(int argc, const char * argv[])
 {
-    try
-    {
-        testEmptyStatement();
-        testDeclaration();
-        testIfStatement();
-        testWhileStatement();
-        testDoStatement();
-        testForStatement();
-        testSwitchStatement();
-        testReturnStatement();
-        testExpressions();
-    }
-    catch (const std::exception& e)
-    {
-        std::cerr << e.what() << "\n";
-        return EXIT_FAILURE;
-    }
+    TestRunner testRunner;
+    testRunner.run(testEmptyStatement);
+    testRunner.run(testDeclaration);
+    testRunner.run(testIfStatement);
+    testRunner.run(testWhileStatement);
+    testRunner.run(testDoStatement);
+    testRunner.run(testForStatement);
+    testRunner.run(testSwitchStatement);
+    testRunner.run(testReturnStatement);
+    testRunner.run(testExpressions);
 
-    std::cout << "Done\n";
+    if (testRunner.getResult())
+        std::cout << "Success\n";
 
-    return EXIT_SUCCESS;
+    return testRunner.getResult() ? EXIT_SUCCESS : EXIT_FAILURE;
 }
