@@ -28,7 +28,7 @@ public:
         Do,
         Break,
         Continue,
-        Return,
+        Return
     };
 
     Statement(Kind initStatementKind) noexcept: Construct(Construct::Kind::Statement), statementKind(initStatementKind) {}

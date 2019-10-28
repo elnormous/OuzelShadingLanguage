@@ -17,6 +17,10 @@ public:
 
     explicit Construct(Kind initKind) noexcept: kind(initKind) {}
     virtual ~Construct() = default;
+    Construct(const Construct&) = delete;
+    Construct& operator=(const Construct&) = delete;
+    Construct(Construct&&) = delete;
+    Construct& operator=(Construct&&) = delete;
 
     inline Kind getKind() const noexcept { return kind; }
 
