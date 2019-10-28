@@ -280,8 +280,8 @@ const CallableDeclaration* ASTContext::compareCallableDeclarations(const Callabl
             const QualifiedType& parameter1 = callableDeclaration1->parameterDeclarations[i]->qualifiedType;
             const QualifiedType& parameter2 = callableDeclaration2->parameterDeclarations[i]->qualifiedType;
 
-            Rank rank1 = getRank(parameter1, argument);
-            Rank rank2 = getRank(parameter2, argument);
+            const Rank rank1 = getRank(parameter1, argument);
+            const Rank rank2 = getRank(parameter2, argument);
 
             if (rank1 == Rank::NoRank && rank2 == Rank::NoRank) // no valid rank for both
                 return nullptr;
@@ -424,7 +424,7 @@ OperatorDeclaration* ASTContext::resolveOperatorDeclaration(Operator op,
 
                                if (!qualifiedType.typeDeclaration) return true; // any type
 
-                               bool scalar = qualifiedType.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::Scalar &&
+                               const bool scalar = qualifiedType.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::Scalar &&
                                    qualifiedType.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::Scalar;
 
                                return (scalar || qualifiedType.typeDeclaration->getFirstDeclaration() == parameterDeclaration->qualifiedType.typeDeclaration->getFirstDeclaration());
@@ -556,7 +556,7 @@ Declaration* ASTContext::parseTopLevelDeclaration(std::vector<Token>::const_iter
 
     if (declaration->getDeclarationKind() == Declaration::Kind::Callable)
     {
-        CallableDeclaration* callableDeclaration = static_cast<CallableDeclaration*>(declaration);
+        const CallableDeclaration* callableDeclaration = static_cast<CallableDeclaration*>(declaration);
 
         // semicolon is not needed after a function definition
         if (!callableDeclaration->body)
@@ -748,7 +748,7 @@ Declaration* ASTContext::parseDeclaration(std::vector<Token>::const_iterator& it
 
         expectToken(Token::Type::Identifier, iterator, end);
 
-        std::string name = iterator->value;
+        const std::string name = iterator->value;
 
         ++iterator;
 
@@ -770,9 +770,7 @@ Declaration* ASTContext::parseDeclaration(std::vector<Token>::const_iterator& it
             std::vector<QualifiedType> parameters;
 
             if (isToken(Token::Type::Void, iterator, end))
-            {
                 ++iterator;
-            }
             else if (!isToken(Token::Type::RightParenthesis, iterator, end))
             {
                 for (;;)
@@ -873,7 +871,7 @@ Declaration* ASTContext::parseDeclaration(std::vector<Token>::const_iterator& it
 
                 expectToken(Token::Type::IntLiteral, iterator, end);
 
-                int size = std::stoi(iterator->value);
+                const int size = std::stoi(iterator->value);
 
                 ++iterator;
 
@@ -1065,7 +1063,7 @@ Declaration* ASTContext::parseMemberDeclaration(std::vector<Token>::const_iterat
 
             expectToken(Token::Type::IntLiteral, iterator, end);
 
-            int size = std::stoi(iterator->value);
+            const int size = std::stoi(iterator->value);
 
             ++iterator;
 
@@ -1177,7 +1175,7 @@ ParameterDeclaration* ASTContext::parseParameterDeclaration(std::vector<Token>::
 
         expectToken(Token::Type::IntLiteral, iterator, end);
 
-        int size = std::stoi(iterator->value);
+        const int size = std::stoi(iterator->value);
 
         ++iterator;
 
@@ -1242,37 +1240,21 @@ Statement* ASTContext::parseStatement(std::vector<Token>::const_iterator& iterat
                                       Construct* parent)
 {
     if (isToken(Token::Type::LeftBrace, iterator, end))
-    {
         return parseCompoundStatement(iterator, end, declarationScopes, parent);
-    }
     else if (isToken(Token::Type::If, iterator, end))
-    {
         return parseIfStatement(iterator, end, declarationScopes, parent);
-    }
     else if (isToken(Token::Type::For, iterator, end))
-    {
         return parseForStatement(iterator, end, declarationScopes, parent);
-    }
     else if (isToken(Token::Type::Switch, iterator, end))
-    {
         return parseSwitchStatement(iterator, end, declarationScopes, parent);
-    }
     else if (isToken(Token::Type::Case, iterator, end))
-    {
         return parseCaseStatement(iterator, end, declarationScopes, parent);
-    }
     else if (isToken(Token::Type::Default, iterator, end))
-    {
         return parseDefaultStatement(iterator, end, declarationScopes, parent);
-    }
     else if (isToken(Token::Type::While, iterator, end))
-    {
         return parseWhileStatement(iterator, end, declarationScopes, parent);
-    }
     else if (isToken(Token::Type::Do, iterator, end))
-    {
         return parseDoStatement(iterator, end, declarationScopes, parent);
-    }
     else if (isToken(Token::Type::Break, iterator, end))
     {
         ++iterator;
@@ -1371,24 +1353,16 @@ Statement* ASTContext::parseStatement(std::vector<Token>::const_iterator& iterat
         return statement;
     }
     else if (isToken(Token::Type::Asm, iterator, end))
-    {
         throw std::runtime_error("asm statements are not supported");
-    }
     else if (isToken(Token::Type::Goto, iterator, end))
-    {
         throw std::runtime_error("goto statements are not supported");
-    }
     else if (isToken({Token::Type::Try,
         Token::Type::Catch,
         Token::Type::Throw}, iterator, end))
-    {
         throw std::runtime_error("Exceptions are not supported");
-    }
     else if (iterator == end ||
              isToken(Token::Type::RightBrace, iterator, end))
-    {
         throw std::runtime_error("Exceptions a statement");
-    }
     else
     {
         ExpressionStatement* result;
@@ -1984,9 +1958,7 @@ Expression* ASTContext::parsePrimaryExpression(std::vector<Token>::const_iterato
                 return nullptr;
 
             if (!qualifiedType.typeDeclaration)
-            {
                 qualifiedType.typeDeclaration = expression->qualifiedType.typeDeclaration;
-            }
             else
             {
                 if (qualifiedType.typeDeclaration != expression->qualifiedType.typeDeclaration)
@@ -2036,9 +2008,7 @@ Expression* ASTContext::parsePrimaryExpression(std::vector<Token>::const_iterato
                 std::vector<QualifiedType> parameters;
 
                 if (isToken(Token::Type::RightParenthesis, iterator, end)) // no arguments
-                {
                     ++iterator;
-                }
                 else
                 {
                     for (;;)
@@ -2081,9 +2051,7 @@ Expression* ASTContext::parsePrimaryExpression(std::vector<Token>::const_iterato
                 std::vector<QualifiedType> arguments;
 
                 if (isToken(Token::Type::RightParenthesis, iterator, end)) // no arguments
-                {
                     ++iterator;
-                }
                 else
                 {
                     for (;;)
@@ -2386,13 +2354,8 @@ Expression* ASTContext::parseSignExpression(std::vector<Token>::const_iterator& 
         constructs.push_back(std::unique_ptr<Construct>(result = new UnaryOperatorExpression()));
         result->parent = parent;
 
-        Operator op;
-
-        if (iterator->type == Token::Type::Plus)
-            op = Operator::Positive;
-        else if (iterator->type == Token::Type::Minus)
-            op = Operator::Negative;
-        else
+        const Operator op = (iterator->type == Token::Type::Plus) ? Operator::Positive :
+            (iterator->type == Token::Type::Minus) ? Operator::Negative :
             throw std::runtime_error("Invalid operator");
 
         ++iterator;
@@ -2433,7 +2396,7 @@ Expression* ASTContext::parseNotExpression(std::vector<Token>::const_iterator& i
         constructs.push_back(std::unique_ptr<Construct>(result = new UnaryOperatorExpression()));
         result->parent = parent;
 
-        Operator op = Operator::Negation;
+        const Operator op = Operator::Negation;
 
         ++iterator;
 
@@ -2520,13 +2483,8 @@ Expression* ASTContext::parseMultiplicationExpression(std::vector<Token>::const_
         constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression()));
         expression->parent = parent;
 
-        Operator op;
-
-        if (iterator->type == Token::Type::Multiply)
-            op = Operator::Multiplication;
-        else if (iterator->type == Token::Type::Divide)
-            op = Operator::Division;
-        else
+        const Operator op = (iterator->type == Token::Type::Multiply) ? Operator::Multiplication :
+            (iterator->type == Token::Type::Divide) ? Operator::Division :
             throw std::runtime_error("Invalid operator");
 
         expression->leftExpression = result;
@@ -2564,13 +2522,8 @@ Expression* ASTContext::parseAdditionExpression(std::vector<Token>::const_iterat
         constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression()));
         expression->parent = parent;
 
-        Operator op;
-
-        if (iterator->type == Token::Type::Plus)
-            op = Operator::Addition;
-        else if (iterator->type == Token::Type::Minus)
-            op = Operator::Subtraction;
-        else
+        const Operator op = (iterator->type == Token::Type::Plus) ? Operator::Addition :
+            (iterator->type == Token::Type::Minus) ? Operator::Subtraction :
             throw std::runtime_error("Invalid operator");
 
         expression->leftExpression = result;
@@ -2608,13 +2561,8 @@ Expression* ASTContext::parseLessThanExpression(std::vector<Token>::const_iterat
         constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression()));
         expression->parent = parent;
 
-        Operator op;
-
-        if (iterator->type == Token::Type::LessThan)
-            op = Operator::LessThan;
-        else if (iterator->type == Token::Type::LessThanEqual)
-            op = Operator::LessThanEqual;
-        else
+        const Operator op = (iterator->type == Token::Type::LessThan) ? Operator::LessThan :
+            (iterator->type == Token::Type::LessThanEqual) ? Operator::LessThanEqual :
             throw std::runtime_error("Invalid operator");
 
         ++iterator;
@@ -2652,13 +2600,8 @@ Expression* ASTContext::parseGreaterThanExpression(std::vector<Token>::const_ite
         constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression()));
         expression->parent = parent;
 
-        Operator op;
-
-        if (iterator->type == Token::Type::GreaterThan)
-            op = Operator::GreaterThan;
-        else if (iterator->type == Token::Type::GreaterThanEqual)
-            op = Operator::GraterThanEqual;
-        else
+        const Operator op = (iterator->type == Token::Type::GreaterThan) ? Operator::GreaterThan :
+            (iterator->type == Token::Type::GreaterThanEqual) ? Operator::GraterThanEqual :
             throw std::runtime_error("Invalid operator");
 
         ++iterator;
@@ -2696,13 +2639,8 @@ Expression* ASTContext::parseEqualityExpression(std::vector<Token>::const_iterat
         constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression()));
         expression->parent = parent;
 
-        Operator op;
-
-        if (iterator->type == Token::Type::Equal)
-            op = Operator::Equality;
-        else if (iterator->type == Token::Type::NotEq)
-            op = Operator::Inequality;
-        else
+        const Operator op = (iterator->type == Token::Type::Equal) ? Operator::Equality :
+            (iterator->type == Token::Type::NotEq) ? Operator::Inequality :
             throw std::runtime_error("Invalid operator");
 
         ++iterator;
@@ -2742,7 +2680,7 @@ Expression* ASTContext::parseLogicalAndExpression(std::vector<Token>::const_iter
         constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression()));
         expression->parent = parent;
 
-        Operator op = Operator::And;
+        const Operator op = Operator::And;
 
         expression->leftExpression = result;
 
@@ -2780,7 +2718,7 @@ Expression* ASTContext::parseLogicalOrExpression(std::vector<Token>::const_itera
         constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression()));
         expression->parent = parent;
 
-        Operator op = Operator::Or;
+        const Operator op = Operator::Or;
 
         expression->leftExpression = result;
 
@@ -2905,13 +2843,8 @@ Expression* ASTContext::parseAdditionAssignmentExpression(std::vector<Token>::co
         constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression()));
         expression->parent = parent;
 
-        Operator op;
-
-        if (iterator->type == Token::Type::PlusAssignment)
-            op = Operator::AdditionAssignment;
-        else if (iterator->type == Token::Type::MinusAssignment)
-            op = Operator::SubtractAssignment;
-        else
+        const Operator op = (iterator->type == Token::Type::PlusAssignment) ? Operator::AdditionAssignment :
+            (iterator->type == Token::Type::MinusAssignment) ? Operator::SubtractAssignment :
             throw std::runtime_error("Invalid operator");
 
         ++iterator;
@@ -2955,13 +2888,8 @@ Expression* ASTContext::parseMultiplicationAssignmentExpression(std::vector<Toke
         constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression()));
         expression->parent = parent;
 
-        Operator op;
-
-        if (iterator->type == Token::Type::Multiply)
-            op = Operator::MultiplicationAssignment;
-        else if (iterator->type == Token::Type::DivideAssignment)
-            op = Operator::DivisionAssignment;
-        else
+        const Operator op = (iterator->type == Token::Type::Multiply) ? Operator::MultiplicationAssignment :
+            (iterator->type == Token::Type::DivideAssignment) ? Operator::DivisionAssignment :
             throw std::runtime_error("Invalid operator");
 
         ++iterator;
