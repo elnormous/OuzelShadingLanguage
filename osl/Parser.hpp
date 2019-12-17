@@ -18,6 +18,13 @@
 #include "Statements.hpp"
 #include "QualifiedType.hpp"
 
+class ParseError final: public std::logic_error
+{
+public:
+    explicit ParseError(const std::string& str): std::logic_error(str) {}
+    explicit ParseError(const char* str): std::logic_error(str) {}
+};
+
 class ASTContext
 {
 public:
@@ -41,9 +48,9 @@ private:
                             std::vector<Token>::const_iterator end)
     {
         if (iterator == end)
-            throw std::runtime_error("Unexpected end of file");
+            throw ParseError("Unexpected end of file");
         if (iterator->type != tokenType)
-            throw std::runtime_error("Expected " + toString(tokenType));
+            throw ParseError("Expected " + toString(tokenType));
     }
 
     static bool isToken(const std::vector<Token::Type>& tokenTypes,
@@ -63,7 +70,7 @@ private:
                             std::vector<Token>::const_iterator end)
     {
         if (iterator == end)
-            throw std::runtime_error("Unexpected end of file");
+            throw ParseError("Unexpected end of file");
 
         for (Token::Type tokenType : tokenTypes)
             if (iterator->type == tokenType) return;
@@ -75,7 +82,7 @@ private:
             str += toString(tokenType);
         }
 
-        throw std::runtime_error("Expected " + str);
+        throw ParseError("Expected " + str);
     }
 
     static Declaration* findDeclaration(const std::string& name, const std::vector<Declaration*>& declarationScope)

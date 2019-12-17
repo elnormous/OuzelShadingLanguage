@@ -221,10 +221,10 @@ namespace
                  const QualifiedType& argumentType)
     {
         if (!parameterType.typeDeclaration)
-            throw std::runtime_error("Parameter does not have a type");
+            throw ParseError("Parameter does not have a type");
 
         if (!argumentType.typeDeclaration)
-            throw std::runtime_error("Argument does not have a type");
+            throw ParseError("Argument does not have a type");
 
         if (argumentType.typeDeclaration->getTypeKind() == parameterType.typeDeclaration->getTypeKind())
         {
@@ -355,13 +355,13 @@ FunctionDeclaration* ASTContext::resolveFunctionDeclaration(const std::string& n
     }
 
     if (viableFunctionDeclarations.empty())
-        throw std::runtime_error("No matching function to call " + name + " found");
+        throw ParseError("No matching function to call " + name + " found");
     else if (viableFunctionDeclarations.size() == 1)
         return *viableFunctionDeclarations.begin();
     else
     {
         if (arguments.empty()) // two or more functions with zero parameters
-            throw std::runtime_error("Ambiguous call to " + name);
+            throw ParseError("Ambiguous call to " + name);
 
         for (auto first = viableFunctionDeclarations.begin(); first != viableFunctionDeclarations.end(); ++first)
         {
@@ -379,7 +379,7 @@ FunctionDeclaration* ASTContext::resolveFunctionDeclaration(const std::string& n
             if (best) return *first;
         };
 
-        throw std::runtime_error("Ambiguous call to " + name);
+        throw ParseError("Ambiguous call to " + name);
     }
 
     return nullptr;
@@ -434,13 +434,13 @@ OperatorDeclaration* ASTContext::resolveOperatorDeclaration(Operator op,
     }
 
     if (viableOperatorDeclarations.empty())
-        throw std::runtime_error("No matching function operator " + toString(op) + " found");
+        throw ParseError("No matching function operator " + toString(op) + " found");
     else if (viableOperatorDeclarations.size() == 1)
         return *viableOperatorDeclarations.begin();
     else
     {
         if (arguments.empty()) // two or more functions with zero parameters
-            throw std::runtime_error("Ambiguous call to operator " + toString(op));
+            throw ParseError("Ambiguous call to operator " + toString(op));
 
         for (auto first : viableOperatorDeclarations)
         {
@@ -458,7 +458,7 @@ OperatorDeclaration* ASTContext::resolveOperatorDeclaration(Operator op,
             if (best) return first;
         };
 
-        throw std::runtime_error("Ambiguous call to operator " + toString(op));
+        throw ParseError("Ambiguous call to operator " + toString(op));
     }
 
     return nullptr;
@@ -489,7 +489,7 @@ bool ASTContext::isType(std::vector<Token>::const_iterator iterator,
                         std::vector<std::vector<Declaration*>>& declarationScopes)
 {
     if (iterator == end)
-        throw std::runtime_error("Unexpected end of file");
+        throw ParseError("Unexpected end of file");
 
     return iterator->type == Token::Type::Bool ||
         iterator->type == Token::Type::Int ||
@@ -504,7 +504,7 @@ TypeDeclaration* ASTContext::parseType(std::vector<Token>::const_iterator& itera
                                        std::vector<std::vector<Declaration*>>& declarationScopes)
 {
     if (iterator == end)
-        throw std::runtime_error("Unexpected end of file");
+        throw ParseError("Unexpected end of file");
 
     TypeDeclaration* result;
 
@@ -515,14 +515,14 @@ TypeDeclaration* ASTContext::parseType(std::vector<Token>::const_iterator& itera
     else if (iterator->type == Token::Type::Float)
         result = floatTypeDeclaration;
     else if (iterator->type == Token::Type::Double)
-        throw std::runtime_error("Double precision floating point numbers are not supported");
+        throw ParseError("Double precision floating point numbers are not supported");
     else if (iterator->type == Token::Type::Identifier)
     {
         if (!(result = findTypeDeclaration(iterator->value, declarationScopes)))
-            throw std::runtime_error("Invalid type: " + iterator->value);
+            throw ParseError("Invalid type: " + iterator->value);
     }
     else
-        throw std::runtime_error("Expected a type name");
+        throw ParseError("Expected a type name");
 
     ++iterator;
 
@@ -534,7 +534,7 @@ bool ASTContext::isDeclaration(std::vector<Token>::const_iterator iterator,
                                std::vector<std::vector<Declaration*>>& declarationScopes)
 {
     if (iterator == end)
-        throw std::runtime_error("Unexpected end of file");
+        throw ParseError("Unexpected end of file");
 
     return iterator->type == Token::Type::Const ||
         iterator->type == Token::Type::Static ||
@@ -552,7 +552,7 @@ Declaration* ASTContext::parseTopLevelDeclaration(std::vector<Token>::const_iter
 {
     Declaration* declaration;
     if (!(declaration = parseDeclaration(iterator, end, declarationScopes, nullptr)))
-        throw std::runtime_error("Failed to parse a declaration");
+        throw ParseError("Failed to parse a declaration");
 
     if (declaration->getDeclarationKind() == Declaration::Kind::Callable)
     {
@@ -689,7 +689,7 @@ Declaration* ASTContext::parseDeclaration(std::vector<Token>::const_iterator& it
 
         StructDeclaration* declaration;
         if (!(declaration = parseStructDeclaration(iterator, end, declarationScopes, parent)))
-            throw std::runtime_error("Failed to parse a structure declaration");
+            throw ParseError("Failed to parse a structure declaration");
 
         return declaration;
     }
@@ -699,7 +699,7 @@ Declaration* ASTContext::parseDeclaration(std::vector<Token>::const_iterator& it
 
         TypeDefinitionDeclaration* declaration;
         if (!(declaration = parseTypeDefinitionDeclaration(iterator, end, declarationScopes, parent)))
-            throw std::runtime_error("Failed to parse a type definition declaration");
+            throw ParseError("Failed to parse a type definition declaration");
 
         return declaration;
     }*/
@@ -730,7 +730,7 @@ Declaration* ASTContext::parseDeclaration(std::vector<Token>::const_iterator& it
                 StructDeclaration* structDeclaration = static_cast<StructDeclaration*>(qualifiedType.typeDeclaration);
 
                 if (!structDeclaration->definition)
-                    throw std::runtime_error("Incomplete type " + qualifiedType.typeDeclaration->name);
+                    throw ParseError("Incomplete type " + qualifiedType.typeDeclaration->name);
             }
         }
 
@@ -744,7 +744,7 @@ Declaration* ASTContext::parseDeclaration(std::vector<Token>::const_iterator& it
         if (specifiers.isStatic) isStatic = true;
 
         if (isToken(Token::Type::Operator, iterator, end))
-            throw std::runtime_error("Operator overloads are not supported");
+            throw ParseError("Operator overloads are not supported");
 
         expectToken(Token::Type::Identifier, iterator, end);
 
@@ -807,13 +807,13 @@ Declaration* ASTContext::parseDeclaration(std::vector<Token>::const_iterator& it
                         if (attribute.second.front() == "fragment") result->program = Program::Fragment;
                         else if (attribute.second.front() == "vertex") result->program = Program::Vertex;
                         else
-                            throw std::runtime_error("Invalid program" + attribute.second.front());
+                            throw ParseError("Invalid program" + attribute.second.front());
                     }
                     else
-                        throw std::runtime_error("Invalid parameters for attribute " + attribute.first);
+                        throw ParseError("Invalid parameters for attribute " + attribute.first);
                 }
                 else
-                    throw std::runtime_error("Invalid attribute " + attribute.first);
+                    throw ParseError("Invalid attribute " + attribute.first);
             }
 
             declarationScopes.back().push_back(result);
@@ -825,7 +825,7 @@ Declaration* ASTContext::parseDeclaration(std::vector<Token>::const_iterator& it
             {
                 // check if only one definition exists
                 if (result->definition)
-                    throw std::runtime_error("Redefinition of " + result->name);
+                    throw ParseError("Redefinition of " + result->name);
 
                 // set the definition pointer of all previous declarations
                 Declaration* previousDeclaration = result->previousDeclaration;
@@ -842,7 +842,7 @@ Declaration* ASTContext::parseDeclaration(std::vector<Token>::const_iterator& it
 
                 // parse body
                 if (!(result->body = parseCompoundStatement(iterator, end, declarationScopes, result)))
-                    throw std::runtime_error("Failed to parse a compound statement");
+                    throw ParseError("Failed to parse a compound statement");
 
                 declarationScopes.pop_back();
             }
@@ -852,10 +852,10 @@ Declaration* ASTContext::parseDeclaration(std::vector<Token>::const_iterator& it
         else // variable declaration
         {
             if (isInline)
-                throw std::runtime_error("Variables can not be inline");
+                throw ParseError("Variables can not be inline");
 
             if (findDeclaration(name, declarationScopes.back()))
-                throw std::runtime_error("Redefinition of " + name);
+                throw ParseError("Redefinition of " + name);
 
             VariableDeclaration* result;
             constructs.push_back(std::unique_ptr<VariableDeclaration>(result = new VariableDeclaration()));
@@ -876,7 +876,7 @@ Declaration* ASTContext::parseDeclaration(std::vector<Token>::const_iterator& it
                 ++iterator;
 
                 if (size <= 0)
-                    throw std::runtime_error("Array size must be greater than zero");
+                    throw ParseError("Array size must be greater than zero");
 
                 result->qualifiedType.typeDeclaration = getArrayTypeDeclaration(result->qualifiedType, static_cast<uint32_t>(size));
 
@@ -893,7 +893,7 @@ Declaration* ASTContext::parseDeclaration(std::vector<Token>::const_iterator& it
                     return nullptr;
 
                 if (!result->initialization->qualifiedType.typeDeclaration)
-                    throw std::runtime_error("Initialization with a void type");
+                    throw ParseError("Initialization with a void type");
 
                 // TODO: check for comma and parse multiple expressions
 
@@ -909,7 +909,7 @@ Declaration* ASTContext::parseDeclaration(std::vector<Token>::const_iterator& it
                     return nullptr;
 
                 if (!result->initialization->qualifiedType.typeDeclaration)
-                    throw std::runtime_error("Initialization with a void type");
+                    throw ParseError("Initialization with a void type");
             }
 
             declarationScopes.back().push_back(result);
@@ -945,7 +945,7 @@ StructDeclaration* ASTContext::parseStructDeclaration(std::vector<Token>::const_
 
         // check if only one definition exists
         if (result->definition)
-            throw std::runtime_error("Redefinition of " + result->name);
+            throw ParseError("Redefinition of " + result->name);
 
         result->definition = result;
 
@@ -975,7 +975,7 @@ StructDeclaration* ASTContext::parseStructDeclaration(std::vector<Token>::const_
                 expectToken(Token::Type::Semicolon, iterator, end);
 
                 if (result->findMemberDeclaration(memberDeclaration->name))
-                    throw std::runtime_error("Redefinition of member " + memberDeclaration->name);
+                    throw ParseError("Redefinition of member " + memberDeclaration->name);
 
                 ++iterator;
 
@@ -1032,7 +1032,7 @@ Declaration* ASTContext::parseMemberDeclaration(std::vector<Token>::const_iterat
             StructDeclaration* structDeclaration = static_cast<StructDeclaration*>(result->qualifiedType.typeDeclaration);
 
             if (!structDeclaration->definition)
-                throw std::runtime_error("Incomplete type " + result->qualifiedType.typeDeclaration->name);
+                throw ParseError("Incomplete type " + result->qualifiedType.typeDeclaration->name);
         }
 
         specifiers = parseSpecifiers(iterator, end);
@@ -1044,10 +1044,10 @@ Declaration* ASTContext::parseMemberDeclaration(std::vector<Token>::const_iterat
         if (specifiers.isInline) isInline = true;
 
         if (isStatic)
-            throw std::runtime_error("Members can not be static");
+            throw ParseError("Members can not be static");
 
         if (isInline)
-            throw std::runtime_error("Members can not be inline");
+            throw ParseError("Members can not be inline");
 
         expectToken(Token::Type::Identifier, iterator, end);
 
@@ -1068,7 +1068,7 @@ Declaration* ASTContext::parseMemberDeclaration(std::vector<Token>::const_iterat
             ++iterator;
 
             if (size <= 0)
-                throw std::runtime_error("Array size must be greater than zero");
+                throw ParseError("Array size must be greater than zero");
 
             result->qualifiedType.typeDeclaration = getArrayTypeDeclaration(result->qualifiedType, static_cast<uint32_t>(size));
 
@@ -1099,15 +1099,15 @@ Declaration* ASTContext::parseMemberDeclaration(std::vector<Token>::const_iterat
                     else if (attribute.second.front() == "tangent") semantic = Semantic::Tangent;
                     else if (attribute.second.front() == "texture_coordinates") semantic = Semantic::TextureCoordinates;
                     else
-                        throw std::runtime_error("Invalid semantic " + attribute.second.front());
+                        throw ParseError("Invalid semantic " + attribute.second.front());
 
                     result->semantic = semantic;
                 }
                 else
-                    throw std::runtime_error("Invalid parameters for attribute " + attribute.first);
+                    throw ParseError("Invalid parameters for attribute " + attribute.first);
             }
             else
-                throw std::runtime_error("Invalid attribute " + attribute.first);
+                throw ParseError("Invalid attribute " + attribute.first);
         }
 
         return result;
@@ -1143,7 +1143,7 @@ ParameterDeclaration* ASTContext::parseParameterDeclaration(std::vector<Token>::
         StructDeclaration* structDeclaration = static_cast<StructDeclaration*>(result->qualifiedType.typeDeclaration);
 
         if (!structDeclaration->definition)
-            throw std::runtime_error("Incomplete type " + result->qualifiedType.typeDeclaration->name);
+            throw ParseError("Incomplete type " + result->qualifiedType.typeDeclaration->name);
     }
 
     specifiers = parseSpecifiers(iterator, end);
@@ -1155,10 +1155,10 @@ ParameterDeclaration* ASTContext::parseParameterDeclaration(std::vector<Token>::
     if (specifiers.isInline) isInline = true;
 
     if (isStatic)
-        throw std::runtime_error("Parameters can not be static");
+        throw ParseError("Parameters can not be static");
 
     if (isInline)
-        throw std::runtime_error("Parameters can not be inline");
+        throw ParseError("Parameters can not be inline");
 
     if (isToken(Token::Type::Identifier, iterator, end))
     {
@@ -1180,7 +1180,7 @@ ParameterDeclaration* ASTContext::parseParameterDeclaration(std::vector<Token>::
         ++iterator;
 
         if (size <= 0)
-            throw std::runtime_error("Array size must be greater than zero");
+            throw ParseError("Array size must be greater than zero");
 
         result->qualifiedType.typeDeclaration = getArrayTypeDeclaration(result->qualifiedType, static_cast<uint32_t>(size));
 
@@ -1199,7 +1199,7 @@ ParameterDeclaration* ASTContext::parseParameterDeclaration(std::vector<Token>::
                                                                         std::vector<std::vector<Declaration*>>& declarationScopes,
                                                                         Construct* parent)
 {
-    throw std::runtime_error("Typedef is not supported");
+    throw ParseError("Typedef is not supported");
     return nullptr;
 
     TypeDefinitionDeclaration* result;
@@ -1218,7 +1218,7 @@ ParameterDeclaration* ASTContext::parseParameterDeclaration(std::vector<Token>::
         StructDeclaration* structDeclaration = static_cast<StructDeclaration*>(result->qualifiedType.typeDeclaration);
 
         if (!structDeclaration->hasDefinition)
-            throw std::runtime_error("Incomplete type " + result->qualifiedType.typeDeclaration->name);
+            throw ParseError("Incomplete type " + result->qualifiedType.typeDeclaration->name);
     }
 
     expectToken(Token::Type::IDENTIFIER, iterator, end);
@@ -1292,7 +1292,7 @@ Statement* ASTContext::parseStatement(std::vector<Token>::const_iterator& iterat
         result->parent = parent;
 
         if (!(result->result = parseExpression(iterator, end, declarationScopes, result)))
-            throw std::runtime_error("Expected an expression");
+            throw ParseError("Expected an expression");
 
         Construct* currentParent = parent;
         CallableDeclaration* callableDeclaration = nullptr;
@@ -1313,10 +1313,10 @@ Statement* ASTContext::parseStatement(std::vector<Token>::const_iterator& iterat
         }
 
         if (!callableDeclaration)
-            throw std::runtime_error("Return statement outside of a function");
+            throw ParseError("Return statement outside of a function");
 
         if (callableDeclaration->qualifiedType.typeDeclaration != result->result->qualifiedType.typeDeclaration)
-            throw std::runtime_error("Invalid type for a return statement");
+            throw ParseError("Invalid type for a return statement");
 
         expectToken(Token::Type::Semicolon, iterator, end);
 
@@ -1334,7 +1334,7 @@ Statement* ASTContext::parseStatement(std::vector<Token>::const_iterator& iterat
             return nullptr;
 
         if (result->declaration->getDeclarationKind() != Declaration::Kind::Variable)
-            throw std::runtime_error("Expected a variable declaration");
+            throw ParseError("Expected a variable declaration");
 
         expectToken(Token::Type::Semicolon, iterator, end);
 
@@ -1353,16 +1353,16 @@ Statement* ASTContext::parseStatement(std::vector<Token>::const_iterator& iterat
         return statement;
     }
     else if (isToken(Token::Type::Asm, iterator, end))
-        throw std::runtime_error("asm statements are not supported");
+        throw ParseError("asm statements are not supported");
     else if (isToken(Token::Type::Goto, iterator, end))
-        throw std::runtime_error("goto statements are not supported");
+        throw ParseError("goto statements are not supported");
     else if (isToken({Token::Type::Try,
         Token::Type::Catch,
         Token::Type::Throw}, iterator, end))
-        throw std::runtime_error("Exceptions are not supported");
+        throw ParseError("Exceptions are not supported");
     else if (iterator == end ||
              isToken(Token::Type::RightBrace, iterator, end))
-        throw std::runtime_error("Exceptions a statement");
+        throw ParseError("Exceptions a statement");
     else
     {
         ExpressionStatement* result;
@@ -1408,7 +1408,7 @@ CompoundStatement* ASTContext::parseCompoundStatement(std::vector<Token>::const_
         {
             Statement* statement;
             if (!(statement = parseStatement(iterator, end, declarationScopes, result)))
-                throw std::runtime_error("Failed to parse a statement");
+                throw ParseError("Failed to parse a statement");
 
             result->statements.push_back(statement);
         }
@@ -1445,7 +1445,7 @@ IfStatement* ASTContext::parseIfStatement(std::vector<Token>::const_iterator& it
 
         if (declaration->getDeclarationKind() != Declaration::Kind::Variable &&
             declaration->getDeclarationKind() != Declaration::Kind::Parameter)
-            throw std::runtime_error("Expected a variable declaration");
+            throw ParseError("Expected a variable declaration");
 
         result->condition = declaration;
     }
@@ -1468,7 +1468,7 @@ IfStatement* ASTContext::parseIfStatement(std::vector<Token>::const_iterator& it
 
     Statement* statement;
     if (!(statement = parseStatement(iterator, end, declarationScopes, result)))
-        throw std::runtime_error("Failed to parse the statement");
+        throw ParseError("Failed to parse the statement");
 
     result->body = statement;
 
@@ -1477,7 +1477,7 @@ IfStatement* ASTContext::parseIfStatement(std::vector<Token>::const_iterator& it
         ++iterator;
 
         if (!(statement = parseStatement(iterator, end, declarationScopes, result)))
-            throw std::runtime_error("Failed to parse the statement");
+            throw ParseError("Failed to parse the statement");
 
         result->elseBody = statement;
     }
@@ -1510,7 +1510,7 @@ ForStatement* ASTContext::parseForStatement(std::vector<Token>::const_iterator& 
 
         if (declaration->getDeclarationKind() != Declaration::Kind::Variable &&
             declaration->getDeclarationKind() != Declaration::Kind::Parameter)
-            throw std::runtime_error("Expected a variable declaration");
+            throw ParseError("Expected a variable declaration");
 
         result->initialization = declaration;
 
@@ -1543,7 +1543,7 @@ ForStatement* ASTContext::parseForStatement(std::vector<Token>::const_iterator& 
 
         if (declaration->getDeclarationKind() != Declaration::Kind::Variable &&
             declaration->getDeclarationKind() != Declaration::Kind::Parameter)
-            throw std::runtime_error("Expected a variable declaration");
+            throw ParseError("Expected a variable declaration");
 
         result->condition = declaration;
 
@@ -1637,7 +1637,7 @@ SwitchStatement* ASTContext::parseSwitchStatement(std::vector<Token>::const_iter
 
         if (declaration->getDeclarationKind() != Declaration::Kind::Variable &&
             declaration->getDeclarationKind() != Declaration::Kind::Parameter)
-            throw std::runtime_error("Expected a variable declaration");
+            throw ParseError("Expected a variable declaration");
 
         result->condition = declaration;
     }
@@ -1646,10 +1646,10 @@ SwitchStatement* ASTContext::parseSwitchStatement(std::vector<Token>::const_iter
         Expression* condition = parseExpression(iterator, end, declarationScopes, result);
 
         if (!condition)
-            throw std::runtime_error("Expected an expression");
+            throw ParseError("Expected an expression");
 
         if (!isInteger(condition->qualifiedType.typeDeclaration))
-            throw std::runtime_error("Statement requires expression of integer type");
+            throw ParseError("Statement requires expression of integer type");
 
         ScalarTypeDeclaration* scalarType = static_cast<ScalarTypeDeclaration*>(condition->qualifiedType.typeDeclaration);
 
@@ -1688,13 +1688,13 @@ CaseStatement* ASTContext::parseCaseStatement(std::vector<Token>::const_iterator
     Expression* condition = parseExpression(iterator, end, declarationScopes, result);
 
     if (!condition)
-        throw std::runtime_error("Expected an expression");
+        throw ParseError("Expected an expression");
 
     if (!isInteger(condition->qualifiedType.typeDeclaration))
-        throw std::runtime_error("Statement requires expression of integer type");
+        throw ParseError("Statement requires expression of integer type");
 
     if (!condition->qualifiedType.isConst)
-        throw std::runtime_error("Expression must be constant");
+        throw ParseError("Expression must be constant");
 
     ScalarTypeDeclaration* scalarType = static_cast<ScalarTypeDeclaration*>(condition->qualifiedType.typeDeclaration);
 
@@ -1765,7 +1765,7 @@ WhileStatement* ASTContext::parseWhileStatement(std::vector<Token>::const_iterat
 
         if (declaration->getDeclarationKind() != Declaration::Kind::Variable &&
             declaration->getDeclarationKind() != Declaration::Kind::Parameter)
-            throw std::runtime_error("Expected a variable declaration");
+            throw ParseError("Expected a variable declaration");
 
         result->condition = declaration;
     }
@@ -1888,7 +1888,7 @@ Expression* ASTContext::parsePrimaryExpression(std::vector<Token>::const_iterato
     }
     else if (isToken({Token::Type::DoubleLiteral, Token::Type::Double}, iterator, end))
     {
-        throw std::runtime_error("Double precision floating point numbers are not supported");
+        throw ParseError("Double precision floating point numbers are not supported");
     }
     else if (isToken(Token::Type::StringLiteral, iterator, end))
     {
@@ -1964,7 +1964,7 @@ Expression* ASTContext::parsePrimaryExpression(std::vector<Token>::const_iterato
                 if (qualifiedType.typeDeclaration != expression->qualifiedType.typeDeclaration)
                 {
                     // TODO: implement type narrowing
-                    throw std::runtime_error("Expression type does not match previous expressions in initializer list");
+                    throw ParseError("Expression type does not match previous expressions in initializer list");
                 }
             }
 
@@ -2033,12 +2033,12 @@ Expression* ASTContext::parsePrimaryExpression(std::vector<Token>::const_iterato
                 }
 
                 if (typeDeclaration->getTypeKind() != TypeDeclaration::Kind::Struct)
-                    throw std::runtime_error("Expected a struct type");
+                    throw ParseError("Expected a struct type");
 
                 StructDeclaration* structDeclaration = static_cast<StructDeclaration*>(typeDeclaration);
 
                 if (!(result->constructorDeclaration = structDeclaration->findConstructorDeclaration(parameters)))
-                    throw std::runtime_error("No matching constructor found");
+                    throw ParseError("No matching constructor found");
 
                 return result;
             }
@@ -2082,7 +2082,7 @@ Expression* ASTContext::parsePrimaryExpression(std::vector<Token>::const_iterato
                 FunctionDeclaration* functionDeclaration = resolveFunctionDeclaration(name, declarationScopes, arguments);
 
                 if (!functionDeclaration)
-                    throw std::runtime_error("Invalid function reference: " + name);
+                    throw ParseError("Invalid function reference: " + name);
 
                 declRefExpression->declaration = functionDeclaration;
                 declRefExpression->qualifiedType = functionDeclaration->qualifiedType;
@@ -2102,7 +2102,7 @@ Expression* ASTContext::parsePrimaryExpression(std::vector<Token>::const_iterato
             result->declaration = findDeclaration(name, declarationScopes);
 
             if (!result->declaration)
-                throw std::runtime_error("Invalid declaration reference: " + name);
+                throw ParseError("Invalid declaration reference: " + name);
 
             switch (result->declaration->getDeclarationKind())
             {
@@ -2128,7 +2128,7 @@ Expression* ASTContext::parsePrimaryExpression(std::vector<Token>::const_iterato
                     break;
                 }
                 default:
-                    throw std::runtime_error("Invalid declaration reference " + name);
+                    throw ParseError("Invalid declaration reference " + name);
             }
 
             return result;
@@ -2187,7 +2187,7 @@ Expression* ASTContext::parsePrimaryExpression(std::vector<Token>::const_iterato
             case Token::Type::DynamicCast: castKind = CastExpression::Kind::Dynamic; break;
             case Token::Type::ReinterpretCast: castKind = CastExpression::Kind::Reinterpet; break;
             case Token::Type::StaticCast: castKind = CastExpression::Kind::Static; break;
-            default: throw std::runtime_error("Invalid cast");
+            default: throw ParseError("Invalid cast");
         }
         
         CastExpression* result;
@@ -2221,10 +2221,10 @@ Expression* ASTContext::parsePrimaryExpression(std::vector<Token>::const_iterato
     else if (isToken(Token::Type::This, iterator, end))
     {
         // TODO: implement
-        throw std::runtime_error("Expression \"this\" is not supported");
+        throw ParseError("Expression \"this\" is not supported");
     }
     else
-        throw std::runtime_error("Expected an expression");
+        throw ParseError("Expected an expression");
 
     return nullptr;
 }
@@ -2248,16 +2248,16 @@ Expression* ASTContext::parseSubscriptExpression(std::vector<Token>::const_itera
         expression->expression = result;
 
         if (!result->qualifiedType.typeDeclaration)
-            throw std::runtime_error("Subscript expression with a void type");
+            throw ParseError("Subscript expression with a void type");
 
         if (result->qualifiedType.typeDeclaration->getTypeKind() != TypeDeclaration::Kind::Array)
-            throw std::runtime_error("Subscript value is not an array");
+            throw ParseError("Subscript value is not an array");
 
         if (!(expression->subscript = parseExpression(iterator, end, declarationScopes, expression)))
             return nullptr;
 
         if (!isInteger(expression->subscript->qualifiedType.typeDeclaration))
-            throw std::runtime_error("Subscript is not an integer");
+            throw ParseError("Subscript is not an integer");
 
         ScalarTypeDeclaration* scalarType = static_cast<ScalarTypeDeclaration*>(expression->subscript->qualifiedType.typeDeclaration);
 
@@ -2295,7 +2295,7 @@ Expression* ASTContext::parseMemberExpression(std::vector<Token>::const_iterator
     while (isToken({Token::Type::Dot, Token::Type::Arrow}, iterator, end))
     {
         if (isToken(Token::Type::Arrow, iterator, end))
-            throw std::runtime_error("Pointer member access is not supported");
+            throw ParseError("Pointer member access is not supported");
 
         ++iterator;
 
@@ -2305,11 +2305,11 @@ Expression* ASTContext::parseMemberExpression(std::vector<Token>::const_iterator
         expression->expression = result;
 
         if (!result->qualifiedType.typeDeclaration)
-            throw std::runtime_error("Expression has a void type");
+            throw ParseError("Expression has a void type");
 
         if (result->qualifiedType.typeDeclaration->getTypeKind() != TypeDeclaration::Kind::Struct)
         {
-            throw std::runtime_error(result->qualifiedType.typeDeclaration->name + " is not a structure");
+            throw ParseError(result->qualifiedType.typeDeclaration->name + " is not a structure");
             return nullptr;
         }
 
@@ -2321,12 +2321,12 @@ Expression* ASTContext::parseMemberExpression(std::vector<Token>::const_iterator
 
         if (!memberDeclaration)
         {
-            throw std::runtime_error("Structure " + structDeclaration->name +  " has no member " + iterator->value);
+            throw ParseError("Structure " + structDeclaration->name +  " has no member " + iterator->value);
             return nullptr;
         }
 
         if (memberDeclaration->getDeclarationKind() != Declaration::Kind::Field)
-            throw std::runtime_error(iterator->value + " is not a field");
+            throw ParseError(iterator->value + " is not a field");
 
         expression->fieldDeclaration = static_cast<FieldDeclaration*>(memberDeclaration);
 
@@ -2356,7 +2356,7 @@ Expression* ASTContext::parseSignExpression(std::vector<Token>::const_iterator& 
 
         const Operator op = (iterator->type == Token::Type::Plus) ? Operator::Positive :
             (iterator->type == Token::Type::Minus) ? Operator::Negative :
-            throw std::runtime_error("Invalid operator");
+            throw ParseError("Invalid operator");
 
         ++iterator;
 
@@ -2485,7 +2485,7 @@ Expression* ASTContext::parseMultiplicationExpression(std::vector<Token>::const_
 
         const Operator op = (iterator->type == Token::Type::Multiply) ? Operator::Multiplication :
             (iterator->type == Token::Type::Divide) ? Operator::Division :
-            throw std::runtime_error("Invalid operator");
+            throw ParseError("Invalid operator");
 
         expression->leftExpression = result;
 
@@ -2524,7 +2524,7 @@ Expression* ASTContext::parseAdditionExpression(std::vector<Token>::const_iterat
 
         const Operator op = (iterator->type == Token::Type::Plus) ? Operator::Addition :
             (iterator->type == Token::Type::Minus) ? Operator::Subtraction :
-            throw std::runtime_error("Invalid operator");
+            throw ParseError("Invalid operator");
 
         expression->leftExpression = result;
 
@@ -2563,7 +2563,7 @@ Expression* ASTContext::parseLessThanExpression(std::vector<Token>::const_iterat
 
         const Operator op = (iterator->type == Token::Type::LessThan) ? Operator::LessThan :
             (iterator->type == Token::Type::LessThanEqual) ? Operator::LessThanEqual :
-            throw std::runtime_error("Invalid operator");
+            throw ParseError("Invalid operator");
 
         ++iterator;
 
@@ -2602,7 +2602,7 @@ Expression* ASTContext::parseGreaterThanExpression(std::vector<Token>::const_ite
 
         const Operator op = (iterator->type == Token::Type::GreaterThan) ? Operator::GreaterThan :
             (iterator->type == Token::Type::GreaterThanEqual) ? Operator::GraterThanEqual :
-            throw std::runtime_error("Invalid operator");
+            throw ParseError("Invalid operator");
 
         ++iterator;
 
@@ -2641,7 +2641,7 @@ Expression* ASTContext::parseEqualityExpression(std::vector<Token>::const_iterat
 
         const Operator op = (iterator->type == Token::Type::Equal) ? Operator::Equality :
             (iterator->type == Token::Type::NotEq) ? Operator::Inequality :
-            throw std::runtime_error("Invalid operator");
+            throw ParseError("Invalid operator");
 
         ++iterator;
 
@@ -2762,7 +2762,7 @@ Expression* ASTContext::parseTernaryExpression(std::vector<Token>::const_iterato
         expression->condition = result;
 
         if (!expression->condition->qualifiedType.typeDeclaration)
-            throw std::runtime_error("Ternary expression with a void condition");
+            throw ParseError("Ternary expression with a void condition");
 
         if (!(expression->leftExpression = parseTernaryExpression(iterator, end, declarationScopes, expression)))
             return nullptr;
@@ -2806,10 +2806,10 @@ Expression* ASTContext::parseAssignmentExpression(std::vector<Token>::const_iter
         expression->leftExpression = result;
 
         if (expression->leftExpression->qualifiedType.isConst)
-            throw std::runtime_error("Cannot assign to const variable");
+            throw ParseError("Cannot assign to const variable");
 
         if (expression->leftExpression->category != Expression::Category::Lvalue)
-            throw std::runtime_error("Expression is not assignable");
+            throw ParseError("Expression is not assignable");
 
         if (!(expression->rightExpression = parseTernaryExpression(iterator, end, declarationScopes, expression)))
             return nullptr;
@@ -2845,17 +2845,17 @@ Expression* ASTContext::parseAdditionAssignmentExpression(std::vector<Token>::co
 
         const Operator op = (iterator->type == Token::Type::PlusAssignment) ? Operator::AdditionAssignment :
             (iterator->type == Token::Type::MinusAssignment) ? Operator::SubtractAssignment :
-            throw std::runtime_error("Invalid operator");
+            throw ParseError("Invalid operator");
 
         ++iterator;
 
         expression->leftExpression = result;
 
         if (expression->leftExpression->qualifiedType.isConst)
-            throw std::runtime_error("Cannot assign to const variable");
+            throw ParseError("Cannot assign to const variable");
 
         if (expression->leftExpression->category != Expression::Category::Lvalue)
-            throw std::runtime_error("Expression is not assignable");
+            throw ParseError("Expression is not assignable");
 
         if (!(expression->rightExpression = parseAssignmentExpression(iterator, end, declarationScopes, expression)))
             return nullptr;
@@ -2890,17 +2890,17 @@ Expression* ASTContext::parseMultiplicationAssignmentExpression(std::vector<Toke
 
         const Operator op = (iterator->type == Token::Type::Multiply) ? Operator::MultiplicationAssignment :
             (iterator->type == Token::Type::DivideAssignment) ? Operator::DivisionAssignment :
-            throw std::runtime_error("Invalid operator");
+            throw ParseError("Invalid operator");
 
         ++iterator;
 
         expression->leftExpression = result;
 
         if (expression->leftExpression->qualifiedType.isConst)
-            throw std::runtime_error("Cannot assign to const variable");
+            throw ParseError("Cannot assign to const variable");
 
         if (expression->leftExpression->category != Expression::Category::Lvalue)
-            throw std::runtime_error("Expression is not assignable");
+            throw ParseError("Expression is not assignable");
 
         std::unique_ptr<Construct> right;
         if (!(expression->rightExpression = parseAdditionAssignmentExpression(iterator, end, declarationScopes, expression)))
