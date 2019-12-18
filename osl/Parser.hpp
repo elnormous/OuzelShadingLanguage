@@ -36,55 +36,6 @@ public:
     inline const std::vector<Declaration*>& getDeclarations() const { return declarations; }
 
 private:
-    static bool isToken(Token::Type tokenType,
-                        std::vector<Token>::const_iterator iterator,
-                        std::vector<Token>::const_iterator end)
-    {
-        return (iterator != end && iterator->type == tokenType);
-    }
-
-    static void expectToken(Token::Type tokenType,
-                            std::vector<Token>::const_iterator iterator,
-                            std::vector<Token>::const_iterator end)
-    {
-        if (iterator == end)
-            throw ParseError("Unexpected end of file");
-        if (iterator->type != tokenType)
-            throw ParseError("Expected " + toString(tokenType));
-    }
-
-    static bool isToken(const std::vector<Token::Type>& tokenTypes,
-                        std::vector<Token>::const_iterator iterator,
-                        std::vector<Token>::const_iterator end)
-    {
-        if (iterator == end) return false;
-
-        for (Token::Type tokenType : tokenTypes)
-            if (iterator->type == tokenType) return true;
-
-        return false;
-    }
-
-    static void expectToken(const std::vector<Token::Type>& tokenTypes,
-                            std::vector<Token>::const_iterator iterator,
-                            std::vector<Token>::const_iterator end)
-    {
-        if (iterator == end)
-            throw ParseError("Unexpected end of file");
-
-        for (Token::Type tokenType : tokenTypes)
-            if (iterator->type == tokenType) return;
-
-        std::string str;
-        for (Token::Type tokenType : tokenTypes)
-        {
-            if (!str.empty()) str += "or ";
-            str += toString(tokenType);
-        }
-
-        throw ParseError("Expected " + str);
-    }
-
     static Declaration* findDeclaration(const std::string& name, const std::vector<Declaration*>& declarationScope)
     {
         for (auto declarationIterator = declarationScope.crbegin(); declarationIterator != declarationScope.crend(); ++declarationIterator)
