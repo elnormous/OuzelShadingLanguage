@@ -10,7 +10,7 @@ namespace
 {
     bool isToken(Token::Type tokenType,
                  std::vector<Token>::const_iterator iterator,
-                 std::vector<Token>::const_iterator end)
+                 std::vector<Token>::const_iterator end) noexcept
     {
         return (iterator != end && iterator->type == tokenType);
     }
@@ -27,7 +27,7 @@ namespace
 
     bool isToken(const std::vector<Token::Type>& tokenTypes,
                  std::vector<Token>::const_iterator iterator,
-                 std::vector<Token>::const_iterator end)
+                 std::vector<Token>::const_iterator end) noexcept
     {
         if (iterator == end) return false;
 
