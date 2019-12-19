@@ -8,16 +8,16 @@
 
 namespace
 {
-    bool isToken(Token::Type tokenType,
-                 std::vector<Token>::const_iterator iterator,
-                 std::vector<Token>::const_iterator end) noexcept
+    inline bool isToken(Token::Type tokenType,
+                        std::vector<Token>::const_iterator iterator,
+                        std::vector<Token>::const_iterator end) noexcept
     {
         return (iterator != end && iterator->type == tokenType);
     }
 
-    void expectToken(Token::Type tokenType,
-                     std::vector<Token>::const_iterator iterator,
-                     std::vector<Token>::const_iterator end)
+    inline void expectToken(Token::Type tokenType,
+                            std::vector<Token>::const_iterator iterator,
+                            std::vector<Token>::const_iterator end)
     {
         if (iterator == end)
             throw ParseError("Unexpected end of file");
@@ -25,9 +25,10 @@ namespace
             throw ParseError("Expected " + toString(tokenType));
     }
 
-    bool isToken(const std::vector<Token::Type>& tokenTypes,
-                 std::vector<Token>::const_iterator iterator,
-                 std::vector<Token>::const_iterator end) noexcept
+    template <size_t N>
+    inline bool isToken(const Token::Type (&tokenTypes)[N],
+                        std::vector<Token>::const_iterator iterator,
+                        std::vector<Token>::const_iterator end) noexcept
     {
         if (iterator == end) return false;
 
@@ -37,7 +38,8 @@ namespace
         return false;
     }
 
-    static void expectToken(const std::vector<Token::Type>& tokenTypes,
+    template <size_t N>
+    inline void expectToken(const Token::Type (&tokenTypes)[N],
                             std::vector<Token>::const_iterator iterator,
                             std::vector<Token>::const_iterator end)
     {
