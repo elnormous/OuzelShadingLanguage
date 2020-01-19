@@ -44,7 +44,6 @@ struct Token
         Float, // float
         For, // for
         Friend, // friend
-        Function, // function
         Goto, // goto
         If, // if
         Inline, // inline
@@ -83,7 +82,6 @@ struct Token
         Union, // union
         Unsigned, // unsigned
         Using, // using
-        Var, // var
         Virtual, // virtual
         Void, // void
         Volatile, // volatile
@@ -177,7 +175,6 @@ inline std::string toString(Token::Type type)
         case Token::Type::Float: return "Float";
         case Token::Type::For: return "For";
         case Token::Type::Friend: return "Friend";
-        case Token::Type::Function: return "Function";
         case Token::Type::Goto: return "Goto";
         case Token::Type::If: return "If";
         case Token::Type::Inline: return "Inline";
@@ -216,7 +213,6 @@ inline std::string toString(Token::Type type)
         case Token::Type::Union: return "Union";
         case Token::Type::Unsigned: return "Unsigned";
         case Token::Type::Using: return "Using";
-        case Token::Type::Var: return "Var";
         case Token::Type::Virtual: return "Virtual";
         case Token::Type::Void: return "Void";
         case Token::Type::Volatile: return "Volatile";
