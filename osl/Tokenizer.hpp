@@ -82,9 +82,11 @@ struct Token
         Typedef, // typedef
         Typeid, // typeid
         Typename, // typename
+        Uniform, // uniform
         Union, // union
         Unsigned, // unsigned
         Using, // using
+        Varying, // varying
         Virtual, // virtual
         Void, // void
         Volatile, // volatile
@@ -216,9 +218,11 @@ inline std::string toString(Token::Type type)
         case Token::Type::Typedef: return "Typedef";
         case Token::Type::Typeid: return "Typeid";
         case Token::Type::Typename: return "Typename";
+        case Token::Type::Uniform: return "Uniform";
         case Token::Type::Union: return "Union";
         case Token::Type::Unsigned: return "Unsigned";
         case Token::Type::Using: return "Using";
+        case Token::Type::Varying: return "Varying";
         case Token::Type::Virtual: return "Virtual";
         case Token::Type::Void: return "Void";
         case Token::Type::Volatile: return "Volatile";
