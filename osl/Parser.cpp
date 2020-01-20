@@ -672,59 +672,6 @@ ASTContext::Specifiers ASTContext::parseSpecifiers(std::vector<Token>::const_ite
     return result;
 }
 
-std::vector<std::pair<std::string, std::vector<std::string>>> ASTContext::parseAttributes(std::vector<Token>::const_iterator& iterator,
-                                                                                          std::vector<Token>::const_iterator end)
-{
-    std::vector<std::pair<std::string, std::vector<std::string>>> result;
-
-    while (isToken(Token::Type::LeftBracket, iterator, end) &&
-           isToken(Token::Type::LeftBracket, iterator + 1, end))
-    {
-        ++iterator;
-        ++iterator;
-
-        expectToken(Token::Type::Identifier, iterator, end);
-
-        std::pair<std::string, std::vector<std::string>> attribute;
-
-        attribute.first = iterator->value;
-
-        ++iterator;
-
-        if (isToken(Token::Type::LeftParenthesis, iterator, end))
-        {
-            ++iterator;
-
-            for (;;)
-            {
-                expectToken({Token::Type::IntLiteral, Token::Type::FloatLiteral, Token::Type::DoubleLiteral, Token::Type::CharLiteral, Token::Type::StringLiteral}, iterator, end);
-
-                attribute.second.push_back(iterator->value);
-                ++iterator;
-
-                if (!isToken(Token::Type::Comma, iterator, end))
-                    break;
-            }
-
-            expectToken(Token::Type::RightParenthesis, iterator, end);
-
-            ++iterator;
-        }
-
-        expectToken(Token::Type::RightBracket, iterator, end);
-
-        ++iterator;
-
-        expectToken(Token::Type::RightBracket, iterator, end);
-
-        ++iterator;
-
-        result.push_back(attribute);
-    }
-
-    return result;
-}
-
 Declaration* ASTContext::parseDeclaration(std::vector<Token>::const_iterator& iterator,
                                           std::vector<Token>::const_iterator end,
                                           std::vector<std::vector<Declaration*>>& declarationScopes,
@@ -759,7 +706,6 @@ Declaration* ASTContext::parseDeclaration(std::vector<Token>::const_iterator& it
     }*/
     else
     {
-        std::vector<std::pair<std::string, std::vector<std::string>>> attributes = parseAttributes(iterator, end);
         ASTContext::Specifiers specifiers = parseSpecifiers(iterator, end);
 
         QualifiedType qualifiedType;
@@ -848,27 +794,6 @@ Declaration* ASTContext::parseDeclaration(std::vector<Token>::const_iterator& it
             ++iterator;
 
             result->previousDeclaration = findFunctionDeclaration(name, declarationScopes, parameters);
-
-            attributes = parseAttributes(iterator, end);
-
-            for (std::pair<std::string, std::vector<std::string>>& attribute : attributes)
-            {
-                if (attribute.first == "program")
-                {
-                    if (attribute.second.size() == 1)
-                    {
-                        result->isProgram = true;
-                        if (attribute.second.front() == "fragment") result->program = Program::Fragment;
-                        else if (attribute.second.front() == "vertex") result->program = Program::Vertex;
-                        else
-                            throw ParseError("Invalid program" + attribute.second.front());
-                    }
-                    else
-                        throw ParseError("Invalid parameters for attribute " + attribute.first);
-                }
-                else
-                    throw ParseError("Invalid attribute " + attribute.first);
-            }
 
             declarationScopes.back().push_back(result);
 
@@ -1069,7 +994,6 @@ Declaration* ASTContext::parseMemberDeclaration(std::vector<Token>::const_iterat
         constructs.push_back(std::unique_ptr<Construct>(result = new FieldDeclaration()));
         result->parent = parent;
 
-        std::vector<std::pair<std::string, std::vector<std::string>>> attributes = parseAttributes(iterator, end);
         ASTContext::Specifiers specifiers = parseSpecifiers(iterator, end);
 
         if (specifiers.isConst) result->qualifiedType.qualifiers |= Qualifiers::Const;
@@ -1109,8 +1033,6 @@ Declaration* ASTContext::parseMemberDeclaration(std::vector<Token>::const_iterat
 
         ++iterator;
 
-        attributes = parseAttributes(iterator, end);
-
         while (isToken(Token::Type::LeftBracket, iterator, end))
         {
             ++iterator;
@@ -1131,39 +1053,6 @@ Declaration* ASTContext::parseMemberDeclaration(std::vector<Token>::const_iterat
             ++iterator;
         }
 
-        attributes = parseAttributes(iterator, end);
-
-        for (std::pair<std::string, std::vector<std::string>>& attribute : attributes)
-        {
-            if (attribute.first == "semantic")
-            {
-                if (attribute.second.size() == 1)
-                {
-                    Semantic semantic = Semantic::None;
-
-                    // TODO: find slot number
-                    if (attribute.second.front() == "binormal") semantic = Semantic::Binormal;
-                    else if (attribute.second.front() == "blend_indices") semantic = Semantic::BlendIndices;
-                    else if (attribute.second.front() == "blend_weight") semantic = Semantic::BlendWeight;
-                    else if (attribute.second.front() == "color") semantic = Semantic::Color;
-                    else if (attribute.second.front() == "normal") semantic = Semantic::Normal;
-                    else if (attribute.second.front() == "position") semantic = Semantic::Position;
-                    else if (attribute.second.front() == "position_transformed") semantic = Semantic::PositionTransformed;
-                    else if (attribute.second.front() == "point_size") semantic = Semantic::PointSize;
-                    else if (attribute.second.front() == "tangent") semantic = Semantic::Tangent;
-                    else if (attribute.second.front() == "texture_coordinates") semantic = Semantic::TextureCoordinates;
-                    else
-                        throw ParseError("Invalid semantic " + attribute.second.front());
-
-                    result->semantic = semantic;
-                }
-                else
-                    throw ParseError("Invalid parameters for attribute " + attribute.first);
-            }
-            else
-                throw ParseError("Invalid attribute " + attribute.first);
-        }
-
         return result;
     }
 
@@ -1178,8 +1067,6 @@ ParameterDeclaration* ASTContext::parseParameterDeclaration(std::vector<Token>::
     ParameterDeclaration* result;
     constructs.push_back(std::unique_ptr<Construct>(result = new ParameterDeclaration()));
     result->parent = parent;
-
-    std::vector<std::pair<std::string, std::vector<std::string>>> attributes = parseAttributes(iterator, end);
 
     ASTContext::Specifiers specifiers = parseSpecifiers(iterator, end);
 
@@ -1221,8 +1108,6 @@ ParameterDeclaration* ASTContext::parseParameterDeclaration(std::vector<Token>::
         ++iterator;
     }
 
-    attributes = parseAttributes(iterator, end);
-
     while (isToken(Token::Type::LeftBracket, iterator, end))
     {
         ++iterator;
@@ -1242,8 +1127,6 @@ ParameterDeclaration* ASTContext::parseParameterDeclaration(std::vector<Token>::
 
         ++iterator;
     }
-
-    attributes = parseAttributes(iterator, end);
 
     return result;
 }

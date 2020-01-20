@@ -154,9 +154,6 @@ private:
     static Specifiers parseSpecifiers(std::vector<Token>::const_iterator& iterator,
                                       std::vector<Token>::const_iterator end);
 
-    static std::vector<std::pair<std::string, std::vector<std::string>>> parseAttributes(std::vector<Token>::const_iterator& iterator,
-                                                                                         std::vector<Token>::const_iterator end);
-
     Declaration* parseDeclaration(std::vector<Token>::const_iterator& iterator,
                                   std::vector<Token>::const_iterator end,
                                   std::vector<std::vector<Declaration*>>& declarationScopes,
