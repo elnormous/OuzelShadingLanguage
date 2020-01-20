@@ -381,7 +381,7 @@ private:
         fieldDeclaration->parent = structDeclaration;
         fieldDeclaration->name = name;
         fieldDeclaration->qualifiedType.typeDeclaration = type;
-        fieldDeclaration->qualifiedType.isConst = isConst;
+        fieldDeclaration->qualifiedType.qualifiers = (isConst ? Qualifiers::Const : Qualifiers::None);
         declarationScopes.back().push_back(fieldDeclaration);
 
         structDeclaration->memberDeclarations.push_back(fieldDeclaration);

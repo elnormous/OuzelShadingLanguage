@@ -175,8 +175,8 @@ namespace
     {
         std::string result;
 
-        if (qualifiedType.isVolatile) result += "volatile ";
-        if (qualifiedType.isConst) result += "const ";
+        if ((qualifiedType.qualifiers & Qualifiers::Volatile) == Qualifiers::Volatile) result += "volatile ";
+        if ((qualifiedType.qualifiers & Qualifiers::Const) == Qualifiers::Const) result += "const ";
 
         if (!qualifiedType.typeDeclaration)
         {

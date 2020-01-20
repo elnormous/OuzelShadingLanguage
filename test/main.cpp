@@ -89,7 +89,7 @@ namespace
         if (expression->category != Expression::Category::Rvalue)
             throw TestError("Expected must rvalue");
 
-        if (!expression->qualifiedType.isConst)
+        if ((expression->qualifiedType.qualifiers & Qualifiers::Const) != Qualifiers::Const)
             throw TestError("Expected must be const");
 
         if (expression->getExpressionKind() != Expression::Kind::Literal)

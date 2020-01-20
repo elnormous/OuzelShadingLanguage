@@ -763,8 +763,8 @@ Declaration* ASTContext::parseDeclaration(std::vector<Token>::const_iterator& it
         ASTContext::Specifiers specifiers = parseSpecifiers(iterator, end);
 
         QualifiedType qualifiedType;
-        qualifiedType.isConst = specifiers.isConst;
-        qualifiedType.isVolatile = specifiers.isVolatile;
+        if (specifiers.isConst) qualifiedType.qualifiers |= Qualifiers::Const;
+        if (specifiers.isVolatile) qualifiedType.qualifiers |= Qualifiers::Volatile;
 
         bool isExtern = specifiers.isExtern;
         bool isInline = specifiers.isInline;
@@ -790,8 +790,8 @@ Declaration* ASTContext::parseDeclaration(std::vector<Token>::const_iterator& it
 
         specifiers = parseSpecifiers(iterator, end);
 
-        if (specifiers.isConst) qualifiedType.isConst = true;
-        if (specifiers.isVolatile) qualifiedType.isVolatile = true;
+        if (specifiers.isConst) qualifiedType.qualifiers |= Qualifiers::Const;
+        if (specifiers.isVolatile) qualifiedType.qualifiers |= Qualifiers::Volatile;
 
         if (specifiers.isExtern) isExtern = true;
         if (specifiers.isInline) isInline = true;
@@ -1072,8 +1072,8 @@ Declaration* ASTContext::parseMemberDeclaration(std::vector<Token>::const_iterat
         std::vector<std::pair<std::string, std::vector<std::string>>> attributes = parseAttributes(iterator, end);
         ASTContext::Specifiers specifiers = parseSpecifiers(iterator, end);
 
-        result->qualifiedType.isConst = specifiers.isConst;
-        result->qualifiedType.isVolatile = specifiers.isVolatile;
+        if (specifiers.isConst) result->qualifiedType.qualifiers |= Qualifiers::Const;
+        if (specifiers.isVolatile) result->qualifiedType.qualifiers |= Qualifiers::Volatile;
 
         bool isStatic = specifiers.isStatic;
         bool isInline = specifiers.isInline;
@@ -1091,8 +1091,8 @@ Declaration* ASTContext::parseMemberDeclaration(std::vector<Token>::const_iterat
 
         specifiers = parseSpecifiers(iterator, end);
 
-        if (specifiers.isConst) result->qualifiedType.isConst = true;
-        if (specifiers.isVolatile) result->qualifiedType.isVolatile = true;
+        if (specifiers.isConst) result->qualifiedType.qualifiers |= Qualifiers::Const;
+        if (specifiers.isVolatile) result->qualifiedType.qualifiers |= Qualifiers::Volatile;
 
         if (specifiers.isStatic) isStatic = true;
         if (specifiers.isInline) isInline = true;
@@ -1183,8 +1183,8 @@ ParameterDeclaration* ASTContext::parseParameterDeclaration(std::vector<Token>::
 
     ASTContext::Specifiers specifiers = parseSpecifiers(iterator, end);
 
-    result->qualifiedType.isConst = specifiers.isConst;
-    result->qualifiedType.isVolatile = specifiers.isVolatile;
+    if (specifiers.isConst) result->qualifiedType.qualifiers |= Qualifiers::Const;
+    if (specifiers.isVolatile) result->qualifiedType.qualifiers |= Qualifiers::Volatile;
 
     bool isStatic = specifiers.isStatic;
     bool isInline = specifiers.isInline;
@@ -1202,8 +1202,8 @@ ParameterDeclaration* ASTContext::parseParameterDeclaration(std::vector<Token>::
 
     specifiers = parseSpecifiers(iterator, end);
 
-    if (specifiers.isConst) result->qualifiedType.isConst = true;
-    if (specifiers.isVolatile) result->qualifiedType.isVolatile = true;
+    if (specifiers.isConst) result->qualifiedType.qualifiers |= Qualifiers::Const;
+    if (specifiers.isVolatile) result->qualifiedType.qualifiers |= Qualifiers::Volatile;
 
     if (specifiers.isStatic) isStatic = true;
     if (specifiers.isInline) isInline = true;
@@ -1747,7 +1747,7 @@ CaseStatement* ASTContext::parseCaseStatement(std::vector<Token>::const_iterator
     if (!isInteger(condition->qualifiedType.typeDeclaration))
         throw ParseError("Statement requires expression of integer type");
 
-    if (!condition->qualifiedType.isConst)
+    if ((condition->qualifiedType.qualifiers & Qualifiers::Const) != Qualifiers::Const)
         throw ParseError("Expression must be constant");
 
     ScalarTypeDeclaration* scalarType = static_cast<ScalarTypeDeclaration*>(condition->qualifiedType.typeDeclaration);
@@ -1918,7 +1918,7 @@ Expression* ASTContext::parsePrimaryExpression(std::vector<Token>::const_iterato
         constructs.push_back(std::unique_ptr<Construct>(result = new IntegerLiteralExpression()));
         result->parent = parent;
         result->qualifiedType.typeDeclaration = intTypeDeclaration;
-        result->qualifiedType.isConst = true;
+        result->qualifiedType.qualifiers = Qualifiers::Const;
         result->category = Expression::Category::Rvalue;
         result->value = strtoll(iterator->value.c_str(), nullptr, 0);
 
@@ -1932,7 +1932,7 @@ Expression* ASTContext::parsePrimaryExpression(std::vector<Token>::const_iterato
         constructs.push_back(std::unique_ptr<Construct>(result = new FloatingPointLiteralExpression()));
         result->parent = parent;
         result->qualifiedType.typeDeclaration = floatTypeDeclaration;
-        result->qualifiedType.isConst = true;
+        result->qualifiedType.qualifiers = Qualifiers::Const;
         result->category = Expression::Category::Rvalue;
         result->value = strtod(iterator->value.c_str(), nullptr);
 
@@ -1950,7 +1950,7 @@ Expression* ASTContext::parsePrimaryExpression(std::vector<Token>::const_iterato
         constructs.push_back(std::unique_ptr<Construct>(result = new StringLiteralExpression()));
         result->parent = parent;
         result->qualifiedType.typeDeclaration = stringTypeDeclaration;
-        result->qualifiedType.isConst = true;
+        result->qualifiedType.qualifiers = Qualifiers::Const;
         result->category = Expression::Category::Rvalue;
         result->value = iterator->value;
 
@@ -1964,7 +1964,7 @@ Expression* ASTContext::parsePrimaryExpression(std::vector<Token>::const_iterato
         constructs.push_back(std::unique_ptr<Construct>(result = new BooleanLiteralExpression()));
         result->parent = parent;
         result->qualifiedType.typeDeclaration = boolTypeDeclaration;
-        result->qualifiedType.isConst = true;
+        result->qualifiedType.qualifiers = Qualifiers::Const;
         result->category = Expression::Category::Rvalue;
         result->value = (iterator->type == Token::Type::True);
 
@@ -2056,7 +2056,7 @@ Expression* ASTContext::parsePrimaryExpression(std::vector<Token>::const_iterato
                 constructs.push_back(std::unique_ptr<Construct>(result = new TemporaryObjectExpression()));
                 result->parent = parent;
                 result->qualifiedType.typeDeclaration = typeDeclaration;
-                result->qualifiedType.isConst = true;
+                result->qualifiedType.qualifiers = Qualifiers::Const;
                 result->category = Expression::Category::Rvalue;
 
                 std::vector<QualifiedType> parameters;
@@ -2387,7 +2387,8 @@ Expression* ASTContext::parseMemberExpression(std::vector<Token>::const_iterator
         ++iterator;
 
         expression->qualifiedType = expression->fieldDeclaration->qualifiedType;
-        if (result->qualifiedType.isConst) expression->qualifiedType.isConst = true;
+        if ((result->qualifiedType.qualifiers & Qualifiers::Const) == Qualifiers::Const)
+            expression->qualifiedType.qualifiers = Qualifiers::Const;
         expression->category = Expression::Category::Lvalue;
 
         result->parent = expression;
@@ -2859,7 +2860,7 @@ Expression* ASTContext::parseAssignmentExpression(std::vector<Token>::const_iter
         expression->parent = parent;
         expression->leftExpression = result;
 
-        if (expression->leftExpression->qualifiedType.isConst)
+        if ((expression->leftExpression->qualifiedType.qualifiers & Qualifiers::Const) == Qualifiers::Const)
             throw ParseError("Cannot assign to const variable");
 
         if (expression->leftExpression->category != Expression::Category::Lvalue)
@@ -2905,7 +2906,7 @@ Expression* ASTContext::parseAdditionAssignmentExpression(std::vector<Token>::co
 
         expression->leftExpression = result;
 
-        if (expression->leftExpression->qualifiedType.isConst)
+        if ((expression->leftExpression->qualifiedType.qualifiers & Qualifiers::Const) == Qualifiers::Const)
             throw ParseError("Cannot assign to const variable");
 
         if (expression->leftExpression->category != Expression::Category::Lvalue)
@@ -2950,7 +2951,7 @@ Expression* ASTContext::parseMultiplicationAssignmentExpression(std::vector<Toke
 
         expression->leftExpression = result;
 
-        if (expression->leftExpression->qualifiedType.isConst)
+        if ((expression->leftExpression->qualifiedType.qualifiers & Qualifiers::Const) == Qualifiers::Const)
             throw ParseError("Cannot assign to const variable");
 
         if (expression->leftExpression->category != Expression::Category::Lvalue)

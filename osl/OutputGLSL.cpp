@@ -46,8 +46,8 @@ namespace
     {
         std::pair<std::string, std::string> result;
 
-        if (qualifiedType.isVolatile) result.first += "volatile ";
-        if (qualifiedType.isConst) result.first += "const ";
+        if ((qualifiedType.qualifiers & Qualifiers::Volatile) == Qualifiers::Volatile) result.first += "volatile ";
+        if ((qualifiedType.qualifiers & Qualifiers::Const) == Qualifiers::Const) result.first += "const ";
 
         if (!qualifiedType.typeDeclaration)
         {
