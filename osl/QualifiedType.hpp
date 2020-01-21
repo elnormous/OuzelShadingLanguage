@@ -15,8 +15,7 @@ enum class Qualifiers
     Const = 0x01,
     Volatile = 0x02,
     In = 0x04,
-    InOut = 0x08,
-    Out = 0x10
+    Out = 0x08
 };
 
 inline constexpr Qualifiers operator&(const Qualifiers a, const Qualifiers b) noexcept
