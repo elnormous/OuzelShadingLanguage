@@ -666,6 +666,22 @@ ASTContext::Specifiers ASTContext::parseSpecifiers(std::vector<Token>::const_ite
             ++iterator;
             result.isVolatile = true;
         }
+        else if (isToken(Token::Type::In, iterator, end))
+        {
+            ++iterator;
+            result.isIn = true;
+        }
+        else if (isToken(Token::Type::Inout, iterator, end))
+        {
+            ++iterator;
+            result.isIn = true;
+            result.isOut = true;
+        }
+        else if (isToken(Token::Type::Out, iterator, end))
+        {
+            ++iterator;
+            result.isOut = true;
+        }
         else break;
     }
 

@@ -149,6 +149,8 @@ private:
         bool isStatic = false;
         bool isExtern = false;
         bool isVolatile = false;
+        bool isIn = false;
+        bool isOut = false;
     };
 
     static Specifiers parseSpecifiers(std::vector<Token>::const_iterator& iterator,
