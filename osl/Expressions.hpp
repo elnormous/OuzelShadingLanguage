@@ -229,12 +229,18 @@ class VectorElementExpression: public Expression
 {
 public:
     VectorElementExpression() noexcept: Expression(Expression::Kind::VectorElement) {}
+
+    uint8_t count = 0;
+    uint8_t positions[4]{};
 };
 
 class MatrixElementExpression: public Expression
 {
 public:
     MatrixElementExpression() noexcept: Expression(Expression::Kind::MatrixElement) {}
+
+    uint8_t count = 0;
+    std::pair<uint8_t, uint8_t> positions[4]{};
 };
 
 #endif // EXPRESSIONS_HPP
