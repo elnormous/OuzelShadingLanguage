@@ -25,7 +25,9 @@ public:
         TemporaryObject,
         InitializerList,
         Cast,
-        Sizeof
+        Sizeof,
+        VectorElement,
+        MatrixElement
     };
 
     enum class Category: uint8_t
@@ -221,6 +223,18 @@ public:
     
     Expression* expression;
     TypeDeclaration* type;
+};
+
+class VectorElementExpression: public Expression
+{
+public:
+    VectorElementExpression() noexcept: Expression(Expression::Kind::VectorElement) {}
+};
+
+class MatrixElementExpression: public Expression
+{
+public:
+    MatrixElementExpression() noexcept: Expression(Expression::Kind::MatrixElement) {}
 };
 
 #endif // EXPRESSIONS_HPP

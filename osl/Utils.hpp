@@ -62,6 +62,8 @@ namespace
             case Expression::Kind::InitializerList: return "InitializerList";
             case Expression::Kind::Cast: return "Cast";
             case Expression::Kind::Sizeof: return "Sizeof";
+            case Expression::Kind::VectorElement: return "VectorElement";
+            case Expression::Kind::MatrixElement: return "MatrixElement";
             default: return "Unknown";
         }
     }
@@ -184,11 +186,11 @@ namespace
         }
         else
         {
-            const TypeDeclaration* typeDeclaration = qualifiedType.typeDeclaration;
+            auto typeDeclaration = qualifiedType.typeDeclaration;
 
             if (typeDeclaration->getTypeKind() == TypeDeclaration::Kind::Array)
             {
-                const TypeDeclaration* currentTypeDeclaration = typeDeclaration;
+                auto currentTypeDeclaration = typeDeclaration;
 
                 std::string arrayDimensions;
                 while (currentTypeDeclaration->getTypeKind() == TypeDeclaration::Kind::Array)
@@ -224,7 +226,7 @@ namespace
 
             case Declaration::Kind::Type:
             {
-                const TypeDeclaration* typeDeclaration = static_cast<const TypeDeclaration*>(declaration);
+                auto typeDeclaration = static_cast<const TypeDeclaration*>(declaration);
 
                 std::cout << " " << toString(typeDeclaration->getTypeKind());
 
@@ -266,7 +268,7 @@ namespace
 
             case Declaration::Kind::Field:
             {
-                const FieldDeclaration* fieldDeclaration = static_cast<const FieldDeclaration*>(declaration);
+                auto fieldDeclaration = static_cast<const FieldDeclaration*>(declaration);
 
                 std::cout << ", name: " << fieldDeclaration->name << ", type: " << getPrintableTypeName(fieldDeclaration->qualifiedType);
 
@@ -279,7 +281,7 @@ namespace
 
             case Declaration::Kind::Callable:
             {
-                const CallableDeclaration* callableDeclaration = static_cast<const CallableDeclaration*>(declaration);
+                auto callableDeclaration = static_cast<const CallableDeclaration*>(declaration);
 
                 std::cout << ", callable kind: " << toString(callableDeclaration->getCallableDeclarationKind()) << ", name: " << callableDeclaration->name << ", result type: " << getPrintableTypeName(callableDeclaration->qualifiedType);
 
@@ -313,7 +315,7 @@ namespace
 
             case Declaration::Kind::Variable:
             {
-                const VariableDeclaration* variableDeclaration = static_cast<const VariableDeclaration*>(declaration);
+                auto variableDeclaration = static_cast<const VariableDeclaration*>(declaration);
                 std::cout << ", name: " << variableDeclaration->name << ", type: " << getPrintableTypeName(variableDeclaration->qualifiedType) << '\n';
 
                 if (variableDeclaration->initialization)
@@ -326,7 +328,7 @@ namespace
 
             case Declaration::Kind::Parameter:
             {
-                const ParameterDeclaration* parameterDeclaration = static_cast<const ParameterDeclaration*>(declaration);
+                auto parameterDeclaration = static_cast<const ParameterDeclaration*>(declaration);
                 std::cout << ", name: " << parameterDeclaration->name << ", type: " << getPrintableTypeName(parameterDeclaration->qualifiedType) << '\n';
                 break;
             }
@@ -350,7 +352,7 @@ namespace
 
             case Statement::Kind::Expression:
             {
-                const ExpressionStatement* expressionStatement = static_cast<const ExpressionStatement*>(statement);
+                auto expressionStatement = static_cast<const ExpressionStatement*>(statement);
 
                 std::cout << '\n';
 
@@ -360,7 +362,7 @@ namespace
 
             case Statement::Kind::Declaration:
             {
-                const DeclarationStatement* declarationStatement = static_cast<const DeclarationStatement*>(statement);
+                auto declarationStatement = static_cast<const DeclarationStatement*>(statement);
 
                 std::cout << '\n';
 
@@ -370,11 +372,11 @@ namespace
 
             case Statement::Kind::Compound:
             {
-                const CompoundStatement* compoundStatement = static_cast<const CompoundStatement*>(statement);
+                auto compoundStatement = static_cast<const CompoundStatement*>(statement);
 
                 std::cout << '\n';
 
-                for (Statement* subSstatement : compoundStatement->statements)
+                for (const auto subSstatement : compoundStatement->statements)
                     dumpConstruct(subSstatement, level + 1);
 
                 break;
@@ -382,7 +384,7 @@ namespace
 
             case Statement::Kind::If:
             {
-                const IfStatement* ifStatement = static_cast<const IfStatement*>(statement);
+                auto ifStatement = static_cast<const IfStatement*>(statement);
 
                 std::cout << '\n';
 
@@ -394,7 +396,7 @@ namespace
 
             case Statement::Kind::For:
             {
-                const ForStatement* forStatement = static_cast<const ForStatement*>(statement);
+                auto forStatement = static_cast<const ForStatement*>(statement);
 
                 std::cout << '\n';
 
@@ -407,7 +409,7 @@ namespace
 
             case Statement::Kind::Switch:
             {
-                const SwitchStatement* switchStatement = static_cast<const SwitchStatement*>(statement);
+                auto switchStatement = static_cast<const SwitchStatement*>(statement);
 
                 std::cout << '\n';
 
@@ -418,7 +420,7 @@ namespace
 
             case Statement::Kind::Case:
             {
-                const CaseStatement* caseStatement = static_cast<const CaseStatement*>(statement);
+                auto caseStatement = static_cast<const CaseStatement*>(statement);
 
                 std::cout << '\n';
 
@@ -429,7 +431,7 @@ namespace
 
             case Statement::Kind::Default:
             {
-                const DefaultStatement* defaultStatement = static_cast<const DefaultStatement*>(statement);
+                auto defaultStatement = static_cast<const DefaultStatement*>(statement);
 
                 std::cout << '\n';
 
@@ -439,7 +441,7 @@ namespace
 
             case Statement::Kind::While:
             {
-                const WhileStatement* whileStatement = static_cast<const WhileStatement*>(statement);
+                auto whileStatement = static_cast<const WhileStatement*>(statement);
 
                 std::cout << '\n';
 
@@ -450,7 +452,7 @@ namespace
 
             case Statement::Kind::Do:
             {
-                const DoStatement* doStatement = static_cast<const DoStatement*>(statement);
+                auto doStatement = static_cast<const DoStatement*>(statement);
 
                 std::cout << '\n';
 
@@ -473,14 +475,12 @@ namespace
 
             case Statement::Kind::Return:
             {
-                const ReturnStatement* returnStatement = static_cast<const ReturnStatement*>(statement);
+                auto returnStatement = static_cast<const ReturnStatement*>(statement);
 
                 std::cout << '\n';
 
                 if (returnStatement->result)
-                {
                     dumpConstruct(returnStatement->result, level + 1);
-                }
                 break;
             }
 
@@ -507,13 +507,13 @@ namespace
         {
             case Expression::Kind::Call:
             {
-                const CallExpression* callExpression = static_cast<const CallExpression*>(expression);
+                auto callExpression = static_cast<const CallExpression*>(expression);
 
                 std::cout << '\n';
 
                 dumpConstruct(callExpression->declarationReference, level + 1);
 
-                for (Expression* argument : callExpression->arguments)
+                for (const auto argument : callExpression->arguments)
                     dumpConstruct(argument, level + 1);
 
                 break;
@@ -521,7 +521,7 @@ namespace
 
             case Expression::Kind::Literal:
             {
-                const LiteralExpression* literalExpression = static_cast<const LiteralExpression*>(expression);
+                auto literalExpression = static_cast<const LiteralExpression*>(expression);
 
                 std::cout << ", literal kind: " << toString(literalExpression->getLiteralKind()) << ", value: ";
 
@@ -529,25 +529,25 @@ namespace
                 {
                     case LiteralExpression::Kind::Boolean:
                     {
-                        const BooleanLiteralExpression* booleanLiteralExpression = static_cast<const BooleanLiteralExpression*>(literalExpression);
+                        auto booleanLiteralExpression = static_cast<const BooleanLiteralExpression*>(literalExpression);
                         std::cout << (booleanLiteralExpression->value ? "true" : "false");
                         break;
                     }
                     case LiteralExpression::Kind::Integer:
                     {
-                        const IntegerLiteralExpression* integerLiteralExpression = static_cast<const IntegerLiteralExpression*>(literalExpression);
+                        auto integerLiteralExpression = static_cast<const IntegerLiteralExpression*>(literalExpression);
                         std::cout << integerLiteralExpression->value;
                         break;
                     }
                     case LiteralExpression::Kind::FloatingPoint:
                     {
-                        const FloatingPointLiteralExpression* floatingPointLiteralExpression = static_cast<const FloatingPointLiteralExpression*>(literalExpression);
+                        auto floatingPointLiteralExpression = static_cast<const FloatingPointLiteralExpression*>(literalExpression);
                         std::cout << floatingPointLiteralExpression->value;
                         break;
                     }
                     case LiteralExpression::Kind::String:
                     {
-                        const StringLiteralExpression* stringLiteralExpression = static_cast<const StringLiteralExpression*>(literalExpression);
+                        auto stringLiteralExpression = static_cast<const StringLiteralExpression*>(literalExpression);
                         std::cout << stringLiteralExpression->value;
                         break;
                     }
@@ -559,7 +559,7 @@ namespace
 
             case Expression::Kind::DeclarationReference:
             {
-                const DeclarationReferenceExpression* declarationReferenceExpression = static_cast<const DeclarationReferenceExpression*>(expression);
+                auto declarationReferenceExpression = static_cast<const DeclarationReferenceExpression*>(expression);
 
                 std::cout << ", name: " << declarationReferenceExpression->declaration->name << ", declaration: " << declarationReferenceExpression->declaration;
 
@@ -569,7 +569,7 @@ namespace
 
             case Expression::Kind::Paren:
             {
-                const ParenExpression* parenExpression = static_cast<const ParenExpression*>(expression);
+                auto parenExpression = static_cast<const ParenExpression*>(expression);
 
                 std::cout << '\n';
 
@@ -579,7 +579,7 @@ namespace
 
             case Expression::Kind::Member:
             {
-                const MemberExpression* memberExpression = static_cast<const MemberExpression*>(expression);
+                auto memberExpression = static_cast<const MemberExpression*>(expression);
 
                 std::cout << ", field: " << memberExpression->fieldDeclaration->name << '\n';
 
@@ -589,7 +589,7 @@ namespace
 
             case Expression::Kind::ArraySubscript:
             {
-                const ArraySubscriptExpression* arraySubscriptExpression = static_cast<const ArraySubscriptExpression*>(expression);
+                auto arraySubscriptExpression = static_cast<const ArraySubscriptExpression*>(expression);
 
                 std::cout << '\n';
 
@@ -600,7 +600,7 @@ namespace
 
             case Expression::Kind::UnaryOperator:
             {
-                const UnaryOperatorExpression* unaryOperatorExpression = static_cast<const UnaryOperatorExpression*>(expression);
+                auto unaryOperatorExpression = static_cast<const UnaryOperatorExpression*>(expression);
 
                 std::cout <<", operator: " << toString(unaryOperatorExpression->operatorDeclaration->op) << '\n';
 
@@ -610,7 +610,7 @@ namespace
 
             case Expression::Kind::BinaryOperator:
             {
-                const BinaryOperatorExpression* binaryOperatorExpression = static_cast<const BinaryOperatorExpression*>(expression);
+                auto binaryOperatorExpression = static_cast<const BinaryOperatorExpression*>(expression);
 
                 std::cout << ", operator: " << toString(binaryOperatorExpression->operatorDeclaration->op) << '\n';
 
@@ -621,7 +621,7 @@ namespace
 
             case Expression::Kind::TernaryOperator:
             {
-                const TernaryOperatorExpression* ternaryOperatorExpression = static_cast<const TernaryOperatorExpression*>(expression);
+                auto ternaryOperatorExpression = static_cast<const TernaryOperatorExpression*>(expression);
 
                 std::cout << '\n';
 
@@ -633,13 +633,13 @@ namespace
 
             case Expression::Kind::TemporaryObject:
             {
-                const TemporaryObjectExpression* temporaryObjectExpression = static_cast<const TemporaryObjectExpression*>(expression);
+                auto temporaryObjectExpression = static_cast<const TemporaryObjectExpression*>(expression);
 
-                const TypeDeclaration* typeDeclaration = static_cast<const TypeDeclaration*>(temporaryObjectExpression->constructorDeclaration->parent);
+                auto typeDeclaration = static_cast<const TypeDeclaration*>(temporaryObjectExpression->constructorDeclaration->parent);
 
                 std::cout << " " << typeDeclaration->name << '\n';
 
-                for (Expression* parameter : temporaryObjectExpression->parameters)
+                for (const auto parameter : temporaryObjectExpression->parameters)
                     dumpConstruct(parameter, level + 1);
 
                 break;
@@ -647,11 +647,11 @@ namespace
 
             case Expression::Kind::InitializerList:
             {
-                const InitializerListExpression* initializerListExpression = static_cast<const InitializerListExpression*>(expression);
+                auto initializerListExpression = static_cast<const InitializerListExpression*>(expression);
 
                 std::cout << '\n';
 
-                for (Expression* subExpression : initializerListExpression->expressions)
+                for (const auto subExpression : initializerListExpression->expressions)
                     dumpConstruct(subExpression, level + 1);
 
                 break;
@@ -659,7 +659,7 @@ namespace
 
             case Expression::Kind::Cast:
             {
-                const CastExpression* castExpression = static_cast<const CastExpression*>(expression);
+                auto castExpression = static_cast<const CastExpression*>(expression);
 
                 std::cout << ", cast kind: " << toString(castExpression->getCastKind()) <<
                 ", type: " << castExpression->qualifiedType.typeDeclaration->name << '\n';
@@ -670,7 +670,7 @@ namespace
             }
             case Expression::Kind::Sizeof:
             {
-                const SizeofExpression* sizeofExpression = static_cast<const SizeofExpression*>(expression);
+                auto sizeofExpression = static_cast<const SizeofExpression*>(expression);
 
                 std::cout << '\n';
 
@@ -678,6 +678,16 @@ namespace
                     dumpConstruct(sizeofExpression->expression, level + 1);
                 else if (sizeofExpression->type)
                     dumpConstruct(sizeofExpression->type, level + 1);
+                break;
+            }
+            case Expression::Kind::VectorElement:
+            {
+                auto sizeofExpression = static_cast<const VectorElementExpression*>(expression);
+                break;
+            }
+            case Expression::Kind::MatrixElement:
+            {
+                auto sizeofExpression = static_cast<const MatrixElementExpression*>(expression);
                 break;
             }
         }
@@ -697,21 +707,21 @@ namespace
         {
             case Construct::Kind::Declaration:
             {
-                const Declaration* declaration = static_cast<const Declaration*>(construct);
+                auto declaration = static_cast<const Declaration*>(construct);
                 dumpDeclaration(declaration, level);
                 break;
             }
 
             case Construct::Kind::Statement:
             {
-                const Statement* statement = static_cast<const Statement*>(construct);
+                auto statement = static_cast<const Statement*>(construct);
                 dumpStatement(statement, level);
                 break;
             }
 
             case Construct::Kind::Expression:
             {
-                const Expression* expression = static_cast<const Expression*>(construct);
+                auto expression = static_cast<const Expression*>(construct);
                 dumpExpression(expression, level);
                 break;
             }
