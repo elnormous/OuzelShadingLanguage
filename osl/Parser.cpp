@@ -185,25 +185,25 @@ ASTContext::ASTContext(const std::vector<Token>& tokens)
     {
         declarationScopes.push_back(std::vector<Declaration*>());
 
-        for (char first : type.second)
+        for (const char first : type.second)
         {
             addFieldDeclaration(type.first, {first}, floatTypeDeclaration, false, declarationScopes);
 
-            for (char second : type.second)
+            for (const char second : type.second)
             {
-                bool secondConst = (second == first);
+                const bool secondConst = (second == first);
 
                 addFieldDeclaration(type.first, {first, second}, float2TypeDeclaration, secondConst, declarationScopes);
 
-                for (char third : type.second)
+                for (const char third : type.second)
                 {
-                    bool thirdConst = (secondConst || third == first || third == second);
+                    const bool thirdConst = (secondConst || third == first || third == second);
 
                     addFieldDeclaration(type.first, {first, second, third}, float3TypeDeclaration, thirdConst, declarationScopes);
 
-                    for (char fourth : type.second)
+                    for (const char fourth : type.second)
                     {
-                        bool fourthConst = (thirdConst || fourth == first || fourth == second || fourth == third);
+                        const bool fourthConst = (thirdConst || fourth == first || fourth == second || fourth == third);
 
                         addFieldDeclaration(type.first, {first, second, third, fourth}, float4TypeDeclaration, fourthConst, declarationScopes);
                     }
