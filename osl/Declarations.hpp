@@ -243,9 +243,10 @@ public:
 class VectorTypeDeclaration: public TypeDeclaration
 {
 public:
-    VectorTypeDeclaration(): TypeDeclaration(TypeDeclaration::Kind::Vector) {}
+    VectorTypeDeclaration() noexcept: TypeDeclaration(TypeDeclaration::Kind::Vector) {}
 
-    uint8_t components = 1;
+    TypeDeclaration* componentType = nullptr;
+    uint8_t componentCount = 1;
 };
 
 class VariableDeclaration: public Declaration
