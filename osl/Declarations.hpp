@@ -53,7 +53,8 @@ public:
     {
         Array,
         Scalar,
-        Struct
+        Struct,
+        Vector
         //TypeDefinition // typedef is not supported in GLSL
     };
 
@@ -63,7 +64,6 @@ public:
 
     uint32_t size = 0;
     bool isBuiltin = false;
-    bool isVector = false;
 
 protected:
     const Kind typeKind;
@@ -238,6 +238,14 @@ public:
     }
 
     std::vector<Declaration*> memberDeclarations;
+};
+
+class VectorTypeDeclaration: public TypeDeclaration
+{
+public:
+    VectorTypeDeclaration(): TypeDeclaration(TypeDeclaration::Kind::Vector) {}
+
+    uint8_t components = 1;
 };
 
 class VariableDeclaration: public Declaration
