@@ -63,6 +63,7 @@ public:
 
     uint32_t size = 0;
     bool isBuiltin = false;
+    bool isVector = false;
 
 protected:
     const Kind typeKind;
