@@ -354,6 +354,7 @@ private:
         structType->name = name;
         structType->size = size;
 
+        // TODO: fix
 //        addOperatorDeclaration(Operator::Comma, structDeclaration, {structDeclaration, structDeclaration}, declarationScopes);
 //        addOperatorDeclaration(Operator::Assignment, structDeclaration, {structDeclaration, structDeclaration}, declarationScopes);
 //        addOperatorDeclaration(Operator::Equality, structDeclaration, {structDeclaration, structDeclaration}, declarationScopes);
@@ -362,10 +363,10 @@ private:
         return structType;
     }
 
-    VectorType* addVectorTypeDeclaration(const std::string& name,
-                                         ScalarType* componentType,
-                                         uint8_t componentCount,
-                                         std::vector<std::vector<Declaration*>>& declarationScopes)
+    VectorType* addVectorType(const std::string& name,
+                              ScalarType* componentType,
+                              uint8_t componentCount,
+                              std::vector<std::vector<Declaration*>>& declarationScopes)
     {
         VectorType* vectorType;
         types.push_back(std::unique_ptr<Type>(vectorType = new VectorType()));

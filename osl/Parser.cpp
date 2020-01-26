@@ -112,9 +112,9 @@ ASTContext::ASTContext(const std::vector<Token>& tokens)
 //        addOperatorDeclaration(Operator::Negative, ScalarType, {ScalarType}, declarationScopes);
 //    }
 
-    VectorType* float2Type = addVectorTypeDeclaration("float2", floatType, 8, declarationScopes);
-    VectorType* float3Type = addVectorTypeDeclaration("float3", floatType, 12, declarationScopes);
-    VectorType* float4Type = addVectorTypeDeclaration("float4", floatType, 16, declarationScopes);
+    VectorType* float2Type = addVectorType("float2", floatType, 8, declarationScopes);
+    VectorType* float3Type = addVectorType("float3", floatType, 12, declarationScopes);
+    VectorType* float4Type = addVectorType("float4", floatType, 16, declarationScopes);
 
     StructType* float2x2Type = addStructType("float2x2", 16, declarationScopes);
     StructType* float3x3Type = addStructType("float3x3", 36, declarationScopes);
@@ -648,9 +648,9 @@ Declaration* ASTContext::parseDeclaration(std::vector<Token>::const_iterator& it
 
             if (qualifiedType.type->getTypeKind() == Type::Kind::Struct)
             {
-                StructType* structDeclaration = static_cast<StructType*>(qualifiedType.type);
+                StructType* structType = static_cast<StructType*>(qualifiedType.type);
 
-                if (!structDeclaration->definition)
+                if (!structType->definition)
                     throw ParseError("Incomplete type " + qualifiedType.type->name);
             }
         }
@@ -929,9 +929,9 @@ Declaration* ASTContext::parseMemberDeclaration(std::vector<Token>::const_iterat
 
         if (result->qualifiedType.type->getTypeKind() == Type::Kind::Struct)
         {
-            StructType* structDeclaration = static_cast<StructType*>(result->qualifiedType.type);
+            StructType* structType = static_cast<StructType*>(result->qualifiedType.type);
 
-            if (!structDeclaration->definition)
+            if (!structType->definition)
                 throw ParseError("Incomplete type " + result->qualifiedType.type->name);
         }
 
@@ -1003,9 +1003,9 @@ ParameterDeclaration* ASTContext::parseParameterDeclaration(std::vector<Token>::
 
     if (result->qualifiedType.type->getTypeKind() == Type::Kind::Struct)
     {
-        StructType* structDeclaration = static_cast<StructType*>(result->qualifiedType.type);
+        StructType* structType = static_cast<StructType*>(result->qualifiedType.type);
 
-        if (!structDeclaration->definition)
+        if (!structType->definition)
             throw ParseError("Incomplete type " + result->qualifiedType.type->name);
     }
 
@@ -1074,9 +1074,9 @@ ParameterDeclaration* ASTContext::parseParameterDeclaration(std::vector<Token>::
 
     if (result->qualifiedType.type->getTypeKind() == Type::Kind::STRUCT)
     {
-        StructType* structDeclaration = static_cast<StructType*>(result->qualifiedType.type);
+        StructType* structType = static_cast<StructType*>(result->qualifiedType.type);
 
-        if (!structDeclaration->hasDefinition)
+        if (!structType->hasDefinition)
             throw ParseError("Incomplete type " + result->qualifiedType.type->name);
     }
 
@@ -2172,15 +2172,15 @@ Expression* ASTContext::parseMemberExpression(std::vector<Token>::const_iterator
             return nullptr;
         }
 
-        StructType* structDeclaration = static_cast<StructType*>(result->qualifiedType.type);
+        StructType* structType = static_cast<StructType*>(result->qualifiedType.type);
 
         expectToken(Token::Type::Identifier, iterator, end);
 
-        Declaration* memberDeclaration = structDeclaration->findMemberDeclaration(iterator->value);
+        Declaration* memberDeclaration = structType->findMemberDeclaration(iterator->value);
 
         if (!memberDeclaration)
         {
-            throw ParseError("Structure " + structDeclaration->name +  " has no member " + iterator->value);
+            throw ParseError("Structure " + structType->name +  " has no member " + iterator->value);
             return nullptr;
         }
 
