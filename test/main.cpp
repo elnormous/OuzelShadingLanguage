@@ -224,7 +224,7 @@ namespace
         if (mainCompoundStatement->statements.size() != 1)
             throw TestError("Expected a statement");
 
-        auto statement = mainCompoundStatement->statements.front();
+        const auto statement = mainCompoundStatement->statements.front();
 
         if (!statement ||
             statement->getStatementKind() != Statement::Kind::If)
@@ -531,6 +531,66 @@ namespace
     {
         testLiteralExpressions();
     }
+
+    void testStructDeclaration()
+    {
+        std::string code = R"OSL(
+        struct Foo;
+
+        struct Foo
+        {
+        };
+
+        void main()
+        {
+        }
+        )OSL";
+
+        ASTContext context(tokenize(code));
+
+        auto i = context.getDeclarations().begin();
+        if (i == context.getDeclarations().end())
+            throw TestError("Expected a struct declaration");
+
+        const auto structDeclaration = *i;
+
+        if (structDeclaration->getDeclarationKind() != Declaration::Kind::Type)
+            throw TestError("Expected a type declaration");
+
+        auto structTypeDeclaration = static_cast<const TypeDeclaration*>(structDeclaration);
+
+        if (structTypeDeclaration->name != "Foo")
+            throw TestError("Expected a declaration of Foo");
+
+        auto structDeclarationType = structTypeDeclaration->type;
+
+        if (!structDeclarationType || structDeclarationType->name != "Foo")
+            throw TestError("Expected a type named Foo");
+
+        if (structDeclarationType->declaration != structTypeDeclaration)
+            throw TestError("Wrong declaration");
+
+        if (++i == context.getDeclarations().end())
+            throw TestError("Expected a struct definition");
+
+        const auto structDefinition = *i;
+
+        if (structDefinition->getDeclarationKind() != Declaration::Kind::Type)
+            throw TestError("Expected a type declaration");
+
+        auto structTypeDefinition = static_cast<const TypeDeclaration*>(structDefinition);
+
+        if (structTypeDefinition->name != "Foo")
+            throw TestError("Expected a declaration of Foo");
+
+        auto structDefinitionType = structTypeDefinition->type;
+
+        if (structDeclarationType != structDefinitionType)
+            throw TestError("Expected the same type for declaration and definition");
+
+        if (structDefinitionType->definition != structTypeDefinition)
+            throw TestError("Wrong definition");
+    }
 }
 
 int main(int argc, const char * argv[])
@@ -545,6 +605,7 @@ int main(int argc, const char * argv[])
     testRunner.run(testSwitchStatement);
     testRunner.run(testReturnStatement);
     testRunner.run(testExpressions);
+    testRunner.run(testStructDeclaration);
 
     if (testRunner.getResult())
         std::cout << "Success\n";
