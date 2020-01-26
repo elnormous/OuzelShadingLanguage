@@ -222,7 +222,7 @@ public:
     SizeofExpression() noexcept: Expression(Expression::Kind::Sizeof) {}
     
     Expression* expression;
-    TypeDeclaration* type;
+    Type* type;
 };
 
 class VectorElementExpression: public Expression

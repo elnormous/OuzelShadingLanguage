@@ -49,23 +49,23 @@ namespace
         if ((qualifiedType.qualifiers & Qualifiers::Volatile) == Qualifiers::Volatile) result.first += "volatile ";
         if ((qualifiedType.qualifiers & Qualifiers::Const) == Qualifiers::Const) result.first += "const ";
 
-        if (!qualifiedType.typeDeclaration)
+        if (!qualifiedType.type)
         {
             result.first += "void";
         }
         else
         {
-            TypeDeclaration* typeDeclaration = qualifiedType.typeDeclaration;
-            while (typeDeclaration->getTypeKind() == TypeDeclaration::Kind::Array)
+            const Type* type = qualifiedType.type;
+            while (type->getTypeKind() == Type::Kind::Array)
             {
-                ArrayTypeDeclaration* arrayTypeDeclaration = static_cast<ArrayTypeDeclaration*>(typeDeclaration);
+                const ArrayType* arrayType = static_cast<const ArrayType*>(type);
 
-                result.second = "[" + std::to_string(arrayTypeDeclaration->size) + "]" + result.second;
+                result.second = "[" + std::to_string(arrayType->size) + "]" + result.second;
 
-                typeDeclaration = arrayTypeDeclaration->elementType.typeDeclaration;
+                type = arrayType->elementType.type;
             }
 
-            result.first = typeDeclaration->name;
+            result.first = type->name;
         }
 
         return result;
@@ -87,22 +87,23 @@ void OutputGLSL::printDeclaration(const Declaration* declaration, Options option
             if (options.whitespaces) code.append(options.indentation, ' ');
 
             const TypeDeclaration* typeDeclaration = static_cast<const TypeDeclaration*>(declaration);
+            const Type* type = typeDeclaration->type;
 
-            if (typeDeclaration->getTypeKind() != TypeDeclaration::Kind::Struct)
+            if (type->getTypeKind() != Type::Kind::Struct)
                 throw std::runtime_error("Type declaration must be a struct");
 
-            const StructDeclaration* structDeclaration = static_cast<const StructDeclaration*>(declaration);
-            code += "struct " + structDeclaration->name;
+            const StructType* structType = static_cast<const StructType*>(type);
+            code += "struct " + structType->name;
 
             // if this is the definition
-            if (structDeclaration->definition == structDeclaration)
+            if (structType->definition == typeDeclaration)
             {
                 if (options.whitespaces) code.append(options.indentation, ' ');
                 if (options.whitespaces) code += "\n";
                 code += "{";
                 if (options.whitespaces) code += "\n";
 
-                for (const Declaration* memberDeclaration : structDeclaration->memberDeclarations)
+                for (const Declaration* memberDeclaration : structType->memberDeclarations)
                 {
                     printConstruct(memberDeclaration, Options(options.indentation + 4, options.whitespaces), code);
 
@@ -749,13 +750,14 @@ void OutputGLSL::printExpression(const Expression* expression, Options options, 
             const TemporaryObjectExpression* temporaryObjectExpression = static_cast<const TemporaryObjectExpression*>(expression);
 
             const TypeDeclaration* typeDeclaration = static_cast<const TypeDeclaration*>(temporaryObjectExpression->constructorDeclaration->parent);
+            const Type* type = typeDeclaration->type;
 
-            if (typeDeclaration->getTypeKind() != TypeDeclaration::Kind::Struct)
+            if (type->getTypeKind() != Type::Kind::Struct)
                 throw std::runtime_error("Temporary object must be a struct");
 
-            const StructDeclaration* structDeclaration = static_cast<const StructDeclaration*>(typeDeclaration);
+            const StructType* structType = static_cast<const StructType*>(type);
 
-            code += structDeclaration->name + "(";
+            code += structType->name + "(";
 
             bool firstParameter = true;
 
@@ -811,7 +813,7 @@ void OutputGLSL::printExpression(const Expression* expression, Options options, 
 
             if (castExpression->getCastKind() != CastExpression::Kind::Implicit)
             {
-                code += castExpression->qualifiedType.typeDeclaration->name + "(";
+                code += castExpression->qualifiedType.type->name + "(";
 
                 printConstruct(castExpression->expression, Options(0, options.whitespaces), code);
 

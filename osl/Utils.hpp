@@ -82,25 +82,26 @@ namespace
         }
     }
 
-    std::string toString(TypeDeclaration::Kind kind)
+    std::string toString(Type::Kind kind)
     {
         switch (kind)
         {
-            case TypeDeclaration::Kind::Array: return "Array";
-            case TypeDeclaration::Kind::Scalar: return "Scalar";
-            case TypeDeclaration::Kind::Struct: return "Struct";
+            case Type::Kind::Array: return "Array";
+            case Type::Kind::Scalar: return "Scalar";
+            case Type::Kind::Struct: return "Struct";
+            case Type::Kind::Vector: return "Vector";
                 //case TypeDeclaration::Kind::TypeDefinition: return "TypeDefinition";
             default: return "Unknown";
         }
     }
 
-    std::string toString(ScalarTypeDeclaration::Kind kind)
+    std::string toString(ScalarType::Kind kind)
     {
         switch (kind)
         {
-            case ScalarTypeDeclaration::Kind::Boolean: return "Boolean";
-            case ScalarTypeDeclaration::Kind::Integer: return "Integer";
-            case ScalarTypeDeclaration::Kind::FloatingPoint: return "FloatingPoint";
+            case ScalarType::Kind::Boolean: return "Boolean";
+            case ScalarType::Kind::Integer: return "Integer";
+            case ScalarType::Kind::FloatingPoint: return "FloatingPoint";
             default: return "Unknown";
         }
     }
@@ -180,31 +181,29 @@ namespace
         if ((qualifiedType.qualifiers & Qualifiers::Volatile) == Qualifiers::Volatile) result += "volatile ";
         if ((qualifiedType.qualifiers & Qualifiers::Const) == Qualifiers::Const) result += "const ";
 
-        if (!qualifiedType.typeDeclaration)
+        if (!qualifiedType.type)
         {
             result += "void";
         }
         else
         {
-            auto typeDeclaration = qualifiedType.typeDeclaration;
+            auto type = qualifiedType.type;
 
-            if (typeDeclaration->getTypeKind() == TypeDeclaration::Kind::Array)
+            if (type->getTypeKind() == Type::Kind::Array)
             {
-                auto currentTypeDeclaration = typeDeclaration;
-
                 std::string arrayDimensions;
-                while (currentTypeDeclaration->getTypeKind() == TypeDeclaration::Kind::Array)
+                while (type->getTypeKind() == Type::Kind::Array)
                 {
-                    const ArrayTypeDeclaration* arrayTypeDeclaration = static_cast<const ArrayTypeDeclaration*>(typeDeclaration);
-                    arrayDimensions += "[" + std::to_string(arrayTypeDeclaration->size) + "]";
+                    const ArrayType* arrayType = static_cast<const ArrayType*>(type);
+                    arrayDimensions += "[" + std::to_string(arrayType->size) + "]";
 
-                    currentTypeDeclaration = arrayTypeDeclaration->elementType.typeDeclaration;
+                    type = arrayType->elementType.type;
                 }
 
-                result += (currentTypeDeclaration ? currentTypeDeclaration->name : "void") + arrayDimensions;
+                result += (type ? type->name : "void") + arrayDimensions;
             }
             else
-                result += typeDeclaration->name;
+                result += type->name;
         }
 
         return result;
@@ -227,39 +226,46 @@ namespace
             case Declaration::Kind::Type:
             {
                 auto typeDeclaration = static_cast<const TypeDeclaration*>(declaration);
+                auto type = typeDeclaration->type;
 
-                std::cout << " " << toString(typeDeclaration->getTypeKind());
+                std::cout << " " << toString(type->getTypeKind());
 
-                switch (typeDeclaration->getTypeKind())
+                switch (type->getTypeKind())
                 {
-                    case TypeDeclaration::Kind::Array: // array types can not be declared in code
+                    case Type::Kind::Array: // array types can not be declared in code
                     {
                         break;
                     }
 
-                    case TypeDeclaration::Kind::Struct:
+                    case Type::Kind::Struct:
                     {
-                        const StructDeclaration* structDeclaration = static_cast<const StructDeclaration*>(typeDeclaration);
-                        std::cout << ", name: " << structDeclaration->name;
+                        const StructType* structType = static_cast<const StructType*>(type);
+                        std::cout << ", name: " << structType->name;
 
-                        if (structDeclaration->previousDeclaration)
-                            std::cout << ", previous declaration: " << structDeclaration->previousDeclaration;
+                        if (structType->declaration)
+                            std::cout << ", first declaration: " << structType->declaration;
 
-                        if (structDeclaration->definition)
-                            std::cout << ", definition: " << structDeclaration->definition;
+                        if (structType->definition)
+                            std::cout << ", definition: " << structType->definition;
 
                         std::cout << '\n';
 
-                        for (const Declaration* memberDeclaration : structDeclaration->memberDeclarations)
+                        for (const Declaration* memberDeclaration : structType->memberDeclarations)
                             dumpConstruct(memberDeclaration, level + 1);
 
                         break;
                     }
 
-                    case TypeDeclaration::Kind::Scalar:
+                    case Type::Kind::Scalar:
                     {
-                        const ScalarTypeDeclaration* scalarTypeDeclaration = static_cast<const ScalarTypeDeclaration*>(typeDeclaration);
-                        std::cout << ", name: " << scalarTypeDeclaration->name << ", scalar type kind: " << toString(scalarTypeDeclaration->getScalarTypeKind());
+                        const ScalarType* scalarType = static_cast<const ScalarType*>(type);
+                        std::cout << ", name: " << scalarType->name << ", scalar type kind: " << toString(scalarType->getScalarTypeKind());
+                        break;
+                    }
+
+                    case Type::Kind::Vector:
+                    {
+                        // TODO: implement
                         break;
                     }
                 }
@@ -662,7 +668,7 @@ namespace
                 auto castExpression = static_cast<const CastExpression*>(expression);
 
                 std::cout << ", cast kind: " << toString(castExpression->getCastKind()) <<
-                ", type: " << castExpression->qualifiedType.typeDeclaration->name << '\n';
+                    ", type: " << castExpression->qualifiedType.type->name << '\n';
 
                 dumpConstruct(castExpression->expression, level + 1);
 
@@ -672,12 +678,13 @@ namespace
             {
                 auto sizeofExpression = static_cast<const SizeofExpression*>(expression);
 
-                std::cout << '\n';
-
                 if (sizeofExpression->expression)
+                {
+                    std::cout << '\n';
                     dumpConstruct(sizeofExpression->expression, level + 1);
+                }
                 else if (sizeofExpression->type)
-                    dumpConstruct(sizeofExpression->type, level + 1);
+                    std::cout << ", type: " << sizeofExpression->type->name << '\n';
                 break;
             }
             case Expression::Kind::VectorElement:

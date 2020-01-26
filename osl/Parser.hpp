@@ -55,22 +55,22 @@ private:
         return nullptr;
     }
 
-    static TypeDeclaration* findTypeDeclaration(const std::string& name, const std::vector<std::vector<Declaration*>>& declarationScopes)
+    static Type* findType(const std::string& name, const std::vector<std::vector<Declaration*>>& declarationScopes)
     {
         Declaration* declaration = findDeclaration(name, declarationScopes);
 
         if (declaration && declaration->getDeclarationKind() == Declaration::Kind::Type)
-            return static_cast<TypeDeclaration*>(declaration);
+            return static_cast<TypeDeclaration*>(declaration)->type;
 
         return nullptr;
     }
 
-    static StructDeclaration* findStructDeclaration(const std::string& name, const std::vector<std::vector<Declaration*>>& declarationScopes)
+    static StructType* findStruct(const std::string& name, const std::vector<std::vector<Declaration*>>& declarationScopes)
     {
-        TypeDeclaration* typeDeclaration = findTypeDeclaration(name, declarationScopes);
+        Type* type = findType(name, declarationScopes);
 
-        if (typeDeclaration && typeDeclaration->getTypeKind() == TypeDeclaration::Kind::Struct)
-            return static_cast<StructDeclaration*>(typeDeclaration);
+        if (type && type->getTypeKind() == Type::Kind::Struct)
+            return static_cast<StructType*>(type);
 
         return nullptr;
     }
@@ -93,18 +93,18 @@ private:
 
                     FunctionDeclaration* functionDeclaration = static_cast<FunctionDeclaration*>(callableDeclaration);
 
-                    if (functionDeclaration->parameterDeclarations.size() == parameters.size())
-                    {
-                        if (std::equal(parameters.begin(), parameters.end(),
-                                       functionDeclaration->parameterDeclarations.begin(),
-                                       [](const QualifiedType& qualifiedType,
-                                          const ParameterDeclaration* parameterDeclaration) {
-                                           return qualifiedType.typeDeclaration->getFirstDeclaration() == parameterDeclaration->qualifiedType.typeDeclaration->getFirstDeclaration();
-                                       }))
-                        {
-                            return functionDeclaration;
-                        }
-                    }
+//                    if (functionDeclaration->parameterDeclarations.size() == parameters.size())
+//                    {
+//                        if (std::equal(parameters.begin(), parameters.end(),
+//                                       functionDeclaration->parameterDeclarations.begin(),
+//                                       [](const QualifiedType& qualifiedType,
+//                                          const ParameterDeclaration* parameterDeclaration) {
+//                                           return qualifiedType.typeDeclaration->getFirstDeclaration() == parameterDeclaration->qualifiedType.typeDeclaration->getFirstDeclaration();
+//                                       }))
+//                        {
+//                            return functionDeclaration;
+//                        }
+//                    }
                 }
             }
         }
@@ -124,15 +124,15 @@ private:
                                                            const std::vector<std::vector<Declaration*>>& declarationScopes,
                                                            const std::vector<QualifiedType>& arguments);
 
-    ArrayTypeDeclaration* getArrayTypeDeclaration(QualifiedType qualifiedType, uint32_t size);
+    ArrayType* getArrayType(QualifiedType qualifiedType, uint32_t size);
     
     static bool isType(std::vector<Token>::const_iterator iterator,
                        std::vector<Token>::const_iterator end,
                        std::vector<std::vector<Declaration*>>& declarationScopes);
 
-    TypeDeclaration* parseType(std::vector<Token>::const_iterator& iterator,
-                               std::vector<Token>::const_iterator end,
-                               std::vector<std::vector<Declaration*>>& declarationScopes);
+    Type* parseType(std::vector<Token>::const_iterator& iterator,
+                    std::vector<Token>::const_iterator end,
+                    std::vector<std::vector<Declaration*>>& declarationScopes);
 
     static bool isDeclaration(std::vector<Token>::const_iterator iterator,
                               std::vector<Token>::const_iterator end,
@@ -161,10 +161,10 @@ private:
                                   std::vector<std::vector<Declaration*>>& declarationScopes,
                                   Construct* parent);
 
-    StructDeclaration* parseStructDeclaration(std::vector<Token>::const_iterator& iterator,
-                                              std::vector<Token>::const_iterator end,
-                                              std::vector<std::vector<Declaration*>>& declarationScopes,
-                                              Construct* parent);
+    StructType* parseStructType(std::vector<Token>::const_iterator& iterator,
+                                std::vector<Token>::const_iterator end,
+                                std::vector<std::vector<Declaration*>>& declarationScopes,
+                                Construct* parent);
 
     Declaration* parseMemberDeclaration(std::vector<Token>::const_iterator& iterator,
                                         std::vector<Token>::const_iterator end,
@@ -227,7 +227,7 @@ private:
                                   Construct* parent);
 
     CastExpression* addImplicitCast(Expression* expression,
-                                    TypeDeclaration* typeDeclaration,
+                                    Type* type,
                                     Expression::Category category);
 
     Expression* parsePrimaryExpression(std::vector<Token>::const_iterator& iterator,
@@ -328,62 +328,56 @@ private:
         return parseCommaExpression(iterator, end, declarationScopes, parent);
     }
 
-    ScalarTypeDeclaration* addScalarTypeDeclaration(const std::string& name,
-                                                    ScalarTypeDeclaration::Kind kind,
-                                                    uint32_t size,
-                                                    bool isUnsigned,
-                                                    std::vector<std::vector<Declaration*>>& declarationScopes)
+    ScalarType* addScalarType(const std::string& name,
+                              ScalarType::Kind kind,
+                              uint32_t size,
+                              bool isUnsigned,
+                              std::vector<std::vector<Declaration*>>& declarationScopes)
     {
-        ScalarTypeDeclaration* scalarTypeDeclaration;
-        constructs.push_back(std::unique_ptr<Construct>(scalarTypeDeclaration = new ScalarTypeDeclaration(kind)));
+        ScalarType* scalarType;
+        types.push_back(std::unique_ptr<Type>(scalarType = new ScalarType(kind)));
 
-        scalarTypeDeclaration->name = name;
-        scalarTypeDeclaration->size = size;
-        scalarTypeDeclaration->isUnsigned = isUnsigned;
-        scalarTypeDeclaration->isBuiltin = true;
-        scalarTypeDeclaration->definition = scalarTypeDeclaration;
-        declarationScopes.back().push_back(scalarTypeDeclaration);
+        scalarType->name = name;
+        scalarType->size = size;
+        scalarType->isUnsigned = isUnsigned;
 
-        return scalarTypeDeclaration;
+        return scalarType;
     }
 
-    StructDeclaration* addStructDeclaration(const std::string& name,
-                                            uint32_t size,
-                                            std::vector<std::vector<Declaration*>>& declarationScopes)
+    StructType* addStructType(const std::string& name,
+                              uint32_t size,
+                              std::vector<std::vector<Declaration*>>& declarationScopes)
     {
-        StructDeclaration* structDeclaration;
-        constructs.push_back(std::unique_ptr<Construct>(structDeclaration = new StructDeclaration()));
+        StructType* structType;
+        types.push_back(std::unique_ptr<Type>(structType = new StructType()));
 
-        structDeclaration->name = name;
-        structDeclaration->size = size;
-        structDeclaration->isBuiltin = true;
-        structDeclaration->definition = structDeclaration;
-        declarationScopes.back().push_back(structDeclaration);
+        structType->name = name;
+        structType->size = size;
 
-        addOperatorDeclaration(Operator::Comma, structDeclaration, {structDeclaration, structDeclaration}, declarationScopes);
-        addOperatorDeclaration(Operator::Assignment, structDeclaration, {structDeclaration, structDeclaration}, declarationScopes);
-        addOperatorDeclaration(Operator::Equality, structDeclaration, {structDeclaration, structDeclaration}, declarationScopes);
-        addOperatorDeclaration(Operator::Inequality, structDeclaration, {structDeclaration, structDeclaration}, declarationScopes);
+//        addOperatorDeclaration(Operator::Comma, structDeclaration, {structDeclaration, structDeclaration}, declarationScopes);
+//        addOperatorDeclaration(Operator::Assignment, structDeclaration, {structDeclaration, structDeclaration}, declarationScopes);
+//        addOperatorDeclaration(Operator::Equality, structDeclaration, {structDeclaration, structDeclaration}, declarationScopes);
+//        addOperatorDeclaration(Operator::Inequality, structDeclaration, {structDeclaration, structDeclaration}, declarationScopes);
 
-        return structDeclaration;
+        return structType;
     }
 
-    VectorTypeDeclaration* addVectorTypeDeclaration(const std::string& name,
-                                                    ScalarTypeDeclaration* componentType,
-                                                    uint8_t componentCount,
-                                                    std::vector<std::vector<Declaration*>>& declarationScopes)
+    VectorType* addVectorTypeDeclaration(const std::string& name,
+                                         ScalarType* componentType,
+                                         uint8_t componentCount,
+                                         std::vector<std::vector<Declaration*>>& declarationScopes)
     {
-        VectorTypeDeclaration* vectorTypeDeclaration;
-        constructs.push_back(std::unique_ptr<Construct>(vectorTypeDeclaration = new VectorTypeDeclaration()));
+        VectorType* vectorType;
+        types.push_back(std::unique_ptr<Type>(vectorType = new VectorType()));
 
-        vectorTypeDeclaration->name = name;
-        vectorTypeDeclaration->componentType = componentType;
-        vectorTypeDeclaration->componentCount = componentCount;
+        vectorType->name = name;
+        vectorType->componentType = componentType;
+        vectorType->componentCount = componentCount;
 
-        return vectorTypeDeclaration;
+        return vectorType;
     }
 
-    FieldDeclaration* addFieldDeclaration(StructDeclaration* structDeclaration,
+    FieldDeclaration* addFieldDeclaration(StructType* structType,
                                           const std::string& name,
                                           TypeDeclaration* type,
                                           bool isConst,
@@ -392,78 +386,79 @@ private:
         FieldDeclaration* fieldDeclaration;
         constructs.push_back(std::unique_ptr<Construct>(fieldDeclaration = new FieldDeclaration()));
 
-        fieldDeclaration->parent = structDeclaration;
+        //fieldDeclaration->parent = structDeclaration;
         fieldDeclaration->name = name;
-        fieldDeclaration->qualifiedType.typeDeclaration = type;
+        //fieldDeclaration->qualifiedType.type = type;
         fieldDeclaration->qualifiedType.qualifiers = (isConst ? Qualifiers::Const : Qualifiers::None);
         declarationScopes.back().push_back(fieldDeclaration);
 
-        structDeclaration->memberDeclarations.push_back(fieldDeclaration);
+        structType->memberDeclarations.push_back(fieldDeclaration);
 
         return fieldDeclaration;
     }
 
     FunctionDeclaration* addBuiltinFunctionDeclaration(const std::string& name,
-                                                       TypeDeclaration* resultType,
-                                                       const std::vector<TypeDeclaration*>& parameters,
+                                                       Type* resultType,
+                                                       const std::vector<Type*>& parameters,
                                                        std::vector<std::vector<Declaration*>>& declarationScopes)
     {
         FunctionDeclaration* functionDeclaration;
         constructs.push_back(std::unique_ptr<Construct>(functionDeclaration = new FunctionDeclaration()));
 
-        functionDeclaration->name = name;
-        functionDeclaration->qualifiedType.typeDeclaration = resultType;
-
-        for (TypeDeclaration* parameter : parameters)
-        {
-            ParameterDeclaration* parameterDeclaration;
-            constructs.push_back(std::unique_ptr<Construct>(parameterDeclaration = new ParameterDeclaration()));
-
-            parameterDeclaration->qualifiedType.typeDeclaration = parameter;
-            functionDeclaration->parameterDeclarations.push_back(parameterDeclaration);
-        }
-
-        functionDeclaration->isBuiltin = true;
-        declarationScopes.back().push_back(functionDeclaration);
+//        functionDeclaration->name = name;
+//        functionDeclaration->qualifiedType.typeDeclaration = resultType;
+//
+//        for (TypeDeclaration* parameter : parameters)
+//        {
+//            ParameterDeclaration* parameterDeclaration;
+//            constructs.push_back(std::unique_ptr<Construct>(parameterDeclaration = new ParameterDeclaration()));
+//
+//            parameterDeclaration->qualifiedType.typeDeclaration = parameter;
+//            functionDeclaration->parameterDeclarations.push_back(parameterDeclaration);
+//        }
+//
+//        functionDeclaration->isBuiltin = true;
+//        declarationScopes.back().push_back(functionDeclaration);
 
         return functionDeclaration;
     }
 
     OperatorDeclaration* addOperatorDeclaration(Operator op,
-                                                TypeDeclaration* resultType,
-                                                const std::vector<TypeDeclaration*>& parameters,
+                                                Type* resultType,
+                                                const std::vector<Type*>& parameters,
                                                 std::vector<std::vector<Declaration*>>& declarationScopes)
     {
         OperatorDeclaration* operatorDeclaration;
         constructs.push_back(std::unique_ptr<Construct>(operatorDeclaration = new OperatorDeclaration()));
 
-        operatorDeclaration->op = op;
-        operatorDeclaration->qualifiedType.typeDeclaration = resultType;
-
-        for (TypeDeclaration* parameter : parameters)
-        {
-            ParameterDeclaration* parameterDeclaration;
-            constructs.push_back(std::unique_ptr<Construct>(parameterDeclaration = new ParameterDeclaration()));
-
-            parameterDeclaration->qualifiedType.typeDeclaration = parameter;
-            operatorDeclaration->parameterDeclarations.push_back(parameterDeclaration);
-        }
-
-        declarationScopes.back().push_back(operatorDeclaration);
+//        operatorDeclaration->op = op;
+//        operatorDeclaration->qualifiedType.typeDeclaration = resultType;
+//
+//        for (TypeDeclaration* parameter : parameters)
+//        {
+//            ParameterDeclaration* parameterDeclaration;
+//            constructs.push_back(std::unique_ptr<Construct>(parameterDeclaration = new ParameterDeclaration()));
+//
+//            parameterDeclaration->qualifiedType.typeDeclaration = parameter;
+//            operatorDeclaration->parameterDeclarations.push_back(parameterDeclaration);
+//        }
+//
+//        declarationScopes.back().push_back(operatorDeclaration);
 
         return operatorDeclaration;
     }
 
+    std::vector<std::unique_ptr<Type>> types;
     std::vector<Declaration*> declarations;
     std::vector<std::unique_ptr<Construct>> constructs;
 
-    std::map<std::pair<QualifiedType, uint32_t>, ArrayTypeDeclaration*> arrayTypeDeclarations;
+    std::map<std::pair<QualifiedType, uint32_t>, ArrayType*> arrayTypes;
 
-    ScalarTypeDeclaration* boolTypeDeclaration;
-    ScalarTypeDeclaration* intTypeDeclaration;
-    ScalarTypeDeclaration* unsignedIntTypeDeclaration;
-    ScalarTypeDeclaration* floatTypeDeclaration;
-    StructDeclaration* stringTypeDeclaration;
+    ScalarType* boolType = nullptr;
+    ScalarType* intType = nullptr;
+    ScalarType* unsignedIntType = nullptr;
+    ScalarType* floatType = nullptr;
+    StructType* stringType = nullptr;
 };
 
 #endif // PARSER_HPP

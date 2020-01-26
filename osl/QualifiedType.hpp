@@ -7,7 +7,7 @@
 
 #include <type_traits>
 
-class TypeDeclaration;
+class Type;
 
 enum class Qualifiers
 {
@@ -83,8 +83,8 @@ class QualifiedType
 public:
     bool operator<(const QualifiedType& other) const noexcept
     {
-        if (typeDeclaration != other.typeDeclaration)
-            return typeDeclaration < other.typeDeclaration;
+        if (type != other.type)
+            return type < other.type;
         else if ((qualifiers & Qualifiers::Const) != (other.qualifiers & Qualifiers::Const))
             return (qualifiers & Qualifiers::Const) < (other.qualifiers & Qualifiers::Const);
         else if ((qualifiers & Qualifiers::Volatile) != (other.qualifiers & Qualifiers::Volatile))
@@ -92,7 +92,7 @@ public:
         else return true;
     }
 
-    TypeDeclaration* typeDeclaration = nullptr;
+    Type* type = nullptr;
     Qualifiers qualifiers = Qualifiers::None;
 };
 

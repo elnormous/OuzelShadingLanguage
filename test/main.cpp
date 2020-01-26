@@ -193,9 +193,9 @@ namespace
 
         auto iVariableDeclaration = static_cast<const VariableDeclaration*>(iDeclaration);
 
-        if (!iVariableDeclaration->qualifiedType.typeDeclaration ||
-            !iVariableDeclaration->qualifiedType.typeDeclaration->isBuiltin ||
-            iVariableDeclaration->qualifiedType.typeDeclaration->name != "int")
+        if (!iVariableDeclaration->qualifiedType.type ||
+            iVariableDeclaration->qualifiedType.type->declaration ||
+            iVariableDeclaration->qualifiedType.type->name != "int")
             throw TestError("Expected a declaration of a variable of type int");
 
         expectLiteral(iVariableDeclaration->initialization, 3);

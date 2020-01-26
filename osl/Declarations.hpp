@@ -46,7 +46,9 @@ protected:
     const Kind declarationKind;
 };
 
-class TypeDeclaration: public Declaration
+class TypeDeclaration;
+
+class Type
 {
 public:
     enum class Kind
@@ -55,33 +57,33 @@ public:
         Scalar,
         Struct,
         Vector
-        //TypeDefinition // typedef is not supported in GLSL
     };
 
-    TypeDeclaration(Kind initTypeKind) noexcept: Declaration(Declaration::Kind::Type), typeKind(initTypeKind) {}
+    Type(Kind initTypeKind): typeKind(initTypeKind) {}
 
     inline Kind getTypeKind() const noexcept { return typeKind; }
 
+    std::string name;
     uint32_t size = 0;
-    bool isBuiltin = false;
+    TypeDeclaration* declaration = nullptr; // first declaration
+    TypeDeclaration* definition = nullptr; // first declaration
 
 protected:
-    const Kind typeKind;
+    Kind typeKind;
 };
 
-class ArrayTypeDeclaration: public TypeDeclaration
+class ArrayType final: public Type
 {
 public:
-    ArrayTypeDeclaration() noexcept: TypeDeclaration(TypeDeclaration::Kind::Array)
+    ArrayType(): Type(Type::Kind::Array)
     {
-        definition = this;
     }
 
     QualifiedType elementType;
     uint32_t size = 0;
 };
 
-class ScalarTypeDeclaration: public TypeDeclaration
+class ScalarType final: public Type
 {
 public:
     enum class Kind
@@ -91,15 +93,14 @@ public:
         FloatingPoint
     };
 
-    ScalarTypeDeclaration(Kind initScalarTypeKind) noexcept: TypeDeclaration(TypeDeclaration::Kind::Scalar), scalarTypeKind(initScalarTypeKind)
+    ScalarType(Kind initScalarTypeKind): Type(Type::Kind::Scalar), scalarTypeKind(initScalarTypeKind)
     {
-        definition = this;
     }
 
     inline Kind getScalarTypeKind() const noexcept { return scalarTypeKind; }
 
     bool isUnsigned = false;
-    
+
 protected:
     const Kind scalarTypeKind;
 };
@@ -193,10 +194,10 @@ public:
     Operator op;
 };
 
-class StructDeclaration: public TypeDeclaration
+class StructType final: public Type
 {
 public:
-    StructDeclaration(): TypeDeclaration(TypeDeclaration::Kind::Struct) {}
+    StructType(): Type(Type::Kind::Struct) {}
 
     ConstructorDeclaration* findConstructorDeclaration(const std::vector<QualifiedType>& parameters) const noexcept
     {
@@ -216,7 +217,7 @@ public:
                                        constructorDeclaration->parameterDeclarations.begin(),
                                        [](const QualifiedType& qualifiedType,
                                           const ParameterDeclaration* parameterDeclaration) {
-                                           return qualifiedType.typeDeclaration->getFirstDeclaration() == parameterDeclaration->qualifiedType.typeDeclaration->getFirstDeclaration(); // TODO: overload resolution
+                                           return qualifiedType.type->declaration == parameterDeclaration->qualifiedType.type->declaration; // TODO: overload resolution
                                        }))
                         {
                             return constructorDeclaration;
@@ -240,12 +241,12 @@ public:
     std::vector<Declaration*> memberDeclarations;
 };
 
-class VectorTypeDeclaration: public TypeDeclaration
+class VectorType final: public Type
 {
 public:
-    VectorTypeDeclaration() noexcept: TypeDeclaration(TypeDeclaration::Kind::Vector) {}
+    VectorType(): Type(Type::Kind::Vector) {}
 
-    ScalarTypeDeclaration* componentType = nullptr;
+    ScalarType* componentType = nullptr;
     uint8_t componentCount = 1;
 };
 
@@ -268,6 +269,15 @@ public:
     Expression* initialization = nullptr;
 
     StorageClass storageClass = StorageClass::Auto;
+};
+
+class TypeDeclaration: public Declaration
+{
+public:
+
+    TypeDeclaration() noexcept: Declaration(Declaration::Kind::Type) {}
+
+    Type* type = nullptr;
 };
 
 #endif // DECLARATIONS_HPP

@@ -67,192 +67,95 @@ ASTContext::ASTContext(const std::vector<Token>& tokens)
 
     addBuiltinFunctionDeclaration("discard", nullptr, {}, declarationScopes);
 
-    boolTypeDeclaration = addScalarTypeDeclaration("bool", ScalarTypeDeclaration::Kind::Boolean, 1, false, declarationScopes);
-    addOperatorDeclaration(Operator::Negation, boolTypeDeclaration, {boolTypeDeclaration}, declarationScopes);
-    addOperatorDeclaration(Operator::Or, boolTypeDeclaration, {boolTypeDeclaration, boolTypeDeclaration}, declarationScopes);
-    addOperatorDeclaration(Operator::And, boolTypeDeclaration, {boolTypeDeclaration, boolTypeDeclaration}, declarationScopes);
+    boolType = addScalarType("bool", ScalarType::Kind::Boolean, 1, false, declarationScopes);
+    // TODO: fix
+//    addOperatorDeclaration(Operator::Negation, boolType, {boolType}, declarationScopes);
+//    addOperatorDeclaration(Operator::Or, boolType, {boolType, boolType}, declarationScopes);
+//    addOperatorDeclaration(Operator::And, boolType, {boolType, boolType}, declarationScopes);
 
-    intTypeDeclaration = addScalarTypeDeclaration("int", ScalarTypeDeclaration::Kind::Integer, 4, false, declarationScopes);
-    unsignedIntTypeDeclaration = addScalarTypeDeclaration("unsigned int", ScalarTypeDeclaration::Kind::Integer, 4, true, declarationScopes);
-    floatTypeDeclaration = addScalarTypeDeclaration("float", ScalarTypeDeclaration::Kind::FloatingPoint, 4, false, declarationScopes);
+    intType = addScalarType("int", ScalarType::Kind::Integer, 4, false, declarationScopes);
+    unsignedIntType = addScalarType("unsigned int", ScalarType::Kind::Integer, 4, true, declarationScopes);
+    floatType = addScalarType("float", ScalarType::Kind::FloatingPoint, 4, false, declarationScopes);
 
-    for (ScalarTypeDeclaration* scalarTypeDeclaration : {intTypeDeclaration, unsignedIntTypeDeclaration, floatTypeDeclaration})
-    {
-        // binary operators
-        for (ScalarTypeDeclaration* secondScalarTypeDeclaration : {intTypeDeclaration, unsignedIntTypeDeclaration, floatTypeDeclaration})
-        {
-            addOperatorDeclaration(Operator::Comma, scalarTypeDeclaration, {scalarTypeDeclaration, secondScalarTypeDeclaration}, declarationScopes);
-            addOperatorDeclaration(Operator::Assignment, scalarTypeDeclaration, {scalarTypeDeclaration, secondScalarTypeDeclaration}, declarationScopes);
-            addOperatorDeclaration(Operator::Equality, scalarTypeDeclaration, {scalarTypeDeclaration, secondScalarTypeDeclaration}, declarationScopes);
-            addOperatorDeclaration(Operator::Inequality, scalarTypeDeclaration, {scalarTypeDeclaration, secondScalarTypeDeclaration}, declarationScopes);
+    // TODO: fix
+//    for (ScalarType* ScalarType : {intType, unsignedIntType, floatType})
+//    {
+//        // binary operators
+//        for (ScalarType* secondScalarType : {intType, unsignedIntType, floatType})
+//        {
+//            addOperatorDeclaration(Operator::Comma, ScalarType, {ScalarType, secondScalarType}, declarationScopes);
+//            addOperatorDeclaration(Operator::Assignment, ScalarType, {ScalarType, secondScalarType}, declarationScopes);
+//            addOperatorDeclaration(Operator::Equality, ScalarType, {ScalarType, secondScalarType}, declarationScopes);
+//            addOperatorDeclaration(Operator::Inequality, ScalarType, {ScalarType, secondScalarType}, declarationScopes);
+//
+//            addOperatorDeclaration(Operator::Addition, ScalarType, {ScalarType, secondScalarType}, declarationScopes);
+//            addOperatorDeclaration(Operator::AdditionAssignment, ScalarType, {ScalarType, secondScalarType}, declarationScopes);
+//
+//            addOperatorDeclaration(Operator::Subtraction, ScalarType, {ScalarType, secondScalarType}, declarationScopes);
+//            addOperatorDeclaration(Operator::SubtractAssignment, ScalarType, {ScalarType, secondScalarType}, declarationScopes);
+//
+//            addOperatorDeclaration(Operator::Multiplication, ScalarType, {ScalarType, secondScalarType}, declarationScopes);
+//            addOperatorDeclaration(Operator::MultiplicationAssignment, ScalarType, {ScalarType, secondScalarType}, declarationScopes);
+//
+//            addOperatorDeclaration(Operator::Division, ScalarType, {ScalarType, secondScalarType}, declarationScopes);
+//            addOperatorDeclaration(Operator::DivisionAssignment, ScalarType, {ScalarType, secondScalarType}, declarationScopes);
+//
+//            addOperatorDeclaration(Operator::LessThan, ScalarType, {ScalarType, secondScalarType}, declarationScopes);
+//            addOperatorDeclaration(Operator::LessThanEqual, ScalarType, {ScalarType, secondScalarType}, declarationScopes);
+//
+//            addOperatorDeclaration(Operator::GreaterThan, ScalarType, {ScalarType, secondScalarType}, declarationScopes);
+//            addOperatorDeclaration(Operator::GraterThanEqual, ScalarType, {ScalarType, secondScalarType}, declarationScopes);
+//        }
+//
+//        // unary operators
+//        addOperatorDeclaration(Operator::Positive, ScalarType, {ScalarType}, declarationScopes);
+//        addOperatorDeclaration(Operator::Negative, ScalarType, {ScalarType}, declarationScopes);
+//    }
 
-            addOperatorDeclaration(Operator::Addition, scalarTypeDeclaration, {scalarTypeDeclaration, secondScalarTypeDeclaration}, declarationScopes);
-            addOperatorDeclaration(Operator::AdditionAssignment, scalarTypeDeclaration, {scalarTypeDeclaration, secondScalarTypeDeclaration}, declarationScopes);
+    VectorType* float2Type = addVectorTypeDeclaration("float2", floatType, 8, declarationScopes);
+    VectorType* float3Type = addVectorTypeDeclaration("float3", floatType, 12, declarationScopes);
+    VectorType* float4Type = addVectorTypeDeclaration("float4", floatType, 16, declarationScopes);
 
-            addOperatorDeclaration(Operator::Subtraction, scalarTypeDeclaration, {scalarTypeDeclaration, secondScalarTypeDeclaration}, declarationScopes);
-            addOperatorDeclaration(Operator::SubtractAssignment, scalarTypeDeclaration, {scalarTypeDeclaration, secondScalarTypeDeclaration}, declarationScopes);
+    StructType* float2x2Type = addStructType("float2x2", 16, declarationScopes);
+    StructType* float3x3Type = addStructType("float3x3", 36, declarationScopes);
+    StructType* float4x4Type = addStructType("float4x4", 64, declarationScopes);
+    stringType = addStructType("string", 8, declarationScopes);
+    StructType* texture2DType = addStructType("Texture2D", 0, declarationScopes);
 
-            addOperatorDeclaration(Operator::Multiplication, scalarTypeDeclaration, {scalarTypeDeclaration, secondScalarTypeDeclaration}, declarationScopes);
-            addOperatorDeclaration(Operator::MultiplicationAssignment, scalarTypeDeclaration, {scalarTypeDeclaration, secondScalarTypeDeclaration}, declarationScopes);
+    addBuiltinFunctionDeclaration("sample", float4Type, {texture2DType, float2Type}, declarationScopes);
 
-            addOperatorDeclaration(Operator::Division, scalarTypeDeclaration, {scalarTypeDeclaration, secondScalarTypeDeclaration}, declarationScopes);
-            addOperatorDeclaration(Operator::DivisionAssignment, scalarTypeDeclaration, {scalarTypeDeclaration, secondScalarTypeDeclaration}, declarationScopes);
+    StructType* texture2DMSType = addStructType("Texture2DMS", 0, declarationScopes);
 
-            addOperatorDeclaration(Operator::LessThan, scalarTypeDeclaration, {scalarTypeDeclaration, secondScalarTypeDeclaration}, declarationScopes);
-            addOperatorDeclaration(Operator::LessThanEqual, scalarTypeDeclaration, {scalarTypeDeclaration, secondScalarTypeDeclaration}, declarationScopes);
-
-            addOperatorDeclaration(Operator::GreaterThan, scalarTypeDeclaration, {scalarTypeDeclaration, secondScalarTypeDeclaration}, declarationScopes);
-            addOperatorDeclaration(Operator::GraterThanEqual, scalarTypeDeclaration, {scalarTypeDeclaration, secondScalarTypeDeclaration}, declarationScopes);
-        }
-
-        // unary operators
-        addOperatorDeclaration(Operator::Positive, scalarTypeDeclaration, {scalarTypeDeclaration}, declarationScopes);
-        addOperatorDeclaration(Operator::Negative, scalarTypeDeclaration, {scalarTypeDeclaration}, declarationScopes);
-    }
-
-    StructDeclaration* float2TypeDeclaration = addStructDeclaration("float2", 8, declarationScopes);
-    StructDeclaration* float3TypeDeclaration = addStructDeclaration("float3", 12, declarationScopes);
-    StructDeclaration* float4TypeDeclaration = addStructDeclaration("float4", 16, declarationScopes);
-
-    for (StructDeclaration* vectorTypeDeclaration : {float2TypeDeclaration, float3TypeDeclaration, float4TypeDeclaration})
-    {
-        addOperatorDeclaration(Operator::Addition, vectorTypeDeclaration, {vectorTypeDeclaration, vectorTypeDeclaration}, declarationScopes);
-        addOperatorDeclaration(Operator::AdditionAssignment, vectorTypeDeclaration, {vectorTypeDeclaration, vectorTypeDeclaration}, declarationScopes);
-
-        addOperatorDeclaration(Operator::Subtraction, vectorTypeDeclaration, {vectorTypeDeclaration, vectorTypeDeclaration}, declarationScopes);
-        addOperatorDeclaration(Operator::SubtractAssignment, vectorTypeDeclaration, {vectorTypeDeclaration, vectorTypeDeclaration}, declarationScopes);
-
-        addOperatorDeclaration(Operator::Multiplication, vectorTypeDeclaration, {vectorTypeDeclaration, vectorTypeDeclaration}, declarationScopes);
-        addOperatorDeclaration(Operator::MultiplicationAssignment, vectorTypeDeclaration, {vectorTypeDeclaration, vectorTypeDeclaration}, declarationScopes);
-
-        addOperatorDeclaration(Operator::Division, vectorTypeDeclaration, {vectorTypeDeclaration, vectorTypeDeclaration}, declarationScopes);
-        addOperatorDeclaration(Operator::DivisionAssignment, vectorTypeDeclaration, {vectorTypeDeclaration, vectorTypeDeclaration}, declarationScopes);
-
-        addOperatorDeclaration(Operator::Positive, vectorTypeDeclaration, {vectorTypeDeclaration}, declarationScopes);
-        addOperatorDeclaration(Operator::Negative, vectorTypeDeclaration, {vectorTypeDeclaration}, declarationScopes);
-    }
-
-    std::vector<std::pair<StructDeclaration*, std::vector<TypeDeclaration*>>> constructors = {
-        {float2TypeDeclaration, {floatTypeDeclaration, floatTypeDeclaration}},
-        {float2TypeDeclaration, {float2TypeDeclaration}},
-
-        {float3TypeDeclaration, {floatTypeDeclaration, floatTypeDeclaration, floatTypeDeclaration}},
-        {float3TypeDeclaration, {floatTypeDeclaration, float2TypeDeclaration}},
-        {float3TypeDeclaration, {float2TypeDeclaration, floatTypeDeclaration}},
-        {float3TypeDeclaration, {float3TypeDeclaration}},
-
-        {float4TypeDeclaration, {floatTypeDeclaration, floatTypeDeclaration, floatTypeDeclaration, floatTypeDeclaration}},
-        {float4TypeDeclaration, {floatTypeDeclaration, floatTypeDeclaration, float2TypeDeclaration}},
-        {float4TypeDeclaration, {floatTypeDeclaration, float2TypeDeclaration, floatTypeDeclaration}},
-        {float4TypeDeclaration, {floatTypeDeclaration, float3TypeDeclaration}},
-        {float4TypeDeclaration, {float2TypeDeclaration, floatTypeDeclaration, floatTypeDeclaration}},
-        {float4TypeDeclaration, {float2TypeDeclaration, float2TypeDeclaration}},
-        {float4TypeDeclaration, {float3TypeDeclaration, floatTypeDeclaration}},
-        {float4TypeDeclaration, {float4TypeDeclaration}}
-    };
-
-    for (auto& constructor : constructors)
-    {
-        ConstructorDeclaration* constructorDeclaration;
-        constructs.push_back(std::unique_ptr<Construct>(constructorDeclaration = new ConstructorDeclaration()));
-
-        constructorDeclaration->parent = constructor.first;
-        constructorDeclaration->definition = constructorDeclaration;
-
-        for (auto& parameter : constructor.second)
-        {
-            ParameterDeclaration* parameterDeclaration;
-            constructs.push_back(std::unique_ptr<Construct>(parameterDeclaration = new ParameterDeclaration()));
-
-            parameterDeclaration->parent = constructorDeclaration;
-            parameterDeclaration->qualifiedType.typeDeclaration = parameter;
-            constructorDeclaration->parameterDeclarations.push_back(parameterDeclaration);
-        }
-
-        constructor.first->memberDeclarations.push_back(constructorDeclaration);
-    }
-
-    std::vector<std::pair<StructDeclaration*, std::vector<char>>> types = {
-        {float2TypeDeclaration, {'x', 'y'}},
-        {float2TypeDeclaration, {'r', 'g'}},
-        {float3TypeDeclaration, {'x', 'y', 'z'}},
-        {float3TypeDeclaration, {'r', 'g', 'b'}},
-        {float4TypeDeclaration, {'x', 'y', 'z', 'w'}},
-        {float4TypeDeclaration, {'r', 'g', 'b', 'a'}}
-    };
-
-    for (auto& type : types)
-    {
-        declarationScopes.push_back(std::vector<Declaration*>());
-
-        for (const char first : type.second)
-        {
-            addFieldDeclaration(type.first, {first}, floatTypeDeclaration, false, declarationScopes);
-
-            for (const char second : type.second)
-            {
-                const bool secondConst = (second == first);
-
-                addFieldDeclaration(type.first, {first, second}, float2TypeDeclaration, secondConst, declarationScopes);
-
-                for (const char third : type.second)
-                {
-                    const bool thirdConst = (secondConst || third == first || third == second);
-
-                    addFieldDeclaration(type.first, {first, second, third}, float3TypeDeclaration, thirdConst, declarationScopes);
-
-                    for (const char fourth : type.second)
-                    {
-                        const bool fourthConst = (thirdConst || fourth == first || fourth == second || fourth == third);
-
-                        addFieldDeclaration(type.first, {first, second, third, fourth}, float4TypeDeclaration, fourthConst, declarationScopes);
-                    }
-                }
-            }
-        }
-
-        declarationScopes.pop_back();
-    }
-
-    StructDeclaration* float2x2TypeDeclaration = addStructDeclaration("float2x2", 16, declarationScopes);
-    StructDeclaration* float3x3TypeDeclaration = addStructDeclaration("float3x3", 36, declarationScopes);
-    StructDeclaration* float4x4TypeDeclaration = addStructDeclaration("float4x4", 64, declarationScopes);
-    stringTypeDeclaration = addStructDeclaration("string", 8, declarationScopes);
-    StructDeclaration* texture2DTypeDeclaration = addStructDeclaration("Texture2D", 0, declarationScopes);
-
-    addBuiltinFunctionDeclaration("sample", float4TypeDeclaration, {texture2DTypeDeclaration, float2TypeDeclaration}, declarationScopes);
-
-    StructDeclaration* texture2DMSTypeDeclaration = addStructDeclaration("Texture2DMS", 0, declarationScopes);
-
-    addBuiltinFunctionDeclaration("load", float4TypeDeclaration, {texture2DMSTypeDeclaration, float2TypeDeclaration}, declarationScopes);
+    addBuiltinFunctionDeclaration("load", float4Type, {texture2DMSType, float2Type}, declarationScopes);
 
     // TODO: add other arithmetic operators
     // float2x2
-    addOperatorDeclaration(Operator::Multiplication, float2x2TypeDeclaration, {float2x2TypeDeclaration, float2x2TypeDeclaration}, declarationScopes);
-    addOperatorDeclaration(Operator::Multiplication, float2TypeDeclaration, {float2x2TypeDeclaration, float2TypeDeclaration}, declarationScopes);
-    addOperatorDeclaration(Operator::Multiplication, float2TypeDeclaration, {float2TypeDeclaration, float2x2TypeDeclaration}, declarationScopes);
-
-    addOperatorDeclaration(Operator::Division, float2x2TypeDeclaration, {float2x2TypeDeclaration, float2x2TypeDeclaration}, declarationScopes);
-    addOperatorDeclaration(Operator::Division, float2TypeDeclaration, {float2x2TypeDeclaration, float2TypeDeclaration}, declarationScopes);
-    addOperatorDeclaration(Operator::Division, float2TypeDeclaration, {float2TypeDeclaration, float2x2TypeDeclaration}, declarationScopes);
-
-    // float3x3
-    addOperatorDeclaration(Operator::Multiplication, float3x3TypeDeclaration, {float3x3TypeDeclaration, float3x3TypeDeclaration}, declarationScopes);
-    addOperatorDeclaration(Operator::Multiplication, float3TypeDeclaration, {float3x3TypeDeclaration, float3TypeDeclaration}, declarationScopes);
-    addOperatorDeclaration(Operator::Multiplication, float3TypeDeclaration, {float3TypeDeclaration, float3x3TypeDeclaration}, declarationScopes);
-
-    addOperatorDeclaration(Operator::Division, float3x3TypeDeclaration, {float3x3TypeDeclaration, float3x3TypeDeclaration}, declarationScopes);
-    addOperatorDeclaration(Operator::Division, float3TypeDeclaration, {float3x3TypeDeclaration, float3TypeDeclaration}, declarationScopes);
-    addOperatorDeclaration(Operator::Division, float3TypeDeclaration, {float3TypeDeclaration, float3x3TypeDeclaration}, declarationScopes);
-
-    // float4x4
-    addOperatorDeclaration(Operator::Multiplication, float4x4TypeDeclaration, {float4x4TypeDeclaration, float4x4TypeDeclaration}, declarationScopes);
-    addOperatorDeclaration(Operator::Multiplication, float4TypeDeclaration, {float4x4TypeDeclaration, float4TypeDeclaration}, declarationScopes);
-    addOperatorDeclaration(Operator::Multiplication, float4TypeDeclaration, {float4TypeDeclaration, float4x4TypeDeclaration}, declarationScopes);
-    
-    addOperatorDeclaration(Operator::Division, float4x4TypeDeclaration, {float4x4TypeDeclaration, float4x4TypeDeclaration}, declarationScopes);
-    addOperatorDeclaration(Operator::Division, float4TypeDeclaration, {float4x4TypeDeclaration, float4TypeDeclaration}, declarationScopes);
-    addOperatorDeclaration(Operator::Division, float4TypeDeclaration, {float4TypeDeclaration, float4x4TypeDeclaration}, declarationScopes);
+    // TODO: fix
+//    addOperatorDeclaration(Operator::Multiplication, float2x2TypeDeclaration, {float2x2TypeDeclaration, float2x2TypeDeclaration}, declarationScopes);
+//    addOperatorDeclaration(Operator::Multiplication, float2TypeDeclaration, {float2x2TypeDeclaration, float2TypeDeclaration}, declarationScopes);
+//    addOperatorDeclaration(Operator::Multiplication, float2TypeDeclaration, {float2TypeDeclaration, float2x2TypeDeclaration}, declarationScopes);
+//
+//    addOperatorDeclaration(Operator::Division, float2x2TypeDeclaration, {float2x2TypeDeclaration, float2x2TypeDeclaration}, declarationScopes);
+//    addOperatorDeclaration(Operator::Division, float2TypeDeclaration, {float2x2TypeDeclaration, float2TypeDeclaration}, declarationScopes);
+//    addOperatorDeclaration(Operator::Division, float2TypeDeclaration, {float2TypeDeclaration, float2x2TypeDeclaration}, declarationScopes);
+//
+//    // float3x3
+//    addOperatorDeclaration(Operator::Multiplication, float3x3TypeDeclaration, {float3x3TypeDeclaration, float3x3TypeDeclaration}, declarationScopes);
+//    addOperatorDeclaration(Operator::Multiplication, float3TypeDeclaration, {float3x3TypeDeclaration, float3TypeDeclaration}, declarationScopes);
+//    addOperatorDeclaration(Operator::Multiplication, float3TypeDeclaration, {float3TypeDeclaration, float3x3TypeDeclaration}, declarationScopes);
+//
+//    addOperatorDeclaration(Operator::Division, float3x3TypeDeclaration, {float3x3TypeDeclaration, float3x3TypeDeclaration}, declarationScopes);
+//    addOperatorDeclaration(Operator::Division, float3TypeDeclaration, {float3x3TypeDeclaration, float3TypeDeclaration}, declarationScopes);
+//    addOperatorDeclaration(Operator::Division, float3TypeDeclaration, {float3TypeDeclaration, float3x3TypeDeclaration}, declarationScopes);
+//
+//    // float4x4
+//    addOperatorDeclaration(Operator::Multiplication, float4x4TypeDeclaration, {float4x4TypeDeclaration, float4x4TypeDeclaration}, declarationScopes);
+//    addOperatorDeclaration(Operator::Multiplication, float4TypeDeclaration, {float4x4TypeDeclaration, float4TypeDeclaration}, declarationScopes);
+//    addOperatorDeclaration(Operator::Multiplication, float4TypeDeclaration, {float4TypeDeclaration, float4x4TypeDeclaration}, declarationScopes);
+//
+//    addOperatorDeclaration(Operator::Division, float4x4TypeDeclaration, {float4x4TypeDeclaration, float4x4TypeDeclaration}, declarationScopes);
+//    addOperatorDeclaration(Operator::Division, float4TypeDeclaration, {float4x4TypeDeclaration, float4TypeDeclaration}, declarationScopes);
+//    addOperatorDeclaration(Operator::Division, float4TypeDeclaration, {float4TypeDeclaration, float4x4TypeDeclaration}, declarationScopes);
 
     for (auto iterator = tokens.begin(); iterator != tokens.end();)
     {
@@ -274,30 +177,30 @@ namespace
     Rank getRank(const QualifiedType& parameterType,
                  const QualifiedType& argumentType)
     {
-        if (!parameterType.typeDeclaration)
+        if (!parameterType.type)
             throw ParseError("Parameter does not have a type");
 
-        if (!argumentType.typeDeclaration)
+        if (!argumentType.type)
             throw ParseError("Argument does not have a type");
 
-        if (argumentType.typeDeclaration->getTypeKind() == parameterType.typeDeclaration->getTypeKind())
+        if (argumentType.type->getTypeKind() == parameterType.type->getTypeKind())
         {
-            if (parameterType.typeDeclaration == argumentType.typeDeclaration)
+            if (parameterType.type == argumentType.type)
                 return Rank::ExactMatch;
-            else if (argumentType.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::Array)
+            else if (argumentType.type->getTypeKind() == Type::Kind::Array)
             {
-                auto argumentTypeDeclaration = static_cast<const ArrayTypeDeclaration*>(argumentType.typeDeclaration);
-                auto parameterTypeDeclaration = static_cast<const ArrayTypeDeclaration*>(parameterType.typeDeclaration);
+                auto argumentArrayType = static_cast<const ArrayType*>(argumentType.type);
+                auto parameterArrayType = static_cast<const ArrayType*>(parameterType.type);
 
-                if (argumentTypeDeclaration->size == parameterTypeDeclaration->size)
+                if (argumentArrayType->size == parameterArrayType->size)
                     return Rank::ExactMatch;
                 else
                     return Rank::NoRank;
             }
-            else if (argumentType.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::Scalar)
+            else if (argumentType.type->getTypeKind() == Type::Kind::Scalar)
             {
-                auto argumentTypeDeclaration = static_cast<const ScalarTypeDeclaration*>(argumentType.typeDeclaration);
-                auto parameterTypeDeclaration = static_cast<const ScalarTypeDeclaration*>(parameterType.typeDeclaration);
+                auto argumentTypeDeclaration = static_cast<const ScalarType*>(argumentType.type);
+                auto parameterTypeDeclaration = static_cast<const ScalarType*>(parameterType.type);
 
                 if (argumentTypeDeclaration->getScalarTypeKind() == parameterTypeDeclaration->getScalarTypeKind() &&
                     argumentTypeDeclaration->isUnsigned == parameterTypeDeclaration->isUnsigned)
@@ -397,10 +300,10 @@ FunctionDeclaration* ASTContext::resolveFunctionDeclaration(const std::string& n
                            functionDeclaration->parameterDeclarations.begin(),
                            [](const QualifiedType& qualifiedType,
                               const ParameterDeclaration* parameterDeclaration) {
-                               bool scalar = qualifiedType.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::Scalar &&
-                               qualifiedType.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::Scalar;
+                               bool scalar = qualifiedType.type->getTypeKind() == Type::Kind::Scalar &&
+                               qualifiedType.type->getTypeKind() == Type::Kind::Scalar;
 
-                               return (scalar || qualifiedType.typeDeclaration->getFirstDeclaration() == parameterDeclaration->qualifiedType.typeDeclaration->getFirstDeclaration());
+                               return (scalar || qualifiedType.type->declaration == parameterDeclaration->qualifiedType.type->declaration);
                            }))
             {
                 viableFunctionDeclarations.push_back(functionDeclaration);
@@ -476,12 +379,12 @@ OperatorDeclaration* ASTContext::resolveOperatorDeclaration(Operator op,
                            [](const QualifiedType& qualifiedType,
                               const ParameterDeclaration* parameterDeclaration) {
 
-                               if (!qualifiedType.typeDeclaration) return true; // any type
+                               if (!qualifiedType.type) return true; // any type
 
-                               const bool scalar = qualifiedType.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::Scalar &&
-                                   qualifiedType.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::Scalar;
+                               const bool scalar = qualifiedType.type->getTypeKind() == Type::Kind::Scalar &&
+                                   qualifiedType.type->getTypeKind() == Type::Kind::Scalar;
 
-                               return (scalar || qualifiedType.typeDeclaration->getFirstDeclaration() == parameterDeclaration->qualifiedType.typeDeclaration->getFirstDeclaration());
+                               return (scalar || qualifiedType.type->declaration == parameterDeclaration->qualifiedType.type->declaration);
                            }))
                 viableOperatorDeclarations.push_back(operatorDeclaration);
         }
@@ -518,22 +421,22 @@ OperatorDeclaration* ASTContext::resolveOperatorDeclaration(Operator op,
     return nullptr;
 }
 
-ArrayTypeDeclaration* ASTContext::getArrayTypeDeclaration(QualifiedType qualifiedType, uint32_t size)
+ArrayType* ASTContext::getArrayType(QualifiedType qualifiedType, uint32_t size)
 {
-    auto i = arrayTypeDeclarations.find(std::make_pair(qualifiedType, size));
+    auto i = arrayTypes.find(std::make_pair(qualifiedType, size));
 
-    if (i != arrayTypeDeclarations.end())
+    if (i != arrayTypes.end())
     {
         return i->second;
     }
     else
     {
-        ArrayTypeDeclaration* result;
-        constructs.push_back(std::unique_ptr<Construct>(result = new ArrayTypeDeclaration()));
+        ArrayType* result;
+        types.push_back(std::unique_ptr<Type>(result = new ArrayType()));
         result->elementType = qualifiedType;
         result->size = size;
 
-        arrayTypeDeclarations[std::make_pair(qualifiedType, size)] = result;
+        arrayTypes[std::make_pair(qualifiedType, size)] = result;
         return result;
     }
 }
@@ -550,29 +453,29 @@ bool ASTContext::isType(std::vector<Token>::const_iterator iterator,
         iterator->type == Token::Type::Float ||
         iterator->type == Token::Type::Double ||
         (iterator->type == Token::Type::Identifier &&
-         findTypeDeclaration(iterator->value, declarationScopes));
+         findType(iterator->value, declarationScopes));
 }
 
-TypeDeclaration* ASTContext::parseType(std::vector<Token>::const_iterator& iterator,
-                                       std::vector<Token>::const_iterator end,
-                                       std::vector<std::vector<Declaration*>>& declarationScopes)
+Type* ASTContext::parseType(std::vector<Token>::const_iterator& iterator,
+                            std::vector<Token>::const_iterator end,
+                            std::vector<std::vector<Declaration*>>& declarationScopes)
 {
     if (iterator == end)
         throw ParseError("Unexpected end of file");
 
-    TypeDeclaration* result;
+    Type* result;
 
     if (iterator->type == Token::Type::Bool)
-        result = boolTypeDeclaration;
+        result = boolType;
     else if (iterator->type == Token::Type::Int)
-        result = intTypeDeclaration;
+        result = intType;
     else if (iterator->type == Token::Type::Float)
-        result = floatTypeDeclaration;
+        result = floatType;
     else if (iterator->type == Token::Type::Double)
         throw ParseError("Double precision floating point numbers are not supported");
     else if (iterator->type == Token::Type::Identifier)
     {
-        if (!(result = findTypeDeclaration(iterator->value, declarationScopes)))
+        if (!(result = findType(iterator->value, declarationScopes)))
             throw ParseError("Invalid type: " + iterator->value);
     }
     else
@@ -704,11 +607,13 @@ Declaration* ASTContext::parseDeclaration(std::vector<Token>::const_iterator& it
     {
         ++iterator;
 
-        StructDeclaration* declaration;
-        if (!(declaration = parseStructDeclaration(iterator, end, declarationScopes, parent)))
+        TypeDeclaration* typeDeclaration;
+        constructs.push_back(std::unique_ptr<Construct>(typeDeclaration = new TypeDeclaration()));
+
+        if (!(typeDeclaration->type = parseStructType(iterator, end, declarationScopes, parent)))
             throw ParseError("Failed to parse a structure declaration");
 
-        return declaration;
+        return typeDeclaration;
     }
     /*else if (isToken(Token::Type::KEYWORD_TYPEDEF, iterator, end))
     {
@@ -738,15 +643,15 @@ Declaration* ASTContext::parseDeclaration(std::vector<Token>::const_iterator& it
         }
         else
         {
-            if (!(qualifiedType.typeDeclaration = parseType(iterator, end, declarationScopes)))
+            if (!(qualifiedType.type = parseType(iterator, end, declarationScopes)))
                 return nullptr;
 
-            if (qualifiedType.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::Struct)
+            if (qualifiedType.type->getTypeKind() == Type::Kind::Struct)
             {
-                StructDeclaration* structDeclaration = static_cast<StructDeclaration*>(qualifiedType.typeDeclaration);
+                StructType* structDeclaration = static_cast<StructType*>(qualifiedType.type);
 
                 if (!structDeclaration->definition)
-                    throw ParseError("Incomplete type " + qualifiedType.typeDeclaration->name);
+                    throw ParseError("Incomplete type " + qualifiedType.type->name);
             }
         }
 
@@ -873,7 +778,7 @@ Declaration* ASTContext::parseDeclaration(std::vector<Token>::const_iterator& it
                 if (size <= 0)
                     throw ParseError("Array size must be greater than zero");
 
-                result->qualifiedType.typeDeclaration = getArrayTypeDeclaration(result->qualifiedType, static_cast<uint32_t>(size));
+                result->qualifiedType.type = getArrayType(result->qualifiedType, static_cast<uint32_t>(size));
 
                 expectToken(Token::Type::RightBracket, iterator, end);
 
@@ -887,7 +792,7 @@ Declaration* ASTContext::parseDeclaration(std::vector<Token>::const_iterator& it
                 if (!(result->initialization = parseMultiplicationAssignmentExpression(iterator, end, declarationScopes, result)))
                     return nullptr;
 
-                if (!result->initialization->qualifiedType.typeDeclaration)
+                if (!result->initialization->qualifiedType.type)
                     throw ParseError("Initialization with a void type");
 
                 // TODO: check for comma and parse multiple expressions
@@ -903,7 +808,7 @@ Declaration* ASTContext::parseDeclaration(std::vector<Token>::const_iterator& it
                 if (!(result->initialization = parseMultiplicationAssignmentExpression(iterator, end, declarationScopes, result)))
                     return nullptr;
 
-                if (!result->initialization->qualifiedType.typeDeclaration)
+                if (!result->initialization->qualifiedType.type)
                     throw ParseError("Initialization with a void type");
             }
 
@@ -916,77 +821,78 @@ Declaration* ASTContext::parseDeclaration(std::vector<Token>::const_iterator& it
     return nullptr;
 }
 
-StructDeclaration* ASTContext::parseStructDeclaration(std::vector<Token>::const_iterator& iterator,
-                                                      std::vector<Token>::const_iterator end,
-                                                      std::vector<std::vector<Declaration*>>& declarationScopes,
-                                                      Construct* parent)
+StructType* ASTContext::parseStructType(std::vector<Token>::const_iterator& iterator,
+                                        std::vector<Token>::const_iterator end,
+                                        std::vector<std::vector<Declaration*>>& declarationScopes,
+                                        Construct* parent)
 {
     expectToken(Token::Type::Identifier, iterator, end);
 
-    StructDeclaration* result;
-    constructs.push_back(std::unique_ptr<Construct>(result = new StructDeclaration()));
-    result->parent = parent;
-    result->name = iterator->value;
-    result->previousDeclaration = findStructDeclaration(iterator->value, declarationScopes);
-
-    ++iterator;
-
-    // set the definition of the previous declaration
-    if (result->previousDeclaration) result->definition = result->previousDeclaration->definition;
-
-    if (isToken(Token::Type::LeftBrace, iterator, end))
-    {
-        ++iterator;
-
-        // check if only one definition exists
-        if (result->definition)
-            throw ParseError("Redefinition of " + result->name);
-
-        result->definition = result;
-
-        // set the definition pointer of all previous declarations
-        Declaration* previousDeclaration = result->previousDeclaration;
-        while (previousDeclaration)
-        {
-            previousDeclaration->definition = result;
-            previousDeclaration = previousDeclaration->previousDeclaration;
-        }
-
-        for (;;)
-        {
-            if (isToken(Token::Type::RightBrace, iterator, end))
-            {
-                ++iterator;
-
-                declarationScopes.back().push_back(result);
-                break;
-            }
-            else
-            {
-                Declaration* memberDeclaration;
-                if (!(memberDeclaration = parseMemberDeclaration(iterator, end, declarationScopes, result)))
-                    return nullptr;
-
-                expectToken(Token::Type::Semicolon, iterator, end);
-
-                if (result->findMemberDeclaration(memberDeclaration->name))
-                    throw ParseError("Redefinition of member " + memberDeclaration->name);
-
-                ++iterator;
-
-                memberDeclaration->parent = result;
-
-                result->memberDeclarations.push_back(memberDeclaration);
-            }
-        }
-    }
-
-    declarationScopes.back().push_back(result);
-
-    addOperatorDeclaration(Operator::Comma, result, {result, result}, declarationScopes);
-    addOperatorDeclaration(Operator::Assignment, result, {result, result}, declarationScopes);
-    addOperatorDeclaration(Operator::Equality, result, {result, result}, declarationScopes);
-    addOperatorDeclaration(Operator::Inequality, result, {result, result}, declarationScopes);
+    StructType* result;
+    types.push_back(std::unique_ptr<Type>(result = new StructType()));
+    // TODO: fix
+//    result->parent = parent;
+//    result->name = iterator->value;
+//    result->previousDeclaration = findStructType(iterator->value, declarationScopes);
+//
+//    ++iterator;
+//
+//    // set the definition of the previous declaration
+//    if (result->previousDeclaration) result->definition = result->previousDeclaration->definition;
+//
+//    if (isToken(Token::Type::LeftBrace, iterator, end))
+//    {
+//        ++iterator;
+//
+//        // check if only one definition exists
+//        if (result->definition)
+//            throw ParseError("Redefinition of " + result->name);
+//
+//        result->definition = result;
+//
+//        // set the definition pointer of all previous declarations
+//        Declaration* previousDeclaration = result->previousDeclaration;
+//        while (previousDeclaration)
+//        {
+//            previousDeclaration->definition = result;
+//            previousDeclaration = previousDeclaration->previousDeclaration;
+//        }
+//
+//        for (;;)
+//        {
+//            if (isToken(Token::Type::RightBrace, iterator, end))
+//            {
+//                ++iterator;
+//
+//                declarationScopes.back().push_back(result);
+//                break;
+//            }
+//            else
+//            {
+//                Declaration* memberDeclaration;
+//                if (!(memberDeclaration = parseMemberDeclaration(iterator, end, declarationScopes, result)))
+//                    return nullptr;
+//
+//                expectToken(Token::Type::Semicolon, iterator, end);
+//
+//                if (result->findMemberDeclaration(memberDeclaration->name))
+//                    throw ParseError("Redefinition of member " + memberDeclaration->name);
+//
+//                ++iterator;
+//
+//                memberDeclaration->parent = result;
+//
+//                result->memberDeclarations.push_back(memberDeclaration);
+//            }
+//        }
+//    }
+//
+//    declarationScopes.back().push_back(result);
+//
+//    addOperatorDeclaration(Operator::Comma, result, {result, result}, declarationScopes);
+//    addOperatorDeclaration(Operator::Assignment, result, {result, result}, declarationScopes);
+//    addOperatorDeclaration(Operator::Equality, result, {result, result}, declarationScopes);
+//    addOperatorDeclaration(Operator::Inequality, result, {result, result}, declarationScopes);
 
     return result;
 }
@@ -1018,15 +924,15 @@ Declaration* ASTContext::parseMemberDeclaration(std::vector<Token>::const_iterat
         bool isStatic = specifiers.isStatic;
         bool isInline = specifiers.isInline;
 
-        if (!(result->qualifiedType.typeDeclaration = parseType(iterator, end, declarationScopes)))
+        if (!(result->qualifiedType.type = parseType(iterator, end, declarationScopes)))
             return nullptr;
 
-        if (result->qualifiedType.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::Struct)
+        if (result->qualifiedType.type->getTypeKind() == Type::Kind::Struct)
         {
-            StructDeclaration* structDeclaration = static_cast<StructDeclaration*>(result->qualifiedType.typeDeclaration);
+            StructType* structDeclaration = static_cast<StructType*>(result->qualifiedType.type);
 
             if (!structDeclaration->definition)
-                throw ParseError("Incomplete type " + result->qualifiedType.typeDeclaration->name);
+                throw ParseError("Incomplete type " + result->qualifiedType.type->name);
         }
 
         specifiers = parseSpecifiers(iterator, end);
@@ -1062,7 +968,7 @@ Declaration* ASTContext::parseMemberDeclaration(std::vector<Token>::const_iterat
             if (size <= 0)
                 throw ParseError("Array size must be greater than zero");
 
-            result->qualifiedType.typeDeclaration = getArrayTypeDeclaration(result->qualifiedType, static_cast<uint32_t>(size));
+            result->qualifiedType.type = getArrayType(result->qualifiedType, static_cast<uint32_t>(size));
 
             expectToken(Token::Type::RightBracket, iterator, end);
 
@@ -1092,15 +998,15 @@ ParameterDeclaration* ASTContext::parseParameterDeclaration(std::vector<Token>::
     bool isStatic = specifiers.isStatic;
     bool isInline = specifiers.isInline;
 
-    if (!(result->qualifiedType.typeDeclaration = parseType(iterator, end, declarationScopes)))
+    if (!(result->qualifiedType.type = parseType(iterator, end, declarationScopes)))
         return nullptr;
 
-    if (result->qualifiedType.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::Struct)
+    if (result->qualifiedType.type->getTypeKind() == Type::Kind::Struct)
     {
-        StructDeclaration* structDeclaration = static_cast<StructDeclaration*>(result->qualifiedType.typeDeclaration);
+        StructType* structDeclaration = static_cast<StructType*>(result->qualifiedType.type);
 
         if (!structDeclaration->definition)
-            throw ParseError("Incomplete type " + result->qualifiedType.typeDeclaration->name);
+            throw ParseError("Incomplete type " + result->qualifiedType.type->name);
     }
 
     specifiers = parseSpecifiers(iterator, end);
@@ -1137,7 +1043,7 @@ ParameterDeclaration* ASTContext::parseParameterDeclaration(std::vector<Token>::
         if (size <= 0)
             throw ParseError("Array size must be greater than zero");
 
-        result->qualifiedType.typeDeclaration = getArrayTypeDeclaration(result->qualifiedType, static_cast<uint32_t>(size));
+        result->qualifiedType.type = getArrayType(result->qualifiedType, static_cast<uint32_t>(size));
 
         expectToken(Token::Type::RightBracket, iterator, end);
 
@@ -1160,18 +1066,18 @@ ParameterDeclaration* ASTContext::parseParameterDeclaration(std::vector<Token>::
     result->parent = parent;
     result->kind = Construct::Kind::Declaration;
     result->declarationKind = Declaration::Kind::Type;
-    result->typeKind = TypeDeclaration::Kind::TypeDefinition;
+    result->typeKind = Type::Kind::TypeDefinition;
     result->Declaration = findTypeDeclaration(iterator->value, declarationScopes);
 
-    if (!(result->qualifiedType.typeDeclaration = parseType(iterator, end, declarationScopes)))
+    if (!(result->qualifiedType.type = parseType(iterator, end, declarationScopes)))
         return nullptr;
 
-    if (result->qualifiedType.typeDeclaration->getTypeKind() == TypeDeclaration::Kind::STRUCT)
+    if (result->qualifiedType.type->getTypeKind() == Type::Kind::STRUCT)
     {
-        StructDeclaration* structDeclaration = static_cast<StructDeclaration*>(result->qualifiedType.typeDeclaration);
+        StructType* structDeclaration = static_cast<StructType*>(result->qualifiedType.type);
 
         if (!structDeclaration->hasDefinition)
-            throw ParseError("Incomplete type " + result->qualifiedType.typeDeclaration->name);
+            throw ParseError("Incomplete type " + result->qualifiedType.type->name);
     }
 
     expectToken(Token::Type::IDENTIFIER, iterator, end);
@@ -1268,7 +1174,7 @@ Statement* ASTContext::parseStatement(std::vector<Token>::const_iterator& iterat
         if (!callableDeclaration)
             throw ParseError("Return statement outside of a function");
 
-        if (callableDeclaration->qualifiedType.typeDeclaration != result->result->qualifiedType.typeDeclaration)
+        if (callableDeclaration->qualifiedType.type != result->result->qualifiedType.type)
             throw ParseError("Invalid type for a return statement");
 
         expectToken(Token::Type::Semicolon, iterator, end);
@@ -1409,8 +1315,8 @@ IfStatement* ASTContext::parseIfStatement(std::vector<Token>::const_iterator& it
         if (!condition)
             return nullptr;
 
-        if (condition->qualifiedType.typeDeclaration != boolTypeDeclaration)
-            condition = addImplicitCast(condition, boolTypeDeclaration, condition->category);
+        if (condition->qualifiedType.type != boolType)
+            condition = addImplicitCast(condition, boolType, condition->category);
 
         result->condition = condition;
     }
@@ -1517,8 +1423,8 @@ ForStatement* ASTContext::parseForStatement(std::vector<Token>::const_iterator& 
         if (!condition)
             return nullptr;
 
-        if (condition->qualifiedType.typeDeclaration != boolTypeDeclaration)
-            condition = addImplicitCast(condition, boolTypeDeclaration, condition->category);
+        if (condition->qualifiedType.type != boolType)
+            condition = addImplicitCast(condition, boolType, condition->category);
 
         result->condition = condition;
 
@@ -1551,16 +1457,16 @@ ForStatement* ASTContext::parseForStatement(std::vector<Token>::const_iterator& 
 
 namespace
 {
-    bool isInteger(const TypeDeclaration* typeDeclaration) noexcept
+    bool isInteger(const Type* type) noexcept
     {
-        if (!typeDeclaration &&
-            typeDeclaration->getTypeKind() != TypeDeclaration::Kind::Scalar)
+        if (!type &&
+            type->getTypeKind() != Type::Kind::Scalar)
             return false;
 
-        const ScalarTypeDeclaration* scalarTypeDeclaration = static_cast<const ScalarTypeDeclaration*>(typeDeclaration);
+        const ScalarType* scalarType = static_cast<const ScalarType*>(type);
 
-        return scalarTypeDeclaration->getScalarTypeKind() == ScalarTypeDeclaration::Kind::Boolean ||
-            scalarTypeDeclaration->getScalarTypeKind() == ScalarTypeDeclaration::Kind::Integer;
+        return scalarType->getScalarTypeKind() == ScalarType::Kind::Boolean ||
+            scalarType->getScalarTypeKind() == ScalarType::Kind::Integer;
     }
 }
 
@@ -1601,15 +1507,15 @@ SwitchStatement* ASTContext::parseSwitchStatement(std::vector<Token>::const_iter
         if (!condition)
             throw ParseError("Expected an expression");
 
-        if (!isInteger(condition->qualifiedType.typeDeclaration))
+        if (!isInteger(condition->qualifiedType.type))
             throw ParseError("Statement requires expression of integer type");
 
-        ScalarTypeDeclaration* scalarType = static_cast<ScalarTypeDeclaration*>(condition->qualifiedType.typeDeclaration);
+        ScalarType* scalarType = static_cast<ScalarType*>(condition->qualifiedType.type);
 
-        if (scalarType->getScalarTypeKind() != ScalarTypeDeclaration::Kind::Integer ||
+        if (scalarType->getScalarTypeKind() != ScalarType::Kind::Integer ||
             scalarType->size < 4)
             condition = addImplicitCast(condition,
-                                        intTypeDeclaration,
+                                        intType,
                                         condition->category);
 
         result->condition = condition;
@@ -1643,18 +1549,18 @@ CaseStatement* ASTContext::parseCaseStatement(std::vector<Token>::const_iterator
     if (!condition)
         throw ParseError("Expected an expression");
 
-    if (!isInteger(condition->qualifiedType.typeDeclaration))
+    if (!isInteger(condition->qualifiedType.type))
         throw ParseError("Statement requires expression of integer type");
 
     if ((condition->qualifiedType.qualifiers & Qualifiers::Const) != Qualifiers::Const)
         throw ParseError("Expression must be constant");
 
-    ScalarTypeDeclaration* scalarType = static_cast<ScalarTypeDeclaration*>(condition->qualifiedType.typeDeclaration);
+    ScalarType* scalarType = static_cast<ScalarType*>(condition->qualifiedType.type);
 
-    if (scalarType->getScalarTypeKind() != ScalarTypeDeclaration::Kind::Integer ||
+    if (scalarType->getScalarTypeKind() != ScalarType::Kind::Integer ||
         scalarType->size < 4)
         condition = addImplicitCast(condition,
-                                    intTypeDeclaration,
+                                    intType,
                                     condition->category);
 
     result->condition = condition;
@@ -1729,8 +1635,8 @@ WhileStatement* ASTContext::parseWhileStatement(std::vector<Token>::const_iterat
         if (!condition)
             return nullptr;
 
-        if (condition->qualifiedType.typeDeclaration != boolTypeDeclaration)
-            condition = addImplicitCast(condition, boolTypeDeclaration, condition->category);
+        if (condition->qualifiedType.type != boolType)
+            condition = addImplicitCast(condition, boolType, condition->category);
 
         result->condition = condition;
     }
@@ -1774,8 +1680,8 @@ DoStatement* ASTContext::parseDoStatement(std::vector<Token>::const_iterator& it
     if (!condition)
         return nullptr;
 
-    if (condition->qualifiedType.typeDeclaration != boolTypeDeclaration)
-        condition = addImplicitCast(condition, boolTypeDeclaration, condition->category);
+    if (condition->qualifiedType.type != boolType)
+        condition = addImplicitCast(condition, boolType, condition->category);
 
     result->condition = condition;
 
@@ -1791,13 +1697,13 @@ DoStatement* ASTContext::parseDoStatement(std::vector<Token>::const_iterator& it
 }
 
 CastExpression* ASTContext::addImplicitCast(Expression* expression,
-                                            TypeDeclaration* typeDeclaration,
+                                            Type* type,
                                             Expression::Category category)
 {
     CastExpression* result = new CastExpression(CastExpression::Kind::Implicit);
     constructs.push_back(std::unique_ptr<Construct>(result));
     result->parent = expression->parent;
-    result->qualifiedType.typeDeclaration = typeDeclaration;
+    result->qualifiedType.type = type;
     result->category = category;
 
     result->expression = expression;
@@ -1816,7 +1722,7 @@ Expression* ASTContext::parsePrimaryExpression(std::vector<Token>::const_iterato
         IntegerLiteralExpression* result;
         constructs.push_back(std::unique_ptr<Construct>(result = new IntegerLiteralExpression()));
         result->parent = parent;
-        result->qualifiedType.typeDeclaration = intTypeDeclaration;
+        result->qualifiedType.type = intType;
         result->qualifiedType.qualifiers = Qualifiers::Const;
         result->category = Expression::Category::Rvalue;
         result->value = strtoll(iterator->value.c_str(), nullptr, 0);
@@ -1830,7 +1736,7 @@ Expression* ASTContext::parsePrimaryExpression(std::vector<Token>::const_iterato
         FloatingPointLiteralExpression* result;
         constructs.push_back(std::unique_ptr<Construct>(result = new FloatingPointLiteralExpression()));
         result->parent = parent;
-        result->qualifiedType.typeDeclaration = floatTypeDeclaration;
+        result->qualifiedType.type = floatType;
         result->qualifiedType.qualifiers = Qualifiers::Const;
         result->category = Expression::Category::Rvalue;
         result->value = strtod(iterator->value.c_str(), nullptr);
@@ -1848,7 +1754,7 @@ Expression* ASTContext::parsePrimaryExpression(std::vector<Token>::const_iterato
         StringLiteralExpression* result;
         constructs.push_back(std::unique_ptr<Construct>(result = new StringLiteralExpression()));
         result->parent = parent;
-        result->qualifiedType.typeDeclaration = stringTypeDeclaration;
+        result->qualifiedType.type = stringType;
         result->qualifiedType.qualifiers = Qualifiers::Const;
         result->category = Expression::Category::Rvalue;
         result->value = iterator->value;
@@ -1862,7 +1768,7 @@ Expression* ASTContext::parsePrimaryExpression(std::vector<Token>::const_iterato
         BooleanLiteralExpression* result;
         constructs.push_back(std::unique_ptr<Construct>(result = new BooleanLiteralExpression()));
         result->parent = parent;
-        result->qualifiedType.typeDeclaration = boolTypeDeclaration;
+        result->qualifiedType.type = boolType;
         result->qualifiedType.qualifiers = Qualifiers::Const;
         result->category = Expression::Category::Rvalue;
         result->value = (iterator->type == Token::Type::True);
@@ -1877,9 +1783,9 @@ Expression* ASTContext::parsePrimaryExpression(std::vector<Token>::const_iterato
         CastExpression* result;
         constructs.push_back(std::unique_ptr<Construct>(result = new CastExpression(CastExpression::Kind::Functional)));
 
-        if (isToken(Token::Type::Bool, iterator, end)) result->qualifiedType.typeDeclaration = boolTypeDeclaration;
-        else if(isToken(Token::Type::Int, iterator, end)) result->qualifiedType.typeDeclaration = intTypeDeclaration;
-        else if(isToken(Token::Type::Float, iterator, end)) result->qualifiedType.typeDeclaration = floatTypeDeclaration;
+        if (isToken(Token::Type::Bool, iterator, end)) result->qualifiedType.type = boolType;
+        else if(isToken(Token::Type::Int, iterator, end)) result->qualifiedType.type = intType;
+        else if(isToken(Token::Type::Float, iterator, end)) result->qualifiedType.type = floatType;
 
         ++iterator;
 
@@ -1910,11 +1816,11 @@ Expression* ASTContext::parsePrimaryExpression(std::vector<Token>::const_iterato
             if (!(expression = parseMultiplicationAssignmentExpression(iterator, end, declarationScopes, result)))
                 return nullptr;
 
-            if (!qualifiedType.typeDeclaration)
-                qualifiedType.typeDeclaration = expression->qualifiedType.typeDeclaration;
+            if (!qualifiedType.type)
+                qualifiedType.type = expression->qualifiedType.type;
             else
             {
-                if (qualifiedType.typeDeclaration != expression->qualifiedType.typeDeclaration)
+                if (qualifiedType.type != expression->qualifiedType.type)
                 {
                     // TODO: implement type narrowing
                     throw ParseError("Expression type does not match previous expressions in initializer list");
@@ -1931,7 +1837,7 @@ Expression* ASTContext::parsePrimaryExpression(std::vector<Token>::const_iterato
 
         expectToken(Token::Type::RightBrace, iterator, end);
 
-        result->qualifiedType.typeDeclaration = getArrayTypeDeclaration(qualifiedType, static_cast<uint32_t>(result->expressions.size()));
+        result->qualifiedType.type = getArrayType(qualifiedType, static_cast<uint32_t>(result->expressions.size()));
 
         ++iterator;
 
@@ -1947,14 +1853,14 @@ Expression* ASTContext::parsePrimaryExpression(std::vector<Token>::const_iterato
         {
             ++iterator;
 
-            TypeDeclaration* typeDeclaration;
+            Type* type;
 
-            if ((typeDeclaration = findTypeDeclaration(name, declarationScopes)))
+            if ((type = findType(name, declarationScopes)))
             {
                 TemporaryObjectExpression* result;
                 constructs.push_back(std::unique_ptr<Construct>(result = new TemporaryObjectExpression()));
                 result->parent = parent;
-                result->qualifiedType.typeDeclaration = typeDeclaration;
+                result->qualifiedType.type = type;
                 result->qualifiedType.qualifiers = Qualifiers::Const;
                 result->category = Expression::Category::Rvalue;
 
@@ -1985,12 +1891,12 @@ Expression* ASTContext::parsePrimaryExpression(std::vector<Token>::const_iterato
                     ++iterator;
                 }
 
-                if (typeDeclaration->getTypeKind() != TypeDeclaration::Kind::Struct)
+                if (type->getTypeKind() != Type::Kind::Struct)
                     throw ParseError("Expected a struct type");
 
-                StructDeclaration* structDeclaration = static_cast<StructDeclaration*>(typeDeclaration);
+                StructType* structType = static_cast<StructType*>(type);
 
-                if (!(result->constructorDeclaration = structDeclaration->findConstructorDeclaration(parameters)))
+                if (!(result->constructorDeclaration = structType->findConstructorDeclaration(parameters)))
                     throw ParseError("No matching constructor found");
 
                 return result;
@@ -2062,7 +1968,7 @@ Expression* ASTContext::parsePrimaryExpression(std::vector<Token>::const_iterato
                 case Declaration::Kind::Type:
                 {
                     TypeDeclaration* typeDeclaration = static_cast<TypeDeclaration*>(result->declaration);
-                    result->qualifiedType.typeDeclaration = typeDeclaration;
+                    result->qualifiedType.type = typeDeclaration->type;
                     result->category = Expression::Category::Rvalue;
                     break;
                 }
@@ -2098,7 +2004,7 @@ Expression* ASTContext::parsePrimaryExpression(std::vector<Token>::const_iterato
             result->parent = parent;
 
             // TODO: parse qualifiers
-            result->qualifiedType.typeDeclaration = parseType(iterator, end, declarationScopes);
+            result->qualifiedType.type = parseType(iterator, end, declarationScopes);
 
             expectToken(Token::Type::RightParenthesis, iterator, end);
             ++iterator;
@@ -2153,7 +2059,7 @@ Expression* ASTContext::parsePrimaryExpression(std::vector<Token>::const_iterato
         ++iterator;
         
         // TODO: parse qualifiers
-        result->qualifiedType.typeDeclaration = parseType(iterator, end, declarationScopes);
+        result->qualifiedType.type = parseType(iterator, end, declarationScopes);
         
         expectToken(Token::Type::GreaterThan, iterator, end);
         ++iterator;
@@ -2200,33 +2106,33 @@ Expression* ASTContext::parseSubscriptExpression(std::vector<Token>::const_itera
         expression->parent = parent;
         expression->expression = result;
 
-        if (!result->qualifiedType.typeDeclaration)
+        if (!result->qualifiedType.type)
             throw ParseError("Subscript expression with a void type");
 
-        if (result->qualifiedType.typeDeclaration->getTypeKind() != TypeDeclaration::Kind::Array)
+        if (result->qualifiedType.type->getTypeKind() != Type::Kind::Array)
             throw ParseError("Subscript value is not an array");
 
         if (!(expression->subscript = parseExpression(iterator, end, declarationScopes, expression)))
             return nullptr;
 
-        if (!isInteger(expression->subscript->qualifiedType.typeDeclaration))
+        if (!isInteger(expression->subscript->qualifiedType.type))
             throw ParseError("Subscript is not an integer");
 
-        ScalarTypeDeclaration* scalarType = static_cast<ScalarTypeDeclaration*>(expression->subscript->qualifiedType.typeDeclaration);
+        ScalarType* scalarType = static_cast<ScalarType*>(expression->subscript->qualifiedType.type);
 
-        if (scalarType->getScalarTypeKind() != ScalarTypeDeclaration::Kind::Integer ||
+        if (scalarType->getScalarTypeKind() != ScalarType::Kind::Integer ||
             scalarType->size < 4)
             expression->subscript = addImplicitCast(expression->subscript,
-                                                    intTypeDeclaration,
+                                                    intType,
                                                     expression->subscript->category);
 
         expectToken(Token::Type::RightBracket, iterator, end);
 
         ++iterator;
 
-        ArrayTypeDeclaration* arrayTypeDeclaration = static_cast<ArrayTypeDeclaration*>(result->qualifiedType.typeDeclaration);
+        ArrayType* arrayType = static_cast<ArrayType*>(result->qualifiedType.type);
 
-        expression->qualifiedType = arrayTypeDeclaration->elementType;
+        expression->qualifiedType = arrayType->elementType;
         expression->category = Expression::Category::Lvalue;
 
         result->parent = expression;
@@ -2257,16 +2163,16 @@ Expression* ASTContext::parseMemberExpression(std::vector<Token>::const_iterator
         expression->parent = parent;
         expression->expression = result;
 
-        if (!result->qualifiedType.typeDeclaration)
+        if (!result->qualifiedType.type)
             throw ParseError("Expression has a void type");
 
-        if (result->qualifiedType.typeDeclaration->getTypeKind() != TypeDeclaration::Kind::Struct)
+        if (result->qualifiedType.type->getTypeKind() != Type::Kind::Struct)
         {
-            throw ParseError(result->qualifiedType.typeDeclaration->name + " is not a structure");
+            throw ParseError(result->qualifiedType.type->name + " is not a structure");
             return nullptr;
         }
 
-        StructDeclaration* structDeclaration = static_cast<StructDeclaration*>(result->qualifiedType.typeDeclaration);
+        StructType* structDeclaration = static_cast<StructType*>(result->qualifiedType.type);
 
         expectToken(Token::Type::Identifier, iterator, end);
 
@@ -2319,9 +2225,9 @@ Expression* ASTContext::parseSignExpression(std::vector<Token>::const_iterator& 
 
         result->operatorDeclaration = resolveOperatorDeclaration(op, declarationScopes, {result->expression->qualifiedType});
 
-        if (result->expression->qualifiedType.typeDeclaration == boolTypeDeclaration)
+        if (result->expression->qualifiedType.type == boolType)
             result->expression = addImplicitCast(result->expression,
-                                                 intTypeDeclaration,
+                                                 intType,
                                                  result->expression->category);
 
         result->qualifiedType = result->operatorDeclaration->qualifiedType;
@@ -2359,9 +2265,9 @@ Expression* ASTContext::parseNotExpression(std::vector<Token>::const_iterator& i
 
         result->operatorDeclaration = resolveOperatorDeclaration(op, declarationScopes, {result->expression->qualifiedType});
 
-        if (result->expression->qualifiedType.typeDeclaration != boolTypeDeclaration)
+        if (result->expression->qualifiedType.type != boolType)
             result->expression = addImplicitCast(result->expression,
-                                                 boolTypeDeclaration,
+                                                 boolType,
                                                  result->expression->category);
 
         result->qualifiedType = result->operatorDeclaration->qualifiedType;
@@ -2408,7 +2314,7 @@ Expression* ASTContext::parseSizeofExpression(std::vector<Token>::const_iterator
         expectToken(Token::Type::RightParenthesis, iterator, end);
         ++iterator;
         
-        result->qualifiedType.typeDeclaration = unsignedIntTypeDeclaration;
+        result->qualifiedType.type = unsignedIntType;
         result->category = Expression::Category::Rvalue;
         
         return result;
@@ -2529,7 +2435,7 @@ Expression* ASTContext::parseLessThanExpression(std::vector<Token>::const_iterat
         expression->operatorDeclaration = resolveOperatorDeclaration(op, declarationScopes,
                                                                      {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
 
-        expression->qualifiedType.typeDeclaration = boolTypeDeclaration;
+        expression->qualifiedType.type = boolType;
         expression->category = Expression::Category::Rvalue;
 
         result->parent = expression;
@@ -2568,7 +2474,7 @@ Expression* ASTContext::parseGreaterThanExpression(std::vector<Token>::const_ite
         expression->operatorDeclaration = resolveOperatorDeclaration(op, declarationScopes,
                                                                      {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
 
-        expression->qualifiedType.typeDeclaration = boolTypeDeclaration;
+        expression->qualifiedType.type = boolType;
         expression->category = Expression::Category::Rvalue;
 
         result->parent = expression;
@@ -2607,7 +2513,7 @@ Expression* ASTContext::parseEqualityExpression(std::vector<Token>::const_iterat
         expression->operatorDeclaration = resolveOperatorDeclaration(op, declarationScopes,
                                                                      {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
 
-        expression->qualifiedType.typeDeclaration = boolTypeDeclaration;
+        expression->qualifiedType.type = boolType;
         expression->category = Expression::Category::Rvalue;
 
         result->parent = expression;
@@ -2645,7 +2551,7 @@ Expression* ASTContext::parseLogicalAndExpression(std::vector<Token>::const_iter
                                                                      {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
 
         // TODO: check if both sides ar scalar
-        expression->qualifiedType.typeDeclaration = boolTypeDeclaration;
+        expression->qualifiedType.type = boolType;
         expression->category = Expression::Category::Rvalue;
 
         result->parent = expression;
@@ -2683,7 +2589,7 @@ Expression* ASTContext::parseLogicalOrExpression(std::vector<Token>::const_itera
                                                                      {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
 
         // TODO: check if both sides ar scalar
-        expression->qualifiedType.typeDeclaration = boolTypeDeclaration;
+        expression->qualifiedType.type = boolType;
         expression->category = Expression::Category::Rvalue;
 
         result->parent = expression;
@@ -2710,12 +2616,12 @@ Expression* ASTContext::parseTernaryExpression(std::vector<Token>::const_iterato
         constructs.push_back(std::unique_ptr<Construct>(expression = new TernaryOperatorExpression()));
         expression->parent = parent;
 
-        if (result->qualifiedType.typeDeclaration != boolTypeDeclaration)
-            result = addImplicitCast(result, boolTypeDeclaration, result->category);
+        if (result->qualifiedType.type != boolType)
+            result = addImplicitCast(result, boolType, result->category);
 
         expression->condition = result;
 
-        if (!expression->condition->qualifiedType.typeDeclaration)
+        if (!expression->condition->qualifiedType.type)
             throw ParseError("Ternary expression with a void condition");
 
         if (!(expression->leftExpression = parseTernaryExpression(iterator, end, declarationScopes, expression)))
