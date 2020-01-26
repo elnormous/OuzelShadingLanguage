@@ -303,7 +303,7 @@ FunctionDeclaration* ASTContext::resolveFunctionDeclaration(const std::string& n
                                bool scalar = qualifiedType.type->getTypeKind() == Type::Kind::Scalar &&
                                qualifiedType.type->getTypeKind() == Type::Kind::Scalar;
 
-                               return (scalar || qualifiedType.type->declaration == parameterDeclaration->qualifiedType.type->declaration);
+                               return (scalar || qualifiedType.type == parameterDeclaration->qualifiedType.type);
                            }))
             {
                 viableFunctionDeclarations.push_back(functionDeclaration);
@@ -384,7 +384,7 @@ OperatorDeclaration* ASTContext::resolveOperatorDeclaration(Operator op,
                                const bool scalar = qualifiedType.type->getTypeKind() == Type::Kind::Scalar &&
                                    qualifiedType.type->getTypeKind() == Type::Kind::Scalar;
 
-                               return (scalar || qualifiedType.type->declaration == parameterDeclaration->qualifiedType.type->declaration);
+                               return (scalar || qualifiedType.type == parameterDeclaration->qualifiedType.type);
                            }))
                 viableOperatorDeclarations.push_back(operatorDeclaration);
         }

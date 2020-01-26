@@ -217,7 +217,7 @@ public:
                                        constructorDeclaration->parameterDeclarations.begin(),
                                        [](const QualifiedType& qualifiedType,
                                           const ParameterDeclaration* parameterDeclaration) {
-                                           return qualifiedType.type->declaration == parameterDeclaration->qualifiedType.type->declaration; // TODO: overload resolution
+                                           return qualifiedType.type == parameterDeclaration->qualifiedType.type; // TODO: overload resolution
                                        }))
                         {
                             return constructorDeclaration;
