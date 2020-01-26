@@ -378,7 +378,7 @@ private:
 
         vectorTypeDeclaration->name = name;
         vectorTypeDeclaration->componentType = componentType;
-        VectorTypeDeclaration->componentCount = componentCount;
+        vectorTypeDeclaration->componentCount = componentCount;
 
         return vectorTypeDeclaration;
     }
