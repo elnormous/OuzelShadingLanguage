@@ -368,6 +368,21 @@ private:
         return structDeclaration;
     }
 
+    VectorTypeDeclaration* addVectorTypeDeclaration(const std::string& name,
+                                                    ScalarTypeDeclaration* componentType,
+                                                    uint8_t componentCount,
+                                                    std::vector<std::vector<Declaration*>>& declarationScopes)
+    {
+        VectorTypeDeclaration* vectorTypeDeclaration;
+        constructs.push_back(std::unique_ptr<Construct>(vectorTypeDeclaration = new VectorTypeDeclaration()));
+
+        vectorTypeDeclaration->name = name;
+        vectorTypeDeclaration->componentType = componentType;
+        VectorTypeDeclaration->componentCount = componentCount;
+
+        return vectorTypeDeclaration;
+    }
+
     FieldDeclaration* addFieldDeclaration(StructDeclaration* structDeclaration,
                                           const std::string& name,
                                           TypeDeclaration* type,

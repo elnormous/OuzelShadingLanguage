@@ -245,7 +245,7 @@ class VectorTypeDeclaration: public TypeDeclaration
 public:
     VectorTypeDeclaration() noexcept: TypeDeclaration(TypeDeclaration::Kind::Vector) {}
 
-    TypeDeclaration* componentType = nullptr;
+    ScalarTypeDeclaration* componentType = nullptr;
     uint8_t componentCount = 1;
 };
 
