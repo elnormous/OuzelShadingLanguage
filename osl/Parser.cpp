@@ -600,6 +600,8 @@ Declaration* ASTContext::parseDeclaration(std::vector<Token>::const_iterator& it
     {
         Declaration* declaration;
         constructs.push_back(std::unique_ptr<Construct>(declaration = new Declaration(Declaration::Kind::Empty)));
+        declaration->parent = parent;
+        declarationScopes.back().push_back(declaration);
 
         return declaration;
     }
@@ -609,9 +611,13 @@ Declaration* ASTContext::parseDeclaration(std::vector<Token>::const_iterator& it
 
         TypeDeclaration* typeDeclaration;
         constructs.push_back(std::unique_ptr<Construct>(typeDeclaration = new TypeDeclaration()));
+        typeDeclaration->parent = parent;
 
-        if (!(typeDeclaration->type = parseStructType(iterator, end, declarationScopes, parent)))
+        if (!(typeDeclaration->type = parseStructType(iterator, end, declarationScopes, typeDeclaration)))
             throw ParseError("Failed to parse a structure declaration");
+
+        typeDeclaration->name = typeDeclaration->type->name;
+        declarationScopes.back().push_back(typeDeclaration);
 
         return typeDeclaration;
     }
@@ -824,71 +830,58 @@ Declaration* ASTContext::parseDeclaration(std::vector<Token>::const_iterator& it
 StructType* ASTContext::parseStructType(std::vector<Token>::const_iterator& iterator,
                                         std::vector<Token>::const_iterator end,
                                         std::vector<std::vector<Declaration*>>& declarationScopes,
-                                        Construct* parent)
+                                        TypeDeclaration* typeDeclaration)
 {
     expectToken(Token::Type::Identifier, iterator, end);
 
-    StructType* result;
-    types.push_back(std::unique_ptr<Type>(result = new StructType()));
-    // TODO: fix
-//    result->parent = parent;
-//    result->name = iterator->value;
-//    result->previousDeclaration = findStructType(iterator->value, declarationScopes);
-//
-//    ++iterator;
-//
-//    // set the definition of the previous declaration
-//    if (result->previousDeclaration) result->definition = result->previousDeclaration->definition;
-//
-//    if (isToken(Token::Type::LeftBrace, iterator, end))
-//    {
-//        ++iterator;
-//
-//        // check if only one definition exists
-//        if (result->definition)
-//            throw ParseError("Redefinition of " + result->name);
-//
-//        result->definition = result;
-//
-//        // set the definition pointer of all previous declarations
-//        Declaration* previousDeclaration = result->previousDeclaration;
-//        while (previousDeclaration)
-//        {
-//            previousDeclaration->definition = result;
-//            previousDeclaration = previousDeclaration->previousDeclaration;
-//        }
-//
-//        for (;;)
-//        {
-//            if (isToken(Token::Type::RightBrace, iterator, end))
-//            {
-//                ++iterator;
-//
-//                declarationScopes.back().push_back(result);
-//                break;
-//            }
-//            else
-//            {
-//                Declaration* memberDeclaration;
-//                if (!(memberDeclaration = parseMemberDeclaration(iterator, end, declarationScopes, result)))
-//                    return nullptr;
-//
-//                expectToken(Token::Type::Semicolon, iterator, end);
-//
-//                if (result->findMemberDeclaration(memberDeclaration->name))
-//                    throw ParseError("Redefinition of member " + memberDeclaration->name);
-//
-//                ++iterator;
-//
-//                memberDeclaration->parent = result;
-//
-//                result->memberDeclarations.push_back(memberDeclaration);
-//            }
-//        }
-//    }
-//
-//    declarationScopes.back().push_back(result);
-//
+    StructType* result = findStructType(iterator->value, declarationScopes);
+
+    if (!result)
+    {
+        types.push_back(std::unique_ptr<Type>(result = new StructType()));
+        result->name = iterator->value;
+        result->declaration = typeDeclaration;
+    }
+
+    ++iterator;
+
+    if (isToken(Token::Type::LeftBrace, iterator, end))
+    {
+        ++iterator;
+
+        // check if only one definition exists
+        if (result->definition)
+            throw ParseError("Redefinition of " + result->name);
+
+        result->definition = typeDeclaration;
+
+        for (;;)
+        {
+            if (isToken(Token::Type::RightBrace, iterator, end))
+            {
+                ++iterator;
+                break;
+            }
+            else
+            {
+                Declaration* memberDeclaration;
+                if (!(memberDeclaration = parseMemberDeclaration(iterator, end, declarationScopes, typeDeclaration)))
+                    return nullptr;
+
+                expectToken(Token::Type::Semicolon, iterator, end);
+
+                if (result->findMemberDeclaration(memberDeclaration->name))
+                    throw ParseError("Redefinition of member " + memberDeclaration->name);
+
+                ++iterator;
+
+                memberDeclaration->parent = typeDeclaration;
+
+                result->memberDeclarations.push_back(memberDeclaration);
+            }
+        }
+    }
+
 //    addOperatorDeclaration(Operator::Comma, result, {result, result}, declarationScopes);
 //    addOperatorDeclaration(Operator::Assignment, result, {result, result}, declarationScopes);
 //    addOperatorDeclaration(Operator::Equality, result, {result, result}, declarationScopes);

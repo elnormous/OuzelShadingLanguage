@@ -65,7 +65,7 @@ private:
         return nullptr;
     }
 
-    static StructType* findStruct(const std::string& name, const std::vector<std::vector<Declaration*>>& declarationScopes)
+    static StructType* findStructType(const std::string& name, const std::vector<std::vector<Declaration*>>& declarationScopes)
     {
         Type* type = findType(name, declarationScopes);
 
@@ -164,7 +164,7 @@ private:
     StructType* parseStructType(std::vector<Token>::const_iterator& iterator,
                                 std::vector<Token>::const_iterator end,
                                 std::vector<std::vector<Declaration*>>& declarationScopes,
-                                Construct* parent);
+                                TypeDeclaration* typeDeclaration);
 
     Declaration* parseMemberDeclaration(std::vector<Token>::const_iterator& iterator,
                                         std::vector<Token>::const_iterator end,
