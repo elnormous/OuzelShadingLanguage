@@ -161,10 +161,10 @@ private:
                                   std::vector<std::vector<Declaration*>>& declarationScopes,
                                   Construct* parent);
 
-    StructType* parseStructType(std::vector<Token>::const_iterator& iterator,
-                                std::vector<Token>::const_iterator end,
-                                std::vector<std::vector<Declaration*>>& declarationScopes,
-                                TypeDeclaration* typeDeclaration);
+    TypeDeclaration* parseStructTypeDeclaration(std::vector<Token>::const_iterator& iterator,
+                                                std::vector<Token>::const_iterator end,
+                                                std::vector<std::vector<Declaration*>>& declarationScopes,
+                                                Construct* parent);
 
     Declaration* parseMemberDeclaration(std::vector<Token>::const_iterator& iterator,
                                         std::vector<Token>::const_iterator end,

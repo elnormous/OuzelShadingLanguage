@@ -539,6 +539,7 @@ namespace
 
         struct Foo
         {
+            float f;
         };
 
         void main()

@@ -610,14 +610,9 @@ Declaration* ASTContext::parseDeclaration(std::vector<Token>::const_iterator& it
         ++iterator;
 
         TypeDeclaration* typeDeclaration;
-        constructs.push_back(std::unique_ptr<Construct>(typeDeclaration = new TypeDeclaration()));
-        typeDeclaration->parent = parent;
 
-        if (!(typeDeclaration->type = parseStructType(iterator, end, declarationScopes, typeDeclaration)))
+        if (!(typeDeclaration = parseStructTypeDeclaration(iterator, end, declarationScopes, parent)))
             throw ParseError("Failed to parse a structure declaration");
-
-        typeDeclaration->name = typeDeclaration->type->name;
-        declarationScopes.back().push_back(typeDeclaration);
 
         return typeDeclaration;
     }
@@ -827,21 +822,29 @@ Declaration* ASTContext::parseDeclaration(std::vector<Token>::const_iterator& it
     return nullptr;
 }
 
-StructType* ASTContext::parseStructType(std::vector<Token>::const_iterator& iterator,
-                                        std::vector<Token>::const_iterator end,
-                                        std::vector<std::vector<Declaration*>>& declarationScopes,
-                                        TypeDeclaration* typeDeclaration)
+TypeDeclaration* ASTContext::parseStructTypeDeclaration(std::vector<Token>::const_iterator& iterator,
+                                                        std::vector<Token>::const_iterator end,
+                                                        std::vector<std::vector<Declaration*>>& declarationScopes,
+                                                        Construct* parent)
 {
+    TypeDeclaration* result;
+    constructs.push_back(std::unique_ptr<Construct>(result = new TypeDeclaration()));
+    result->parent = parent;
+
     expectToken(Token::Type::Identifier, iterator, end);
 
-    StructType* result = findStructType(iterator->value, declarationScopes);
+    result->name = iterator->value;
 
-    if (!result)
+    StructType* structType = findStructType(result->name, declarationScopes);
+
+    if (!structType)
     {
-        types.push_back(std::unique_ptr<Type>(result = new StructType()));
-        result->name = iterator->value;
-        result->declaration = typeDeclaration;
+        types.push_back(std::unique_ptr<Type>(structType = new StructType()));
+        structType->name = iterator->value;
+        structType->declaration = result;
     }
+
+    result->type = structType;
 
     ++iterator;
 
@@ -850,10 +853,10 @@ StructType* ASTContext::parseStructType(std::vector<Token>::const_iterator& iter
         ++iterator;
 
         // check if only one definition exists
-        if (result->definition)
-            throw ParseError("Redefinition of " + result->name);
+        if (structType->definition)
+            throw ParseError("Redefinition of " + structType->name);
 
-        result->definition = typeDeclaration;
+        structType->definition = result;
 
         for (;;)
         {
@@ -865,22 +868,24 @@ StructType* ASTContext::parseStructType(std::vector<Token>::const_iterator& iter
             else
             {
                 Declaration* memberDeclaration;
-                if (!(memberDeclaration = parseMemberDeclaration(iterator, end, declarationScopes, typeDeclaration)))
+                if (!(memberDeclaration = parseMemberDeclaration(iterator, end, declarationScopes, result)))
                     return nullptr;
 
                 expectToken(Token::Type::Semicolon, iterator, end);
 
-                if (result->findMemberDeclaration(memberDeclaration->name))
+                if (structType->findMemberDeclaration(memberDeclaration->name))
                     throw ParseError("Redefinition of member " + memberDeclaration->name);
 
                 ++iterator;
 
-                memberDeclaration->parent = typeDeclaration;
+                memberDeclaration->parent = result;
 
-                result->memberDeclarations.push_back(memberDeclaration);
+                structType->memberDeclarations.push_back(memberDeclaration);
             }
         }
     }
+
+    declarationScopes.back().push_back(result);
 
 //    addOperatorDeclaration(Operator::Comma, result, {result, result}, declarationScopes);
 //    addOperatorDeclaration(Operator::Assignment, result, {result, result}, declarationScopes);
