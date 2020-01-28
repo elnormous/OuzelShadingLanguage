@@ -47,25 +47,27 @@ private:
     static Declaration* findDeclaration(const std::string& name, const std::vector<std::vector<Declaration*>>& declarationScopes)
     {
         for (auto scopeIterator = declarationScopes.crbegin(); scopeIterator != declarationScopes.crend(); ++scopeIterator)
-        {
             for (auto declarationIterator = scopeIterator->crbegin(); declarationIterator != scopeIterator->crend(); ++declarationIterator)
                 if ((*declarationIterator)->name == name) return *declarationIterator;
-        }
 
         return nullptr;
     }
 
-    static Type* findType(const std::string& name, const std::vector<std::vector<Declaration*>>& declarationScopes)
+    Type* findType(const std::string& name, const std::vector<std::vector<Declaration*>>& declarationScopes)
     {
         Declaration* declaration = findDeclaration(name, declarationScopes);
 
         if (declaration && declaration->getDeclarationKind() == Declaration::Kind::Type)
             return static_cast<TypeDeclaration*>(declaration)->type;
 
+        for (const auto& type : types)
+            if (type->name == name)
+                return type.get();
+
         return nullptr;
     }
 
-    static StructType* findStructType(const std::string& name, const std::vector<std::vector<Declaration*>>& declarationScopes)
+    StructType* findStructType(const std::string& name, const std::vector<std::vector<Declaration*>>& declarationScopes)
     {
         Type* type = findType(name, declarationScopes);
 
@@ -113,8 +115,8 @@ private:
     }
 
     static const CallableDeclaration* compareCallableDeclarations(const CallableDeclaration* callableDeclaration1,
-                                                            const CallableDeclaration* callableDeclaration2,
-                                                            const std::vector<QualifiedType>& arguments);
+                                                                  const CallableDeclaration* callableDeclaration2,
+                                                                  const std::vector<QualifiedType>& arguments);
 
     static FunctionDeclaration* resolveFunctionDeclaration(const std::string& name,
                                                            const std::vector<std::vector<Declaration*>>& declarationScopes,
@@ -126,17 +128,17 @@ private:
 
     ArrayType* getArrayType(QualifiedType qualifiedType, uint32_t size);
     
-    static bool isType(std::vector<Token>::const_iterator iterator,
-                       std::vector<Token>::const_iterator end,
-                       std::vector<std::vector<Declaration*>>& declarationScopes);
+    bool isType(std::vector<Token>::const_iterator iterator,
+                std::vector<Token>::const_iterator end,
+                std::vector<std::vector<Declaration*>>& declarationScopes);
 
     Type* parseType(std::vector<Token>::const_iterator& iterator,
                     std::vector<Token>::const_iterator end,
                     std::vector<std::vector<Declaration*>>& declarationScopes);
 
-    static bool isDeclaration(std::vector<Token>::const_iterator iterator,
-                              std::vector<Token>::const_iterator end,
-                              std::vector<std::vector<Declaration*>>& declarationScopes);
+    bool isDeclaration(std::vector<Token>::const_iterator iterator,
+                       std::vector<Token>::const_iterator end,
+                       std::vector<std::vector<Declaration*>>& declarationScopes);
 
     Declaration* parseTopLevelDeclaration(std::vector<Token>::const_iterator& iterator,
                                           std::vector<Token>::const_iterator end,
