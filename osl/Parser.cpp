@@ -2154,46 +2154,57 @@ Expression* ASTContext::parseMemberExpression(std::vector<Token>::const_iterator
 
         ++iterator;
 
-        MemberExpression* expression;
-        constructs.push_back(std::unique_ptr<Construct>(expression = new MemberExpression()));
-        expression->parent = parent;
-        expression->expression = result;
-
         if (!result->qualifiedType.type)
             throw ParseError("Expression has a void type");
 
-        if (result->qualifiedType.type->getTypeKind() != Type::Kind::Struct)
+        if (result->qualifiedType.type->getTypeKind() == Type::Kind::Struct)
         {
+            MemberExpression* expression;
+            constructs.push_back(std::unique_ptr<Construct>(expression = new MemberExpression()));
+            expression->parent = parent;
+            expression->expression = result;
+
+            StructType* structType = static_cast<StructType*>(result->qualifiedType.type);
+
+            expectToken(Token::Type::Identifier, iterator, end);
+
+            Declaration* memberDeclaration = structType->findMemberDeclaration(iterator->value);
+
+            if (!memberDeclaration)
+            {
+                throw ParseError("Structure " + structType->name +  " has no member " + iterator->value);
+                return nullptr;
+            }
+
+            if (memberDeclaration->getDeclarationKind() != Declaration::Kind::Field)
+                throw ParseError(iterator->value + " is not a field");
+
+            expression->fieldDeclaration = static_cast<FieldDeclaration*>(memberDeclaration);
+
+            ++iterator;
+
+            expression->qualifiedType = expression->fieldDeclaration->qualifiedType;
+            if ((result->qualifiedType.qualifiers & Qualifiers::Const) == Qualifiers::Const)
+                expression->qualifiedType.qualifiers = Qualifiers::Const;
+            expression->category = Expression::Category::Lvalue;
+
+            result->parent = expression;
+            result = expression;
+        }
+        else if (result->qualifiedType.type->getTypeKind() == Type::Kind::Vector)
+        {
+            std::string swizzle = iterator->value;
+
+            ++iterator;
+
+            VectorElementExpression* expression;
+            constructs.push_back(std::unique_ptr<Construct>(expression = new VectorElementExpression()));
+            expression->parent = parent;
+
+            // TODO: parse swizzling
+        }
+        else
             throw ParseError(result->qualifiedType.type->name + " is not a structure");
-            return nullptr;
-        }
-
-        StructType* structType = static_cast<StructType*>(result->qualifiedType.type);
-
-        expectToken(Token::Type::Identifier, iterator, end);
-
-        Declaration* memberDeclaration = structType->findMemberDeclaration(iterator->value);
-
-        if (!memberDeclaration)
-        {
-            throw ParseError("Structure " + structType->name +  " has no member " + iterator->value);
-            return nullptr;
-        }
-
-        if (memberDeclaration->getDeclarationKind() != Declaration::Kind::Field)
-            throw ParseError(iterator->value + " is not a field");
-
-        expression->fieldDeclaration = static_cast<FieldDeclaration*>(memberDeclaration);
-
-        ++iterator;
-
-        expression->qualifiedType = expression->fieldDeclaration->qualifiedType;
-        if ((result->qualifiedType.qualifiers & Qualifiers::Const) == Qualifiers::Const)
-            expression->qualifiedType.qualifiers = Qualifiers::Const;
-        expression->category = Expression::Category::Lvalue;
-
-        result->parent = expression;
-        result = expression;
     }
 
     return result;
