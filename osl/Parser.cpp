@@ -829,7 +829,6 @@ TypeDeclaration* ASTContext::parseStructTypeDeclaration(std::vector<Token>::cons
 {
     TypeDeclaration* result;
     constructs.push_back(std::unique_ptr<Construct>(result = new TypeDeclaration()));
-    declarationScopes.back().push_back(result);
     result->parent = parent;
 
     expectToken(Token::Type::Identifier, iterator, end);
@@ -846,6 +845,8 @@ TypeDeclaration* ASTContext::parseStructTypeDeclaration(std::vector<Token>::cons
     result->type = structType;
 
     ++iterator;
+
+    declarationScopes.back().push_back(result);
 
     if (isToken(Token::Type::LeftBrace, iterator, end))
     {
