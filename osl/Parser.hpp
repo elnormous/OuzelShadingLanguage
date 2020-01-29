@@ -374,8 +374,11 @@ private:
         types.push_back(std::unique_ptr<Type>(vectorType = new VectorType()));
 
         vectorType->name = name;
+        vectorType->size = componentType->size * componentCount;
         vectorType->componentType = componentType;
         vectorType->componentCount = componentCount;
+
+        vectorTypes[std::make_pair(componentType, componentCount)] = vectorType;
 
         return vectorType;
     }
@@ -455,6 +458,7 @@ private:
     std::vector<Declaration*> declarations;
     std::vector<std::unique_ptr<Construct>> constructs;
 
+    std::map<std::pair<Type*, uint8_t>, Type*> vectorTypes;
     std::map<std::pair<QualifiedType, uint32_t>, ArrayType*> arrayTypes;
 
     ScalarType* boolType = nullptr;

@@ -592,6 +592,21 @@ namespace
         if (structDefinitionType->definition != structTypeDefinition)
             throw TestError("Wrong definition");
     }
+
+    void testSwizling()
+    {
+        std::string code = R"OSL(
+        void main()
+        {
+            float4 f1;
+            float4 f2;
+            f1.xyzw;
+            f2.xxxx;
+        }
+        )OSL";
+
+        ASTContext context(tokenize(code));
+    }
 }
 
 int main(int argc, const char * argv[])
@@ -607,6 +622,7 @@ int main(int argc, const char * argv[])
     testRunner.run(testReturnStatement);
     testRunner.run(testExpressions);
     testRunner.run(testStructDeclaration);
+    testRunner.run(testSwizling);
 
     if (testRunner.getResult())
         std::cout << "Success\n";

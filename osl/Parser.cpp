@@ -112,13 +112,13 @@ ASTContext::ASTContext(const std::vector<Token>& tokens)
 //        addOperatorDeclaration(Operator::Negative, ScalarType, {ScalarType}, declarationScopes);
 //    }
 
-    VectorType* float2Type = addVectorType("float2", floatType, 8, declarationScopes);
-    VectorType* float3Type = addVectorType("float3", floatType, 12, declarationScopes);
-    VectorType* float4Type = addVectorType("float4", floatType, 16, declarationScopes);
+    VectorType* float2Type = addVectorType("float2", floatType, 2, declarationScopes);
+    VectorType* float3Type = addVectorType("float3", floatType, 3, declarationScopes);
+    VectorType* float4Type = addVectorType("float4", floatType, 4, declarationScopes);
 
-    StructType* float2x2Type = addStructType("float2x2", 16, declarationScopes);
-    StructType* float3x3Type = addStructType("float3x3", 36, declarationScopes);
-    StructType* float4x4Type = addStructType("float4x4", 64, declarationScopes);
+    StructType* float2x2Type = addStructType("float2x2", 4, declarationScopes);
+    StructType* float3x3Type = addStructType("float3x3", 9, declarationScopes);
+    StructType* float4x4Type = addStructType("float4x4", 16, declarationScopes);
     stringType = addStructType("string", 8, declarationScopes);
     StructType* texture2DType = addStructType("Texture2D", 0, declarationScopes);
 
@@ -2138,6 +2138,18 @@ Expression* ASTContext::parseSubscriptExpression(std::vector<Token>::const_itera
     return result;
 }
 
+namespace
+{
+    constexpr uint8_t charToComponent(char c)
+    {
+        return (c == 'x' || c == 'r') ? 0 :
+            (c == 'y' || c == 'g') ? 1 :
+            (c == 'z' || c == 'b') ? 2 :
+            (c == 'w' || c == 'a') ? 3 :
+            throw ParseError("Invalid component");
+    }
+}
+
 Expression* ASTContext::parseMemberExpression(std::vector<Token>::const_iterator& iterator,
                                               std::vector<Token>::const_iterator end,
                                               std::vector<std::vector<Declaration*>>& declarationScopes,
@@ -2164,7 +2176,7 @@ Expression* ASTContext::parseMemberExpression(std::vector<Token>::const_iterator
             expression->parent = parent;
             expression->expression = result;
 
-            StructType* structType = static_cast<StructType*>(result->qualifiedType.type);
+            auto structType = static_cast<StructType*>(result->qualifiedType.type);
 
             expectToken(Token::Type::Identifier, iterator, end);
 
@@ -2193,7 +2205,15 @@ Expression* ASTContext::parseMemberExpression(std::vector<Token>::const_iterator
         }
         else if (result->qualifiedType.type->getTypeKind() == Type::Kind::Vector)
         {
-            std::string swizzle = iterator->value;
+            std::vector<uint8_t> components;
+            std::set<uint8_t> componentSet;
+
+            for (const char c : iterator->value)
+            {
+                uint8_t component = charToComponent(c);
+                componentSet.insert(component);
+                components.push_back(component);
+            }
 
             ++iterator;
 
@@ -2201,7 +2221,22 @@ Expression* ASTContext::parseMemberExpression(std::vector<Token>::const_iterator
             constructs.push_back(std::unique_ptr<Construct>(expression = new VectorElementExpression()));
             expression->parent = parent;
 
-            // TODO: parse swizzling
+            auto vectorType = static_cast<VectorType*>(result->qualifiedType.type);
+
+            auto resultTypeIterator = vectorTypes.find(std::make_pair(vectorType->componentType,
+                                                                      static_cast<uint8_t>(components.size())));
+
+            if (resultTypeIterator == vectorTypes.end())
+                throw ParseError("Invalid swizzle");
+
+            expression->qualifiedType.type = resultTypeIterator->second;
+
+            if (componentSet.size() == components.size()) // doesn't have same component repeated
+                expression->category = Expression::Category::Lvalue;
+
+            for (uint8_t component : components)
+                if (component >= vectorType->componentCount)
+                    throw ParseError("Invalid swizzle");
         }
         else
             throw ParseError(result->qualifiedType.type->name + " is not a structure");
