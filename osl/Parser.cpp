@@ -2232,7 +2232,7 @@ Expression* ASTContext::parseMemberExpression(std::vector<Token>::const_iterator
             expression->qualifiedType.type = resultTypeIterator->second;
 
             if (componentSet.size() == components.size()) // doesn't have same component repeated
-                expression->category = Expression::Category::Lvalue;
+                expression->qualifiedType.qualifiers = Qualifiers::Const;
 
             for (uint8_t component : components)
                 if (component >= vectorType->componentCount)
