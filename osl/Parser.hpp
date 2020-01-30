@@ -356,11 +356,10 @@ private:
         structType->name = name;
         structType->size = size;
 
-        // TODO: fix
-//        addOperatorDeclaration(Operator::Comma, structDeclaration, {structDeclaration, structDeclaration}, declarationScopes);
-//        addOperatorDeclaration(Operator::Assignment, structDeclaration, {structDeclaration, structDeclaration}, declarationScopes);
-//        addOperatorDeclaration(Operator::Equality, structDeclaration, {structDeclaration, structDeclaration}, declarationScopes);
-//        addOperatorDeclaration(Operator::Inequality, structDeclaration, {structDeclaration, structDeclaration}, declarationScopes);
+        addOperatorDeclaration(Operator::Comma, structType, {structType, structType}, declarationScopes, nullptr);
+        addOperatorDeclaration(Operator::Assignment, structType, {structType, structType}, declarationScopes, nullptr);
+        addOperatorDeclaration(Operator::Equality, boolType, {structType, structType}, declarationScopes, nullptr);
+        addOperatorDeclaration(Operator::Inequality, boolType, {structType, structType}, declarationScopes, nullptr);
 
         return structType;
     }
@@ -379,6 +378,11 @@ private:
         vectorType->componentCount = componentCount;
 
         vectorTypes[std::make_pair(componentType, componentCount)] = vectorType;
+
+        addOperatorDeclaration(Operator::Comma, vectorType, {vectorType, vectorType}, declarationScopes, nullptr);
+        addOperatorDeclaration(Operator::Assignment, vectorType, {vectorType, vectorType}, declarationScopes, nullptr);
+        addOperatorDeclaration(Operator::Equality, boolType, {vectorType, vectorType}, declarationScopes, nullptr);
+        addOperatorDeclaration(Operator::Inequality, boolType, {vectorType, vectorType}, declarationScopes, nullptr);
 
         return vectorType;
     }
@@ -432,24 +436,26 @@ private:
     OperatorDeclaration* addOperatorDeclaration(Operator op,
                                                 Type* resultType,
                                                 const std::vector<Type*>& parameters,
-                                                std::vector<std::vector<Declaration*>>& declarationScopes)
+                                                std::vector<std::vector<Declaration*>>& declarationScopes,
+                                                Construct* parent)
     {
         OperatorDeclaration* operatorDeclaration;
         constructs.push_back(std::unique_ptr<Construct>(operatorDeclaration = new OperatorDeclaration()));
 
-//        operatorDeclaration->op = op;
-//        operatorDeclaration->qualifiedType.typeDeclaration = resultType;
-//
-//        for (TypeDeclaration* parameter : parameters)
-//        {
-//            ParameterDeclaration* parameterDeclaration;
-//            constructs.push_back(std::unique_ptr<Construct>(parameterDeclaration = new ParameterDeclaration()));
-//
-//            parameterDeclaration->qualifiedType.typeDeclaration = parameter;
-//            operatorDeclaration->parameterDeclarations.push_back(parameterDeclaration);
-//        }
-//
-//        declarationScopes.back().push_back(operatorDeclaration);
+        operatorDeclaration->parent = parent;
+        operatorDeclaration->op = op;
+        operatorDeclaration->qualifiedType.type = resultType;
+
+        for (Type* parameter : parameters)
+        {
+            ParameterDeclaration* parameterDeclaration;
+            constructs.push_back(std::unique_ptr<Construct>(parameterDeclaration = new ParameterDeclaration()));
+
+            parameterDeclaration->qualifiedType.type = parameter;
+            operatorDeclaration->parameterDeclarations.push_back(parameterDeclaration);
+        }
+
+        declarationScopes.back().push_back(operatorDeclaration);
 
         return operatorDeclaration;
     }

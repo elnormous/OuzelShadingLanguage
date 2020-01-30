@@ -885,10 +885,10 @@ TypeDeclaration* ASTContext::parseStructTypeDeclaration(std::vector<Token>::cons
         }
     }
 
-//    addOperatorDeclaration(Operator::Comma, result, {result, result}, declarationScopes);
-//    addOperatorDeclaration(Operator::Assignment, result, {result, result}, declarationScopes);
-//    addOperatorDeclaration(Operator::Equality, result, {result, result}, declarationScopes);
-//    addOperatorDeclaration(Operator::Inequality, result, {result, result}, declarationScopes);
+    addOperatorDeclaration(Operator::Comma, structType, {structType, structType}, declarationScopes, result);
+    addOperatorDeclaration(Operator::Assignment, structType, {structType, structType}, declarationScopes, result);
+    addOperatorDeclaration(Operator::Equality, boolType, {structType, structType}, declarationScopes, result);
+    addOperatorDeclaration(Operator::Inequality, boolType, {structType, structType}, declarationScopes, result);
 
     return result;
 }

@@ -600,8 +600,7 @@ namespace
         {
             float4 f1;
             float4 f2;
-            f1.xyzw;
-            f2.xxxx;
+            f1.xyzw = f2.xxxx;
         }
         )OSL";
 
