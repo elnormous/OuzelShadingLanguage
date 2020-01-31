@@ -22,6 +22,7 @@ public:
         UnaryOperator,
         BinaryOperator,
         TernaryOperator,
+        OperatorCall,
         TemporaryObject,
         InitializerList,
         Cast,
@@ -173,6 +174,15 @@ public:
     Expression* condition;
     Expression* leftExpression = nullptr;
     Expression* rightExpression = nullptr;
+};
+
+class OperatorCallExpression: public Expression
+{
+public:
+    OperatorCallExpression() noexcept: Expression(Expression::Kind::OperatorCall) {}
+
+    DeclarationReferenceExpression* declarationReference = nullptr;
+    std::vector<Expression*> arguments;
 };
 
 class TemporaryObjectExpression: public Expression

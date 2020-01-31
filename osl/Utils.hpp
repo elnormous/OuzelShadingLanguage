@@ -637,6 +637,20 @@ namespace
                 break;
             }
 
+            case Expression::Kind::OperatorCall:
+            {
+                auto operatorCallExpression = static_cast<const OperatorCallExpression*>(expression);
+
+                std::cout << '\n';
+
+                dumpConstruct(operatorCallExpression->declarationReference, level + 1);
+
+                for (const auto argument : operatorCallExpression->arguments)
+                    dumpConstruct(argument, level + 1);
+
+                break;
+            }
+
             case Expression::Kind::TemporaryObject:
             {
                 auto temporaryObjectExpression = static_cast<const TemporaryObjectExpression*>(expression);
