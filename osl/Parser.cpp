@@ -1945,18 +1945,12 @@ Expression* ASTContext::parsePrimaryExpression(std::vector<Token>::const_iterato
             return result;
         }
     }
-    else if (isToken({Token::Type::ConstCast,
-        Token::Type::DynamicCast,
-        Token::Type::ReinterpretCast,
-        Token::Type::StaticCast}, iterator, end))
+    else if (isToken(Token::Type::StaticCast, iterator, end))
     {
         CastExpression::Kind castKind;
         
         switch (iterator->type)
         {
-            case Token::Type::ConstCast: castKind = CastExpression::Kind::Const; break;
-            case Token::Type::DynamicCast: castKind = CastExpression::Kind::Dynamic; break;
-            case Token::Type::ReinterpretCast: castKind = CastExpression::Kind::Reinterpet; break;
             case Token::Type::StaticCast: castKind = CastExpression::Kind::Static; break;
             default: throw ParseError("Invalid cast");
         }

@@ -136,8 +136,6 @@ namespace
             case CastExpression::Kind::Implicit: return "Implicit";
             case CastExpression::Kind::CStyle: return "CStyle";
             case CastExpression::Kind::Functional: return "Functional";
-            case CastExpression::Kind::Dynamic: return "Dynamic";
-            case CastExpression::Kind::Reinterpet: return "Reinterpet";
             case CastExpression::Kind::Static: return "Static";
             default: return "Unknown";
         }

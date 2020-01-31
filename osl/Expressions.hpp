@@ -253,9 +253,6 @@ public:
         Implicit,
         CStyle,
         Functional,
-        Const,
-        Dynamic,
-        Reinterpet,
         Static
     };
 
