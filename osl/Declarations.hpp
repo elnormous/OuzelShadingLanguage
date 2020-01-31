@@ -6,7 +6,6 @@
 #define DECLARATIONS_HPP
 
 #include "Construct.hpp"
-#include "Operator.hpp"
 #include "QualifiedType.hpp"
 
 class Expression;
@@ -142,8 +141,7 @@ public:
     {
         Function,
         Constructor,
-        Method,
-        Operator
+        Method
     };
 
     CallableDeclaration(Kind initCallableDeclarationKind): Declaration(Declaration::Kind::Callable), callableDeclarationKind(initCallableDeclarationKind) {}
@@ -158,11 +156,43 @@ protected:
     const Kind callableDeclarationKind;
 };
 
+enum class OverloadedOperator
+{
+    None,
+    Negation, // !
+    Positive, // +
+    Negative, // -
+    PrefixIncrement, // ++
+    PrefixDecrement, // --
+    PostfixIncrement, // ++
+    PostfixDecrement, // --
+    Addition, // +
+    Subtraction, // -
+    Multiplication, // *
+    Division, // /
+    AdditionAssignment, // +=
+    SubtractAssignment, // -=
+    MultiplicationAssignment, // *=
+    DivisionAssignment, // /=
+    LessThan, // <
+    LessThanEqual, // <=
+    GreaterThan, // >
+    GraterThanEqual, // >=
+    Equality, // ==
+    Inequality, // !=
+    Assignment, // =
+    Or, // ||
+    And, // &&
+    Comma, // ,
+    Subscript // []
+};
+
 class FunctionDeclaration: public CallableDeclaration
 {
 public:
     FunctionDeclaration(): CallableDeclaration(CallableDeclaration::Kind::Function) {}
 
+    OverloadedOperator overloadedOperator = OverloadedOperator::None;
     bool isInline = false;
     bool isStatic = false;
     bool isBuiltin = false;
@@ -184,14 +214,6 @@ public:
     bool isInline = false;
     bool isStatic = false;
     bool isBuiltin = false;
-};
-
-class OperatorDeclaration: public CallableDeclaration
-{
-public:
-    OperatorDeclaration(): CallableDeclaration(CallableDeclaration::Kind::Operator) {}
-
-    Operator op;
 };
 
 class StructType final: public Type

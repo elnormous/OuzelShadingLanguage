@@ -146,30 +146,73 @@ public:
 class UnaryOperatorExpression: public Expression
 {
 public:
-    UnaryOperatorExpression() noexcept: Expression(Expression::Kind::UnaryOperator) {}
+    enum class Kind
+    {
+        Negation, // !
+        Positive, // +
+        Negative // -
+    };
 
-    OperatorDeclaration* operatorDeclaration = nullptr;
+    UnaryOperatorExpression(Kind initOperatorKind) noexcept:
+        Expression(Expression::Kind::UnaryOperator),
+        operatorKind(initOperatorKind)
+    {}
+
+    inline Kind getOperatorKind() const noexcept { return operatorKind; }
 
     Expression* expression = nullptr;
+
+private:
+    Kind operatorKind;
 };
 
 class BinaryOperatorExpression: public Expression
 {
 public:
-    BinaryOperatorExpression() noexcept: Expression(Expression::Kind::BinaryOperator) {}
+    enum class Kind
+    {
+        PrefixIncrement, // ++
+        PrefixDecrement, // --
+        PostfixIncrement, // ++
+        PostfixDecrement, // --
+        Addition, // +
+        Subtraction, // -
+        Multiplication, // *
+        Division, // /
+        AdditionAssignment, // +=
+        SubtractAssignment, // -=
+        MultiplicationAssignment, // *=
+        DivisionAssignment, // /=
+        LessThan, // <
+        LessThanEqual, // <=
+        GreaterThan, // >
+        GraterThanEqual, // >=
+        Equality, // ==
+        Inequality, // !=
+        Assignment, // =
+        Or, // ||
+        And, // &&
+        Comma, // ,
+        Subscript // []
+    };
 
-    OperatorDeclaration* operatorDeclaration = nullptr;
+    BinaryOperatorExpression(Kind initOperatorKind) noexcept: Expression(Expression::Kind::BinaryOperator),
+        operatorKind(initOperatorKind)
+    {}
+
+    inline Kind getOperatorKind() const noexcept { return operatorKind; }
 
     Expression* leftExpression = nullptr;
     Expression* rightExpression = nullptr;
+
+private:
+    Kind operatorKind;
 };
 
 class TernaryOperatorExpression: public Expression
 {
 public:
     TernaryOperatorExpression() noexcept: Expression(Expression::Kind::TernaryOperator) {}
-
-    OperatorDeclaration* operatorDeclaration = nullptr;
 
     Expression* condition;
     Expression* leftExpression = nullptr;

@@ -342,11 +342,11 @@ FunctionDeclaration* ASTContext::resolveFunctionDeclaration(const std::string& n
     return nullptr;
 }
 
-OperatorDeclaration* ASTContext::resolveOperatorDeclaration(Operator op,
+FunctionDeclaration* ASTContext::resolveOperatorDeclaration(OverloadedOperator overloadedOperator,
                                                             const std::vector<std::vector<Declaration*>>& declarationScopes,
                                                             const std::vector<QualifiedType>& arguments)
 {
-    std::vector<OperatorDeclaration*> candidateOperatorDeclarations;
+    std::vector<FunctionDeclaration*> candidateOperatorDeclarations;
 
     for (auto scopeIterator = declarationScopes.crbegin(); scopeIterator != declarationScopes.crend(); ++scopeIterator)
     {
@@ -356,11 +356,11 @@ OperatorDeclaration* ASTContext::resolveOperatorDeclaration(Operator op,
             {
                 CallableDeclaration* callableDeclaration = static_cast<CallableDeclaration*>(*declarationIterator);
 
-                if (callableDeclaration->getCallableDeclarationKind() == CallableDeclaration::Kind::Operator)
+                if (callableDeclaration->getCallableDeclarationKind() == CallableDeclaration::Kind::Function)
                 {
-                    OperatorDeclaration* operatorDeclaration = static_cast<OperatorDeclaration*>(callableDeclaration->getFirstDeclaration());
+                    FunctionDeclaration* operatorDeclaration = static_cast<FunctionDeclaration*>(callableDeclaration->getFirstDeclaration());
 
-                    if (operatorDeclaration->op == op &&
+                    if (operatorDeclaration->overloadedOperator == overloadedOperator &&
                         std::find(candidateOperatorDeclarations.begin(), candidateOperatorDeclarations.end(), operatorDeclaration) == candidateOperatorDeclarations.end())
                         candidateOperatorDeclarations.push_back(operatorDeclaration);
                 }
@@ -368,9 +368,9 @@ OperatorDeclaration* ASTContext::resolveOperatorDeclaration(Operator op,
         }
     }
 
-    std::vector<OperatorDeclaration*> viableOperatorDeclarations;
+    std::vector<FunctionDeclaration*> viableOperatorDeclarations;
 
-    for (OperatorDeclaration* operatorDeclaration : candidateOperatorDeclarations)
+    for (FunctionDeclaration* operatorDeclaration : candidateOperatorDeclarations)
     {
         if (operatorDeclaration->parameterDeclarations.size() == arguments.size())
         {
@@ -391,13 +391,13 @@ OperatorDeclaration* ASTContext::resolveOperatorDeclaration(Operator op,
     }
 
     if (viableOperatorDeclarations.empty())
-        throw ParseError("No matching function operator " + toString(op) + " found");
+        throw ParseError("No matching function operator " + toString(overloadedOperator) + " found");
     else if (viableOperatorDeclarations.size() == 1)
         return *viableOperatorDeclarations.begin();
     else
     {
         if (arguments.empty()) // two or more functions with zero parameters
-            throw ParseError("Ambiguous call to operator " + toString(op));
+            throw ParseError("Ambiguous call to operator " + toString(overloadedOperator));
 
         for (auto first : viableOperatorDeclarations)
         {
@@ -415,7 +415,7 @@ OperatorDeclaration* ASTContext::resolveOperatorDeclaration(Operator op,
             if (best) return first;
         };
 
-        throw ParseError("Ambiguous call to operator " + toString(op));
+        throw ParseError("Ambiguous call to operator " + toString(overloadedOperator));
     }
 
     return nullptr;
@@ -885,10 +885,10 @@ TypeDeclaration* ASTContext::parseStructTypeDeclaration(std::vector<Token>::cons
         }
     }
 
-    addOperatorDeclaration(Operator::Comma, structType, {structType, structType}, declarationScopes, result);
-    addOperatorDeclaration(Operator::Assignment, structType, {structType, structType}, declarationScopes, result);
-    addOperatorDeclaration(Operator::Equality, boolType, {structType, structType}, declarationScopes, result);
-    addOperatorDeclaration(Operator::Inequality, boolType, {structType, structType}, declarationScopes, result);
+    addOperatorDeclaration(OverloadedOperator::Comma, structType, {structType, structType}, declarationScopes, result);
+    addOperatorDeclaration(OverloadedOperator::Assignment, structType, {structType, structType}, declarationScopes, result);
+    addOperatorDeclaration(OverloadedOperator::Equality, boolType, {structType, structType}, declarationScopes, result);
+    addOperatorDeclaration(OverloadedOperator::Inequality, boolType, {structType, structType}, declarationScopes, result);
 
     return result;
 }
@@ -2253,26 +2253,26 @@ Expression* ASTContext::parseSignExpression(std::vector<Token>::const_iterator& 
     if (isToken({Token::Type::Plus, Token::Type::Minus}, iterator, end))
     {
         UnaryOperatorExpression* result;
-        constructs.push_back(std::unique_ptr<Construct>(result = new UnaryOperatorExpression()));
-        result->parent = parent;
 
-        const Operator op = (iterator->type == Token::Type::Plus) ? Operator::Positive :
-            (iterator->type == Token::Type::Minus) ? Operator::Negative :
+        const auto operatorKind =
+            (iterator->type == Token::Type::Plus) ? UnaryOperatorExpression::Kind::Positive :
+            (iterator->type == Token::Type::Minus) ? UnaryOperatorExpression::Kind::Negative :
             throw ParseError("Invalid operator");
+
+        constructs.push_back(std::unique_ptr<Construct>(result = new UnaryOperatorExpression(operatorKind)));
+        result->parent = parent;
 
         ++iterator;
 
         if (!(result->expression = parseMemberExpression(iterator, end, declarationScopes, result)))
             return nullptr;
 
-        result->operatorDeclaration = resolveOperatorDeclaration(op, declarationScopes, {result->expression->qualifiedType});
-
         if (result->expression->qualifiedType.type == boolType)
             result->expression = addImplicitCast(result->expression,
                                                  intType,
                                                  result->expression->category);
 
-        result->qualifiedType = result->operatorDeclaration->qualifiedType;
+        result->qualifiedType.type = result->expression->qualifiedType.type;
         result->category = Expression::Category::Rvalue;
 
         return result;
@@ -2294,25 +2294,23 @@ Expression* ASTContext::parseNotExpression(std::vector<Token>::const_iterator& i
 {
     if (isToken(Token::Type::Not, iterator, end))
     {
-        UnaryOperatorExpression* result;
-        constructs.push_back(std::unique_ptr<Construct>(result = new UnaryOperatorExpression()));
-        result->parent = parent;
+        const auto operatorKind = UnaryOperatorExpression::Kind::Negation;
 
-        const Operator op = Operator::Negation;
+        UnaryOperatorExpression* result;
+        constructs.push_back(std::unique_ptr<Construct>(result = new UnaryOperatorExpression(operatorKind)));
+        result->parent = parent;
 
         ++iterator;
 
         if (!(result->expression = parseExpression(iterator, end, declarationScopes, result)))
             return nullptr;
 
-        result->operatorDeclaration = resolveOperatorDeclaration(op, declarationScopes, {result->expression->qualifiedType});
-
         if (result->expression->qualifiedType.type != boolType)
             result->expression = addImplicitCast(result->expression,
                                                  boolType,
                                                  result->expression->category);
 
-        result->qualifiedType = result->operatorDeclaration->qualifiedType;
+        result->qualifiedType.type = boolType;
         result->category = Expression::Category::Rvalue;
 
         return result;
@@ -2381,13 +2379,15 @@ Expression* ASTContext::parseMultiplicationExpression(std::vector<Token>::const_
 
     while (isToken({Token::Type::Multiply, Token::Type::Divide}, iterator, end))
     {
+        const auto operatorKind =
+            (iterator->type == Token::Type::Multiply) ? BinaryOperatorExpression::Kind::Multiplication :
+            (iterator->type == Token::Type::Divide) ? BinaryOperatorExpression::Kind::Division :
+            throw ParseError("Invalid operator");
+
         BinaryOperatorExpression* expression;
-        constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression()));
+        constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression(operatorKind)));
         expression->parent = parent;
 
-        const Operator op = (iterator->type == Token::Type::Multiply) ? Operator::Multiplication :
-            (iterator->type == Token::Type::Divide) ? Operator::Division :
-            throw ParseError("Invalid operator");
 
         expression->leftExpression = result;
 
@@ -2396,10 +2396,10 @@ Expression* ASTContext::parseMultiplicationExpression(std::vector<Token>::const_
         if (!(expression->rightExpression = parseSizeofExpression(iterator, end, declarationScopes, expression)))
             return nullptr;
 
-        expression->operatorDeclaration = resolveOperatorDeclaration(op, declarationScopes,
-                                                                     {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
-
-        expression->qualifiedType = expression->operatorDeclaration->qualifiedType;
+//        expression->operatorDeclaration = resolveOperatorDeclaration(operatorKind, declarationScopes,
+//                                                                     {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
+//
+        expression->qualifiedType.type = expression->leftExpression->qualifiedType.type;
         expression->category = Expression::Category::Rvalue;
 
         result->parent = expression;
@@ -2420,13 +2420,14 @@ Expression* ASTContext::parseAdditionExpression(std::vector<Token>::const_iterat
 
     while (isToken({Token::Type::Plus, Token::Type::Minus}, iterator, end))
     {
-        BinaryOperatorExpression* expression;
-        constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression()));
-        expression->parent = parent;
-
-        const Operator op = (iterator->type == Token::Type::Plus) ? Operator::Addition :
-            (iterator->type == Token::Type::Minus) ? Operator::Subtraction :
+        const auto operatorKind =
+            (iterator->type == Token::Type::Plus) ? BinaryOperatorExpression::Kind::Addition :
+            (iterator->type == Token::Type::Minus) ? BinaryOperatorExpression::Kind::Subtraction :
             throw ParseError("Invalid operator");
+
+        BinaryOperatorExpression* expression;
+        constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression(operatorKind)));
+        expression->parent = parent;
 
         expression->leftExpression = result;
 
@@ -2435,10 +2436,11 @@ Expression* ASTContext::parseAdditionExpression(std::vector<Token>::const_iterat
         if (!(expression->rightExpression = parseMultiplicationExpression(iterator, end, declarationScopes, expression)))
             return nullptr;
 
-        expression->operatorDeclaration = resolveOperatorDeclaration(op, declarationScopes,
-                                                                     {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
-
-        expression->qualifiedType = expression->operatorDeclaration->qualifiedType;
+//        expression->operatorDeclaration = resolveOperatorDeclaration(op, declarationScopes,
+//                                                                     {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
+//
+//        expression->qualifiedType = expression->operatorDeclaration->qualifiedType;
+        expression->qualifiedType.type = expression->leftExpression->qualifiedType.type;
         expression->category = Expression::Category::Rvalue;
 
         result->parent = expression;
@@ -2459,13 +2461,14 @@ Expression* ASTContext::parseLessThanExpression(std::vector<Token>::const_iterat
 
     while (isToken({Token::Type::LessThan, Token::Type::LessThanEqual}, iterator, end))
     {
-        BinaryOperatorExpression* expression;
-        constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression()));
-        expression->parent = parent;
-
-        const Operator op = (iterator->type == Token::Type::LessThan) ? Operator::LessThan :
-            (iterator->type == Token::Type::LessThanEqual) ? Operator::LessThanEqual :
+        const auto operatorKind =
+            (iterator->type == Token::Type::LessThan) ? BinaryOperatorExpression::Kind::LessThan :
+            (iterator->type == Token::Type::LessThanEqual) ? BinaryOperatorExpression::Kind::LessThanEqual :
             throw ParseError("Invalid operator");
+
+        BinaryOperatorExpression* expression;
+        constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression(operatorKind)));
+        expression->parent = parent;
 
         ++iterator;
 
@@ -2474,8 +2477,8 @@ Expression* ASTContext::parseLessThanExpression(std::vector<Token>::const_iterat
         if (!(expression->rightExpression = parseAdditionExpression(iterator, end, declarationScopes, expression)))
             return nullptr;
 
-        expression->operatorDeclaration = resolveOperatorDeclaration(op, declarationScopes,
-                                                                     {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
+//        expression->operatorDeclaration = resolveOperatorDeclaration(op, declarationScopes,
+//                                                                     {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
 
         expression->qualifiedType.type = boolType;
         expression->category = Expression::Category::Rvalue;
@@ -2498,13 +2501,14 @@ Expression* ASTContext::parseGreaterThanExpression(std::vector<Token>::const_ite
 
     while (isToken({Token::Type::GreaterThan, Token::Type::GreaterThanEqual}, iterator, end))
     {
-        BinaryOperatorExpression* expression;
-        constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression()));
-        expression->parent = parent;
-
-        const Operator op = (iterator->type == Token::Type::GreaterThan) ? Operator::GreaterThan :
-            (iterator->type == Token::Type::GreaterThanEqual) ? Operator::GraterThanEqual :
+        const auto operatorKind =
+            (iterator->type == Token::Type::GreaterThan) ? BinaryOperatorExpression::Kind::GreaterThan :
+            (iterator->type == Token::Type::GreaterThanEqual) ? BinaryOperatorExpression::Kind::GraterThanEqual :
             throw ParseError("Invalid operator");
+
+        BinaryOperatorExpression* expression;
+        constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression(operatorKind)));
+        expression->parent = parent;
 
         ++iterator;
 
@@ -2513,8 +2517,8 @@ Expression* ASTContext::parseGreaterThanExpression(std::vector<Token>::const_ite
         if (!(expression->rightExpression = parseLessThanExpression(iterator, end, declarationScopes, expression)))
             return nullptr;
 
-        expression->operatorDeclaration = resolveOperatorDeclaration(op, declarationScopes,
-                                                                     {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
+//        expression->operatorDeclaration = resolveOperatorDeclaration(op, declarationScopes,
+//                                                                     {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
 
         expression->qualifiedType.type = boolType;
         expression->category = Expression::Category::Rvalue;
@@ -2537,13 +2541,14 @@ Expression* ASTContext::parseEqualityExpression(std::vector<Token>::const_iterat
 
     while (isToken({Token::Type::Equal, Token::Type::NotEq}, iterator, end))
     {
-        BinaryOperatorExpression* expression;
-        constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression()));
-        expression->parent = parent;
-
-        const Operator op = (iterator->type == Token::Type::Equal) ? Operator::Equality :
-            (iterator->type == Token::Type::NotEq) ? Operator::Inequality :
+        const auto operatorKind =
+            (iterator->type == Token::Type::Equal) ? BinaryOperatorExpression::Kind::Equality :
+            (iterator->type == Token::Type::NotEq) ? BinaryOperatorExpression::Kind::Inequality :
             throw ParseError("Invalid operator");
+
+        BinaryOperatorExpression* expression;
+        constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression(operatorKind)));
+        expression->parent = parent;
 
         ++iterator;
 
@@ -2552,8 +2557,8 @@ Expression* ASTContext::parseEqualityExpression(std::vector<Token>::const_iterat
         if (!(expression->rightExpression = parseGreaterThanExpression(iterator, end, declarationScopes, expression)))
             return nullptr;
 
-        expression->operatorDeclaration = resolveOperatorDeclaration(op, declarationScopes,
-                                                                     {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
+//        expression->operatorDeclaration = resolveOperatorDeclaration(op, declarationScopes,
+//                                                                     {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
 
         expression->qualifiedType.type = boolType;
         expression->category = Expression::Category::Rvalue;
@@ -2578,19 +2583,19 @@ Expression* ASTContext::parseLogicalAndExpression(std::vector<Token>::const_iter
     {
         ++iterator;
 
-        BinaryOperatorExpression* expression;
-        constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression()));
-        expression->parent = parent;
+        const auto operatorKind = BinaryOperatorExpression::Kind::And;
 
-        const Operator op = Operator::And;
+        BinaryOperatorExpression* expression;
+        constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression(operatorKind)));
+        expression->parent = parent;
 
         expression->leftExpression = result;
 
         if (!(expression->rightExpression = parseEqualityExpression(iterator, end, declarationScopes, expression)))
             return nullptr;
 
-        expression->operatorDeclaration = resolveOperatorDeclaration(op, declarationScopes,
-                                                                     {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
+//        expression->operatorDeclaration = resolveOperatorDeclaration(op, declarationScopes,
+//                                                                     {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
 
         // TODO: check if both sides ar scalar
         expression->qualifiedType.type = boolType;
@@ -2616,19 +2621,19 @@ Expression* ASTContext::parseLogicalOrExpression(std::vector<Token>::const_itera
     {
         ++iterator;
 
-        BinaryOperatorExpression* expression;
-        constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression()));
-        expression->parent = parent;
+        const auto operatorKind = BinaryOperatorExpression::Kind::Or;
 
-        const Operator op = Operator::Or;
+        BinaryOperatorExpression* expression;
+        constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression(operatorKind)));
+        expression->parent = parent;
 
         expression->leftExpression = result;
 
         if (!(expression->rightExpression = parseLogicalAndExpression(iterator, end, declarationScopes, expression)))
             return nullptr;
 
-        expression->operatorDeclaration = resolveOperatorDeclaration(op, declarationScopes,
-                                                                     {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
+//        expression->operatorDeclaration = resolveOperatorDeclaration(op, declarationScopes,
+//                                                                     {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
 
         // TODO: check if both sides ar scalar
         expression->qualifiedType.type = boolType;
@@ -2702,8 +2707,10 @@ Expression* ASTContext::parseAssignmentExpression(std::vector<Token>::const_iter
     {
         ++iterator;
 
+        const auto operatorKind = BinaryOperatorExpression::Kind::Assignment;
+
         BinaryOperatorExpression* expression;
-        constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression()));
+        constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression(operatorKind)));
         expression->parent = parent;
         expression->leftExpression = result;
 
@@ -2716,11 +2723,12 @@ Expression* ASTContext::parseAssignmentExpression(std::vector<Token>::const_iter
         if (!(expression->rightExpression = parseTernaryExpression(iterator, end, declarationScopes, expression)))
             return nullptr;
 
-        expression->operatorDeclaration = resolveOperatorDeclaration(Operator::Assignment,
-                                                                     declarationScopes,
-                                                                     {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
-
-        expression->qualifiedType = expression->operatorDeclaration->qualifiedType;
+//        expression->operatorDeclaration = resolveOperatorDeclaration(Operator::Assignment,
+//                                                                     declarationScopes,
+//                                                                     {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
+//
+//        expression->qualifiedType = expression->operatorDeclaration->qualifiedType;
+        expression->qualifiedType.type = expression->leftExpression->qualifiedType.type;
         expression->category = Expression::Category::Lvalue;
 
         result->parent = expression;
@@ -2741,13 +2749,14 @@ Expression* ASTContext::parseAdditionAssignmentExpression(std::vector<Token>::co
 
     while (isToken({Token::Type::PlusAssignment, Token::Type::MinusAssignment}, iterator, end))
     {
-        BinaryOperatorExpression* expression;
-        constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression()));
-        expression->parent = parent;
-
-        const Operator op = (iterator->type == Token::Type::PlusAssignment) ? Operator::AdditionAssignment :
-            (iterator->type == Token::Type::MinusAssignment) ? Operator::SubtractAssignment :
+        const auto operatorKind =
+            (iterator->type == Token::Type::PlusAssignment) ? BinaryOperatorExpression::Kind::AdditionAssignment :
+            (iterator->type == Token::Type::MinusAssignment) ? BinaryOperatorExpression::Kind::SubtractAssignment :
             throw ParseError("Invalid operator");
+
+        BinaryOperatorExpression* expression;
+        constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression(operatorKind)));
+        expression->parent = parent;
 
         ++iterator;
 
@@ -2762,10 +2771,11 @@ Expression* ASTContext::parseAdditionAssignmentExpression(std::vector<Token>::co
         if (!(expression->rightExpression = parseAssignmentExpression(iterator, end, declarationScopes, expression)))
             return nullptr;
 
-        expression->operatorDeclaration = resolveOperatorDeclaration(op, declarationScopes,
-                                                                     {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
-
-        expression->qualifiedType = expression->operatorDeclaration->qualifiedType;
+//        expression->operatorDeclaration = resolveOperatorDeclaration(op, declarationScopes,
+//                                                                     {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
+//
+//        expression->qualifiedType = expression->operatorDeclaration->qualifiedType;
+        expression->qualifiedType.type = expression->leftExpression->qualifiedType.type;
         expression->category = Expression::Category::Lvalue;
 
         result->parent = expression;
@@ -2786,13 +2796,14 @@ Expression* ASTContext::parseMultiplicationAssignmentExpression(std::vector<Toke
 
     while (isToken({Token::Type::Multiply, Token::Type::DivideAssignment}, iterator, end))
     {
-        BinaryOperatorExpression* expression;
-        constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression()));
-        expression->parent = parent;
-
-        const Operator op = (iterator->type == Token::Type::Multiply) ? Operator::MultiplicationAssignment :
-            (iterator->type == Token::Type::DivideAssignment) ? Operator::DivisionAssignment :
+        const auto operatorKind =
+            (iterator->type == Token::Type::Multiply) ? BinaryOperatorExpression::Kind::MultiplicationAssignment :
+            (iterator->type == Token::Type::DivideAssignment) ? BinaryOperatorExpression::Kind::DivisionAssignment :
             throw ParseError("Invalid operator");
+
+        BinaryOperatorExpression* expression;
+        constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression(operatorKind)));
+        expression->parent = parent;
 
         ++iterator;
 
@@ -2808,10 +2819,11 @@ Expression* ASTContext::parseMultiplicationAssignmentExpression(std::vector<Toke
         if (!(expression->rightExpression = parseAdditionAssignmentExpression(iterator, end, declarationScopes, expression)))
             return nullptr;
 
-        expression->operatorDeclaration = resolveOperatorDeclaration(op, declarationScopes,
-                                                                     {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
-
-        expression->qualifiedType = expression->operatorDeclaration->qualifiedType;
+//        expression->operatorDeclaration = resolveOperatorDeclaration(op, declarationScopes,
+//                                                                     {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
+//
+//        expression->qualifiedType = expression->operatorDeclaration->qualifiedType;
+        expression->qualifiedType.type = expression->leftExpression->qualifiedType.type;
         expression->category = Expression::Category::Lvalue;
 
         result->parent = expression;
@@ -2832,8 +2844,10 @@ Expression* ASTContext::parseCommaExpression(std::vector<Token>::const_iterator&
 
     while (isToken(Token::Type::Comma, iterator, end))
     {
+        const auto operatorKind = BinaryOperatorExpression::Kind::Comma;
+
         BinaryOperatorExpression* expression;
-        constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression()));
+        constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression(operatorKind)));
         expression->parent = parent;
         expression->leftExpression = result;
 
@@ -2843,10 +2857,8 @@ Expression* ASTContext::parseCommaExpression(std::vector<Token>::const_iterator&
         if (!(expression->rightExpression = parseAdditionAssignmentExpression(iterator, end, declarationScopes, expression)))
             return nullptr;
 
-        expression->operatorDeclaration = resolveOperatorDeclaration(Operator::Comma, declarationScopes,
-                                                                     {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
-
-        expression->qualifiedType = expression->operatorDeclaration->qualifiedType;
+//        expression->qualifiedType = expression->operatorDeclaration->qualifiedType;
+        expression->qualifiedType.type = expression->rightExpression->qualifiedType.type;
         expression->category = expression->rightExpression->category;
 
         result->parent = expression;

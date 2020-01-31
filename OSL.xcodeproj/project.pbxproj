@@ -59,7 +59,6 @@
 		30D57FA6210AA42D00377C5E /* Statements.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Statements.hpp; sourceTree = "<group>"; };
 		30D57FA7210AA46A00377C5E /* Expressions.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Expressions.hpp; sourceTree = "<group>"; };
 		30D57FA8210AA47600377C5E /* Declarations.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Declarations.hpp; sourceTree = "<group>"; };
-		30D57FA9210AA52200377C5E /* Operator.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Operator.hpp; sourceTree = "<group>"; };
 		30DD173D1EAE944F004CAD77 /* OSL */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = OSL; sourceTree = BUILT_PRODUCTS_DIR; };
 		30DD17401EAE944F004CAD77 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		30DD17471EAF967B004CAD77 /* Tokenizer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Tokenizer.cpp; sourceTree = "<group>"; };
@@ -147,7 +146,6 @@
 				30D57FA4210AA3B800377C5E /* Construct.hpp */,
 				30D57FA8210AA47600377C5E /* Declarations.hpp */,
 				30D57FA7210AA46A00377C5E /* Expressions.hpp */,
-				30D57FA9210AA52200377C5E /* Operator.hpp */,
 				308340D61F9238B6000AE853 /* Output.hpp */,
 				308340DB1F9238F2000AE853 /* OutputGLSL.cpp */,
 				308340DC1F9238F2000AE853 /* OutputGLSL.hpp */,

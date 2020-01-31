@@ -668,11 +668,11 @@ void OutputGLSL::printExpression(const Expression* expression, Options options, 
 
             const UnaryOperatorExpression* unaryOperatorExpression = static_cast<const UnaryOperatorExpression*>(expression);
 
-            switch (unaryOperatorExpression->operatorDeclaration->op)
+            switch (unaryOperatorExpression->getOperatorKind())
             {
-                case Operator::Negation: code += "!"; break;
-                case Operator::Positive: code += "+"; break;
-                case Operator::Negative: code += "-"; break;
+                case UnaryOperatorExpression::Kind::Negation: code += "!"; break;
+                case UnaryOperatorExpression::Kind::Positive: code += "+"; break;
+                case UnaryOperatorExpression::Kind::Negative: code += "-"; break;
                 default:
                     throw std::runtime_error("Unknown operator");
             }
@@ -689,28 +689,28 @@ void OutputGLSL::printExpression(const Expression* expression, Options options, 
             printConstruct(binaryOperatorExpression->leftExpression, Options(0, options.whitespaces), code);
 
             if (options.whitespaces &&
-                binaryOperatorExpression->operatorDeclaration->op != Operator::Comma) code += " ";
+                binaryOperatorExpression->getOperatorKind() != BinaryOperatorExpression::Kind::Comma) code += " ";
 
-            switch (binaryOperatorExpression->operatorDeclaration->op)
+            switch (binaryOperatorExpression->getOperatorKind())
             {
-                case Operator::Addition: code += "+"; break;
-                case Operator::Subtraction: code += "-"; break;
-                case Operator::Multiplication: code += "*"; break;
-                case Operator::Division: code += "/"; break;
-                case Operator::AdditionAssignment: code += "+="; break;
-                case Operator::SubtractAssignment: code += "-="; break;
-                case Operator::MultiplicationAssignment: code += "*="; break;
-                case Operator::DivisionAssignment: code += "/="; break;
-                case Operator::LessThan: code += "<"; break;
-                case Operator::LessThanEqual: code += "<="; break;
-                case Operator::GreaterThan: code += ">"; break;
-                case Operator::GraterThanEqual: code += ">="; break;
-                case Operator::Equality: code += "=="; break;
-                case Operator::Inequality: code += "!="; break;
-                case Operator::Assignment: code += "="; break;
-                case Operator::Or: code += "||"; break;
-                case Operator::And: code += "&&"; break;
-                case Operator::Comma: code += ","; break;
+                case BinaryOperatorExpression::Kind::Addition: code += "+"; break;
+                case BinaryOperatorExpression::Kind::Subtraction: code += "-"; break;
+                case BinaryOperatorExpression::Kind::Multiplication: code += "*"; break;
+                case BinaryOperatorExpression::Kind::Division: code += "/"; break;
+                case BinaryOperatorExpression::Kind::AdditionAssignment: code += "+="; break;
+                case BinaryOperatorExpression::Kind::SubtractAssignment: code += "-="; break;
+                case BinaryOperatorExpression::Kind::MultiplicationAssignment: code += "*="; break;
+                case BinaryOperatorExpression::Kind::DivisionAssignment: code += "/="; break;
+                case BinaryOperatorExpression::Kind::LessThan: code += "<"; break;
+                case BinaryOperatorExpression::Kind::LessThanEqual: code += "<="; break;
+                case BinaryOperatorExpression::Kind::GreaterThan: code += ">"; break;
+                case BinaryOperatorExpression::Kind::GraterThanEqual: code += ">="; break;
+                case BinaryOperatorExpression::Kind::Equality: code += "=="; break;
+                case BinaryOperatorExpression::Kind::Inequality: code += "!="; break;
+                case BinaryOperatorExpression::Kind::Assignment: code += "="; break;
+                case BinaryOperatorExpression::Kind::Or: code += "||"; break;
+                case BinaryOperatorExpression::Kind::And: code += "&&"; break;
+                case BinaryOperatorExpression::Kind::Comma: code += ","; break;
                 default:
                     throw std::runtime_error("Unknown operator");
             }

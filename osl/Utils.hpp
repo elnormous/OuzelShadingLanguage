@@ -113,7 +113,6 @@ namespace
             case CallableDeclaration::Kind::Function: return "Function";
             case CallableDeclaration::Kind::Constructor: return "Constructor";
             case CallableDeclaration::Kind::Method: return "Method";
-            case CallableDeclaration::Kind::Operator: return "Operator";
             default: return "Unknown";
         }
     }
@@ -144,32 +143,70 @@ namespace
         }
     }
 
-    std::string toString(Operator op)
+    std::string toString(UnaryOperatorExpression::Kind operatorKind)
+    {
+        switch (operatorKind)
+        {
+            case UnaryOperatorExpression::Kind::Negation: return "Negation";
+            case UnaryOperatorExpression::Kind::Positive: return "Positive";
+            case UnaryOperatorExpression::Kind::Negative: return "Negative";
+            default: return "Unknown";
+        }
+    }
+
+    std::string toString(BinaryOperatorExpression::Kind operatorKind)
+    {
+        switch (operatorKind)
+        {
+            case BinaryOperatorExpression::Kind::Addition: return "Addition";
+            case BinaryOperatorExpression::Kind::Subtraction: return "Subtraction";
+            case BinaryOperatorExpression::Kind::Multiplication: return "Multiplication";
+            case BinaryOperatorExpression::Kind::Division: return "Division";
+            case BinaryOperatorExpression::Kind::AdditionAssignment: return "AdditionAssignment";
+            case BinaryOperatorExpression::Kind::SubtractAssignment: return "SubtractAssignment";
+            case BinaryOperatorExpression::Kind::MultiplicationAssignment: return "MultiplicationAssignment";
+            case BinaryOperatorExpression::Kind::DivisionAssignment: return "DivisionAssignment";
+            case BinaryOperatorExpression::Kind::LessThan: return "LessThan";
+            case BinaryOperatorExpression::Kind::LessThanEqual: return "LessThanEqual";
+            case BinaryOperatorExpression::Kind::GreaterThan: return "GreaterThan";
+            case BinaryOperatorExpression::Kind::GraterThanEqual: return "GraterThanEqual";
+            case BinaryOperatorExpression::Kind::Equality: return "Equality";
+            case BinaryOperatorExpression::Kind::Inequality: return "Inequality";
+            case BinaryOperatorExpression::Kind::Assignment: return "Assignment";
+            case BinaryOperatorExpression::Kind::Or: return "Or";
+            case BinaryOperatorExpression::Kind::And: return "And";
+            case BinaryOperatorExpression::Kind::Comma: return "Comma";
+            case BinaryOperatorExpression::Kind::Subscript: return "Subscript";
+            default: return "Unknown";
+        }
+    }
+
+    std::string toString(OverloadedOperator op)
     {
         switch (op)
         {
-            case Operator::Negation: return "Negation";
-            case Operator::Positive: return "Positive";
-            case Operator::Negative: return "Negative";
-            case Operator::Addition: return "Addition";
-            case Operator::Subtraction: return "Subtraction";
-            case Operator::Multiplication: return "Multiplication";
-            case Operator::Division: return "Division";
-            case Operator::AdditionAssignment: return "AdditionAssignment";
-            case Operator::SubtractAssignment: return "SubtractAssignment";
-            case Operator::MultiplicationAssignment: return "MultiplicationAssignment";
-            case Operator::DivisionAssignment: return "DivisionAssignment";
-            case Operator::LessThan: return "LessThan";
-            case Operator::LessThanEqual: return "LessThanEqual";
-            case Operator::GreaterThan: return "GreaterThan";
-            case Operator::GraterThanEqual: return "GraterThanEqual";
-            case Operator::Equality: return "Equality";
-            case Operator::Inequality: return "Inequality";
-            case Operator::Assignment: return "Assignment";
-            case Operator::Or: return "Or";
-            case Operator::And: return "And";
-            case Operator::Comma: return "Comma";
-            case Operator::Conditional: return "Conditional";
+            case OverloadedOperator::Negation: return "Negation";
+            case OverloadedOperator::Positive: return "Positive";
+            case OverloadedOperator::Negative: return "Negative";
+            case OverloadedOperator::Addition: return "Addition";
+            case OverloadedOperator::Subtraction: return "Subtraction";
+            case OverloadedOperator::Multiplication: return "Multiplication";
+            case OverloadedOperator::Division: return "Division";
+            case OverloadedOperator::AdditionAssignment: return "AdditionAssignment";
+            case OverloadedOperator::SubtractAssignment: return "SubtractAssignment";
+            case OverloadedOperator::MultiplicationAssignment: return "MultiplicationAssignment";
+            case OverloadedOperator::DivisionAssignment: return "DivisionAssignment";
+            case OverloadedOperator::LessThan: return "LessThan";
+            case OverloadedOperator::LessThanEqual: return "LessThanEqual";
+            case OverloadedOperator::GreaterThan: return "GreaterThan";
+            case OverloadedOperator::GraterThanEqual: return "GraterThanEqual";
+            case OverloadedOperator::Equality: return "Equality";
+            case OverloadedOperator::Inequality: return "Inequality";
+            case OverloadedOperator::Assignment: return "Assignment";
+            case OverloadedOperator::Or: return "Or";
+            case OverloadedOperator::And: return "And";
+            case OverloadedOperator::Comma: return "Comma";
+            case OverloadedOperator::Subscript: return "Subscript";
             default: return "Unknown";
         }
     }
@@ -297,6 +334,9 @@ namespace
 
                     if (functionDeclaration->isStatic) std::cout << " static";
                     if (functionDeclaration->isInline) std::cout << " inline";
+
+                    if (functionDeclaration->overloadedOperator != OverloadedOperator::None)
+                        std::cout << ", operator: " << toString(functionDeclaration->overloadedOperator);
 
                     if (functionDeclaration->isProgram)
                         std::cout << ", program: " << toString(functionDeclaration->program);
@@ -608,7 +648,7 @@ namespace
             {
                 auto unaryOperatorExpression = static_cast<const UnaryOperatorExpression*>(expression);
 
-                std::cout <<", operator: " << toString(unaryOperatorExpression->operatorDeclaration->op) << '\n';
+                std::cout <<", operator: " << toString(unaryOperatorExpression->getOperatorKind()) << '\n';
 
                 dumpConstruct(unaryOperatorExpression->expression, level + 1);
                 break;
@@ -618,7 +658,7 @@ namespace
             {
                 auto binaryOperatorExpression = static_cast<const BinaryOperatorExpression*>(expression);
 
-                std::cout << ", operator: " << toString(binaryOperatorExpression->operatorDeclaration->op) << '\n';
+                std::cout << ", operator: " << toString(binaryOperatorExpression->getOperatorKind()) << '\n';
 
                 dumpConstruct(binaryOperatorExpression->leftExpression, level + 1);
                 dumpConstruct(binaryOperatorExpression->rightExpression, level + 1);

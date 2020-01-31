@@ -122,7 +122,7 @@ private:
                                                            const std::vector<std::vector<Declaration*>>& declarationScopes,
                                                            const std::vector<QualifiedType>& arguments);
 
-    static OperatorDeclaration* resolveOperatorDeclaration(Operator op,
+    static FunctionDeclaration* resolveOperatorDeclaration(OverloadedOperator overloadedOperator,
                                                            const std::vector<std::vector<Declaration*>>& declarationScopes,
                                                            const std::vector<QualifiedType>& arguments);
 
@@ -356,10 +356,10 @@ private:
         structType->name = name;
         structType->size = size;
 
-        addOperatorDeclaration(Operator::Comma, structType, {structType, structType}, declarationScopes, nullptr);
-        addOperatorDeclaration(Operator::Assignment, structType, {structType, structType}, declarationScopes, nullptr);
-        addOperatorDeclaration(Operator::Equality, boolType, {structType, structType}, declarationScopes, nullptr);
-        addOperatorDeclaration(Operator::Inequality, boolType, {structType, structType}, declarationScopes, nullptr);
+        addOperatorDeclaration(OverloadedOperator::Comma, structType, {structType, structType}, declarationScopes, nullptr);
+        addOperatorDeclaration(OverloadedOperator::Assignment, structType, {structType, structType}, declarationScopes, nullptr);
+        addOperatorDeclaration(OverloadedOperator::Equality, boolType, {structType, structType}, declarationScopes, nullptr);
+        addOperatorDeclaration(OverloadedOperator::Inequality, boolType, {structType, structType}, declarationScopes, nullptr);
 
         return structType;
     }
@@ -379,10 +379,10 @@ private:
 
         vectorTypes[std::make_pair(componentType, componentCount)] = vectorType;
 
-        addOperatorDeclaration(Operator::Comma, vectorType, {vectorType, vectorType}, declarationScopes, nullptr);
-        addOperatorDeclaration(Operator::Assignment, vectorType, {vectorType, vectorType}, declarationScopes, nullptr);
-        addOperatorDeclaration(Operator::Equality, boolType, {vectorType, vectorType}, declarationScopes, nullptr);
-        addOperatorDeclaration(Operator::Inequality, boolType, {vectorType, vectorType}, declarationScopes, nullptr);
+        addOperatorDeclaration(OverloadedOperator::Comma, vectorType, {vectorType, vectorType}, declarationScopes, nullptr);
+        addOperatorDeclaration(OverloadedOperator::Assignment, vectorType, {vectorType, vectorType}, declarationScopes, nullptr);
+        addOperatorDeclaration(OverloadedOperator::Equality, boolType, {vectorType, vectorType}, declarationScopes, nullptr);
+        addOperatorDeclaration(OverloadedOperator::Inequality, boolType, {vectorType, vectorType}, declarationScopes, nullptr);
 
         return vectorType;
     }
@@ -433,17 +433,17 @@ private:
         return functionDeclaration;
     }
 
-    OperatorDeclaration* addOperatorDeclaration(Operator op,
+    FunctionDeclaration* addOperatorDeclaration(OverloadedOperator overloadedOperator,
                                                 Type* resultType,
                                                 const std::vector<Type*>& parameters,
                                                 std::vector<std::vector<Declaration*>>& declarationScopes,
                                                 Construct* parent)
     {
-        OperatorDeclaration* operatorDeclaration;
-        constructs.push_back(std::unique_ptr<Construct>(operatorDeclaration = new OperatorDeclaration()));
+        FunctionDeclaration* operatorDeclaration;
+        constructs.push_back(std::unique_ptr<Construct>(operatorDeclaration = new FunctionDeclaration()));
 
         operatorDeclaration->parent = parent;
-        operatorDeclaration->op = op;
+        operatorDeclaration->overloadedOperator = overloadedOperator;
         operatorDeclaration->qualifiedType.type = resultType;
 
         for (Type* parameter : parameters)
