@@ -419,20 +419,20 @@ private:
         FunctionDeclaration* functionDeclaration;
         constructs.push_back(std::unique_ptr<Construct>(functionDeclaration = new FunctionDeclaration()));
 
-//        functionDeclaration->name = name;
-//        functionDeclaration->qualifiedType.typeDeclaration = resultType;
-//
-//        for (TypeDeclaration* parameter : parameters)
-//        {
-//            ParameterDeclaration* parameterDeclaration;
-//            constructs.push_back(std::unique_ptr<Construct>(parameterDeclaration = new ParameterDeclaration()));
-//
-//            parameterDeclaration->qualifiedType.typeDeclaration = parameter;
-//            functionDeclaration->parameterDeclarations.push_back(parameterDeclaration);
-//        }
-//
-//        functionDeclaration->isBuiltin = true;
-//        declarationScopes.back().push_back(functionDeclaration);
+        functionDeclaration->name = name;
+        functionDeclaration->qualifiedType.type = resultType;
+
+        for (auto parameter : parameters)
+        {
+            ParameterDeclaration* parameterDeclaration;
+            constructs.push_back(std::unique_ptr<Construct>(parameterDeclaration = new ParameterDeclaration()));
+
+            parameterDeclaration->qualifiedType.type = parameter;
+            functionDeclaration->parameterDeclarations.push_back(parameterDeclaration);
+        }
+
+        functionDeclaration->isBuiltin = true;
+        declarationScopes.back().push_back(functionDeclaration);
 
         return functionDeclaration;
     }
