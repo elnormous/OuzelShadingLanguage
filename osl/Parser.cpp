@@ -2007,42 +2007,81 @@ Expression* ASTContext::parseSubscriptExpression(std::vector<Token>::const_itera
     {
         ++iterator;
 
-        ArraySubscriptExpression* expression;
-        constructs.push_back(std::unique_ptr<Construct>(expression = new ArraySubscriptExpression()));
-        expression->parent = parent;
-        expression->expression = result;
+        // TODO: binary expression for non-array types
 
         if (!result->qualifiedType.type)
             throw ParseError("Subscript expression with a void type");
 
-        if (result->qualifiedType.type->getTypeKind() != Type::Kind::Array)
+        if (result->qualifiedType.type->getTypeKind() == Type::Kind::Array)
+        {
+            ArraySubscriptExpression* expression;
+            constructs.push_back(std::unique_ptr<Construct>(expression = new ArraySubscriptExpression()));
+            expression->parent = parent;
+            expression->expression = result;
+
+            if (!(expression->subscript = parseExpression(iterator, end, declarationScopes, expression)))
+                return nullptr;
+
+            if (!isInteger(expression->subscript->qualifiedType.type))
+                throw ParseError("Subscript is not an integer");
+
+            ScalarType* scalarType = static_cast<ScalarType*>(expression->subscript->qualifiedType.type);
+
+            if (scalarType->getScalarTypeKind() != ScalarType::Kind::Integer ||
+                scalarType->size < 4)
+                expression->subscript = addImplicitCast(expression->subscript,
+                                                        intType,
+                                                        expression->subscript->category);
+
+            expectToken(Token::Type::RightBracket, iterator, end);
+
+            ++iterator;
+
+            ArrayType* arrayType = static_cast<ArrayType*>(result->qualifiedType.type);
+
+            expression->qualifiedType = arrayType->elementType;
+            expression->category = Expression::Category::Lvalue;
+
+            result->parent = expression;
+            result = expression;
+        }
+        else if (result->qualifiedType.type->getTypeKind() == Type::Kind::Vector)
+        {
+            const auto operatorKind = BinaryOperatorExpression::Kind::Subscript;
+
+            BinaryOperatorExpression* expression;
+            constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression(operatorKind)));
+            expression->parent = parent;
+            expression->leftExpression = result;
+
+            if (!(expression->rightExpression = parseExpression(iterator, end, declarationScopes, expression)))
+                return nullptr;
+
+            if (!isInteger(expression->rightExpression->qualifiedType.type))
+                throw ParseError("Subscript is not an integer");
+
+            ScalarType* scalarType = static_cast<ScalarType*>(expression->rightExpression->qualifiedType.type);
+
+            if (scalarType->getScalarTypeKind() != ScalarType::Kind::Integer ||
+                scalarType->size < 4)
+                expression->rightExpression = addImplicitCast(expression->rightExpression,
+                                                              intType,
+                                                              expression->rightExpression->category);
+
+            expectToken(Token::Type::RightBracket, iterator, end);
+
+            ++iterator;
+
+            VectorType* vectorType = static_cast<VectorType*>(result->qualifiedType.type);
+
+            expression->qualifiedType.type = vectorType->componentType;
+            expression->category = Expression::Category::Lvalue;
+
+            result->parent = expression;
+            result = expression;
+        }
+        else
             throw ParseError("Subscript value is not an array");
-
-        if (!(expression->subscript = parseExpression(iterator, end, declarationScopes, expression)))
-            return nullptr;
-
-        if (!isInteger(expression->subscript->qualifiedType.type))
-            throw ParseError("Subscript is not an integer");
-
-        ScalarType* scalarType = static_cast<ScalarType*>(expression->subscript->qualifiedType.type);
-
-        if (scalarType->getScalarTypeKind() != ScalarType::Kind::Integer ||
-            scalarType->size < 4)
-            expression->subscript = addImplicitCast(expression->subscript,
-                                                    intType,
-                                                    expression->subscript->category);
-
-        expectToken(Token::Type::RightBracket, iterator, end);
-
-        ++iterator;
-
-        ArrayType* arrayType = static_cast<ArrayType*>(result->qualifiedType.type);
-
-        expression->qualifiedType = arrayType->elementType;
-        expression->category = Expression::Category::Lvalue;
-
-        result->parent = expression;
-        result = expression;
     }
 
     return result;
