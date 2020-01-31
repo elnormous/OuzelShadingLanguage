@@ -95,18 +95,18 @@ private:
 
                     FunctionDeclaration* functionDeclaration = static_cast<FunctionDeclaration*>(callableDeclaration);
 
-//                    if (functionDeclaration->parameterDeclarations.size() == parameters.size())
-//                    {
-//                        if (std::equal(parameters.begin(), parameters.end(),
-//                                       functionDeclaration->parameterDeclarations.begin(),
-//                                       [](const QualifiedType& qualifiedType,
-//                                          const ParameterDeclaration* parameterDeclaration) {
-//                                           return qualifiedType.typeDeclaration->getFirstDeclaration() == parameterDeclaration->qualifiedType.typeDeclaration->getFirstDeclaration();
-//                                       }))
-//                        {
-//                            return functionDeclaration;
-//                        }
-//                    }
+                    if (functionDeclaration->parameterDeclarations.size() == parameters.size())
+                    {
+                        if (std::equal(parameters.begin(), parameters.end(),
+                                       functionDeclaration->parameterDeclarations.begin(),
+                                       [](const QualifiedType& qualifiedType,
+                                          const ParameterDeclaration* parameterDeclaration) {
+                                           return qualifiedType.type == parameterDeclaration->qualifiedType.type;
+                                       }))
+                        {
+                            return functionDeclaration;
+                        }
+                    }
                 }
             }
         }
