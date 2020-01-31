@@ -2312,9 +2312,6 @@ Expression* ASTContext::parseMultiplicationExpression(std::vector<Token>::const_
         if (!(expression->rightExpression = parseSizeofExpression(iterator, end, declarationScopes, expression)))
             return nullptr;
 
-//        expression->operatorDeclaration = resolveOperatorDeclaration(operatorKind, declarationScopes,
-//                                                                     {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
-//
         expression->qualifiedType.type = expression->leftExpression->qualifiedType.type;
         expression->category = Expression::Category::Rvalue;
 
@@ -2352,10 +2349,6 @@ Expression* ASTContext::parseAdditionExpression(std::vector<Token>::const_iterat
         if (!(expression->rightExpression = parseMultiplicationExpression(iterator, end, declarationScopes, expression)))
             return nullptr;
 
-//        expression->operatorDeclaration = resolveOperatorDeclaration(op, declarationScopes,
-//                                                                     {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
-//
-//        expression->qualifiedType = expression->operatorDeclaration->qualifiedType;
         expression->qualifiedType.type = expression->leftExpression->qualifiedType.type;
         expression->category = Expression::Category::Rvalue;
 
@@ -2392,9 +2385,6 @@ Expression* ASTContext::parseLessThanExpression(std::vector<Token>::const_iterat
 
         if (!(expression->rightExpression = parseAdditionExpression(iterator, end, declarationScopes, expression)))
             return nullptr;
-
-//        expression->operatorDeclaration = resolveOperatorDeclaration(op, declarationScopes,
-//                                                                     {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
 
         expression->qualifiedType.type = boolType;
         expression->category = Expression::Category::Rvalue;
@@ -2433,9 +2423,6 @@ Expression* ASTContext::parseGreaterThanExpression(std::vector<Token>::const_ite
         if (!(expression->rightExpression = parseLessThanExpression(iterator, end, declarationScopes, expression)))
             return nullptr;
 
-//        expression->operatorDeclaration = resolveOperatorDeclaration(op, declarationScopes,
-//                                                                     {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
-
         expression->qualifiedType.type = boolType;
         expression->category = Expression::Category::Rvalue;
 
@@ -2473,9 +2460,6 @@ Expression* ASTContext::parseEqualityExpression(std::vector<Token>::const_iterat
         if (!(expression->rightExpression = parseGreaterThanExpression(iterator, end, declarationScopes, expression)))
             return nullptr;
 
-//        expression->operatorDeclaration = resolveOperatorDeclaration(op, declarationScopes,
-//                                                                     {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
-
         expression->qualifiedType.type = boolType;
         expression->category = Expression::Category::Rvalue;
 
@@ -2509,9 +2493,6 @@ Expression* ASTContext::parseLogicalAndExpression(std::vector<Token>::const_iter
 
         if (!(expression->rightExpression = parseEqualityExpression(iterator, end, declarationScopes, expression)))
             return nullptr;
-
-//        expression->operatorDeclaration = resolveOperatorDeclaration(op, declarationScopes,
-//                                                                     {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
 
         // TODO: check if both sides ar scalar
         expression->qualifiedType.type = boolType;
@@ -2547,9 +2528,6 @@ Expression* ASTContext::parseLogicalOrExpression(std::vector<Token>::const_itera
 
         if (!(expression->rightExpression = parseLogicalAndExpression(iterator, end, declarationScopes, expression)))
             return nullptr;
-
-//        expression->operatorDeclaration = resolveOperatorDeclaration(op, declarationScopes,
-//                                                                     {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
 
         // TODO: check if both sides ar scalar
         expression->qualifiedType.type = boolType;
@@ -2639,11 +2617,6 @@ Expression* ASTContext::parseAssignmentExpression(std::vector<Token>::const_iter
         if (!(expression->rightExpression = parseTernaryExpression(iterator, end, declarationScopes, expression)))
             return nullptr;
 
-//        expression->operatorDeclaration = resolveOperatorDeclaration(Operator::Assignment,
-//                                                                     declarationScopes,
-//                                                                     {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
-//
-//        expression->qualifiedType = expression->operatorDeclaration->qualifiedType;
         expression->qualifiedType.type = expression->leftExpression->qualifiedType.type;
         expression->category = Expression::Category::Lvalue;
 
@@ -2687,10 +2660,6 @@ Expression* ASTContext::parseAdditionAssignmentExpression(std::vector<Token>::co
         if (!(expression->rightExpression = parseAssignmentExpression(iterator, end, declarationScopes, expression)))
             return nullptr;
 
-//        expression->operatorDeclaration = resolveOperatorDeclaration(op, declarationScopes,
-//                                                                     {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
-//
-//        expression->qualifiedType = expression->operatorDeclaration->qualifiedType;
         expression->qualifiedType.type = expression->leftExpression->qualifiedType.type;
         expression->category = Expression::Category::Lvalue;
 
@@ -2735,10 +2704,6 @@ Expression* ASTContext::parseMultiplicationAssignmentExpression(std::vector<Toke
         if (!(expression->rightExpression = parseAdditionAssignmentExpression(iterator, end, declarationScopes, expression)))
             return nullptr;
 
-//        expression->operatorDeclaration = resolveOperatorDeclaration(op, declarationScopes,
-//                                                                     {expression->leftExpression->qualifiedType, expression->rightExpression->qualifiedType});
-//
-//        expression->qualifiedType = expression->operatorDeclaration->qualifiedType;
         expression->qualifiedType.type = expression->leftExpression->qualifiedType.type;
         expression->category = Expression::Category::Lvalue;
 
@@ -2773,7 +2738,6 @@ Expression* ASTContext::parseCommaExpression(std::vector<Token>::const_iterator&
         if (!(expression->rightExpression = parseAdditionAssignmentExpression(iterator, end, declarationScopes, expression)))
             return nullptr;
 
-//        expression->qualifiedType = expression->operatorDeclaration->qualifiedType;
         expression->qualifiedType.type = expression->rightExpression->qualifiedType.type;
         expression->category = expression->rightExpression->category;
 
