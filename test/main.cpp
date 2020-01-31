@@ -593,15 +593,28 @@ namespace
             throw TestError("Wrong definition");
     }
 
-    void testSwizling()
+    void testVector()
     {
         std::string code = R"OSL(
         void main()
         {
-            float4 f1;
-            float4 f2;
-            f1.xyzw = f2.xxxx;
-            f1[0];
+            float4 v1;
+            float4 v2;
+            v1.xyzw = v2.xxxx;
+            float v3 = v1[0];
+        }
+        )OSL";
+
+        ASTContext context(tokenize(code));
+    }
+
+    void testMatrix()
+    {
+        std::string code = R"OSL(
+        void main()
+        {
+            float4x4 m1;
+            float4 v1 = m1[0];
         }
         )OSL";
 
@@ -622,7 +635,8 @@ int main(int argc, const char * argv[])
     testRunner.run(testReturnStatement);
     testRunner.run(testExpressions);
     testRunner.run(testStructDeclaration);
-    testRunner.run(testSwizling);
+    testRunner.run(testVector);
+    testRunner.run(testMatrix);
 
     if (testRunner.getResult())
         std::cout << "Success\n";

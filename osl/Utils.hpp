@@ -63,7 +63,6 @@ namespace
             case Expression::Kind::Cast: return "Cast";
             case Expression::Kind::Sizeof: return "Sizeof";
             case Expression::Kind::VectorElement: return "VectorElement";
-            case Expression::Kind::MatrixElement: return "MatrixElement";
             default: return "Unknown";
         }
     }
@@ -709,11 +708,6 @@ namespace
             case Expression::Kind::VectorElement:
             {
                 auto sizeofExpression = static_cast<const VectorElementExpression*>(expression);
-                break;
-            }
-            case Expression::Kind::MatrixElement:
-            {
-                auto sizeofExpression = static_cast<const MatrixElementExpression*>(expression);
                 break;
             }
         }

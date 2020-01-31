@@ -373,6 +373,24 @@ private:
         return vectorType;
     }
 
+    MatrixType* addMatrixType(const std::string& name,
+                              ScalarType* componentType,
+                              uint8_t rowCount,
+                              uint8_t columnCount,
+                              std::vector<std::vector<Declaration*>>& declarationScopes)
+    {
+        MatrixType* matrixType;
+        types.push_back(std::unique_ptr<Type>(matrixType = new MatrixType()));
+
+        matrixType->name = name;
+        matrixType->size = componentType->size * rowCount * columnCount;
+        matrixType->componentType = componentType;
+        matrixType->rowCount = rowCount;
+        matrixType->columnCount = columnCount;
+
+        return matrixType;
+    }
+
     FieldDeclaration* addFieldDeclaration(StructType* structType,
                                           const std::string& name,
                                           TypeDeclaration* type,
@@ -423,7 +441,7 @@ private:
     std::vector<Declaration*> declarations;
     std::vector<std::unique_ptr<Construct>> constructs;
 
-    std::map<std::pair<Type*, uint8_t>, Type*> vectorTypes;
+    std::map<std::pair<Type*, uint8_t>, VectorType*> vectorTypes;
     std::map<std::pair<QualifiedType, uint32_t>, ArrayType*> arrayTypes;
 
     ScalarType* boolType = nullptr;

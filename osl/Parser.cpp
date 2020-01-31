@@ -116,9 +116,9 @@ ASTContext::ASTContext(const std::vector<Token>& tokens)
     VectorType* float3Type = addVectorType("float3", floatType, 3, declarationScopes);
     VectorType* float4Type = addVectorType("float4", floatType, 4, declarationScopes);
 
-    StructType* float2x2Type = addStructType("float2x2", 4, declarationScopes);
-    StructType* float3x3Type = addStructType("float3x3", 9, declarationScopes);
-    StructType* float4x4Type = addStructType("float4x4", 16, declarationScopes);
+    MatrixType* float2x2Type = addMatrixType("float2x2", floatType, 2, 2, declarationScopes);
+    MatrixType* float3x3Type = addMatrixType("float3x3", floatType, 3, 3, declarationScopes);
+    MatrixType* float4x4Type = addMatrixType("float4x4", floatType, 4, 4, declarationScopes);
     stringType = addStructType("string", 8, declarationScopes);
     StructType* texture2DType = addStructType("Texture2D", 0, declarationScopes);
 
@@ -2045,7 +2045,8 @@ Expression* ASTContext::parseSubscriptExpression(std::vector<Token>::const_itera
             result->parent = expression;
             result = expression;
         }
-        else if (result->qualifiedType.type->getTypeKind() == Type::Kind::Vector)
+        else if (result->qualifiedType.type->getTypeKind() == Type::Kind::Vector ||
+                 result->qualifiedType.type->getTypeKind() == Type::Kind::Matrix)
         {
             const auto operatorKind = BinaryOperatorExpression::Kind::Subscript;
 
@@ -2072,9 +2073,23 @@ Expression* ASTContext::parseSubscriptExpression(std::vector<Token>::const_itera
 
             ++iterator;
 
-            VectorType* vectorType = static_cast<VectorType*>(result->qualifiedType.type);
+            if (result->qualifiedType.type->getTypeKind() == Type::Kind::Vector)
+            {
+                VectorType* vectorType = static_cast<VectorType*>(result->qualifiedType.type);
+                expression->qualifiedType.type = vectorType->componentType;
+            }
+            else if (result->qualifiedType.type->getTypeKind() == Type::Kind::Matrix)
+            {
+                MatrixType* matrixType = static_cast<MatrixType*>(result->qualifiedType.type);
 
-            expression->qualifiedType.type = vectorType->componentType;
+                auto vectorTypeIterator = vectorTypes.find(std::make_pair(matrixType->componentType, static_cast<uint8_t>(matrixType->columnCount)));
+
+                if (vectorTypeIterator == vectorTypes.end())
+                    throw ParseError("Invalid vector type");
+
+                expression->qualifiedType.type = vectorTypeIterator->second;
+            }
+
             expression->category = Expression::Category::Lvalue;
 
             result->parent = expression;

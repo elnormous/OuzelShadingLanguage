@@ -55,7 +55,8 @@ public:
         Array,
         Scalar,
         Struct,
-        Vector
+        Vector,
+        Matrix
     };
 
     Type(Kind initTypeKind): typeKind(initTypeKind) {}
@@ -238,6 +239,16 @@ public:
 
     ScalarType* componentType = nullptr;
     uint8_t componentCount = 1;
+};
+
+class MatrixType final: public Type
+{
+public:
+    MatrixType(): Type(Type::Kind::Matrix) {}
+
+    ScalarType* componentType = nullptr;
+    uint8_t rowCount = 1;
+    uint8_t columnCount = 1;
 };
 
 class VariableDeclaration: public Declaration
