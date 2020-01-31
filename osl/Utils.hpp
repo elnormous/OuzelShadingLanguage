@@ -181,36 +181,6 @@ namespace
         }
     }
 
-    std::string toString(OverloadedOperator op)
-    {
-        switch (op)
-        {
-            case OverloadedOperator::Negation: return "Negation";
-            case OverloadedOperator::Positive: return "Positive";
-            case OverloadedOperator::Negative: return "Negative";
-            case OverloadedOperator::Addition: return "Addition";
-            case OverloadedOperator::Subtraction: return "Subtraction";
-            case OverloadedOperator::Multiplication: return "Multiplication";
-            case OverloadedOperator::Division: return "Division";
-            case OverloadedOperator::AdditionAssignment: return "AdditionAssignment";
-            case OverloadedOperator::SubtractAssignment: return "SubtractAssignment";
-            case OverloadedOperator::MultiplicationAssignment: return "MultiplicationAssignment";
-            case OverloadedOperator::DivisionAssignment: return "DivisionAssignment";
-            case OverloadedOperator::LessThan: return "LessThan";
-            case OverloadedOperator::LessThanEqual: return "LessThanEqual";
-            case OverloadedOperator::GreaterThan: return "GreaterThan";
-            case OverloadedOperator::GraterThanEqual: return "GraterThanEqual";
-            case OverloadedOperator::Equality: return "Equality";
-            case OverloadedOperator::Inequality: return "Inequality";
-            case OverloadedOperator::Assignment: return "Assignment";
-            case OverloadedOperator::Or: return "Or";
-            case OverloadedOperator::And: return "And";
-            case OverloadedOperator::Comma: return "Comma";
-            case OverloadedOperator::Subscript: return "Subscript";
-            default: return "Unknown";
-        }
-    }
-
     std::string getPrintableTypeName(const QualifiedType& qualifiedType)
     {
         std::string result;
@@ -334,9 +304,6 @@ namespace
 
                     if (functionDeclaration->isStatic) std::cout << " static";
                     if (functionDeclaration->isInline) std::cout << " inline";
-
-                    if (functionDeclaration->overloadedOperator != OverloadedOperator::None)
-                        std::cout << ", operator: " << toString(functionDeclaration->overloadedOperator);
 
                     if (functionDeclaration->isProgram)
                         std::cout << ", program: " << toString(functionDeclaration->program);

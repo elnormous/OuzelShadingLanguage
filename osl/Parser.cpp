@@ -342,85 +342,6 @@ FunctionDeclaration* ASTContext::resolveFunctionDeclaration(const std::string& n
     return nullptr;
 }
 
-FunctionDeclaration* ASTContext::resolveOperatorDeclaration(OverloadedOperator overloadedOperator,
-                                                            const std::vector<std::vector<Declaration*>>& declarationScopes,
-                                                            const std::vector<QualifiedType>& arguments)
-{
-    std::vector<FunctionDeclaration*> candidateOperatorDeclarations;
-
-    for (auto scopeIterator = declarationScopes.crbegin(); scopeIterator != declarationScopes.crend(); ++scopeIterator)
-    {
-        for (auto declarationIterator = scopeIterator->crbegin(); declarationIterator != scopeIterator->crend(); ++declarationIterator)
-        {
-            if ((*declarationIterator)->getDeclarationKind() == Declaration::Kind::Callable)
-            {
-                CallableDeclaration* callableDeclaration = static_cast<CallableDeclaration*>(*declarationIterator);
-
-                if (callableDeclaration->getCallableDeclarationKind() == CallableDeclaration::Kind::Function)
-                {
-                    FunctionDeclaration* operatorDeclaration = static_cast<FunctionDeclaration*>(callableDeclaration->getFirstDeclaration());
-
-                    if (operatorDeclaration->overloadedOperator == overloadedOperator &&
-                        std::find(candidateOperatorDeclarations.begin(), candidateOperatorDeclarations.end(), operatorDeclaration) == candidateOperatorDeclarations.end())
-                        candidateOperatorDeclarations.push_back(operatorDeclaration);
-                }
-            }
-        }
-    }
-
-    std::vector<FunctionDeclaration*> viableOperatorDeclarations;
-
-    for (FunctionDeclaration* operatorDeclaration : candidateOperatorDeclarations)
-    {
-        if (operatorDeclaration->parameterDeclarations.size() == arguments.size())
-        {
-            if (std::equal(arguments.begin(), arguments.end(),
-                           operatorDeclaration->parameterDeclarations.begin(),
-                           [](const QualifiedType& qualifiedType,
-                              const ParameterDeclaration* parameterDeclaration) {
-
-                               if (!qualifiedType.type) return true; // any type
-
-                               const bool scalar = qualifiedType.type->getTypeKind() == Type::Kind::Scalar &&
-                                   qualifiedType.type->getTypeKind() == Type::Kind::Scalar;
-
-                               return (scalar || qualifiedType.type == parameterDeclaration->qualifiedType.type);
-                           }))
-                viableOperatorDeclarations.push_back(operatorDeclaration);
-        }
-    }
-
-    if (viableOperatorDeclarations.empty())
-        throw ParseError("No matching function operator " + toString(overloadedOperator) + " found");
-    else if (viableOperatorDeclarations.size() == 1)
-        return *viableOperatorDeclarations.begin();
-    else
-    {
-        if (arguments.empty()) // two or more functions with zero parameters
-            throw ParseError("Ambiguous call to operator " + toString(overloadedOperator));
-
-        for (auto first : viableOperatorDeclarations)
-        {
-            bool best = true;
-            for (auto second : viableOperatorDeclarations)
-            {
-                if (first != second &&
-                    compareCallableDeclarations(first, second, arguments) != first)
-                {
-                    best = false;
-                    break;
-                }
-            }
-
-            if (best) return first;
-        };
-
-        throw ParseError("Ambiguous call to operator " + toString(overloadedOperator));
-    }
-
-    return nullptr;
-}
-
 ArrayType* ASTContext::getArrayType(QualifiedType qualifiedType, uint32_t size)
 {
     auto i = arrayTypes.find(std::make_pair(qualifiedType, size));
@@ -884,11 +805,6 @@ TypeDeclaration* ASTContext::parseStructTypeDeclaration(std::vector<Token>::cons
             }
         }
     }
-
-    addOperatorDeclaration(OverloadedOperator::Comma, structType, {structType, structType}, declarationScopes, result);
-    addOperatorDeclaration(OverloadedOperator::Assignment, structType, {structType, structType}, declarationScopes, result);
-    addOperatorDeclaration(OverloadedOperator::Equality, boolType, {structType, structType}, declarationScopes, result);
-    addOperatorDeclaration(OverloadedOperator::Inequality, boolType, {structType, structType}, declarationScopes, result);
 
     return result;
 }

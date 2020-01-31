@@ -156,43 +156,11 @@ protected:
     const Kind callableDeclarationKind;
 };
 
-enum class OverloadedOperator
-{
-    None,
-    Negation, // !
-    Positive, // +
-    Negative, // -
-    PrefixIncrement, // ++
-    PrefixDecrement, // --
-    PostfixIncrement, // ++
-    PostfixDecrement, // --
-    Addition, // +
-    Subtraction, // -
-    Multiplication, // *
-    Division, // /
-    AdditionAssignment, // +=
-    SubtractAssignment, // -=
-    MultiplicationAssignment, // *=
-    DivisionAssignment, // /=
-    LessThan, // <
-    LessThanEqual, // <=
-    GreaterThan, // >
-    GraterThanEqual, // >=
-    Equality, // ==
-    Inequality, // !=
-    Assignment, // =
-    Or, // ||
-    And, // &&
-    Comma, // ,
-    Subscript // []
-};
-
 class FunctionDeclaration: public CallableDeclaration
 {
 public:
     FunctionDeclaration(): CallableDeclaration(CallableDeclaration::Kind::Function) {}
 
-    OverloadedOperator overloadedOperator = OverloadedOperator::None;
     bool isInline = false;
     bool isStatic = false;
     bool isBuiltin = false;
