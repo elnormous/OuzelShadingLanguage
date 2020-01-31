@@ -7,145 +7,148 @@
 
 #include "Construct.hpp"
 
-class Declaration;
-class Expression;
-
-class Statement: public Construct
+namespace ouzel
 {
-public:
-    enum class Kind
+    class Declaration;
+    class Expression;
+
+    class Statement: public Construct
     {
-        Empty,
-        Expression,
-        Declaration,
-        Compound,
-        If,
-        For,
-        Switch,
-        Case,
-        Default,
-        While,
-        Do,
-        Break,
-        Continue,
-        Return
+    public:
+        enum class Kind
+        {
+            Empty,
+            Expression,
+            Declaration,
+            Compound,
+            If,
+            For,
+            Switch,
+            Case,
+            Default,
+            While,
+            Do,
+            Break,
+            Continue,
+            Return
+        };
+
+        Statement(Kind initStatementKind) noexcept: Construct(Construct::Kind::Statement), statementKind(initStatementKind) {}
+
+        inline Kind getStatementKind() const noexcept { return statementKind; }
+
+    protected:
+        const Kind statementKind;
     };
 
-    Statement(Kind initStatementKind) noexcept: Construct(Construct::Kind::Statement), statementKind(initStatementKind) {}
+    class ExpressionStatement: public Statement
+    {
+    public:
+        ExpressionStatement() noexcept: Statement(Statement::Kind::Expression) {}
 
-    inline Kind getStatementKind() const noexcept { return statementKind; }
+        Expression* expression = nullptr;
+    };
 
-protected:
-    const Kind statementKind;
-};
+    class DeclarationStatement: public Statement
+    {
+    public:
+        DeclarationStatement() noexcept: Statement(Statement::Kind::Declaration) {}
 
-class ExpressionStatement: public Statement
-{
-public:
-    ExpressionStatement() noexcept: Statement(Statement::Kind::Expression) {}
+        Declaration* declaration = nullptr;
+    };
 
-    Expression* expression = nullptr;
-};
+    class CompoundStatement: public Statement
+    {
+    public:
+        CompoundStatement() noexcept: Statement(Statement::Kind::Compound) {}
 
-class DeclarationStatement: public Statement
-{
-public:
-    DeclarationStatement() noexcept: Statement(Statement::Kind::Declaration) {}
+        std::vector<Statement*> statements;
+    };
 
-    Declaration* declaration = nullptr;
-};
+    class IfStatement: public Statement
+    {
+    public:
+        IfStatement() noexcept: Statement(Statement::Kind::If) {}
 
-class CompoundStatement: public Statement
-{
-public:
-    CompoundStatement() noexcept: Statement(Statement::Kind::Compound) {}
+        Construct* condition = nullptr;
+        Statement* body = nullptr;
+        Statement* elseBody = nullptr;
+    };
 
-    std::vector<Statement*> statements;
-};
+    class ForStatement: public Statement
+    {
+    public:
+        ForStatement() noexcept: Statement(Statement::Kind::For) {}
 
-class IfStatement: public Statement
-{
-public:
-    IfStatement() noexcept: Statement(Statement::Kind::If) {}
+        Construct* initialization = nullptr;
+        Construct* condition = nullptr;
+        Expression* increment = nullptr;
+        Statement* body = nullptr;
+    };
 
-    Construct* condition = nullptr;
-    Statement* body = nullptr;
-    Statement* elseBody = nullptr;
-};
+    class SwitchStatement: public Statement
+    {
+    public:
+        SwitchStatement() noexcept: Statement(Statement::Kind::Switch) {}
 
-class ForStatement: public Statement
-{
-public:
-    ForStatement() noexcept: Statement(Statement::Kind::For) {}
+        Construct* condition = nullptr;
+        Statement* body = nullptr;
+    };
 
-    Construct* initialization = nullptr;
-    Construct* condition = nullptr;
-    Expression* increment = nullptr;
-    Statement* body = nullptr;
-};
+    class CaseStatement: public Statement
+    {
+    public:
+        CaseStatement() noexcept: Statement(Statement::Kind::Case) {}
 
-class SwitchStatement: public Statement
-{
-public:
-    SwitchStatement() noexcept: Statement(Statement::Kind::Switch) {}
+        Expression* condition = nullptr;
+        Statement* body = nullptr;
+    };
 
-    Construct* condition = nullptr;
-    Statement* body = nullptr;
-};
+    class DefaultStatement: public Statement
+    {
+    public:
+        DefaultStatement() noexcept: Statement(Statement::Kind::Default) {}
 
-class CaseStatement: public Statement
-{
-public:
-    CaseStatement() noexcept: Statement(Statement::Kind::Case) {}
+        Statement* body = nullptr;
+    };
 
-    Expression* condition = nullptr;
-    Statement* body = nullptr;
-};
+    class WhileStatement: public Statement
+    {
+    public:
+        WhileStatement() noexcept: Statement(Statement::Kind::While) {}
 
-class DefaultStatement: public Statement
-{
-public:
-    DefaultStatement() noexcept: Statement(Statement::Kind::Default) {}
+        Construct* condition = nullptr;
+        Statement* body = nullptr;
+    };
 
-    Statement* body = nullptr;
-};
+    class DoStatement: public Statement
+    {
+    public:
+        DoStatement() noexcept: Statement(Statement::Kind::Do) {}
 
-class WhileStatement: public Statement
-{
-public:
-    WhileStatement() noexcept: Statement(Statement::Kind::While) {}
+        Expression* condition = nullptr;
+        Statement* body = nullptr;
+    };
 
-    Construct* condition = nullptr;
-    Statement* body = nullptr;
-};
+    class BreakStatement: public Statement
+    {
+    public:
+        BreakStatement() noexcept: Statement(Statement::Kind::Break) {}
+    };
 
-class DoStatement: public Statement
-{
-public:
-    DoStatement() noexcept: Statement(Statement::Kind::Do) {}
+    class ContinueStatement: public Statement
+    {
+    public:
+        ContinueStatement() noexcept: Statement(Statement::Kind::Continue) {}
+    };
 
-    Expression* condition = nullptr;
-    Statement* body = nullptr;
-};
+    class ReturnStatement: public Statement
+    {
+    public:
+        ReturnStatement() noexcept: Statement(Statement::Kind::Return) {}
 
-class BreakStatement: public Statement
-{
-public:
-    BreakStatement() noexcept: Statement(Statement::Kind::Break) {}
-};
-
-class ContinueStatement: public Statement
-{
-public:
-    ContinueStatement() noexcept: Statement(Statement::Kind::Continue) {}
-};
-
-class ReturnStatement: public Statement
-{
-public:
-    ReturnStatement() noexcept: Statement(Statement::Kind::Return) {}
-
-    Expression* result = nullptr;
-};
+        Expression* result = nullptr;
+    };
+}
 
 #endif // STATEMENTS_HPP

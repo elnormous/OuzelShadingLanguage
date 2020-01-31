@@ -7,19 +7,22 @@
 
 #include <string>
 
-enum class Program
+namespace ouzel
 {
-    Fragment,
-    Vertex
-};
-
-inline std::string toString(Program program)
-{
-    switch (program)
+    enum class Program
     {
-        case Program::Fragment: return "Fragment";
-        case Program::Vertex: return "Vertex";
-        default: return "Unknown";
+        Fragment,
+        Vertex
+    };
+
+    inline std::string toString(Program program)
+    {
+        switch (program)
+        {
+            case Program::Fragment: return "Fragment";
+            case Program::Vertex: return "Vertex";
+            default: return "Unknown";
+        }
     }
 }
 

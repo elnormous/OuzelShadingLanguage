@@ -20,10 +20,10 @@ namespace
         Vertex
     };
 
-    constexpr Program getProgram(OutputProgram outputProgram)
+    constexpr ouzel::Program getProgram(OutputProgram outputProgram)
     {
-        return (outputProgram == OutputProgram::Fragment) ? Program::Fragment :
-            (outputProgram == OutputProgram::Vertex) ? Program::Vertex :
+        return (outputProgram == OutputProgram::Fragment) ? ouzel::Program::Fragment :
+            (outputProgram == OutputProgram::Vertex) ? ouzel::Program::Vertex :
             throw std::runtime_error("Invalid program");
     }
 }
@@ -101,7 +101,7 @@ int main(int argc, const char* argv[])
         std::string inCode;
         inCode.assign(std::istreambuf_iterator<char>(inputFile), std::istreambuf_iterator<char>());
 
-        Preprocessor preprocessor;
+        ouzel::Preprocessor preprocessor;
         auto preprocessed = preprocessor.preprocess(inCode);
 
         if (preprocess)
@@ -110,28 +110,28 @@ int main(int argc, const char* argv[])
         }
         else
         {
-            std::vector<Token> tokens = tokenize(preprocessed);
+            std::vector<ouzel::Token> tokens = ouzel::tokenize(preprocessed);
 
             if (printTokens)
                 dump(tokens);
             else
             {
-                ASTContext context(tokens);
+                ouzel::ASTContext context(tokens);
 
                 if (printAST)
                     context.dump();
                 else
                 {
-                    std::unique_ptr<Output> output;
+                    std::unique_ptr<ouzel::Output> output;
 
                     if (format.empty())
                         throw std::runtime_error("No format");
                     if (format == "hlsl")
-                        output.reset(new OutputHLSL(getProgram(program)));
+                        output.reset(new ouzel::OutputHLSL(getProgram(program)));
                     else if (format == "glsl")
-                        output.reset(new OutputGLSL(getProgram(program), outputVersion, {}));
+                        output.reset(new ouzel::OutputGLSL(getProgram(program), outputVersion, {}));
                     else if (format == "msl")
-                        output.reset(new OutputMSL(getProgram(program), {}));
+                        output.reset(new ouzel::OutputMSL(getProgram(program), {}));
                     else
                         throw std::runtime_error("Invalid format");
 

@@ -4,187 +4,766 @@
 
 #include "OutputGLSL.hpp"
 
-namespace
+namespace ouzel
 {
-    struct BuiltinFunction
+    namespace
     {
-        BuiltinFunction(const std::string& initName): name(initName) {}
-        std::string name;
-    };
+        struct BuiltinFunction
+        {
+            BuiltinFunction(const std::string& initName): name(initName) {}
+            std::string name;
+        };
 
-    std::map<std::string, BuiltinFunction> builtinFunctions;
-}
-
-OutputGLSL::OutputGLSL(Program initProgram,
-                       uint32_t initGLSLVersion,
-                       const std::map<Semantic, std::string>& initSemantics):
-    program(initProgram), glslVersion(initGLSLVersion), semantics(initSemantics)
-{
-}
-
-std::string OutputGLSL::output(const ASTContext& context, bool whitespaces)
-{
-    std::string result = "#version " + std::to_string(glslVersion) + "\n";
-
-    for (Declaration* declaration : context.getDeclarations())
-    {
-        printConstruct(declaration, Options(0, whitespaces), result);
-
-        if (declaration->getDeclarationKind() != Declaration::Kind::Callable ||
-            !static_cast<const CallableDeclaration*>(declaration)->body) // function doesn't have a body
-            result += ";";
-
-        if (whitespaces) result += "\n";
+        std::map<std::string, BuiltinFunction> builtinFunctions;
     }
 
-    return result;
-}
-
-namespace
-{
-    std::pair<std::string, std::string> getPrintableTypeName(const QualifiedType& qualifiedType)
+    OutputGLSL::OutputGLSL(Program initProgram,
+                           uint32_t initGLSLVersion,
+                           const std::map<Semantic, std::string>& initSemantics):
+        program(initProgram), glslVersion(initGLSLVersion), semantics(initSemantics)
     {
-        std::pair<std::string, std::string> result;
+    }
 
-        if ((qualifiedType.qualifiers & Qualifiers::Volatile) == Qualifiers::Volatile) result.first += "volatile ";
-        if ((qualifiedType.qualifiers & Qualifiers::Const) == Qualifiers::Const) result.first += "const ";
+    std::string OutputGLSL::output(const ASTContext& context, bool whitespaces)
+    {
+        std::string result = "#version " + std::to_string(glslVersion) + "\n";
 
-        if (!qualifiedType.type)
+        for (Declaration* declaration : context.getDeclarations())
         {
-            result.first += "void";
-        }
-        else
-        {
-            const Type* type = qualifiedType.type;
-            while (type->getTypeKind() == Type::Kind::Array)
-            {
-                const ArrayType* arrayType = static_cast<const ArrayType*>(type);
+            printConstruct(declaration, Options(0, whitespaces), result);
 
-                result.second = "[" + std::to_string(arrayType->size) + "]" + result.second;
+            if (declaration->getDeclarationKind() != Declaration::Kind::Callable ||
+                !static_cast<const CallableDeclaration*>(declaration)->body) // function doesn't have a body
+                result += ";";
 
-                type = arrayType->elementType.type;
-            }
-
-            result.first = type->name;
+            if (whitespaces) result += "\n";
         }
 
         return result;
     }
-}
 
-void OutputGLSL::printDeclaration(const Declaration* declaration, Options options, std::string& code)
-{
-    switch (declaration->getDeclarationKind())
+    namespace
     {
-        case Declaration::Kind::Empty:
+        std::pair<std::string, std::string> getPrintableTypeName(const QualifiedType& qualifiedType)
         {
-            if (options.whitespaces) code.append(options.indentation, ' ');
-            break;
+            std::pair<std::string, std::string> result;
+
+            if ((qualifiedType.qualifiers & Qualifiers::Volatile) == Qualifiers::Volatile) result.first += "volatile ";
+            if ((qualifiedType.qualifiers & Qualifiers::Const) == Qualifiers::Const) result.first += "const ";
+
+            if (!qualifiedType.type)
+            {
+                result.first += "void";
+            }
+            else
+            {
+                const Type* type = qualifiedType.type;
+                while (type->getTypeKind() == Type::Kind::Array)
+                {
+                    const ArrayType* arrayType = static_cast<const ArrayType*>(type);
+
+                    result.second = "[" + std::to_string(arrayType->size) + "]" + result.second;
+
+                    type = arrayType->elementType.type;
+                }
+
+                result.first = type->name;
+            }
+
+            return result;
         }
+    }
 
-        case Declaration::Kind::Type:
+    void OutputGLSL::printDeclaration(const Declaration* declaration, Options options, std::string& code)
+    {
+        switch (declaration->getDeclarationKind())
         {
-            if (options.whitespaces) code.append(options.indentation, ' ');
-
-            const TypeDeclaration* typeDeclaration = static_cast<const TypeDeclaration*>(declaration);
-            const Type* type = typeDeclaration->type;
-
-            if (type->getTypeKind() != Type::Kind::Struct)
-                throw std::runtime_error("Type declaration must be a struct");
-
-            const StructType* structType = static_cast<const StructType*>(type);
-            code += "struct " + structType->name;
-
-            // if this is the definition
-            if (structType->definition == typeDeclaration)
+            case Declaration::Kind::Empty:
             {
                 if (options.whitespaces) code.append(options.indentation, ' ');
-                if (options.whitespaces) code += "\n";
+                break;
+            }
+
+            case Declaration::Kind::Type:
+            {
+                if (options.whitespaces) code.append(options.indentation, ' ');
+
+                const TypeDeclaration* typeDeclaration = static_cast<const TypeDeclaration*>(declaration);
+                const Type* type = typeDeclaration->type;
+
+                if (type->getTypeKind() != Type::Kind::Struct)
+                    throw std::runtime_error("Type declaration must be a struct");
+
+                const StructType* structType = static_cast<const StructType*>(type);
+                code += "struct " + structType->name;
+
+                // if this is the definition
+                if (structType->definition == typeDeclaration)
+                {
+                    if (options.whitespaces) code.append(options.indentation, ' ');
+                    if (options.whitespaces) code += "\n";
+                    code += "{";
+                    if (options.whitespaces) code += "\n";
+
+                    for (const Declaration* memberDeclaration : structType->memberDeclarations)
+                    {
+                        printConstruct(memberDeclaration, Options(options.indentation + 4, options.whitespaces), code);
+
+                        code += ";";
+                        if (options.whitespaces) code += "\n";
+                    }
+
+                    if (options.whitespaces) code.append(options.indentation, ' ');
+                    code += "}";
+                }
+
+                break;
+            }
+
+            case Declaration::Kind::Field:
+            {
+                if (options.whitespaces) code.append(options.indentation, ' ');
+
+                const FieldDeclaration* fieldDeclaration = static_cast<const FieldDeclaration*>(declaration);
+
+                if (fieldDeclaration->semantic != Semantic::None)
+                {
+                    switch (fieldDeclaration->semantic)
+                    {
+                        case Semantic::None: break;
+                        case Semantic::Binormal:
+                            // TODO: implement
+                            break;
+                        case Semantic::BlendIndices:
+                            // TODO: implement
+                            break;
+                        case Semantic::BlendWeight:
+                            // TODO: implement
+                            break;
+                        case Semantic::Color:
+                            // TODO: implement
+                            break;
+                        case Semantic::Normal:
+                            // TODO: implement
+                            break;
+                        case Semantic::Position:
+                            // TODO: implement
+                            break;
+                        case Semantic::PositionTransformed:
+                            // TODO: implement
+                            break;
+                        case Semantic::PointSize:
+                            // TODO: implement
+                            break;
+                        case Semantic::Tangent:
+                            // TODO: implement
+                            break;
+                        case Semantic::TextureCoordinates:
+                            // TODO: implement
+                            break;
+                    }
+                }
+
+                break;
+            }
+
+            case Declaration::Kind::Callable:
+            {
+                if (options.whitespaces) code.append(options.indentation, ' ');
+
+                const CallableDeclaration* callableDeclaration = static_cast<const CallableDeclaration*>(declaration);
+
+                if (callableDeclaration->getCallableDeclarationKind() == CallableDeclaration::Kind::Function)
+                {
+                    const FunctionDeclaration* functionDeclaration = static_cast<const FunctionDeclaration*>(callableDeclaration);
+
+                    if (functionDeclaration->isStatic) code += "static ";
+                    if (functionDeclaration->isInline) code += "inline ";
+
+                    std::pair<std::string, std::string> printableTypeName = getPrintableTypeName(functionDeclaration->qualifiedType);
+
+                    code += printableTypeName.first + " " + functionDeclaration->name + "(";
+
+                    bool firstParameter = true;
+
+                    for (ParameterDeclaration* parameter : functionDeclaration->parameterDeclarations)
+                    {
+                        if (!firstParameter)
+                        {
+                            code += ",";
+                            if (options.whitespaces) code += " ";
+                            firstParameter = false;
+                        }
+
+                        printConstruct(parameter, Options(0, options.whitespaces), code);
+                    }
+
+                    code += ")";
+
+                    if (functionDeclaration->body)
+                    {
+                        if (options.whitespaces) code += "\n";
+                        printConstruct(functionDeclaration->body, options, code);
+                    }
+                }
+
+                break;
+            }
+
+            case Declaration::Kind::Variable:
+            {
+                if (options.whitespaces) code.append(options.indentation, ' ');
+
+                const VariableDeclaration* variableDeclaration = static_cast<const VariableDeclaration*>(declaration);
+                if (variableDeclaration->storageClass == VariableDeclaration::StorageClass::Static) code += "static ";
+
+                std::pair<std::string, std::string> printableTypeName = getPrintableTypeName(variableDeclaration->qualifiedType);
+
+                code += printableTypeName.first + " " + variableDeclaration->name + printableTypeName.second;
+
+                if (variableDeclaration->initialization)
+                {
+                    if (options.whitespaces) code += " ";
+                    code += "=";
+                    if (options.whitespaces) code += " ";
+                    printConstruct(variableDeclaration->initialization, Options(0, options.whitespaces), code);
+                }
+
+                break;
+            }
+
+            case Declaration::Kind::Parameter:
+            {
+                if (options.whitespaces) code.append(options.indentation, ' ');
+
+                const ParameterDeclaration* parameterDeclaration = static_cast<const ParameterDeclaration*>(declaration);
+
+                std::pair<std::string, std::string> printableTypeName = getPrintableTypeName(parameterDeclaration->qualifiedType);
+
+                code += printableTypeName.first + " " + parameterDeclaration->name + printableTypeName.second;
+                break;
+            }
+        }
+    }
+
+    void OutputGLSL::printStatement(const Statement* statement, Options options, std::string& code)
+    {
+        switch (statement->getStatementKind())
+        {
+            case Statement::Kind::Empty:
+            {
+                if (options.whitespaces) code.append(options.indentation, ' ');
+                code += ";";
+                break;
+            }
+
+            case Statement::Kind::Expression:
+            {
+                if (options.whitespaces) code.append(options.indentation, ' ');
+
+                const ExpressionStatement* expressionStatement = static_cast<const ExpressionStatement*>(statement);
+                printConstruct(expressionStatement->expression, Options(0, options.whitespaces), code);
+
+                code += ";";
+                break;
+            }
+
+            case Statement::Kind::Declaration:
+            {
+                if (options.whitespaces) code.append(options.indentation, ' ');
+
+                const DeclarationStatement* declarationStatement = static_cast<const DeclarationStatement*>(statement);
+                printConstruct(declarationStatement->declaration, Options(0, options.whitespaces), code);
+
+                code += ";";
+                break;
+            }
+
+            case Statement::Kind::Compound:
+            {
+                const CompoundStatement* compoundStatement = static_cast<const CompoundStatement*>(statement);
+
+                if (options.whitespaces) code.append(options.indentation, ' ');
                 code += "{";
                 if (options.whitespaces) code += "\n";
 
-                for (const Declaration* memberDeclaration : structType->memberDeclarations)
+                for (Statement* subStatement : compoundStatement->statements)
                 {
-                    printConstruct(memberDeclaration, Options(options.indentation + 4, options.whitespaces), code);
+                    printConstruct(subStatement, Options(options.indentation + 4, options.whitespaces), code);
 
-                    code += ";";
                     if (options.whitespaces) code += "\n";
                 }
 
                 if (options.whitespaces) code.append(options.indentation, ' ');
                 code += "}";
+                break;
             }
 
-            break;
-        }
-
-        case Declaration::Kind::Field:
-        {
-            if (options.whitespaces) code.append(options.indentation, ' ');
-
-            const FieldDeclaration* fieldDeclaration = static_cast<const FieldDeclaration*>(declaration);
-
-            if (fieldDeclaration->semantic != Semantic::None)
+            case Statement::Kind::If:
             {
-                switch (fieldDeclaration->semantic)
+                if (options.whitespaces) code.append(options.indentation, ' ');
+
+                const IfStatement* ifStatement = static_cast<const IfStatement*>(statement);
+                code += "if";
+                if (options.whitespaces) code += " ";
+                code += "(";
+
+                printConstruct(ifStatement->condition, Options(0, options.whitespaces), code);
+
+                code += ")";
+                if (options.whitespaces) code += "\n";
+
+                if (ifStatement->body->getStatementKind() == Statement::Kind::Compound)
+                    printConstruct(ifStatement->body, options, code);
+                else
+                    printConstruct(ifStatement->body, Options(options.indentation + 4, options.whitespaces), code);
+
+                if (ifStatement->elseBody)
                 {
-                    case Semantic::None: break;
-                    case Semantic::Binormal:
-                        // TODO: implement
-                        break;
-                    case Semantic::BlendIndices:
-                        // TODO: implement
-                        break;
-                    case Semantic::BlendWeight:
-                        // TODO: implement
-                        break;
-                    case Semantic::Color:
-                        // TODO: implement
-                        break;
-                    case Semantic::Normal:
-                        // TODO: implement
-                        break;
-                    case Semantic::Position:
-                        // TODO: implement
-                        break;
-                    case Semantic::PositionTransformed:
-                        // TODO: implement
-                        break;
-                    case Semantic::PointSize:
-                        // TODO: implement
-                        break;
-                    case Semantic::Tangent:
-                        // TODO: implement
-                        break;
-                    case Semantic::TextureCoordinates:
-                        // TODO: implement
-                        break;
+                    if (options.whitespaces) code += "\n";
+                    if (options.whitespaces) code.append(options.indentation, ' ');
+                    code += "else";
+                    if (options.whitespaces) code += "\n";
+
+                    if (ifStatement->elseBody->getStatementKind() == Statement::Kind::Compound)
+                        printConstruct(ifStatement->elseBody, options, code);
+                    else
+                        printConstruct(ifStatement->elseBody, Options(options.indentation + 4, options.whitespaces), code);
                 }
+                break;
             }
 
-            break;
-        }
-
-        case Declaration::Kind::Callable:
-        {
-            if (options.whitespaces) code.append(options.indentation, ' ');
-
-            const CallableDeclaration* callableDeclaration = static_cast<const CallableDeclaration*>(declaration);
-
-            if (callableDeclaration->getCallableDeclarationKind() == CallableDeclaration::Kind::Function)
+            case Statement::Kind::For:
             {
-                const FunctionDeclaration* functionDeclaration = static_cast<const FunctionDeclaration*>(callableDeclaration);
+                if (options.whitespaces) code.append(options.indentation, ' ');
 
-                if (functionDeclaration->isStatic) code += "static ";
-                if (functionDeclaration->isInline) code += "inline ";
+                const ForStatement* forStatement = static_cast<const ForStatement*>(statement);
+                code += "for";
+                if (options.whitespaces) code += " ";
+                code += "(";
 
-                std::pair<std::string, std::string> printableTypeName = getPrintableTypeName(functionDeclaration->qualifiedType);
+                if (forStatement->initialization)
+                    printConstruct(forStatement->initialization, Options(0, options.whitespaces), code);
 
-                code += printableTypeName.first + " " + functionDeclaration->name + "(";
+                code += ";";
+                if (options.whitespaces) code += " ";
+
+                if (forStatement->condition)
+                    printConstruct(forStatement->condition, Options(0, options.whitespaces), code);
+
+                code += ";";
+                if (options.whitespaces) code += " ";
+
+                if (forStatement->increment)
+                    printConstruct(forStatement->increment, Options(0, options.whitespaces), code);
+
+                code += ")";
+                if (options.whitespaces) code += "\n";
+
+                if (forStatement->body->getStatementKind() == Statement::Kind::Compound)
+                    printConstruct(forStatement->body, options, code);
+                else
+                    printConstruct(forStatement->body, Options(options.indentation + 4, options.whitespaces), code);
+                break;
+            }
+
+            case Statement::Kind::Switch:
+            {
+                if (options.whitespaces) code.append(options.indentation, ' ');
+
+                const SwitchStatement* switchStatement = static_cast<const SwitchStatement*>(statement);
+                code += "switch";
+                if (options.whitespaces) code += " ";
+                code += "(";
+
+                printConstruct(switchStatement->condition, Options(0, options.whitespaces), code);
+
+                code += ")";
+                if (options.whitespaces) code += "\n";
+
+                if (switchStatement->body->getStatementKind() == Statement::Kind::Compound)
+                    printConstruct(switchStatement->body, options, code);
+                else
+                    printConstruct(switchStatement->body, Options(options.indentation + 4, options.whitespaces), code);
+
+                break;
+            }
+
+            case Statement::Kind::Case:
+            {
+                if (options.whitespaces) code.append(options.indentation, ' ');
+
+                const CaseStatement* caseStatement = static_cast<const CaseStatement*>(statement);
+                code += "case ";
+
+                printConstruct(caseStatement->condition, Options(0, options.whitespaces), code);
+
+                code += ":";
+                if (options.whitespaces) code += "\n";
+
+                if (caseStatement->body->getStatementKind() == Statement::Kind::Compound)
+                    printConstruct(caseStatement->body, options, code);
+                else
+                    printConstruct(caseStatement->body, Options(options.indentation + 4, options.whitespaces), code);
+
+                break;
+            }
+
+            case Statement::Kind::Default:
+            {
+                if (options.whitespaces) code.append(options.indentation, ' ');
+
+                const DefaultStatement* defaultStatement = static_cast<const DefaultStatement*>(statement);
+                code += "default:";
+                if (options.whitespaces) code += "\n";
+
+                if (defaultStatement->body->getStatementKind() == Statement::Kind::Compound)
+                    printConstruct(defaultStatement->body, options, code);
+                else
+                    printConstruct(defaultStatement->body, Options(options.indentation + 4, options.whitespaces), code);
+
+                break;
+            }
+
+            case Statement::Kind::While:
+            {
+                if (options.whitespaces) code.append(options.indentation, ' ');
+
+                const WhileStatement* whileStatement = static_cast<const WhileStatement*>(statement);
+                code += "while";
+                if (options.whitespaces) code += " ";
+                code += "(";
+
+                printConstruct(whileStatement->condition, Options(0, options.whitespaces), code);
+
+                code += ")";
+                if (options.whitespaces) code += "\n";
+
+                if (whileStatement->body->getStatementKind() == Statement::Kind::Compound)
+                    printConstruct(whileStatement->body, options, code);
+                else
+                    printConstruct(whileStatement->body, Options(options.indentation + 4, options.whitespaces), code);
+                break;
+            }
+
+            case Statement::Kind::Do:
+            {
+                if (options.whitespaces) code.append(options.indentation, ' ');
+
+                const DoStatement* doStatement = static_cast<const DoStatement*>(statement);
+                code += "do";
+                if (options.whitespaces) code += "\n";
+
+                if (doStatement->body->getStatementKind() == Statement::Kind::Compound)
+                    printConstruct(doStatement->body, options, code);
+                else
+                {
+                    if (!options.whitespaces) code += " ";
+                    printConstruct(doStatement->body, Options(options.indentation + 4, options.whitespaces), code);
+                }
+
+                if (options.whitespaces) code += "\n";
+
+                if (options.whitespaces) code.append(options.indentation, ' ');
+                code += "while";
+                if (options.whitespaces) code += " ";
+                code += "(";
+
+                printConstruct(doStatement->condition, Options(0, options.whitespaces), code);
+
+                code += ");";
+
+                break;
+            }
+
+            case Statement::Kind::Break:
+            {
+                if (options.whitespaces) code.append(options.indentation, ' ');
+                code += "break;";
+                break;
+            }
+
+            case Statement::Kind::Continue:
+            {
+                if (options.whitespaces) code.append(options.indentation, ' ');
+                code += "continue;";
+                break;
+            }
+
+            case Statement::Kind::Return:
+            {
+                if (options.whitespaces) code.append(options.indentation, ' ');
+
+                const ReturnStatement* returnStatement = static_cast<const ReturnStatement*>(statement);
+                code += "return";
+
+                if (returnStatement->result)
+                {
+                    code += " ";
+                    printConstruct(returnStatement->result, Options(0, options.whitespaces), code);
+                }
+
+                code += ";";
+                break;
+            }
+        }
+    }
+
+    void OutputGLSL::printExpression(const Expression* expression, Options options, std::string& code)
+    {
+        switch (expression->getExpressionKind())
+        {
+            case Expression::Kind::Call:
+            {
+                if (options.whitespaces) code.append(options.indentation, ' ');
+
+                const CallExpression* callExpression = static_cast<const CallExpression*>(expression);
+
+                printConstruct(callExpression->declarationReference, Options(0, options.whitespaces), code);
+
+                code += "(";
 
                 bool firstParameter = true;
 
-                for (ParameterDeclaration* parameter : functionDeclaration->parameterDeclarations)
+                for (Expression* argument : callExpression->arguments)
+                {
+                    if (!firstParameter)
+                    {
+                        code += ",";
+                        if (options.whitespaces) code += " ";
+                        firstParameter = false;
+                    }
+
+                    printConstruct(argument, Options(0, options.whitespaces), code);
+                }
+
+                code += ")";
+                break;
+            }
+
+            case Expression::Kind::Literal:
+            {
+                if (options.whitespaces) code.append(options.indentation, ' ');
+
+                const LiteralExpression* literalExpression = static_cast<const LiteralExpression*>(expression);
+
+                switch (literalExpression->getLiteralKind())
+                {
+                    case LiteralExpression::Kind::Boolean:
+                    {
+                        const BooleanLiteralExpression* booleanLiteralExpression = static_cast<const BooleanLiteralExpression*>(literalExpression);
+                        code += (booleanLiteralExpression->value ? "true" : "false");
+                        break;
+                    }
+                    case LiteralExpression::Kind::Integer:
+                    {
+                        const IntegerLiteralExpression* integerLiteralExpression = static_cast<const IntegerLiteralExpression*>(literalExpression);
+                        code += std::to_string(integerLiteralExpression->value);
+                        break;
+                    }
+                    case LiteralExpression::Kind::FloatingPoint:
+                    {
+                        const FloatingPointLiteralExpression* floatingPointLiteralExpression = static_cast<const FloatingPointLiteralExpression*>(literalExpression);
+                        code += std::to_string(floatingPointLiteralExpression->value);
+                        break;
+                    }
+                    case LiteralExpression::Kind::String:
+                    {
+                        const StringLiteralExpression* stringLiteralExpression = static_cast<const StringLiteralExpression*>(literalExpression);
+                        code += stringLiteralExpression->value;
+                        break;
+                    }
+                }
+                break;
+            }
+
+            case Expression::Kind::DeclarationReference:
+            {
+                if (options.whitespaces) code.append(options.indentation, ' ');
+
+                const DeclarationReferenceExpression* declarationReferenceExpression = static_cast<const DeclarationReferenceExpression*>(expression);
+                Declaration* declaration = declarationReferenceExpression->declaration;
+
+                switch (declaration->getDeclarationKind())
+                {
+                    case Declaration::Kind::Callable:
+                    {
+                        const CallableDeclaration* callableDeclaration = static_cast<const CallableDeclaration*>(declaration);
+
+                        if (callableDeclaration->getCallableDeclarationKind() == CallableDeclaration::Kind::Function)
+                        {
+                            const FunctionDeclaration* functionDeclaration = static_cast<const FunctionDeclaration*>(callableDeclaration);
+                            code += functionDeclaration->name;
+                        }
+                        break;
+                    }
+                    case Declaration::Kind::Variable:
+                    {
+                        const VariableDeclaration* variableDeclaration = static_cast<const VariableDeclaration*>(declaration);
+                        code += variableDeclaration->name;
+                        break;
+                    }
+                    case Declaration::Kind::Parameter:
+                    {
+                        const ParameterDeclaration* parameterDeclaration = static_cast<const ParameterDeclaration*>(declaration);
+                        code += parameterDeclaration->name;
+                        break;
+                    }
+                    default:
+                        throw std::runtime_error("Unknown declaration type");
+                }
+
+                break;
+            }
+
+            case Expression::Kind::Paren:
+            {
+                if (options.whitespaces) code.append(options.indentation, ' ');
+
+                const ParenExpression* parenExpression = static_cast<const ParenExpression*>(expression);
+                code += "(";
+
+                printConstruct(parenExpression->expression, Options(0, options.whitespaces), code);
+
+                code += ")";
+                break;
+            }
+
+            case Expression::Kind::Member:
+            {
+                if (options.whitespaces) code.append(options.indentation, ' ');
+
+                const MemberExpression* memberExpression = static_cast<const MemberExpression*>(expression);
+
+                printConstruct(memberExpression->expression, Options(0, options.whitespaces), code);
+
+                code += ".";
+
+                if (!memberExpression->fieldDeclaration)
+                    throw std::runtime_error("Field does not exist");
+
+                code += memberExpression->fieldDeclaration->name;
+
+                break;
+            }
+
+            case Expression::Kind::ArraySubscript:
+            {
+                if (options.whitespaces) code.append(options.indentation, ' ');
+
+                const ArraySubscriptExpression* arraySubscriptExpression = static_cast<const ArraySubscriptExpression*>(expression);
+
+                printConstruct(arraySubscriptExpression->expression, Options(0, options.whitespaces), code);
+
+                code += "[";
+
+                printConstruct(arraySubscriptExpression->subscript, Options(0, options.whitespaces), code);
+
+                code += "]";
+
+                break;
+            }
+
+            case Expression::Kind::UnaryOperator:
+            {
+                if (options.whitespaces) code.append(options.indentation, ' ');
+
+                const UnaryOperatorExpression* unaryOperatorExpression = static_cast<const UnaryOperatorExpression*>(expression);
+
+                switch (unaryOperatorExpression->getOperatorKind())
+                {
+                    case UnaryOperatorExpression::Kind::Negation: code += "!"; break;
+                    case UnaryOperatorExpression::Kind::Positive: code += "+"; break;
+                    case UnaryOperatorExpression::Kind::Negative: code += "-"; break;
+                    default:
+                        throw std::runtime_error("Unknown operator");
+                }
+
+                printConstruct(unaryOperatorExpression->expression, Options(0, options.whitespaces), code);
+                break;
+            }
+
+            case Expression::Kind::BinaryOperator:
+            {
+                if (options.whitespaces) code.append(options.indentation, ' ');
+
+                const BinaryOperatorExpression* binaryOperatorExpression = static_cast<const BinaryOperatorExpression*>(expression);
+                printConstruct(binaryOperatorExpression->leftExpression, Options(0, options.whitespaces), code);
+
+                if (options.whitespaces &&
+                    binaryOperatorExpression->getOperatorKind() != BinaryOperatorExpression::Kind::Comma) code += " ";
+
+                switch (binaryOperatorExpression->getOperatorKind())
+                {
+                    case BinaryOperatorExpression::Kind::Addition: code += "+"; break;
+                    case BinaryOperatorExpression::Kind::Subtraction: code += "-"; break;
+                    case BinaryOperatorExpression::Kind::Multiplication: code += "*"; break;
+                    case BinaryOperatorExpression::Kind::Division: code += "/"; break;
+                    case BinaryOperatorExpression::Kind::AdditionAssignment: code += "+="; break;
+                    case BinaryOperatorExpression::Kind::SubtractAssignment: code += "-="; break;
+                    case BinaryOperatorExpression::Kind::MultiplicationAssignment: code += "*="; break;
+                    case BinaryOperatorExpression::Kind::DivisionAssignment: code += "/="; break;
+                    case BinaryOperatorExpression::Kind::LessThan: code += "<"; break;
+                    case BinaryOperatorExpression::Kind::LessThanEqual: code += "<="; break;
+                    case BinaryOperatorExpression::Kind::GreaterThan: code += ">"; break;
+                    case BinaryOperatorExpression::Kind::GraterThanEqual: code += ">="; break;
+                    case BinaryOperatorExpression::Kind::Equality: code += "=="; break;
+                    case BinaryOperatorExpression::Kind::Inequality: code += "!="; break;
+                    case BinaryOperatorExpression::Kind::Assignment: code += "="; break;
+                    case BinaryOperatorExpression::Kind::Or: code += "||"; break;
+                    case BinaryOperatorExpression::Kind::And: code += "&&"; break;
+                    case BinaryOperatorExpression::Kind::Comma: code += ","; break;
+                    default:
+                        throw std::runtime_error("Unknown operator");
+                }
+
+                if (options.whitespaces) code += " ";
+
+                printConstruct(binaryOperatorExpression->rightExpression, Options(0, options.whitespaces), code);
+                break;
+            }
+
+            case Expression::Kind::TernaryOperator:
+            {
+                if (options.whitespaces) code.append(options.indentation, ' ');
+
+                const TernaryOperatorExpression* ternaryOperatorExpression = static_cast<const TernaryOperatorExpression*>(expression);
+
+                printConstruct(ternaryOperatorExpression->condition, Options(0, options.whitespaces), code);
+
+                if (options.whitespaces) code += " ";
+                code += "?";
+                if (options.whitespaces) code += " ";
+
+                printConstruct(ternaryOperatorExpression->leftExpression, Options(0, options.whitespaces), code);
+
+                if (options.whitespaces) code += " ";
+                code += ":";
+                if (options.whitespaces) code += " ";
+
+                printConstruct(ternaryOperatorExpression->rightExpression, Options(0, options.whitespaces), code);
+                break;
+            }
+
+            case Expression::Kind::TemporaryObject:
+            {
+                if (options.whitespaces) code.append(options.indentation, ' ');
+
+                const TemporaryObjectExpression* temporaryObjectExpression = static_cast<const TemporaryObjectExpression*>(expression);
+
+                const TypeDeclaration* typeDeclaration = static_cast<const TypeDeclaration*>(temporaryObjectExpression->constructorDeclaration->parent);
+                const Type* type = typeDeclaration->type;
+
+                if (type->getTypeKind() != Type::Kind::Struct)
+                    throw std::runtime_error("Temporary object must be a struct");
+
+                const StructType* structType = static_cast<const StructType*>(type);
+
+                code += structType->name + "(";
+
+                bool firstParameter = true;
+
+                for (Expression* parameter : temporaryObjectExpression->parameters)
                 {
                     if (!firstParameter)
                     {
@@ -198,663 +777,87 @@ void OutputGLSL::printDeclaration(const Declaration* declaration, Options option
 
                 code += ")";
 
-                if (functionDeclaration->body)
-                {
-                    if (options.whitespaces) code += "\n";
-                    printConstruct(functionDeclaration->body, options, code);
-                }
+                break;
             }
 
-            break;
-        }
-
-        case Declaration::Kind::Variable:
-        {
-            if (options.whitespaces) code.append(options.indentation, ' ');
-
-            const VariableDeclaration* variableDeclaration = static_cast<const VariableDeclaration*>(declaration);
-            if (variableDeclaration->storageClass == VariableDeclaration::StorageClass::Static) code += "static ";
-
-            std::pair<std::string, std::string> printableTypeName = getPrintableTypeName(variableDeclaration->qualifiedType);
-
-            code += printableTypeName.first + " " + variableDeclaration->name + printableTypeName.second;
-
-            if (variableDeclaration->initialization)
+            case Expression::Kind::InitializerList:
             {
-                if (options.whitespaces) code += " ";
-                code += "=";
-                if (options.whitespaces) code += " ";
-                printConstruct(variableDeclaration->initialization, Options(0, options.whitespaces), code);
-            }
-
-            break;
-        }
-
-        case Declaration::Kind::Parameter:
-        {
-            if (options.whitespaces) code.append(options.indentation, ' ');
-
-            const ParameterDeclaration* parameterDeclaration = static_cast<const ParameterDeclaration*>(declaration);
-
-            std::pair<std::string, std::string> printableTypeName = getPrintableTypeName(parameterDeclaration->qualifiedType);
-
-            code += printableTypeName.first + " " + parameterDeclaration->name + printableTypeName.second;
-            break;
-        }
-    }
-}
-
-void OutputGLSL::printStatement(const Statement* statement, Options options, std::string& code)
-{
-    switch (statement->getStatementKind())
-    {
-        case Statement::Kind::Empty:
-        {
-            if (options.whitespaces) code.append(options.indentation, ' ');
-            code += ";";
-            break;
-        }
-
-        case Statement::Kind::Expression:
-        {
-            if (options.whitespaces) code.append(options.indentation, ' ');
-
-            const ExpressionStatement* expressionStatement = static_cast<const ExpressionStatement*>(statement);
-            printConstruct(expressionStatement->expression, Options(0, options.whitespaces), code);
-
-            code += ";";
-            break;
-        }
-
-        case Statement::Kind::Declaration:
-        {
-            if (options.whitespaces) code.append(options.indentation, ' ');
-
-            const DeclarationStatement* declarationStatement = static_cast<const DeclarationStatement*>(statement);
-            printConstruct(declarationStatement->declaration, Options(0, options.whitespaces), code);
-
-            code += ";";
-            break;
-        }
-
-        case Statement::Kind::Compound:
-        {
-            const CompoundStatement* compoundStatement = static_cast<const CompoundStatement*>(statement);
-
-            if (options.whitespaces) code.append(options.indentation, ' ');
-            code += "{";
-            if (options.whitespaces) code += "\n";
-
-            for (Statement* subStatement : compoundStatement->statements)
-            {
-                printConstruct(subStatement, Options(options.indentation + 4, options.whitespaces), code);
-
-                if (options.whitespaces) code += "\n";
-            }
-
-            if (options.whitespaces) code.append(options.indentation, ' ');
-            code += "}";
-            break;
-        }
-
-        case Statement::Kind::If:
-        {
-            if (options.whitespaces) code.append(options.indentation, ' ');
-
-            const IfStatement* ifStatement = static_cast<const IfStatement*>(statement);
-            code += "if";
-            if (options.whitespaces) code += " ";
-            code += "(";
-
-            printConstruct(ifStatement->condition, Options(0, options.whitespaces), code);
-
-            code += ")";
-            if (options.whitespaces) code += "\n";
-
-            if (ifStatement->body->getStatementKind() == Statement::Kind::Compound)
-                printConstruct(ifStatement->body, options, code);
-            else
-                printConstruct(ifStatement->body, Options(options.indentation + 4, options.whitespaces), code);
-
-            if (ifStatement->elseBody)
-            {
-                if (options.whitespaces) code += "\n";
                 if (options.whitespaces) code.append(options.indentation, ' ');
-                code += "else";
-                if (options.whitespaces) code += "\n";
 
-                if (ifStatement->elseBody->getStatementKind() == Statement::Kind::Compound)
-                    printConstruct(ifStatement->elseBody, options, code);
-                else
-                    printConstruct(ifStatement->elseBody, Options(options.indentation + 4, options.whitespaces), code);
-            }
-            break;
-        }
+                const InitializerListExpression* initializerListExpression = static_cast<const InitializerListExpression*>(expression);
 
-        case Statement::Kind::For:
-        {
-            if (options.whitespaces) code.append(options.indentation, ' ');
+                code += "{";
 
-            const ForStatement* forStatement = static_cast<const ForStatement*>(statement);
-            code += "for";
-            if (options.whitespaces) code += " ";
-            code += "(";
+                bool firstExpression = true;
 
-            if (forStatement->initialization)
-                printConstruct(forStatement->initialization, Options(0, options.whitespaces), code);
-
-            code += ";";
-            if (options.whitespaces) code += " ";
-
-            if (forStatement->condition)
-                printConstruct(forStatement->condition, Options(0, options.whitespaces), code);
-
-            code += ";";
-            if (options.whitespaces) code += " ";
-
-            if (forStatement->increment)
-                printConstruct(forStatement->increment, Options(0, options.whitespaces), code);
-
-            code += ")";
-            if (options.whitespaces) code += "\n";
-
-            if (forStatement->body->getStatementKind() == Statement::Kind::Compound)
-                printConstruct(forStatement->body, options, code);
-            else
-                printConstruct(forStatement->body, Options(options.indentation + 4, options.whitespaces), code);
-            break;
-        }
-
-        case Statement::Kind::Switch:
-        {
-            if (options.whitespaces) code.append(options.indentation, ' ');
-
-            const SwitchStatement* switchStatement = static_cast<const SwitchStatement*>(statement);
-            code += "switch";
-            if (options.whitespaces) code += " ";
-            code += "(";
-
-            printConstruct(switchStatement->condition, Options(0, options.whitespaces), code);
-
-            code += ")";
-            if (options.whitespaces) code += "\n";
-
-            if (switchStatement->body->getStatementKind() == Statement::Kind::Compound)
-                printConstruct(switchStatement->body, options, code);
-            else
-                printConstruct(switchStatement->body, Options(options.indentation + 4, options.whitespaces), code);
-
-            break;
-        }
-
-        case Statement::Kind::Case:
-        {
-            if (options.whitespaces) code.append(options.indentation, ' ');
-
-            const CaseStatement* caseStatement = static_cast<const CaseStatement*>(statement);
-            code += "case ";
-
-            printConstruct(caseStatement->condition, Options(0, options.whitespaces), code);
-
-            code += ":";
-            if (options.whitespaces) code += "\n";
-
-            if (caseStatement->body->getStatementKind() == Statement::Kind::Compound)
-                printConstruct(caseStatement->body, options, code);
-            else
-                printConstruct(caseStatement->body, Options(options.indentation + 4, options.whitespaces), code);
-
-            break;
-        }
-
-        case Statement::Kind::Default:
-        {
-            if (options.whitespaces) code.append(options.indentation, ' ');
-
-            const DefaultStatement* defaultStatement = static_cast<const DefaultStatement*>(statement);
-            code += "default:";
-            if (options.whitespaces) code += "\n";
-
-            if (defaultStatement->body->getStatementKind() == Statement::Kind::Compound)
-                printConstruct(defaultStatement->body, options, code);
-            else
-                printConstruct(defaultStatement->body, Options(options.indentation + 4, options.whitespaces), code);
-
-            break;
-        }
-
-        case Statement::Kind::While:
-        {
-            if (options.whitespaces) code.append(options.indentation, ' ');
-
-            const WhileStatement* whileStatement = static_cast<const WhileStatement*>(statement);
-            code += "while";
-            if (options.whitespaces) code += " ";
-            code += "(";
-
-            printConstruct(whileStatement->condition, Options(0, options.whitespaces), code);
-
-            code += ")";
-            if (options.whitespaces) code += "\n";
-
-            if (whileStatement->body->getStatementKind() == Statement::Kind::Compound)
-                printConstruct(whileStatement->body, options, code);
-            else
-                printConstruct(whileStatement->body, Options(options.indentation + 4, options.whitespaces), code);
-            break;
-        }
-
-        case Statement::Kind::Do:
-        {
-            if (options.whitespaces) code.append(options.indentation, ' ');
-
-            const DoStatement* doStatement = static_cast<const DoStatement*>(statement);
-            code += "do";
-            if (options.whitespaces) code += "\n";
-
-            if (doStatement->body->getStatementKind() == Statement::Kind::Compound)
-                printConstruct(doStatement->body, options, code);
-            else
-            {
-                if (!options.whitespaces) code += " ";
-                printConstruct(doStatement->body, Options(options.indentation + 4, options.whitespaces), code);
-            }
-
-            if (options.whitespaces) code += "\n";
-
-            if (options.whitespaces) code.append(options.indentation, ' ');
-            code += "while";
-            if (options.whitespaces) code += " ";
-            code += "(";
-
-            printConstruct(doStatement->condition, Options(0, options.whitespaces), code);
-
-            code += ");";
-
-            break;
-        }
-
-        case Statement::Kind::Break:
-        {
-            if (options.whitespaces) code.append(options.indentation, ' ');
-            code += "break;";
-            break;
-        }
-
-        case Statement::Kind::Continue:
-        {
-            if (options.whitespaces) code.append(options.indentation, ' ');
-            code += "continue;";
-            break;
-        }
-
-        case Statement::Kind::Return:
-        {
-            if (options.whitespaces) code.append(options.indentation, ' ');
-
-            const ReturnStatement* returnStatement = static_cast<const ReturnStatement*>(statement);
-            code += "return";
-
-            if (returnStatement->result)
-            {
-                code += " ";
-                printConstruct(returnStatement->result, Options(0, options.whitespaces), code);
-            }
-
-            code += ";";
-            break;
-        }
-    }
-}
-
-void OutputGLSL::printExpression(const Expression* expression, Options options, std::string& code)
-{
-    switch (expression->getExpressionKind())
-    {
-        case Expression::Kind::Call:
-        {
-            if (options.whitespaces) code.append(options.indentation, ' ');
-
-            const CallExpression* callExpression = static_cast<const CallExpression*>(expression);
-
-            printConstruct(callExpression->declarationReference, Options(0, options.whitespaces), code);
-
-            code += "(";
-
-            bool firstParameter = true;
-
-            for (Expression* argument : callExpression->arguments)
-            {
-                if (!firstParameter)
+                for (Expression* subExpression : initializerListExpression->expressions)
                 {
-                    code += ",";
-                    if (options.whitespaces) code += " ";
-                    firstParameter = false;
-                }
-
-                printConstruct(argument, Options(0, options.whitespaces), code);
-            }
-
-            code += ")";
-            break;
-        }
-
-        case Expression::Kind::Literal:
-        {
-            if (options.whitespaces) code.append(options.indentation, ' ');
-
-            const LiteralExpression* literalExpression = static_cast<const LiteralExpression*>(expression);
-
-            switch (literalExpression->getLiteralKind())
-            {
-                case LiteralExpression::Kind::Boolean:
-                {
-                    const BooleanLiteralExpression* booleanLiteralExpression = static_cast<const BooleanLiteralExpression*>(literalExpression);
-                    code += (booleanLiteralExpression->value ? "true" : "false");
-                    break;
-                }
-                case LiteralExpression::Kind::Integer:
-                {
-                    const IntegerLiteralExpression* integerLiteralExpression = static_cast<const IntegerLiteralExpression*>(literalExpression);
-                    code += std::to_string(integerLiteralExpression->value);
-                    break;
-                }
-                case LiteralExpression::Kind::FloatingPoint:
-                {
-                    const FloatingPointLiteralExpression* floatingPointLiteralExpression = static_cast<const FloatingPointLiteralExpression*>(literalExpression);
-                    code += std::to_string(floatingPointLiteralExpression->value);
-                    break;
-                }
-                case LiteralExpression::Kind::String:
-                {
-                    const StringLiteralExpression* stringLiteralExpression = static_cast<const StringLiteralExpression*>(literalExpression);
-                    code += stringLiteralExpression->value;
-                    break;
-                }
-            }
-            break;
-        }
-
-        case Expression::Kind::DeclarationReference:
-        {
-            if (options.whitespaces) code.append(options.indentation, ' ');
-
-            const DeclarationReferenceExpression* declarationReferenceExpression = static_cast<const DeclarationReferenceExpression*>(expression);
-            Declaration* declaration = declarationReferenceExpression->declaration;
-
-            switch (declaration->getDeclarationKind())
-            {
-                case Declaration::Kind::Callable:
-                {
-                    const CallableDeclaration* callableDeclaration = static_cast<const CallableDeclaration*>(declaration);
-
-                    if (callableDeclaration->getCallableDeclarationKind() == CallableDeclaration::Kind::Function)
+                    if (!firstExpression)
                     {
-                        const FunctionDeclaration* functionDeclaration = static_cast<const FunctionDeclaration*>(callableDeclaration);
-                        code += functionDeclaration->name;
+                        code += ",";
+                        if (options.whitespaces) code += " ";
+                        firstExpression = false;
                     }
-                    break;
+
+                    printConstruct(subExpression, Options(0, options.whitespaces), code);
                 }
-                case Declaration::Kind::Variable:
+
+                code += "}";
+
+                break;
+            }
+
+            case Expression::Kind::Cast:
+            {
+                if (options.whitespaces) code.append(options.indentation, ' ');
+
+                const CastExpression* castExpression = static_cast<const CastExpression*>(expression);
+
+                if (castExpression->getCastKind() != CastExpression::Kind::Implicit)
                 {
-                    const VariableDeclaration* variableDeclaration = static_cast<const VariableDeclaration*>(declaration);
-                    code += variableDeclaration->name;
-                    break;
+                    code += castExpression->qualifiedType.type->name + "(";
+
+                    printConstruct(castExpression->expression, Options(0, options.whitespaces), code);
+
+                    code += ")";
                 }
-                case Declaration::Kind::Parameter:
-                {
-                    const ParameterDeclaration* parameterDeclaration = static_cast<const ParameterDeclaration*>(declaration);
-                    code += parameterDeclaration->name;
-                    break;
-                }
-                default:
-                    throw std::runtime_error("Unknown declaration type");
+                else
+                    printConstruct(castExpression->expression, Options(0, options.whitespaces), code);
+
+                break;
             }
-
-            break;
-        }
-
-        case Expression::Kind::Paren:
-        {
-            if (options.whitespaces) code.append(options.indentation, ' ');
-
-            const ParenExpression* parenExpression = static_cast<const ParenExpression*>(expression);
-            code += "(";
-
-            printConstruct(parenExpression->expression, Options(0, options.whitespaces), code);
-
-            code += ")";
-            break;
-        }
-
-        case Expression::Kind::Member:
-        {
-            if (options.whitespaces) code.append(options.indentation, ' ');
-
-            const MemberExpression* memberExpression = static_cast<const MemberExpression*>(expression);
-
-            printConstruct(memberExpression->expression, Options(0, options.whitespaces), code);
-
-            code += ".";
-
-            if (!memberExpression->fieldDeclaration)
-                throw std::runtime_error("Field does not exist");
-
-            code += memberExpression->fieldDeclaration->name;
-
-            break;
-        }
-
-        case Expression::Kind::ArraySubscript:
-        {
-            if (options.whitespaces) code.append(options.indentation, ' ');
-
-            const ArraySubscriptExpression* arraySubscriptExpression = static_cast<const ArraySubscriptExpression*>(expression);
-
-            printConstruct(arraySubscriptExpression->expression, Options(0, options.whitespaces), code);
-
-            code += "[";
-
-            printConstruct(arraySubscriptExpression->subscript, Options(0, options.whitespaces), code);
-
-            code += "]";
-
-            break;
-        }
-
-        case Expression::Kind::UnaryOperator:
-        {
-            if (options.whitespaces) code.append(options.indentation, ' ');
-
-            const UnaryOperatorExpression* unaryOperatorExpression = static_cast<const UnaryOperatorExpression*>(expression);
-
-            switch (unaryOperatorExpression->getOperatorKind())
+            case Expression::Kind::Sizeof:
             {
-                case UnaryOperatorExpression::Kind::Negation: code += "!"; break;
-                case UnaryOperatorExpression::Kind::Positive: code += "+"; break;
-                case UnaryOperatorExpression::Kind::Negative: code += "-"; break;
-                default:
-                    throw std::runtime_error("Unknown operator");
+                // TODO: implement
+                break;
             }
-
-            printConstruct(unaryOperatorExpression->expression, Options(0, options.whitespaces), code);
-            break;
-        }
-
-        case Expression::Kind::BinaryOperator:
-        {
-            if (options.whitespaces) code.append(options.indentation, ' ');
-
-            const BinaryOperatorExpression* binaryOperatorExpression = static_cast<const BinaryOperatorExpression*>(expression);
-            printConstruct(binaryOperatorExpression->leftExpression, Options(0, options.whitespaces), code);
-
-            if (options.whitespaces &&
-                binaryOperatorExpression->getOperatorKind() != BinaryOperatorExpression::Kind::Comma) code += " ";
-
-            switch (binaryOperatorExpression->getOperatorKind())
-            {
-                case BinaryOperatorExpression::Kind::Addition: code += "+"; break;
-                case BinaryOperatorExpression::Kind::Subtraction: code += "-"; break;
-                case BinaryOperatorExpression::Kind::Multiplication: code += "*"; break;
-                case BinaryOperatorExpression::Kind::Division: code += "/"; break;
-                case BinaryOperatorExpression::Kind::AdditionAssignment: code += "+="; break;
-                case BinaryOperatorExpression::Kind::SubtractAssignment: code += "-="; break;
-                case BinaryOperatorExpression::Kind::MultiplicationAssignment: code += "*="; break;
-                case BinaryOperatorExpression::Kind::DivisionAssignment: code += "/="; break;
-                case BinaryOperatorExpression::Kind::LessThan: code += "<"; break;
-                case BinaryOperatorExpression::Kind::LessThanEqual: code += "<="; break;
-                case BinaryOperatorExpression::Kind::GreaterThan: code += ">"; break;
-                case BinaryOperatorExpression::Kind::GraterThanEqual: code += ">="; break;
-                case BinaryOperatorExpression::Kind::Equality: code += "=="; break;
-                case BinaryOperatorExpression::Kind::Inequality: code += "!="; break;
-                case BinaryOperatorExpression::Kind::Assignment: code += "="; break;
-                case BinaryOperatorExpression::Kind::Or: code += "||"; break;
-                case BinaryOperatorExpression::Kind::And: code += "&&"; break;
-                case BinaryOperatorExpression::Kind::Comma: code += ","; break;
-                default:
-                    throw std::runtime_error("Unknown operator");
-            }
-
-            if (options.whitespaces) code += " ";
-
-            printConstruct(binaryOperatorExpression->rightExpression, Options(0, options.whitespaces), code);
-            break;
-        }
-
-        case Expression::Kind::TernaryOperator:
-        {
-            if (options.whitespaces) code.append(options.indentation, ' ');
-
-            const TernaryOperatorExpression* ternaryOperatorExpression = static_cast<const TernaryOperatorExpression*>(expression);
-
-            printConstruct(ternaryOperatorExpression->condition, Options(0, options.whitespaces), code);
-
-            if (options.whitespaces) code += " ";
-            code += "?";
-            if (options.whitespaces) code += " ";
-
-            printConstruct(ternaryOperatorExpression->leftExpression, Options(0, options.whitespaces), code);
-
-            if (options.whitespaces) code += " ";
-            code += ":";
-            if (options.whitespaces) code += " ";
-
-            printConstruct(ternaryOperatorExpression->rightExpression, Options(0, options.whitespaces), code);
-            break;
-        }
-
-        case Expression::Kind::TemporaryObject:
-        {
-            if (options.whitespaces) code.append(options.indentation, ' ');
-
-            const TemporaryObjectExpression* temporaryObjectExpression = static_cast<const TemporaryObjectExpression*>(expression);
-
-            const TypeDeclaration* typeDeclaration = static_cast<const TypeDeclaration*>(temporaryObjectExpression->constructorDeclaration->parent);
-            const Type* type = typeDeclaration->type;
-
-            if (type->getTypeKind() != Type::Kind::Struct)
-                throw std::runtime_error("Temporary object must be a struct");
-
-            const StructType* structType = static_cast<const StructType*>(type);
-
-            code += structType->name + "(";
-
-            bool firstParameter = true;
-
-            for (Expression* parameter : temporaryObjectExpression->parameters)
-            {
-                if (!firstParameter)
-                {
-                    code += ",";
-                    if (options.whitespaces) code += " ";
-                    firstParameter = false;
-                }
-
-                printConstruct(parameter, Options(0, options.whitespaces), code);
-            }
-
-            code += ")";
-
-            break;
-        }
-
-        case Expression::Kind::InitializerList:
-        {
-            if (options.whitespaces) code.append(options.indentation, ' ');
-
-            const InitializerListExpression* initializerListExpression = static_cast<const InitializerListExpression*>(expression);
-
-            code += "{";
-
-            bool firstExpression = true;
-
-            for (Expression* subExpression : initializerListExpression->expressions)
-            {
-                if (!firstExpression)
-                {
-                    code += ",";
-                    if (options.whitespaces) code += " ";
-                    firstExpression = false;
-                }
-
-                printConstruct(subExpression, Options(0, options.whitespaces), code);
-            }
-
-            code += "}";
-
-            break;
-        }
-
-        case Expression::Kind::Cast:
-        {
-            if (options.whitespaces) code.append(options.indentation, ' ');
-
-            const CastExpression* castExpression = static_cast<const CastExpression*>(expression);
-
-            if (castExpression->getCastKind() != CastExpression::Kind::Implicit)
-            {
-                code += castExpression->qualifiedType.type->name + "(";
-
-                printConstruct(castExpression->expression, Options(0, options.whitespaces), code);
-
-                code += ")";
-            }
-            else
-                printConstruct(castExpression->expression, Options(0, options.whitespaces), code);
-            
-            break;
-        }
-        case Expression::Kind::Sizeof:
-        {
-            // TODO: implement
-            break;
         }
     }
-}
 
-void OutputGLSL::printConstruct(const Construct* construct, Options options, std::string& code)
-{
-    switch (construct->getKind())
+    void OutputGLSL::printConstruct(const Construct* construct, Options options, std::string& code)
     {
-        case Construct::Kind::Declaration:
+        switch (construct->getKind())
         {
-            const Declaration* declaration = static_cast<const Declaration*>(construct);
-            printDeclaration(declaration, options, code);
-            break;
-        }
+            case Construct::Kind::Declaration:
+            {
+                const Declaration* declaration = static_cast<const Declaration*>(construct);
+                printDeclaration(declaration, options, code);
+                break;
+            }
 
-        case Construct::Kind::Statement:
-        {
-            const Statement* statement = static_cast<const Statement*>(construct);
-            printStatement(statement, options, code);
-            break;
-        }
+            case Construct::Kind::Statement:
+            {
+                const Statement* statement = static_cast<const Statement*>(construct);
+                printStatement(statement, options, code);
+                break;
+            }
 
-        case Construct::Kind::Expression:
-        {
-            const Expression* expression = static_cast<const Expression*>(construct);
-            printExpression(expression, options, code);
-            break;
+            case Construct::Kind::Expression:
+            {
+                const Expression* expression = static_cast<const Expression*>(construct);
+                printExpression(expression, options, code);
+                break;
+            }
         }
     }
 }

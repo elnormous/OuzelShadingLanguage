@@ -7,10 +7,13 @@
 
 #include <string>
 
-class Preprocessor
+namespace ouzel
 {
-public:
-    std::string preprocess(const std::string& code);
-};
+    class Preprocessor
+    {
+    public:
+        std::string preprocess(const std::string& code);
+    };
+}
 
 #endif // PREPROCESSOR_HPP
