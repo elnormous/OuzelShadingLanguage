@@ -440,7 +440,7 @@ namespace ouzel
                 ++iterator;
                 result.qualifiers |= Qualifiers::Out;
             }
-            else if (isToken(Token::Type::Fragment, iterator, end))
+            else if (isToken(Token::Type::FragmentProgram, iterator, end))
             {
                 if (result.program != Program::None &&
                     result.program != Program::Fragment)
@@ -449,7 +449,7 @@ namespace ouzel
                 ++iterator;
                 result.program = Program::Fragment;
             }
-            else if (isToken(Token::Type::Vertex, iterator, end))
+            else if (isToken(Token::Type::VertexProgram, iterator, end))
             {
                 if (result.program != Program::None &&
                     result.program != Program::Vertex)
