@@ -349,8 +349,6 @@ namespace ouzel
             throw ParseError("Unexpected end of file");
 
         return iterator->type == Token::Type::Const ||
-            iterator->type == Token::Type::Static ||
-            iterator->type == Token::Type::Volatile ||
             iterator->type == Token::Type::Inline ||
             iterator->type == Token::Type::Signed ||
             iterator->type == Token::Type::Unsigned ||
@@ -396,7 +394,6 @@ namespace ouzel
     {
         ASTContext::Specifiers result;
         result.isInline = false;
-        result.isStatic = false;
 
         for (;;)
         {
@@ -414,11 +411,6 @@ namespace ouzel
             {
                 ++iterator;
                 result.isInline = true;
-            }
-            else if (isToken(Token::Type::Static, iterator, end))
-            {
-                ++iterator;
-                result.isStatic = true;
             }
             else if (isToken(Token::Type::Volatile, iterator, end))
             {
@@ -508,7 +500,6 @@ namespace ouzel
 
             bool isExtern = specifiers.isExtern;
             bool isInline = specifiers.isInline;
-            bool isStatic = specifiers.isStatic;
             Program program = specifiers.program;
 
             if (isToken(Token::Type::Void, iterator, end))
@@ -535,7 +526,6 @@ namespace ouzel
 
             if (specifiers.isExtern) isExtern = true;
             if (specifiers.isInline) isInline = true;
-            if (specifiers.isStatic) isStatic = true;
 
             if (specifiers.program != Program::None)
             {
@@ -570,7 +560,6 @@ namespace ouzel
                 constructs.push_back(std::unique_ptr<Construct>(result = new FunctionDeclaration()));
                 result->parent = parent;
                 result->qualifiedType = qualifiedType;
-                result->isStatic = isStatic;
                 result->isInline = isInline;
                 result->program = program;
                 result->name = name;
@@ -652,7 +641,6 @@ namespace ouzel
                 result->parent = parent;
                 result->qualifiedType = qualifiedType;
                 if (isExtern) result->storageClass = VariableDeclaration::StorageClass::Extern;
-                else if (isStatic) result->storageClass = VariableDeclaration::StorageClass::Static;
                 result->name = name;
 
                 while (isToken(Token::Type::LeftBracket, iterator, end))
@@ -800,7 +788,6 @@ namespace ouzel
 
             result->qualifiedType.qualifiers |= specifiers.qualifiers;
 
-            bool isStatic = specifiers.isStatic;
             bool isInline = specifiers.isInline;
 
             if (!(result->qualifiedType.type = parseType(iterator, end, declarationScopes)))
@@ -818,11 +805,7 @@ namespace ouzel
 
             result->qualifiedType.qualifiers |= specifiers.qualifiers;
 
-            if (specifiers.isStatic) isStatic = true;
             if (specifiers.isInline) isInline = true;
-
-            if (isStatic)
-                throw ParseError("Members can not be static");
 
             if (isInline)
                 throw ParseError("Members can not be inline");
@@ -876,7 +859,6 @@ namespace ouzel
 
         result->qualifiedType.qualifiers |= specifiers.qualifiers;
 
-        bool isStatic = specifiers.isStatic;
         bool isInline = specifiers.isInline;
 
         if (!(result->qualifiedType.type = parseType(iterator, end, declarationScopes)))
@@ -894,11 +876,7 @@ namespace ouzel
 
         result->qualifiedType.qualifiers |= specifiers.qualifiers;
 
-        if (specifiers.isStatic) isStatic = true;
         if (specifiers.isInline) isInline = true;
-
-        if (isStatic)
-            throw ParseError("Parameters can not be static");
 
         if (isInline)
             throw ParseError("Parameters can not be inline");

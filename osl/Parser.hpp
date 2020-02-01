@@ -146,7 +146,6 @@ namespace ouzel
         {
             Qualifiers qualifiers = Qualifiers::None;
             bool isInline = false;
-            bool isStatic = false;
             bool isExtern = false;
             Program program = Program::None;
         };

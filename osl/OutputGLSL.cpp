@@ -177,7 +177,6 @@ namespace ouzel
                 {
                     const FunctionDeclaration* functionDeclaration = static_cast<const FunctionDeclaration*>(callableDeclaration);
 
-                    if (functionDeclaration->isStatic) code += "static ";
                     if (functionDeclaration->isInline) code += "inline ";
 
                     std::pair<std::string, std::string> printableTypeName = getPrintableTypeName(functionDeclaration->qualifiedType);
@@ -215,7 +214,6 @@ namespace ouzel
                 if (options.whitespaces) code.append(options.indentation, ' ');
 
                 const VariableDeclaration* variableDeclaration = static_cast<const VariableDeclaration*>(declaration);
-                if (variableDeclaration->storageClass == VariableDeclaration::StorageClass::Static) code += "static ";
 
                 std::pair<std::string, std::string> printableTypeName = getPrintableTypeName(variableDeclaration->qualifiedType);
 

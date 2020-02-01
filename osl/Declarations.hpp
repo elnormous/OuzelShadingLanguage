@@ -165,7 +165,6 @@ namespace ouzel
         FunctionDeclaration(): CallableDeclaration(CallableDeclaration::Kind::Function) {}
 
         bool isInline = false;
-        bool isStatic = false;
         bool isBuiltin = false;
         Program program;
     };
@@ -182,7 +181,6 @@ namespace ouzel
         MethodDeclaration(): CallableDeclaration(CallableDeclaration::Kind::Method) {}
 
         bool isInline = false;
-        bool isStatic = false;
         bool isBuiltin = false;
     };
 
@@ -258,8 +256,7 @@ namespace ouzel
         enum class StorageClass
         {
             Auto,
-            Extern,
-            Static
+            Extern
         };
 
         VariableDeclaration() noexcept: Declaration(Declaration::Kind::Variable)

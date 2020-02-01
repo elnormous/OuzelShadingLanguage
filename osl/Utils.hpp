@@ -301,7 +301,6 @@ namespace ouzel
                     {
                         const FunctionDeclaration* functionDeclaration = static_cast<const FunctionDeclaration*>(callableDeclaration);
 
-                        if (functionDeclaration->isStatic) std::cout << " static";
                         if (functionDeclaration->isInline) std::cout << " inline";
 
                         if (functionDeclaration->program != Program::None)
