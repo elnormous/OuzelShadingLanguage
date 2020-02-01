@@ -138,8 +138,8 @@ namespace ouzel
             Arrow, // ->
             Ellipsis, // ...
             Identifier,
-            FragmentProgram, // fragment_program
-            VertexProgram, // vertex_program
+            ProgFragment, // prog_fragment
+            ProgVertex, // prog_vertex
         };
 
         Type type = Type::None;
@@ -276,8 +276,8 @@ namespace ouzel
             case Token::Type::Arrow: return "Arrow";
             case Token::Type::Ellipsis: return "Ellipsis";
             case Token::Type::Identifier: return "Identifier";
-            case Token::Type::FragmentProgram: return "FragmentProgram";
-            case Token::Type::VertexProgram: return "VertexProgram";
+            case Token::Type::ProgFragment: return "ProgFragment";
+            case Token::Type::ProgVertex: return "ProgVertex";
             default: return "Unknown";
         }
     }
