@@ -251,7 +251,6 @@ namespace ouzel
     public:
         enum class Kind
         {
-            Implicit,
             CStyle,
             Functional,
             Static

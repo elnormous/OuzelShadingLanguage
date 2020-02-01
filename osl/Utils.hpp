@@ -134,7 +134,6 @@ namespace ouzel
         {
             switch (kind)
             {
-                case CastExpression::Kind::Implicit: return "Implicit";
                 case CastExpression::Kind::CStyle: return "CStyle";
                 case CastExpression::Kind::Functional: return "Functional";
                 case CastExpression::Kind::Static: return "Static";

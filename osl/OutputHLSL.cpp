@@ -815,18 +815,9 @@ namespace ouzel
 
                 const CastExpression* castExpression = static_cast<const CastExpression*>(expression);
 
-                if (castExpression->getCastKind() != CastExpression::Kind::Implicit)
-                {
-                    code += castExpression->qualifiedType.type->name + "(";
-
-                    printConstruct(castExpression->expression, Options(0, options.whitespaces), code);
-
-                    code += ")";
-                }
-                else
-                {
-                    printConstruct(castExpression->expression, Options(0, options.whitespaces), code);
-                }
+                code += castExpression->qualifiedType.type->name + "(";
+                printConstruct(castExpression->expression, Options(0, options.whitespaces), code);
+                code += ")";
 
                 break;
             }

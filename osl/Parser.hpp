@@ -223,10 +223,6 @@ namespace ouzel
                                       std::vector<std::vector<Declaration*>>& declarationScopes,
                                       Construct* parent);
 
-        CastExpression* addImplicitCast(Expression* expression,
-                                        Type* type,
-                                        Expression::Category category);
-
         Expression* parsePrimaryExpression(std::vector<Token>::const_iterator& iterator,
                                            std::vector<Token>::const_iterator end,
                                            std::vector<std::vector<Declaration*>>& declarationScopes,

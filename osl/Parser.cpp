@@ -60,6 +60,29 @@ namespace ouzel
 
             throw ParseError("Expected " + str);
         }
+
+        bool isBooleanType(const Type* type)
+        {
+            if (!type ||
+                type->getTypeKind() != Type::Kind::Scalar)
+                return false;
+
+            auto scalarType = static_cast<const ScalarType*>(type);
+
+            return scalarType->getScalarTypeKind() == ScalarType::Kind::Boolean;
+        }
+
+        bool isIntegerType(const Type* type) noexcept
+        {
+            if (!type ||
+                type->getTypeKind() != Type::Kind::Scalar)
+                return false;
+
+            auto scalarType = static_cast<const ScalarType*>(type);
+
+            return scalarType->getScalarTypeKind() == ScalarType::Kind::Boolean ||
+                scalarType->getScalarTypeKind() == ScalarType::Kind::Integer;
+        }
     }
 
     ASTContext::ASTContext(const std::vector<Token>& tokens)
@@ -1173,8 +1196,8 @@ namespace ouzel
             if (!condition)
                 return nullptr;
 
-            if (condition->qualifiedType.type != boolType)
-                condition = addImplicitCast(condition, boolType, condition->category);
+            if (!isBooleanType(condition->qualifiedType.type))
+                throw ParseError("Condition is not a boolean");
 
             result->condition = condition;
         }
@@ -1281,8 +1304,8 @@ namespace ouzel
             if (!condition)
                 return nullptr;
 
-            if (condition->qualifiedType.type != boolType)
-                condition = addImplicitCast(condition, boolType, condition->category);
+            if (!isBooleanType(condition->qualifiedType.type))
+                throw ParseError("Condition is not a boolean");
 
             result->condition = condition;
 
@@ -1311,21 +1334,6 @@ namespace ouzel
             return nullptr;
 
         return result;
-    }
-
-    namespace
-    {
-        bool isInteger(const Type* type) noexcept
-        {
-            if (!type &&
-                type->getTypeKind() != Type::Kind::Scalar)
-                return false;
-
-            const ScalarType* scalarType = static_cast<const ScalarType*>(type);
-
-            return scalarType->getScalarTypeKind() == ScalarType::Kind::Boolean ||
-                scalarType->getScalarTypeKind() == ScalarType::Kind::Integer;
-        }
     }
 
     SwitchStatement* ASTContext::parseSwitchStatement(std::vector<Token>::const_iterator& iterator,
@@ -1365,16 +1373,8 @@ namespace ouzel
             if (!condition)
                 throw ParseError("Expected an expression");
 
-            if (!isInteger(condition->qualifiedType.type))
+            if (!isIntegerType(condition->qualifiedType.type))
                 throw ParseError("Statement requires expression of integer type");
-
-            ScalarType* scalarType = static_cast<ScalarType*>(condition->qualifiedType.type);
-
-            if (scalarType->getScalarTypeKind() != ScalarType::Kind::Integer ||
-                scalarType->size < 4)
-                condition = addImplicitCast(condition,
-                                            intType,
-                                            condition->category);
 
             result->condition = condition;
         }
@@ -1407,19 +1407,11 @@ namespace ouzel
         if (!condition)
             throw ParseError("Expected an expression");
 
-        if (!isInteger(condition->qualifiedType.type))
+        if (!isIntegerType(condition->qualifiedType.type))
             throw ParseError("Statement requires expression of integer type");
 
         if ((condition->qualifiedType.qualifiers & Qualifiers::Const) != Qualifiers::Const)
             throw ParseError("Expression must be constant");
-
-        ScalarType* scalarType = static_cast<ScalarType*>(condition->qualifiedType.type);
-
-        if (scalarType->getScalarTypeKind() != ScalarType::Kind::Integer ||
-            scalarType->size < 4)
-            condition = addImplicitCast(condition,
-                                        intType,
-                                        condition->category);
 
         result->condition = condition;
 
@@ -1493,8 +1485,8 @@ namespace ouzel
             if (!condition)
                 return nullptr;
 
-            if (condition->qualifiedType.type != boolType)
-                condition = addImplicitCast(condition, boolType, condition->category);
+            if (!isBooleanType(condition->qualifiedType.type))
+                throw ParseError("Condition is not a boolean");
 
             result->condition = condition;
         }
@@ -1538,8 +1530,8 @@ namespace ouzel
         if (!condition)
             return nullptr;
 
-        if (condition->qualifiedType.type != boolType)
-            condition = addImplicitCast(condition, boolType, condition->category);
+        if (!isBooleanType(condition->qualifiedType.type))
+            throw ParseError("Condition is not a boolean");
 
         result->condition = condition;
 
@@ -1550,22 +1542,6 @@ namespace ouzel
         expectToken(Token::Type::Semicolon, iterator, end);
 
         ++iterator;
-
-        return result;
-    }
-
-    CastExpression* ASTContext::addImplicitCast(Expression* expression,
-                                                Type* type,
-                                                Expression::Category category)
-    {
-        CastExpression* result = new CastExpression(CastExpression::Kind::Implicit);
-        constructs.push_back(std::unique_ptr<Construct>(result));
-        result->parent = expression->parent;
-        result->qualifiedType.type = type;
-        result->category = category;
-
-        result->expression = expression;
-        expression->parent = result;
 
         return result;
     }
@@ -1968,16 +1944,8 @@ namespace ouzel
                 if (!(expression->subscript = parseExpression(iterator, end, declarationScopes, expression)))
                     return nullptr;
 
-                if (!isInteger(expression->subscript->qualifiedType.type))
+                if (!isIntegerType(expression->subscript->qualifiedType.type))
                     throw ParseError("Subscript is not an integer");
-
-                ScalarType* scalarType = static_cast<ScalarType*>(expression->subscript->qualifiedType.type);
-
-                if (scalarType->getScalarTypeKind() != ScalarType::Kind::Integer ||
-                    scalarType->size < 4)
-                    expression->subscript = addImplicitCast(expression->subscript,
-                                                            intType,
-                                                            expression->subscript->category);
 
                 expectToken(Token::Type::RightBracket, iterator, end);
 
@@ -2004,16 +1972,8 @@ namespace ouzel
                 if (!(expression->rightExpression = parseExpression(iterator, end, declarationScopes, expression)))
                     return nullptr;
 
-                if (!isInteger(expression->rightExpression->qualifiedType.type))
+                if (!isIntegerType(expression->rightExpression->qualifiedType.type))
                     throw ParseError("Subscript is not an integer");
-
-                ScalarType* scalarType = static_cast<ScalarType*>(expression->rightExpression->qualifiedType.type);
-
-                if (scalarType->getScalarTypeKind() != ScalarType::Kind::Integer ||
-                    scalarType->size < 4)
-                    expression->rightExpression = addImplicitCast(expression->rightExpression,
-                                                                  intType,
-                                                                  expression->rightExpression->category);
 
                 expectToken(Token::Type::RightBracket, iterator, end);
 
@@ -2177,10 +2137,10 @@ namespace ouzel
             if (!(result->expression = parseMemberExpression(iterator, end, declarationScopes, result)))
                 return nullptr;
 
-            if (result->expression->qualifiedType.type == boolType)
-                result->expression = addImplicitCast(result->expression,
-                                                     intType,
-                                                     result->expression->category);
+            if (result->expression->qualifiedType.type->getTypeKind() == Type::Kind::Array ||
+                result->expression->qualifiedType.type->getTypeKind() == Type::Kind::Struct ||
+                isBooleanType(result->expression->qualifiedType.type))
+                throw ParseError("Parameter of the sign operator must be an integer");
 
             result->qualifiedType.type = result->expression->qualifiedType.type;
             result->category = Expression::Category::Rvalue;
@@ -2215,10 +2175,8 @@ namespace ouzel
             if (!(result->expression = parseExpression(iterator, end, declarationScopes, result)))
                 return nullptr;
 
-            if (result->expression->qualifiedType.type != boolType)
-                result->expression = addImplicitCast(result->expression,
-                                                     boolType,
-                                                     result->expression->category);
+            if (!isBooleanType(result->expression->qualifiedType.type))
+                throw ParseError("Expression is not a boolean");
 
             result->qualifiedType.type = boolType;
             result->category = Expression::Category::Rvalue;
@@ -2551,8 +2509,8 @@ namespace ouzel
             constructs.push_back(std::unique_ptr<Construct>(expression = new TernaryOperatorExpression()));
             expression->parent = parent;
 
-            if (result->qualifiedType.type != boolType)
-                result = addImplicitCast(result, boolType, result->category);
+            if (!isBooleanType(result->qualifiedType.type))
+                throw ParseError("Condition is not a boolean");
 
             expression->condition = result;
 
