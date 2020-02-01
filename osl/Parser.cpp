@@ -827,6 +827,10 @@ namespace ouzel
             if (isInline)
                 throw ParseError("Members can not be inline");
 
+            if ((result->qualifiedType.qualifiers & Qualifiers::In) == Qualifiers::In ||
+                (result->qualifiedType.qualifiers & Qualifiers::Out) == Qualifiers::Out)
+                throw ParseError("Members can not have in or out qualifiers");
+
             expectToken(Token::Type::Identifier, iterator, end);
 
             result->name = iterator->value;
