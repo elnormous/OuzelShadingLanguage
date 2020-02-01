@@ -355,6 +355,9 @@ namespace ouzel
             iterator->type == Token::Type::Signed ||
             iterator->type == Token::Type::Unsigned ||
             iterator->type == Token::Type::Struct ||
+            iterator->type == Token::Type::In ||
+            iterator->type == Token::Type::Inout ||
+            iterator->type == Token::Type::Out ||
             isType(iterator, end, declarationScopes);
     }
 
@@ -392,17 +395,15 @@ namespace ouzel
                                                        std::vector<Token>::const_iterator end)
     {
         ASTContext::Specifiers result;
-        result.isConst = false;
         result.isInline = false;
         result.isStatic = false;
-        result.isVolatile = false;
 
         for (;;)
         {
             if (isToken(Token::Type::Const, iterator, end))
             {
                 ++iterator;
-                result.isConst = true;
+                result.qualifiers |= Qualifiers::Const;
             }
             else if (isToken(Token::Type::Extern, iterator, end))
             {
@@ -422,23 +423,22 @@ namespace ouzel
             else if (isToken(Token::Type::Volatile, iterator, end))
             {
                 ++iterator;
-                result.isVolatile = true;
+                result.qualifiers |= Qualifiers::Volatile;
             }
             else if (isToken(Token::Type::In, iterator, end))
             {
                 ++iterator;
-                result.isIn = true;
+                result.qualifiers |= Qualifiers::In;
             }
             else if (isToken(Token::Type::Inout, iterator, end))
             {
                 ++iterator;
-                result.isIn = true;
-                result.isOut = true;
+                result.qualifiers |= Qualifiers::In | Qualifiers::Out;
             }
             else if (isToken(Token::Type::Out, iterator, end))
             {
                 ++iterator;
-                result.isOut = true;
+                result.qualifiers |= Qualifiers::Out;
             }
             else if (isToken(Token::Type::Fragment, iterator, end))
             {
@@ -504,8 +504,7 @@ namespace ouzel
             ASTContext::Specifiers specifiers = parseSpecifiers(iterator, end);
 
             QualifiedType qualifiedType;
-            if (specifiers.isConst) qualifiedType.qualifiers |= Qualifiers::Const;
-            if (specifiers.isVolatile) qualifiedType.qualifiers |= Qualifiers::Volatile;
+            qualifiedType.qualifiers |= specifiers.qualifiers;
 
             bool isExtern = specifiers.isExtern;
             bool isInline = specifiers.isInline;
@@ -532,8 +531,7 @@ namespace ouzel
 
             specifiers = parseSpecifiers(iterator, end);
 
-            if (specifiers.isConst) qualifiedType.qualifiers |= Qualifiers::Const;
-            if (specifiers.isVolatile) qualifiedType.qualifiers |= Qualifiers::Volatile;
+            qualifiedType.qualifiers |= specifiers.qualifiers;
 
             if (specifiers.isExtern) isExtern = true;
             if (specifiers.isInline) isInline = true;
@@ -562,6 +560,10 @@ namespace ouzel
                  isToken(Token::Type::Void, iterator + 1, end) ||
                  isDeclaration(iterator + 1, end, declarationScopes)))  // function declaration
             {
+                if ((qualifiedType.qualifiers & Qualifiers::In) == Qualifiers::In ||
+                    (qualifiedType.qualifiers & Qualifiers::Out) == Qualifiers::Out)
+                    throw ParseError("Functions can not have in or out qualifiers");
+
                 ++iterator;
 
                 FunctionDeclaration* result;
@@ -796,8 +798,7 @@ namespace ouzel
 
             ASTContext::Specifiers specifiers = parseSpecifiers(iterator, end);
 
-            if (specifiers.isConst) result->qualifiedType.qualifiers |= Qualifiers::Const;
-            if (specifiers.isVolatile) result->qualifiedType.qualifiers |= Qualifiers::Volatile;
+            result->qualifiedType.qualifiers |= specifiers.qualifiers;
 
             bool isStatic = specifiers.isStatic;
             bool isInline = specifiers.isInline;
@@ -815,8 +816,7 @@ namespace ouzel
 
             specifiers = parseSpecifiers(iterator, end);
 
-            if (specifiers.isConst) result->qualifiedType.qualifiers |= Qualifiers::Const;
-            if (specifiers.isVolatile) result->qualifiedType.qualifiers |= Qualifiers::Volatile;
+            result->qualifiedType.qualifiers |= specifiers.qualifiers;
 
             if (specifiers.isStatic) isStatic = true;
             if (specifiers.isInline) isInline = true;
@@ -870,8 +870,7 @@ namespace ouzel
 
         ASTContext::Specifiers specifiers = parseSpecifiers(iterator, end);
 
-        if (specifiers.isConst) result->qualifiedType.qualifiers |= Qualifiers::Const;
-        if (specifiers.isVolatile) result->qualifiedType.qualifiers |= Qualifiers::Volatile;
+        result->qualifiedType.qualifiers |= specifiers.qualifiers;
 
         bool isStatic = specifiers.isStatic;
         bool isInline = specifiers.isInline;
@@ -889,8 +888,7 @@ namespace ouzel
 
         specifiers = parseSpecifiers(iterator, end);
 
-        if (specifiers.isConst) result->qualifiedType.qualifiers |= Qualifiers::Const;
-        if (specifiers.isVolatile) result->qualifiedType.qualifiers |= Qualifiers::Volatile;
+        result->qualifiedType.qualifiers |= specifiers.qualifiers;
 
         if (specifiers.isStatic) isStatic = true;
         if (specifiers.isInline) isInline = true;

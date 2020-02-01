@@ -144,13 +144,10 @@ namespace ouzel
 
         struct Specifiers
         {
-            bool isConst = false;
+            Qualifiers qualifiers = Qualifiers::None;
             bool isInline = false;
             bool isStatic = false;
             bool isExtern = false;
-            bool isVolatile = false;
-            bool isIn = false;
-            bool isOut = false;
             Program program = Program::None;
         };
 
