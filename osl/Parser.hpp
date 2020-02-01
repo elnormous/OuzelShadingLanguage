@@ -151,6 +151,7 @@ namespace ouzel
             bool isVolatile = false;
             bool isIn = false;
             bool isOut = false;
+            Program program = Program::None;
         };
 
         static Specifiers parseSpecifiers(std::vector<Token>::const_iterator& iterator,

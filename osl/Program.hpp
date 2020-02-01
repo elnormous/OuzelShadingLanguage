@@ -11,6 +11,7 @@ namespace ouzel
 {
     enum class Program
     {
+        None,
         Fragment,
         Vertex
     };
@@ -19,6 +20,7 @@ namespace ouzel
     {
         switch (program)
         {
+            case Program::None: return "None";
             case Program::Fragment: return "Fragment";
             case Program::Vertex: return "Vertex";
             default: return "Unknown";

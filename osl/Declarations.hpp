@@ -167,7 +167,6 @@ namespace ouzel
         bool isInline = false;
         bool isStatic = false;
         bool isBuiltin = false;
-        bool isProgram = false;
         Program program;
     };
 

@@ -41,11 +41,11 @@ namespace
 
     const ouzel::CompoundStatement* getMainBody(const ouzel::ASTContext& context)
     {
-        auto topDeclarations = context.getDeclarations();
-        if (topDeclarations.size() != 1)
+        auto i = context.getDeclarations().begin();
+        if (i == context.getDeclarations().end())
             throw TestError("Expected the main function");
 
-        auto declaration = static_cast<const ouzel::Declaration*>(topDeclarations.front());
+        auto declaration = *i;
 
         if (!declaration ||
             declaration->name != "main" ||
@@ -67,10 +67,11 @@ namespace
     {
         auto mainCompoundStatement = getMainBody(context);
 
-        if (mainCompoundStatement->statements.size() != 1)
+        auto i = mainCompoundStatement->statements.begin();
+        if (i == mainCompoundStatement->statements.end())
             throw TestError("Expected a statement");
 
-        auto statement = mainCompoundStatement->statements.front();
+        auto statement = *i;
 
         if (!statement ||
             statement->getStatementKind() != ouzel::Statement::Kind::Expression)
@@ -623,6 +624,66 @@ namespace
 
         ouzel::ASTContext context(ouzel::tokenize(code));
     }
+
+    void testPrograms()
+    {
+        std::string code = R"OSL(
+        fragment float fragmentMain()
+        {
+            return 0.0f;
+        }
+        vertex float vertexMain()
+        {
+            return 0.0f;
+        }
+        )OSL";
+
+        ouzel::ASTContext context(ouzel::tokenize(code));
+
+        auto i = context.getDeclarations().begin();
+        if (i == context.getDeclarations().end())
+            throw TestError("Expected a function declaration");
+
+        const auto fragmentMainDeclaration = *i;
+
+        if (fragmentMainDeclaration->getDeclarationKind() != ouzel::Declaration::Kind::Callable)
+            throw TestError("Expected a callable declaration");
+
+        auto fragmentMainCallableDeclaration = static_cast<const ouzel::CallableDeclaration*>(fragmentMainDeclaration);
+
+        if (fragmentMainCallableDeclaration->name != "fragmentMain")
+            throw TestError("Expected a declaration of fragmentMain");
+
+        if (fragmentMainCallableDeclaration->getCallableDeclarationKind() != ouzel::CallableDeclaration::Kind::Function)
+            throw TestError("Expected a function declaration");
+
+        auto fragmentMainFunctionDeclaration = static_cast<const ouzel::FunctionDeclaration*>(fragmentMainCallableDeclaration);
+
+        if (fragmentMainFunctionDeclaration->program != ouzel::Program::Fragment)
+            throw TestError("Expected a fragment specifier");
+
+        ++i;
+        if (i == context.getDeclarations().end())
+            throw TestError("Expected a function declaration");
+
+        const auto vertexMainDeclaration = *i;
+
+        if (vertexMainDeclaration->getDeclarationKind() != ouzel::Declaration::Kind::Callable)
+            throw TestError("Expected a callable declaration");
+
+        auto vertexMainCallableDeclaration = static_cast<const ouzel::CallableDeclaration*>(vertexMainDeclaration);
+
+        if (vertexMainCallableDeclaration->name != "vertexMain")
+            throw TestError("Expected a declaration of vertexMain");
+
+        if (vertexMainCallableDeclaration->getCallableDeclarationKind() != ouzel::CallableDeclaration::Kind::Function)
+            throw TestError("Expected a function declaration");
+
+        auto vertexMainFunctionDeclaration = static_cast<const ouzel::FunctionDeclaration*>(vertexMainCallableDeclaration);
+
+        if (vertexMainFunctionDeclaration->program != ouzel::Program::Vertex)
+            throw TestError("Expected a vertex specifier");
+    }
 }
 
 int main(int argc, const char * argv[])
@@ -640,6 +701,7 @@ int main(int argc, const char * argv[])
     testRunner.run(testStructDeclaration);
     testRunner.run(testVector);
     testRunner.run(testMatrix);
+    testRunner.run(testPrograms);
 
     if (testRunner.getResult())
         std::cout << "Success\n";

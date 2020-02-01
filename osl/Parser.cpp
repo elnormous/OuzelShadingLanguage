@@ -440,6 +440,24 @@ namespace ouzel
                 ++iterator;
                 result.isOut = true;
             }
+            else if (isToken(Token::Type::Fragment, iterator, end))
+            {
+                if (result.program != Program::None &&
+                    result.program != Program::Fragment)
+                    throw ParseError("Single function can not have multiple program specifiers");
+
+                ++iterator;
+                result.program = Program::Fragment;
+            }
+            else if (isToken(Token::Type::Vertex, iterator, end))
+            {
+                if (result.program != Program::None &&
+                    result.program != Program::Vertex)
+                    throw ParseError("Single function can not have multiple program specifiers");
+
+                ++iterator;
+                result.program = Program::Vertex;
+            }
             else break;
         }
 
@@ -492,6 +510,7 @@ namespace ouzel
             bool isExtern = specifiers.isExtern;
             bool isInline = specifiers.isInline;
             bool isStatic = specifiers.isStatic;
+            Program program = specifiers.program;
 
             if (isToken(Token::Type::Void, iterator, end))
             {
@@ -520,6 +539,15 @@ namespace ouzel
             if (specifiers.isInline) isInline = true;
             if (specifiers.isStatic) isStatic = true;
 
+            if (specifiers.program != Program::None)
+            {
+                if (program != Program::None &&
+                    program != specifiers.program)
+                    throw ParseError("Single function can not have multiple program specifiers");
+
+                program = specifiers.program;
+            }
+
             if (isToken(Token::Type::Operator, iterator, end))
                 throw ParseError("Operator overloads are not supported");
 
@@ -542,6 +570,7 @@ namespace ouzel
                 result->qualifiedType = qualifiedType;
                 result->isStatic = isStatic;
                 result->isInline = isInline;
+                result->program = program;
                 result->name = name;
 
                 std::vector<QualifiedType> parameters;
@@ -609,6 +638,9 @@ namespace ouzel
             {
                 if (isInline)
                     throw ParseError("Variables can not be inline");
+
+                if (program != Program::None)
+                    throw ParseError("Variables can not have program specifier");
 
                 if (findDeclaration(name, declarationScopes.back()))
                     throw ParseError("Redefinition of " + name);

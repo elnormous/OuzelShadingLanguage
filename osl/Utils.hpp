@@ -304,7 +304,7 @@ namespace ouzel
                         if (functionDeclaration->isStatic) std::cout << " static";
                         if (functionDeclaration->isInline) std::cout << " inline";
 
-                        if (functionDeclaration->isProgram)
+                        if (functionDeclaration->program != Program::None)
                             std::cout << ", program: " << toString(functionDeclaration->program);
                     }
 

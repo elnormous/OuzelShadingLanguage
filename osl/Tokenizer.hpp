@@ -137,7 +137,9 @@ namespace ouzel
             Dot, // .
             Arrow, // ->
             Ellipsis, // ...
-            Identifier
+            Identifier,
+            Fragment, // fragment
+            Vertex, // vertex
         };
 
         Type type = Type::None;
@@ -239,7 +241,6 @@ namespace ouzel
             case Token::Type::Comma: return "Comma";
             case Token::Type::Semicolon: return "Semicolon";
             case Token::Type::Colon: return "Colon";
-            case Token::Type::Identifier: return "Identifier";
             case Token::Type::Plus: return "Plus";
             case Token::Type::Minus: return "Minus";
             case Token::Type::Multiply: return "Multiply";
@@ -274,6 +275,9 @@ namespace ouzel
             case Token::Type::Dot: return "Dot";
             case Token::Type::Arrow: return "Arrow";
             case Token::Type::Ellipsis: return "Ellipsis";
+            case Token::Type::Identifier: return "Identifier";
+            case Token::Type::Fragment: return "Fragment";
+            case Token::Type::Vertex: return "Vertex";
             default: return "Unknown";
         }
     }
