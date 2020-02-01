@@ -153,10 +153,11 @@ namespace
         ouzel::ASTContext context(ouzel::tokenize(code));
         auto mainCompoundStatement = getMainBody(context);
 
-        if (mainCompoundStatement->statements.size() != 1)
+        auto i = mainCompoundStatement->statements.begin();
+        if (i == mainCompoundStatement->statements.end())
             throw TestError("Expected a statement");
 
-        auto statement = mainCompoundStatement->statements.front();
+        auto statement = *i;
 
         if (!statement ||
             statement->getStatementKind() != ouzel::Statement::Kind::Empty)
@@ -175,10 +176,11 @@ namespace
         ouzel::ASTContext context(ouzel::tokenize(code));
         auto mainCompoundStatement = getMainBody(context);
 
-        if (mainCompoundStatement->statements.size() != 1)
+        auto i = mainCompoundStatement->statements.begin();
+        if (i == mainCompoundStatement->statements.end())
             throw TestError("Expected a statement");
 
-        auto statement = mainCompoundStatement->statements.front();
+        auto statement = *i;
 
         if (!statement ||
             statement->getStatementKind() != ouzel::Statement::Kind::Declaration)
@@ -222,10 +224,11 @@ namespace
         ouzel::ASTContext context(ouzel::tokenize(code));
         auto mainCompoundStatement = getMainBody(context);
 
-        if (mainCompoundStatement->statements.size() != 1)
+        auto i = mainCompoundStatement->statements.begin();
+        if (i == mainCompoundStatement->statements.end())
             throw TestError("Expected a statement");
 
-        const auto statement = mainCompoundStatement->statements.front();
+        const auto statement = *i;
 
         if (!statement ||
             statement->getStatementKind() != ouzel::Statement::Kind::If)
@@ -278,10 +281,11 @@ namespace
         ouzel::ASTContext context(ouzel::tokenize(code));
         auto mainCompoundStatement = getMainBody(context);
 
-        if (mainCompoundStatement->statements.size() != 1)
+        auto i = mainCompoundStatement->statements.begin();
+        if (i == mainCompoundStatement->statements.end())
             throw TestError("Expected a statement");
 
-        auto statement = mainCompoundStatement->statements.front();
+        auto statement = *i;
 
         if (!statement ||
             statement->getStatementKind() != ouzel::Statement::Kind::While)
@@ -317,10 +321,11 @@ namespace
         ouzel::ASTContext context(ouzel::tokenize(code));
         auto mainCompoundStatement = getMainBody(context);
 
-        if (mainCompoundStatement->statements.size() != 1)
+        auto i = mainCompoundStatement->statements.begin();
+        if (i == mainCompoundStatement->statements.end())
             throw TestError("Expected a statement");
 
-        auto statement = mainCompoundStatement->statements.front();
+        auto statement = *i;
 
         if (!statement ||
             statement->getStatementKind() != ouzel::Statement::Kind::Do)
@@ -355,10 +360,11 @@ namespace
         ouzel::ASTContext context(ouzel::tokenize(code));
         auto mainCompoundStatement = getMainBody(context);
 
-        if (mainCompoundStatement->statements.size() != 1)
+        auto i = mainCompoundStatement->statements.begin();
+        if (i == mainCompoundStatement->statements.end())
             throw TestError("Expected a statement");
 
-        auto statement = mainCompoundStatement->statements.front();
+        auto statement = *i;
 
         if (!statement ||
             statement->getStatementKind() != ouzel::Statement::Kind::For)
@@ -396,10 +402,11 @@ namespace
         ouzel::ASTContext context(ouzel::tokenize(code));
         auto mainCompoundStatement = getMainBody(context);
 
-        if (mainCompoundStatement->statements.size() != 1)
+        auto i = mainCompoundStatement->statements.begin();
+        if (i == mainCompoundStatement->statements.end())
             throw TestError("Expected a statement");
 
-        auto statement = mainCompoundStatement->statements.front();
+        auto statement = *i;
 
         if (!statement ||
             statement->getStatementKind() != ouzel::Statement::Kind::Switch)
@@ -468,10 +475,11 @@ namespace
         ouzel::ASTContext context(ouzel::tokenize(code));
         auto mainCompoundStatement = getMainBody(context);
 
-        if (mainCompoundStatement->statements.size() != 1)
+        auto i = mainCompoundStatement->statements.begin();
+        if (i == mainCompoundStatement->statements.end())
             throw TestError("Expected a statement");
 
-        auto statement = mainCompoundStatement->statements.front();
+        auto statement = *i;
 
         if (!statement ||
             statement->getStatementKind() != ouzel::Statement::Kind::Return)
