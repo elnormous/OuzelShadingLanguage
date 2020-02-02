@@ -149,6 +149,10 @@ namespace ouzel
                 case UnaryOperatorExpression::Kind::Negation: return "Negation";
                 case UnaryOperatorExpression::Kind::Positive: return "Positive";
                 case UnaryOperatorExpression::Kind::Negative: return "Negative";
+                case UnaryOperatorExpression::Kind::PrefixIncrement: return "PrefixIncrement";
+                case UnaryOperatorExpression::Kind::PrefixDecrement: return "PrefixDecrement";
+                case UnaryOperatorExpression::Kind::PostfixIncrement: return "PostfixIncrement";
+                case UnaryOperatorExpression::Kind::PostfixDecrement: return "PostfixDecrement";
                 default: return "Unknown";
             }
         }
