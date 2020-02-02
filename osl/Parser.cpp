@@ -2081,6 +2081,10 @@ namespace ouzel
             }
             else if (result->qualifiedType.type->getTypeKind() == Type::Kind::Vector)
             {
+                VectorElementExpression* expression;
+                constructs.push_back(std::unique_ptr<Construct>(expression = new VectorElementExpression()));
+                expression->parent = parent;
+
                 std::vector<uint8_t> components;
                 std::set<uint8_t> componentSet;
 
@@ -2089,13 +2093,11 @@ namespace ouzel
                     uint8_t component = charToComponent(c);
                     componentSet.insert(component);
                     components.push_back(component);
+
+                    expression->positions[expression->count++] = component;
                 }
 
                 ++iterator;
-
-                VectorElementExpression* expression;
-                constructs.push_back(std::unique_ptr<Construct>(expression = new VectorElementExpression()));
-                expression->parent = parent;
 
                 auto vectorType = static_cast<VectorType*>(result->qualifiedType.type);
 
@@ -2107,12 +2109,17 @@ namespace ouzel
 
                 expression->qualifiedType.type = resultTypeIterator->second;
 
-                if (componentSet.size() == components.size()) // doesn't have same component repeated
+                if (componentSet.size() != components.size()) // doesn't have same component repeated
                     expression->qualifiedType.qualifiers = Qualifiers::Const;
+                else
+                    expression->category = Expression::Category::Lvalue;
 
                 for (uint8_t component : components)
                     if (component >= vectorType->componentCount)
                         throw ParseError("Invalid swizzle");
+
+                result->parent = expression;
+                result = expression;
             }
             else
                 throw ParseError(result->qualifiedType.type->name + " is not a structure");

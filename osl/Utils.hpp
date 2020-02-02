@@ -92,7 +92,7 @@ namespace ouzel
                 case Type::Kind::Scalar: return "Scalar";
                 case Type::Kind::Struct: return "Struct";
                 case Type::Kind::Vector: return "Vector";
-                    //case TypeDeclaration::Kind::TypeDefinition: return "TypeDefinition";
+                //case TypeDeclaration::Kind::TypeDefinition: return "TypeDefinition";
                 default: return "Unknown";
             }
         }
@@ -708,7 +708,15 @@ namespace ouzel
                 }
                 case Expression::Kind::VectorElement:
                 {
-                    auto sizeofExpression = static_cast<const VectorElementExpression*>(expression);
+                    constexpr char components[4] = {'x', 'y', 'z', 'w'};
+
+                    std::cout << ", components: ";
+
+                    auto vectorElementExpression = static_cast<const VectorElementExpression*>(expression);
+                    for (uint8_t i = 0; i < vectorElementExpression->count; ++i)
+                        std::cout << components[vectorElementExpression->positions[i]];
+
+                    std::cout << '\n';
                     break;
                 }
             }
