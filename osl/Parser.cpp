@@ -2130,6 +2130,46 @@ namespace ouzel
         return result;
     }
 
+    Expression* ASTContext::parsePrefixExpression(std::vector<Token>::const_iterator& iterator,
+                                                  std::vector<Token>::const_iterator end,
+                                                  std::vector<std::vector<Declaration*>>& declarationScopes,
+                                                  Construct* parent)
+    {
+        if (isToken({Token::Type::Increment, Token::Type::Decrement}, iterator, end))
+        {
+            UnaryOperatorExpression* result;
+
+            const auto operatorKind =
+                (iterator->type == Token::Type::Increment) ? UnaryOperatorExpression::Kind::PrefixIncrement :
+                (iterator->type == Token::Type::Decrement) ? UnaryOperatorExpression::Kind::PrefixDecrement :
+                throw ParseError("Invalid operator");
+
+            constructs.push_back(std::unique_ptr<Construct>(result = new UnaryOperatorExpression(operatorKind)));
+            result->parent = parent;
+
+            ++iterator;
+
+            if (!(result->expression = parseMemberExpression(iterator, end, declarationScopes, result)))
+                return nullptr;
+
+            if (result->expression->qualifiedType.type->getTypeKind() != Type::Kind::Scalar)
+                throw ParseError("Parameter of the prefix operator must be a number");
+
+            result->qualifiedType.type = result->expression->qualifiedType.type;
+            result->category = Expression::Category::Rvalue;
+
+            return result;
+        }
+        else
+        {
+            Expression* result;
+            if (!(result = parseMemberExpression(iterator, end, declarationScopes, parent)))
+                return nullptr;
+
+            return result;
+        }
+    }
+
     Expression* ASTContext::parseSignExpression(std::vector<Token>::const_iterator& iterator,
                                                 std::vector<Token>::const_iterator end,
                                                 std::vector<std::vector<Declaration*>>& declarationScopes,
@@ -2149,13 +2189,11 @@ namespace ouzel
 
             ++iterator;
 
-            if (!(result->expression = parseMemberExpression(iterator, end, declarationScopes, result)))
+            if (!(result->expression = parsePrefixExpression(iterator, end, declarationScopes, result)))
                 return nullptr;
 
-            if (result->expression->qualifiedType.type->getTypeKind() == Type::Kind::Array ||
-                result->expression->qualifiedType.type->getTypeKind() == Type::Kind::Struct ||
-                isBooleanType(result->expression->qualifiedType.type))
-                throw ParseError("Parameter of the sign operator must be an integer");
+            if (result->expression->qualifiedType.type->getTypeKind() != Type::Kind::Scalar)
+                throw ParseError("Parameter of the sign operator must be a number");
 
             result->qualifiedType.type = result->expression->qualifiedType.type;
             result->category = Expression::Category::Rvalue;
@@ -2165,7 +2203,7 @@ namespace ouzel
         else
         {
             Expression* result;
-            if (!(result = parseMemberExpression(iterator, end, declarationScopes, parent)))
+            if (!(result = parsePrefixExpression(iterator, end, declarationScopes, parent)))
                 return nullptr;
 
             return result;
@@ -2222,6 +2260,9 @@ namespace ouzel
 
             expectToken(Token::Type::LeftParenthesis, iterator, end);
             ++iterator;
+
+            if (iterator->type == Token::Type::Void)
+                throw ParseError("Parameter of sizeof can not be void");
 
             if (isType(iterator, end, declarationScopes))
             {

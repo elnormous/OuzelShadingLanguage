@@ -238,6 +238,11 @@ namespace ouzel
                                           std::vector<std::vector<Declaration*>>& declarationScopes,
                                           Construct* parent);
 
+        Expression* parsePrefixExpression(std::vector<Token>::const_iterator& iterator,
+                                          std::vector<Token>::const_iterator end,
+                                          std::vector<std::vector<Declaration*>>& declarationScopes,
+                                          Construct* parent);
+
         Expression* parseSignExpression(std::vector<Token>::const_iterator& iterator,
                                         std::vector<Token>::const_iterator end,
                                         std::vector<std::vector<Declaration*>>& declarationScopes,
