@@ -692,6 +692,24 @@ namespace
         if (vertexMainFunctionDeclaration->program != ouzel::Program::Vertex)
             throw TestError("Expected a vertex specifier");
     }
+
+    void testOperators()
+    {
+        std::string code = R"OSL(
+        void main()
+        {
+            float a = 1.0f;
+            float b = a * 1.0f;
+            float4 v1;
+            float4 v2 = v1;
+            float4 v3 = v1 + v2;
+            float4x4 mat1;
+            float4 v4 = mat1 * v1;
+        }
+        )OSL";
+
+        ouzel::ASTContext context(ouzel::tokenize(code));
+    }
 }
 
 int main(int argc, const char * argv[])
@@ -710,6 +728,7 @@ int main(int argc, const char * argv[])
     testRunner.run(testVector);
     testRunner.run(testMatrix);
     testRunner.run(testPrograms);
+    testRunner.run(testOperators);
 
     if (testRunner.getResult())
         std::cout << "Success\n";
