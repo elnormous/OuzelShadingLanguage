@@ -87,6 +87,7 @@ namespace ouzel
         {
             switch (kind)
             {
+                case Type::Kind::Void: return "Void";
                 case Type::Kind::Array: return "Array";
                 case Type::Kind::Scalar: return "Scalar";
                 case Type::Kind::Struct: return "Struct";

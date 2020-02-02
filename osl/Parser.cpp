@@ -63,8 +63,7 @@ namespace ouzel
 
         bool isBooleanType(const Type* type)
         {
-            if (!type ||
-                type->getTypeKind() != Type::Kind::Scalar)
+            if (type->getTypeKind() != Type::Kind::Scalar)
                 return false;
 
             auto scalarType = static_cast<const ScalarType*>(type);
@@ -74,8 +73,7 @@ namespace ouzel
 
         bool isIntegerType(const Type* type) noexcept
         {
-            if (!type ||
-                type->getTypeKind() != Type::Kind::Scalar)
+            if (type->getTypeKind() != Type::Kind::Scalar)
                 return false;
 
             auto scalarType = static_cast<const ScalarType*>(type);
@@ -91,6 +89,9 @@ namespace ouzel
         declarationScopes.push_back(std::vector<Declaration*>());
 
         addBuiltinFunctionDeclaration("discard", nullptr, {}, declarationScopes);
+
+        types.push_back(std::unique_ptr<Type>(voidType = new Type(Type::Kind::Void)));
+        voidType->name = "void";
 
         boolType = addScalarType("bool", ScalarType::Kind::Boolean, 1, false, declarationScopes);
 
@@ -326,7 +327,8 @@ namespace ouzel
         if (iterator == end)
             throw ParseError("Unexpected end of file");
 
-        return iterator->type == Token::Type::Bool ||
+        return iterator->type == Token::Type::Void ||
+            iterator->type == Token::Type::Bool ||
             iterator->type == Token::Type::Int ||
             iterator->type == Token::Type::Float ||
             iterator->type == Token::Type::Double ||
@@ -343,7 +345,9 @@ namespace ouzel
 
         Type* result;
 
-        if (iterator->type == Token::Type::Bool)
+        if (iterator->type == Token::Type::Void)
+            result = voidType;
+        else if (iterator->type == Token::Type::Bool)
             result = boolType;
         else if (iterator->type == Token::Type::Int)
             result = intType;
@@ -525,22 +529,15 @@ namespace ouzel
             bool isInline = specifiers.isInline;
             Program program = specifiers.program;
 
-            if (isToken(Token::Type::Void, iterator, end))
-            {
-                ++iterator;
-            }
-            else
-            {
-                if (!(qualifiedType.type = parseType(iterator, end, declarationScopes)))
-                    return nullptr;
+            if (!(qualifiedType.type = parseType(iterator, end, declarationScopes)))
+                return nullptr;
 
-                if (qualifiedType.type->getTypeKind() == Type::Kind::Struct)
-                {
-                    StructType* structType = static_cast<StructType*>(qualifiedType.type);
+            if (qualifiedType.type->getTypeKind() == Type::Kind::Struct)
+            {
+                StructType* structType = static_cast<StructType*>(qualifiedType.type);
 
-                    if (!structType->definition)
-                        throw ParseError("Incomplete type " + qualifiedType.type->name);
-                }
+                if (!structType->definition)
+                    throw ParseError("Incomplete type " + qualifiedType.type->name);
             }
 
             specifiers = parseSpecifiers(iterator, end);
@@ -650,6 +647,9 @@ namespace ouzel
             }
             else // variable declaration
             {
+                if (qualifiedType.type->getTypeKind() == Type::Kind::Void)
+                    throw ParseError("Variable can not have a void type");
+
                 if (isInline)
                     throw ParseError("Variables can not be inline");
 
@@ -693,8 +693,8 @@ namespace ouzel
                     if (!(result->initialization = parseMultiplicationAssignmentExpression(iterator, end, declarationScopes, result)))
                         return nullptr;
 
-                    if (!result->initialization->qualifiedType.type)
-                        throw ParseError("Initialization with a void type");
+                    if (result->initialization->qualifiedType.type->getTypeKind() == Type::Kind::Void)
+                        throw ParseError("Member can not have a void type");
 
                     // TODO: check for comma and parse multiple expressions
 
@@ -709,7 +709,7 @@ namespace ouzel
                     if (!(result->initialization = parseMultiplicationAssignmentExpression(iterator, end, declarationScopes, result)))
                         return nullptr;
 
-                    if (!result->initialization->qualifiedType.type)
+                    if (result->initialization->qualifiedType.type->getTypeKind() == Type::Kind::Void)
                         throw ParseError("Initialization with a void type");
                 }
 
@@ -816,6 +816,9 @@ namespace ouzel
             if (!(result->qualifiedType.type = parseType(iterator, end, declarationScopes)))
                 return nullptr;
 
+            if (result->qualifiedType.type->getTypeKind() == Type::Kind::Void)
+                throw ParseError("Member can not have a void type");
+
             if (result->qualifiedType.type->getTypeKind() == Type::Kind::Struct)
             {
                 StructType* structType = static_cast<StructType*>(result->qualifiedType.type);
@@ -886,6 +889,9 @@ namespace ouzel
 
         if (!(result->qualifiedType.type = parseType(iterator, end, declarationScopes)))
             return nullptr;
+
+        if (result->qualifiedType.type->getTypeKind() == Type::Kind::Void)
+            throw ParseError("Parameter can not have a void type");
 
         if (result->qualifiedType.type->getTypeKind() == Type::Kind::Struct)
         {
@@ -1931,7 +1937,7 @@ namespace ouzel
 
             // TODO: binary expression for non-array types
 
-            if (!result->qualifiedType.type)
+            if (result->qualifiedType.type->getTypeKind() == Type::Kind::Void)
                 throw ParseError("Subscript expression with a void type");
 
             if (result->qualifiedType.type->getTypeKind() == Type::Kind::Array)
@@ -2036,7 +2042,7 @@ namespace ouzel
 
             ++iterator;
 
-            if (!result->qualifiedType.type)
+            if (result->qualifiedType.type->getTypeKind() == Type::Kind::Void)
                 throw ParseError("Expression has a void type");
 
             if (result->qualifiedType.type->getTypeKind() == Type::Kind::Struct)
@@ -2514,7 +2520,7 @@ namespace ouzel
 
             expression->condition = result;
 
-            if (!expression->condition->qualifiedType.type)
+            if (expression->condition->qualifiedType.type->getTypeKind() == Type::Kind::Void)
                 throw ParseError("Ternary expression with a void condition");
 
             if (!(expression->leftExpression = parseTernaryExpression(iterator, end, declarationScopes, expression)))

@@ -54,6 +54,7 @@ namespace ouzel
     public:
         enum class Kind
         {
+            Void,
             Array,
             Scalar,
             Struct,

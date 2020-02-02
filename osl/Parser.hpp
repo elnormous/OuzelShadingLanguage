@@ -439,6 +439,7 @@ namespace ouzel
         std::map<std::pair<Type*, uint8_t>, VectorType*> vectorTypes;
         std::map<std::pair<QualifiedType, uint32_t>, ArrayType*> arrayTypes;
 
+        Type* voidType = nullptr;
         ScalarType* boolType = nullptr;
         ScalarType* intType = nullptr;
         ScalarType* unsignedIntType = nullptr;
