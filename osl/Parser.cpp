@@ -2088,10 +2088,17 @@ namespace ouzel
                 std::vector<uint8_t> components;
                 std::set<uint8_t> componentSet;
 
+                expression->category = Expression::Category::Lvalue;
+
                 for (const char c : iterator->value)
                 {
                     uint8_t component = charToComponent(c);
-                    componentSet.insert(component);
+                    if (!componentSet.insert(component).second) // has component repeated
+                    {
+                        expression->category = Expression::Category::Rvalue;
+                        expression->qualifiedType.qualifiers = Qualifiers::Const;
+                    }
+                    
                     components.push_back(component);
 
                     expression->positions[expression->count++] = component;
@@ -2108,11 +2115,6 @@ namespace ouzel
                     throw ParseError("Invalid swizzle");
 
                 expression->qualifiedType.type = resultTypeIterator->second;
-
-                if (componentSet.size() != components.size()) // doesn't have same component repeated
-                    expression->qualifiedType.qualifiers = Qualifiers::Const;
-                else
-                    expression->category = Expression::Category::Lvalue;
 
                 for (uint8_t component : components)
                     if (component >= vectorType->componentCount)
