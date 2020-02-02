@@ -609,6 +609,7 @@ namespace
         {
             float f1 = 1.0f;
             float f2 = ++f1;
+            float f3 = f2++;
         }
         )OSL";
 

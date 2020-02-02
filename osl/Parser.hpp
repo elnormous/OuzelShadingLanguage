@@ -228,6 +228,11 @@ namespace ouzel
                                            std::vector<std::vector<Declaration*>>& declarationScopes,
                                            Construct* parent);
 
+        Expression* parsePostfixExpression(std::vector<Token>::const_iterator& iterator,
+                                           std::vector<Token>::const_iterator end,
+                                           std::vector<std::vector<Declaration*>>& declarationScopes,
+                                           Construct* parent);
+
         Expression* parseSubscriptExpression(std::vector<Token>::const_iterator& iterator,
                                              std::vector<Token>::const_iterator end,
                                              std::vector<std::vector<Declaration*>>& declarationScopes,

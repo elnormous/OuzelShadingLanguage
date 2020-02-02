@@ -1922,23 +1922,54 @@ namespace ouzel
         return nullptr;
     }
 
+    Expression* ASTContext::parsePostfixExpression(std::vector<Token>::const_iterator& iterator,
+                                                   std::vector<Token>::const_iterator end,
+                                                   std::vector<std::vector<Declaration*>>& declarationScopes,
+                                                   Construct* parent)
+    {
+        Expression* result;
+        if (!(result = parsePrimaryExpression(iterator, end, declarationScopes, parent)))
+            return nullptr;
+
+        while (isToken({Token::Type::Increment, Token::Type::Decrement}, iterator, end))
+        {
+            if (result->qualifiedType.type->getTypeKind() != Type::Kind::Scalar)
+                throw ParseError("Parameter of the postfix operator must be a number");
+
+            const auto operatorKind =
+                (iterator->type == Token::Type::Increment) ? UnaryOperatorExpression::Kind::PostfixIncrement :
+                (iterator->type == Token::Type::Decrement) ? UnaryOperatorExpression::Kind::PostfixDecrement :
+                throw ParseError("Invalid operator");
+
+            ++iterator;
+
+            UnaryOperatorExpression* expression;
+            constructs.push_back(std::unique_ptr<Construct>(expression = new UnaryOperatorExpression(operatorKind)));
+            expression->parent = parent;
+            expression->expression = result;
+
+            expression->qualifiedType.type = result->qualifiedType.type;
+            expression->category = Expression::Category::Lvalue;
+
+            result->parent = expression;
+            result = expression;
+        }
+
+        return result;
+    }
+
     Expression* ASTContext::parseSubscriptExpression(std::vector<Token>::const_iterator& iterator,
                                                      std::vector<Token>::const_iterator end,
                                                      std::vector<std::vector<Declaration*>>& declarationScopes,
                                                      Construct* parent)
     {
         Expression* result;
-        if (!(result = parsePrimaryExpression(iterator, end, declarationScopes, parent)))
+        if (!(result = parsePostfixExpression(iterator, end, declarationScopes, parent)))
             return nullptr;
 
         while (isToken(Token::Type::LeftBracket, iterator, end))
         {
             ++iterator;
-
-            // TODO: binary expression for non-array types
-
-            if (result->qualifiedType.type->getTypeKind() == Type::Kind::Void)
-                throw ParseError("Subscript expression with a void type");
 
             if (result->qualifiedType.type->getTypeKind() == Type::Kind::Array)
             {
@@ -2137,17 +2168,16 @@ namespace ouzel
     {
         if (isToken({Token::Type::Increment, Token::Type::Decrement}, iterator, end))
         {
-            UnaryOperatorExpression* result;
-
             const auto operatorKind =
                 (iterator->type == Token::Type::Increment) ? UnaryOperatorExpression::Kind::PrefixIncrement :
                 (iterator->type == Token::Type::Decrement) ? UnaryOperatorExpression::Kind::PrefixDecrement :
                 throw ParseError("Invalid operator");
 
+            ++iterator;
+
+            UnaryOperatorExpression* result;
             constructs.push_back(std::unique_ptr<Construct>(result = new UnaryOperatorExpression(operatorKind)));
             result->parent = parent;
-
-            ++iterator;
 
             if (!(result->expression = parseMemberExpression(iterator, end, declarationScopes, result)))
                 return nullptr;
@@ -2177,13 +2207,12 @@ namespace ouzel
     {
         if (isToken({Token::Type::Plus, Token::Type::Minus}, iterator, end))
         {
-            UnaryOperatorExpression* result;
-
             const auto operatorKind =
                 (iterator->type == Token::Type::Plus) ? UnaryOperatorExpression::Kind::Positive :
                 (iterator->type == Token::Type::Minus) ? UnaryOperatorExpression::Kind::Negative :
                 throw ParseError("Invalid operator");
 
+            UnaryOperatorExpression* result;
             constructs.push_back(std::unique_ptr<Construct>(result = new UnaryOperatorExpression(operatorKind)));
             result->parent = parent;
 
