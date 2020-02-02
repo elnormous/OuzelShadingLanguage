@@ -151,7 +151,11 @@ namespace ouzel
         {
             Negation, // !
             Positive, // +
-            Negative // -
+            Negative, // -
+            PrefixIncrement, // ++
+            PrefixDecrement, // --
+            PostfixIncrement, // ++
+            PostfixDecrement, // --
         };
 
         UnaryOperatorExpression(Kind initOperatorKind) noexcept:
@@ -172,10 +176,6 @@ namespace ouzel
     public:
         enum class Kind
         {
-            PrefixIncrement, // ++
-            PrefixDecrement, // --
-            PostfixIncrement, // ++
-            PostfixDecrement, // --
             Addition, // +
             Subtraction, // -
             Multiplication, // *
