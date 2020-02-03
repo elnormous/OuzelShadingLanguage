@@ -1933,6 +1933,12 @@ namespace ouzel
 
         while (isToken({Token::Type::Increment, Token::Type::Decrement}, iterator, end))
         {
+            if (result->category != Expression::Category::Lvalue)
+                throw ParseError("Expression is not assignable");
+
+            if ((result->qualifiedType.qualifiers & Qualifiers::Const) == Qualifiers::Const)
+                throw ParseError("Cannot assign to const variable");
+
             if (result->qualifiedType.type->getTypeKind() != Type::Kind::Scalar)
                 throw ParseError("Parameter of the postfix operator must be a number");
 
@@ -1991,7 +1997,7 @@ namespace ouzel
                 ArrayType* arrayType = static_cast<ArrayType*>(result->qualifiedType.type);
 
                 expression->qualifiedType = arrayType->elementType;
-                expression->category = Expression::Category::Lvalue;
+                expression->category = result->category;
 
                 result->parent = expression;
                 result = expression;
@@ -2033,7 +2039,7 @@ namespace ouzel
                     expression->qualifiedType.type = vectorTypeIterator->second;
                 }
 
-                expression->category = Expression::Category::Lvalue;
+                expression->category = expression->rightExpression->category;
 
                 result->parent = expression;
                 result = expression;
