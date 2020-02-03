@@ -2104,8 +2104,8 @@ namespace ouzel
 
                 expression->qualifiedType = expression->fieldDeclaration->qualifiedType;
                 if ((result->qualifiedType.qualifiers & Qualifiers::Const) == Qualifiers::Const)
-                    expression->qualifiedType.qualifiers = Qualifiers::Const;
-                expression->category = Expression::Category::Lvalue;
+                    expression->qualifiedType.qualifiers |= Qualifiers::Const;
+                expression->category = result->category;
 
                 result->parent = expression;
                 result = expression;
@@ -2119,7 +2119,7 @@ namespace ouzel
                 std::vector<uint8_t> components;
                 std::set<uint8_t> componentSet;
 
-                expression->category = Expression::Category::Lvalue;
+                expression->category = result->category;
 
                 for (const char c : iterator->value)
                 {
@@ -2127,7 +2127,7 @@ namespace ouzel
                     if (!componentSet.insert(component).second) // has component repeated
                     {
                         expression->category = Expression::Category::Rvalue;
-                        expression->qualifiedType.qualifiers = Qualifiers::Const;
+                        expression->qualifiedType.qualifiers |= Qualifiers::Const;
                     }
                     
                     components.push_back(component);
@@ -2181,6 +2181,12 @@ namespace ouzel
 
             if (!(result->expression = parseMemberExpression(iterator, end, declarationScopes, result)))
                 return nullptr;
+
+            if (result->expression->category != Expression::Category::Lvalue)
+                throw ParseError("Expression is not assignable");
+
+            if ((result->expression->qualifiedType.qualifiers & Qualifiers::Const) == Qualifiers::Const)
+                throw ParseError("Cannot assign to const variable");
 
             if (result->expression->qualifiedType.type->getTypeKind() != Type::Kind::Scalar)
                 throw ParseError("Parameter of the prefix operator must be a number");
@@ -2645,17 +2651,17 @@ namespace ouzel
             expression->parent = parent;
             expression->leftExpression = result;
 
-            if ((expression->leftExpression->qualifiedType.qualifiers & Qualifiers::Const) == Qualifiers::Const)
-                throw ParseError("Cannot assign to const variable");
-
             if (expression->leftExpression->category != Expression::Category::Lvalue)
                 throw ParseError("Expression is not assignable");
+
+            if ((expression->leftExpression->qualifiedType.qualifiers & Qualifiers::Const) == Qualifiers::Const)
+                throw ParseError("Cannot assign to const variable");
 
             if (!(expression->rightExpression = parseTernaryExpression(iterator, end, declarationScopes, expression)))
                 return nullptr;
 
             expression->qualifiedType.type = expression->leftExpression->qualifiedType.type;
-            expression->category = Expression::Category::Lvalue;
+            expression->category = Expression::Category::Rvalue;
 
             result->parent = expression;
             result = expression;
@@ -2688,11 +2694,11 @@ namespace ouzel
 
             expression->leftExpression = result;
 
-            if ((expression->leftExpression->qualifiedType.qualifiers & Qualifiers::Const) == Qualifiers::Const)
-                throw ParseError("Cannot assign to const variable");
-
             if (expression->leftExpression->category != Expression::Category::Lvalue)
                 throw ParseError("Expression is not assignable");
+
+            if ((expression->leftExpression->qualifiedType.qualifiers & Qualifiers::Const) == Qualifiers::Const)
+                throw ParseError("Cannot assign to const variable");
 
             if (!(expression->rightExpression = parseAssignmentExpression(iterator, end, declarationScopes, expression)))
                 return nullptr;
@@ -2731,11 +2737,11 @@ namespace ouzel
 
             expression->leftExpression = result;
 
-            if ((expression->leftExpression->qualifiedType.qualifiers & Qualifiers::Const) == Qualifiers::Const)
-                throw ParseError("Cannot assign to const variable");
-
             if (expression->leftExpression->category != Expression::Category::Lvalue)
                 throw ParseError("Expression is not assignable");
+
+            if ((expression->leftExpression->qualifiedType.qualifiers & Qualifiers::Const) == Qualifiers::Const)
+                throw ParseError("Cannot assign to const variable");
 
             std::unique_ptr<Construct> right;
             if (!(expression->rightExpression = parseAdditionAssignmentExpression(iterator, end, declarationScopes, expression)))
