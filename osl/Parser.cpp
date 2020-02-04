@@ -238,11 +238,11 @@ namespace ouzel
                 {
                     if ((*declarationIterator)->getDeclarationKind() != Declaration::Kind::Callable) return nullptr;
 
-                    CallableDeclaration* callableDeclaration = static_cast<CallableDeclaration*>(*declarationIterator);
+                    auto callableDeclaration = static_cast<CallableDeclaration*>(*declarationIterator);
 
                     if (callableDeclaration->getCallableDeclarationKind() != CallableDeclaration::Kind::Function) return nullptr;
 
-                    FunctionDeclaration* functionDeclaration = static_cast<FunctionDeclaration*>(callableDeclaration->getFirstDeclaration());
+                    auto functionDeclaration = static_cast<FunctionDeclaration*>(callableDeclaration->getFirstDeclaration());
 
                     if (std::find(candidateFunctionDeclarations.begin(), candidateFunctionDeclarations.end(), functionDeclaration) == candidateFunctionDeclarations.end())
                         candidateFunctionDeclarations.push_back(functionDeclaration);
@@ -398,7 +398,7 @@ namespace ouzel
 
         if (declaration->getDeclarationKind() == Declaration::Kind::Callable)
         {
-            const CallableDeclaration* callableDeclaration = static_cast<CallableDeclaration*>(declaration);
+            auto callableDeclaration = static_cast<CallableDeclaration*>(declaration);
 
             // semicolon is not needed after a function definition
             if (!callableDeclaration->body)
@@ -963,7 +963,7 @@ namespace ouzel
 
         if (result->qualifiedType.type->getTypeKind() == Type::Kind::STRUCT)
         {
-            StructType* structType = static_cast<StructType*>(result->qualifiedType.type);
+            auto structType = static_cast<StructType*>(result->qualifiedType.type);
 
             if (!structType->hasDefinition)
                 throw ParseError("Incomplete type " + result->qualifiedType.type->name);
@@ -1049,7 +1049,7 @@ namespace ouzel
             {
                 if (currentParent->getKind() == Construct::Kind::Declaration)
                 {
-                    Declaration* declaration = static_cast<Declaration*>(currentParent);
+                    auto declaration = static_cast<Declaration*>(currentParent);
                     if (declaration->getDeclarationKind() == Declaration::Kind::Callable)
                     {
                         callableDeclaration = static_cast<CallableDeclaration*>(currentParent);
@@ -1736,7 +1736,7 @@ namespace ouzel
                     if (type->getTypeKind() != Type::Kind::Struct)
                         throw ParseError("Expected a struct type");
 
-                    StructType* structType = static_cast<StructType*>(type);
+                    auto structType = static_cast<StructType*>(type);
 
                     if (!(result->constructorDeclaration = structType->findConstructorDeclaration(parameters)))
                         throw ParseError("No matching constructor found");

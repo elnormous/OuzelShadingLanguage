@@ -204,7 +204,7 @@ namespace ouzel
                     std::string arrayDimensions;
                     while (type->getTypeKind() == Type::Kind::Array)
                     {
-                        const ArrayType* arrayType = static_cast<const ArrayType*>(type);
+                        auto arrayType = static_cast<const ArrayType*>(type);
                         arrayDimensions += "[" + std::to_string(arrayType->size) + "]";
 
                         type = arrayType->elementType.type;
@@ -319,7 +319,7 @@ namespace ouzel
 
                     if (callableDeclaration->getCallableDeclarationKind() == CallableDeclaration::Kind::Function)
                     {
-                        const FunctionDeclaration* functionDeclaration = static_cast<const FunctionDeclaration*>(callableDeclaration);
+                        auto functionDeclaration = static_cast<const FunctionDeclaration*>(callableDeclaration);
 
                         if (functionDeclaration->isInline) std::cout << " inline";
 

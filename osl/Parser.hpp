@@ -91,11 +91,11 @@ namespace ouzel
                     {
                         if ((*declarationIterator)->getDeclarationKind() != Declaration::Kind::Callable) return nullptr;
 
-                        CallableDeclaration* callableDeclaration = static_cast<CallableDeclaration*>(*declarationIterator);
+                        auto callableDeclaration = static_cast<CallableDeclaration*>(*declarationIterator);
 
                         if (callableDeclaration->getCallableDeclarationKind() != CallableDeclaration::Kind::Function) return nullptr;
 
-                        FunctionDeclaration* functionDeclaration = static_cast<FunctionDeclaration*>(callableDeclaration);
+                        auto functionDeclaration = static_cast<FunctionDeclaration*>(callableDeclaration);
 
                         if (functionDeclaration->parameterDeclarations.size() == parameters.size())
                         {

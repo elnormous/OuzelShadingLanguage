@@ -26,7 +26,7 @@ namespace ouzel
     {
         std::string result;
 
-        for (Declaration* declaration : context.getDeclarations())
+        for (auto declaration : context.getDeclarations())
         {
             printConstruct(declaration, Options(0, whitespaces), result);
 
@@ -55,10 +55,10 @@ namespace ouzel
             }
             else
             {
-                const Type* type = qualifiedType.type;
+                auto type = qualifiedType.type;
                 while (type->getTypeKind() == Type::Kind::Array)
                 {
-                    const ArrayType* arrayType = static_cast<const ArrayType*>(type);
+                    auto arrayType = static_cast<const ArrayType*>(type);
 
                     result.second = "[" + std::to_string(arrayType->size) + "]" + result.second;
 
@@ -86,13 +86,13 @@ namespace ouzel
             {
                 if (options.whitespaces) code.append(options.indentation, ' ');
 
-                const TypeDeclaration* typeDeclaration = static_cast<const TypeDeclaration*>(declaration);
-                const Type* type = typeDeclaration->type;
+                auto typeDeclaration = static_cast<const TypeDeclaration*>(declaration);
+                auto type = typeDeclaration->type;
 
                 if (type->getTypeKind() != Type::Kind::Struct)
                     throw std::runtime_error("Type declaration must be a struct");
 
-                const StructType* structType = static_cast<const StructType*>(type);
+                auto structType = static_cast<const StructType*>(type);
                 code += "struct " + type->name;
 
                 // if this is the definition
@@ -103,7 +103,7 @@ namespace ouzel
                     code += "{";
                     if (options.whitespaces) code += "\n";
 
-                    for (const Declaration* memberDeclaration : structType->memberDeclarations)
+                    for (auto memberDeclaration : structType->memberDeclarations)
                     {
                         printConstruct(memberDeclaration, Options(options.indentation + 4, options.whitespaces), code);
 
@@ -122,7 +122,7 @@ namespace ouzel
             {
                 if (options.whitespaces) code.append(options.indentation, ' ');
 
-                const FieldDeclaration* fieldDeclaration = static_cast<const FieldDeclaration*>(declaration);
+                auto fieldDeclaration = static_cast<const FieldDeclaration*>(declaration);
 
                 std::pair<std::string, std::string> printableTypeName = getPrintableTypeName(fieldDeclaration->qualifiedType);
 
@@ -175,11 +175,11 @@ namespace ouzel
             {
                 if (options.whitespaces) code.append(options.indentation, ' ');
 
-                const CallableDeclaration* callableDeclaration = static_cast<const CallableDeclaration*>(declaration);
+                auto callableDeclaration = static_cast<const CallableDeclaration*>(declaration);
 
                 if (callableDeclaration->getCallableDeclarationKind() == CallableDeclaration::Kind::Function)
                 {
-                    const FunctionDeclaration* functionDeclaration = static_cast<const FunctionDeclaration*>(callableDeclaration);
+                    auto functionDeclaration = static_cast<const FunctionDeclaration*>(callableDeclaration);
 
                     if (functionDeclaration->isInline) code += "inline ";
 
@@ -189,7 +189,7 @@ namespace ouzel
 
                     bool firstParameter = true;
 
-                    for (ParameterDeclaration* parameter : functionDeclaration->parameterDeclarations)
+                    for (auto parameter : functionDeclaration->parameterDeclarations)
                     {
                         if (!firstParameter)
                         {
@@ -217,7 +217,7 @@ namespace ouzel
             {
                 if (options.whitespaces) code.append(options.indentation, ' ');
 
-                const VariableDeclaration* variableDeclaration = static_cast<const VariableDeclaration*>(declaration);
+                auto variableDeclaration = static_cast<const VariableDeclaration*>(declaration);
 
                 std::pair<std::string, std::string> printableTypeName = getPrintableTypeName(variableDeclaration->qualifiedType);
 
@@ -238,7 +238,7 @@ namespace ouzel
             {
                 if (options.whitespaces) code.append(options.indentation, ' ');
 
-                const ParameterDeclaration* parameterDeclaration = static_cast<const ParameterDeclaration*>(declaration);
+                auto parameterDeclaration = static_cast<const ParameterDeclaration*>(declaration);
 
                 std::pair<std::string, std::string> printableTypeName = getPrintableTypeName(parameterDeclaration->qualifiedType);
 
@@ -263,7 +263,7 @@ namespace ouzel
             {
                 if (options.whitespaces) code.append(options.indentation, ' ');
 
-                const ExpressionStatement* expressionStatement = static_cast<const ExpressionStatement*>(statement);
+                auto expressionStatement = static_cast<const ExpressionStatement*>(statement);
                 printConstruct(expressionStatement->expression, Options(0, options.whitespaces), code);
 
                 code += ";";
@@ -274,7 +274,7 @@ namespace ouzel
             {
                 if (options.whitespaces) code.append(options.indentation, ' ');
 
-                const DeclarationStatement* declarationStatement = static_cast<const DeclarationStatement*>(statement);
+                auto declarationStatement = static_cast<const DeclarationStatement*>(statement);
                 printConstruct(declarationStatement->declaration, Options(0, options.whitespaces), code);
 
                 code += ";";
@@ -304,7 +304,7 @@ namespace ouzel
             {
                 if (options.whitespaces) code.append(options.indentation, ' ');
 
-                const IfStatement* ifStatement = static_cast<const IfStatement*>(statement);
+                auto ifStatement = static_cast<const IfStatement*>(statement);
                 code += "if";
                 if (options.whitespaces) code += " ";
                 code += "(";
@@ -338,7 +338,7 @@ namespace ouzel
             {
                 if (options.whitespaces) code.append(options.indentation, ' ');
 
-                const ForStatement* forStatement = static_cast<const ForStatement*>(statement);
+                auto forStatement = static_cast<const ForStatement*>(statement);
                 code += "for";
                 if (options.whitespaces) code += " ";
                 code += "(";
@@ -372,7 +372,7 @@ namespace ouzel
             {
                 if (options.whitespaces) code.append(options.indentation, ' ');
 
-                const SwitchStatement* switchStatement = static_cast<const SwitchStatement*>(statement);
+                auto switchStatement = static_cast<const SwitchStatement*>(statement);
                 code += "switch";
                 if (options.whitespaces) code += " ";
                 code += "(";
@@ -394,7 +394,7 @@ namespace ouzel
             {
                 if (options.whitespaces) code.append(options.indentation, ' ');
 
-                const CaseStatement* caseStatement = static_cast<const CaseStatement*>(statement);
+                auto caseStatement = static_cast<const CaseStatement*>(statement);
                 code += "case ";
 
                 printConstruct(caseStatement->condition, Options(0, options.whitespaces), code);
@@ -414,7 +414,7 @@ namespace ouzel
             {
                 if (options.whitespaces) code.append(options.indentation, ' ');
 
-                const DefaultStatement* defaultStatement = static_cast<const DefaultStatement*>(statement);
+                auto defaultStatement = static_cast<const DefaultStatement*>(statement);
                 code += "default:";
                 if (options.whitespaces) code += "\n";
 
@@ -430,7 +430,7 @@ namespace ouzel
             {
                 if (options.whitespaces) code.append(options.indentation, ' ');
 
-                const WhileStatement* whileStatement = static_cast<const WhileStatement*>(statement);
+                auto whileStatement = static_cast<const WhileStatement*>(statement);
                 code += "while";
                 if (options.whitespaces) code += " ";
                 code += "(";
@@ -451,7 +451,7 @@ namespace ouzel
             {
                 if (options.whitespaces) code.append(options.indentation, ' ');
 
-                const DoStatement* doStatement = static_cast<const DoStatement*>(statement);
+                auto doStatement = static_cast<const DoStatement*>(statement);
                 code += "do";
                 if (options.whitespaces) code += "\n";
 
@@ -495,7 +495,7 @@ namespace ouzel
             {
                 if (options.whitespaces) code.append(options.indentation, ' ');
 
-                const ReturnStatement* returnStatement = static_cast<const ReturnStatement*>(statement);
+                auto returnStatement = static_cast<const ReturnStatement*>(statement);
                 code += "return";
 
                 if (returnStatement->result)
@@ -519,7 +519,7 @@ namespace ouzel
             {
                 if (options.whitespaces) code.append(options.indentation, ' ');
 
-                const CallExpression* callExpression = static_cast<const CallExpression*>(expression);
+                auto callExpression = static_cast<const CallExpression*>(expression);
 
                 printConstruct(callExpression->declarationReference, Options(0, options.whitespaces), code);
 
@@ -547,31 +547,31 @@ namespace ouzel
             {
                 if (options.whitespaces) code.append(options.indentation, ' ');
 
-                const LiteralExpression* literalExpression = static_cast<const LiteralExpression*>(expression);
+                auto literalExpression = static_cast<const LiteralExpression*>(expression);
 
                 switch (literalExpression->getLiteralKind())
                 {
                     case LiteralExpression::Kind::Boolean:
                     {
-                        const BooleanLiteralExpression* booleanLiteralExpression = static_cast<const BooleanLiteralExpression*>(literalExpression);
+                        auto booleanLiteralExpression = static_cast<const BooleanLiteralExpression*>(literalExpression);
                         code += (booleanLiteralExpression->value ? "true" : "false");
                         break;
                     }
                     case LiteralExpression::Kind::Integer:
                     {
-                        const IntegerLiteralExpression* integerLiteralExpression = static_cast<const IntegerLiteralExpression*>(literalExpression);
+                        auto integerLiteralExpression = static_cast<const IntegerLiteralExpression*>(literalExpression);
                         code += std::to_string(integerLiteralExpression->value);
                         break;
                     }
                     case LiteralExpression::Kind::FloatingPoint:
                     {
-                        const FloatingPointLiteralExpression* floatingPointLiteralExpression = static_cast<const FloatingPointLiteralExpression*>(literalExpression);
+                        auto floatingPointLiteralExpression = static_cast<const FloatingPointLiteralExpression*>(literalExpression);
                         code += std::to_string(floatingPointLiteralExpression->value);
                         break;
                     }
                     case LiteralExpression::Kind::String:
                     {
-                        const StringLiteralExpression* stringLiteralExpression = static_cast<const StringLiteralExpression*>(literalExpression);
+                        auto stringLiteralExpression = static_cast<const StringLiteralExpression*>(literalExpression);
                         code += stringLiteralExpression->value;
                         break;
                     }
@@ -590,24 +590,24 @@ namespace ouzel
                 {
                     case Declaration::Kind::Callable:
                     {
-                        const CallableDeclaration* callableDeclaration = static_cast<const CallableDeclaration*>(declaration);
+                        auto callableDeclaration = static_cast<const CallableDeclaration*>(declaration);
 
                         if (callableDeclaration->getCallableDeclarationKind() == CallableDeclaration::Kind::Function)
                         {
-                            const FunctionDeclaration* functionDeclaration = static_cast<const FunctionDeclaration*>(callableDeclaration);
+                            auto functionDeclaration = static_cast<const FunctionDeclaration*>(callableDeclaration);
                             code += functionDeclaration->name;
                         }
                         break;
                     }
                     case Declaration::Kind::Variable:
                     {
-                        const VariableDeclaration* variableDeclaration = static_cast<const VariableDeclaration*>(declaration);
+                        auto variableDeclaration = static_cast<const VariableDeclaration*>(declaration);
                         code += variableDeclaration->name;
                         break;
                     }
                     case Declaration::Kind::Parameter:
                     {
-                        const ParameterDeclaration* parameterDeclaration = static_cast<const ParameterDeclaration*>(declaration);
+                        auto parameterDeclaration = static_cast<const ParameterDeclaration*>(declaration);
                         code += parameterDeclaration->name;
                         break;
                     }
@@ -622,7 +622,7 @@ namespace ouzel
             {
                 if (options.whitespaces) code.append(options.indentation, ' ');
 
-                const ParenExpression* parenExpression = static_cast<const ParenExpression*>(expression);
+                auto parenExpression = static_cast<const ParenExpression*>(expression);
                 code += "(";
 
                 printConstruct(parenExpression->expression, Options(0, options.whitespaces), code);
@@ -635,7 +635,7 @@ namespace ouzel
             {
                 if (options.whitespaces) code.append(options.indentation, ' ');
 
-                const MemberExpression* memberExpression = static_cast<const MemberExpression*>(expression);
+                auto memberExpression = static_cast<const MemberExpression*>(expression);
 
                 printConstruct(memberExpression->expression, Options(0, options.whitespaces), code);
 
@@ -653,7 +653,7 @@ namespace ouzel
             {
                 if (options.whitespaces) code.append(options.indentation, ' ');
 
-                const ArraySubscriptExpression* arraySubscriptExpression = static_cast<const ArraySubscriptExpression*>(expression);
+                auto arraySubscriptExpression = static_cast<const ArraySubscriptExpression*>(expression);
 
                 printConstruct(arraySubscriptExpression->expression, Options(0, options.whitespaces), code);
 
@@ -670,7 +670,7 @@ namespace ouzel
             {
                 if (options.whitespaces) code.append(options.indentation, ' ');
 
-                const UnaryOperatorExpression* unaryOperatorExpression = static_cast<const UnaryOperatorExpression*>(expression);
+                auto unaryOperatorExpression = static_cast<const UnaryOperatorExpression*>(expression);
 
                 switch (unaryOperatorExpression->getOperatorKind())
                 {
@@ -689,7 +689,7 @@ namespace ouzel
             {
                 if (options.whitespaces) code.append(options.indentation, ' ');
 
-                const BinaryOperatorExpression* binaryOperatorExpression = static_cast<const BinaryOperatorExpression*>(expression);
+                auto binaryOperatorExpression = static_cast<const BinaryOperatorExpression*>(expression);
                 printConstruct(binaryOperatorExpression->leftExpression, Options(0, options.whitespaces), code);
 
                 if (options.whitespaces &&
@@ -729,7 +729,7 @@ namespace ouzel
             {
                 if (options.whitespaces) code.append(options.indentation, ' ');
 
-                const TernaryOperatorExpression* ternaryOperatorExpression = static_cast<const TernaryOperatorExpression*>(expression);
+                auto ternaryOperatorExpression = static_cast<const TernaryOperatorExpression*>(expression);
 
                 printConstruct(ternaryOperatorExpression->condition, Options(0, options.whitespaces), code);
 
@@ -751,15 +751,15 @@ namespace ouzel
             {
                 if (options.whitespaces) code.append(options.indentation, ' ');
 
-                const TemporaryObjectExpression* temporaryObjectExpression = static_cast<const TemporaryObjectExpression*>(expression);
+                auto temporaryObjectExpression = static_cast<const TemporaryObjectExpression*>(expression);
 
-                const TypeDeclaration* typeDeclaration = static_cast<const TypeDeclaration*>(temporaryObjectExpression->constructorDeclaration->parent);
-                const Type* type = typeDeclaration->type;
+                auto typeDeclaration = static_cast<const TypeDeclaration*>(temporaryObjectExpression->constructorDeclaration->parent);
+                auto type = typeDeclaration->type;
 
                 if (type->getTypeKind() != Type::Kind::Struct)
                     throw std::runtime_error("Temporary object must be a struct");
 
-                const StructType* structType = static_cast<const StructType*>(type);
+                auto structType = static_cast<const StructType*>(type);
 
                 code += structType->name + "(";
 
@@ -813,7 +813,7 @@ namespace ouzel
             {
                 if (options.whitespaces) code.append(options.indentation, ' ');
 
-                const CastExpression* castExpression = static_cast<const CastExpression*>(expression);
+                auto castExpression = static_cast<const CastExpression*>(expression);
 
                 code += castExpression->qualifiedType.type->name + "(";
                 printConstruct(castExpression->expression, Options(0, options.whitespaces), code);
@@ -835,21 +835,21 @@ namespace ouzel
         {
             case Construct::Kind::Declaration:
             {
-                const Declaration* declaration = static_cast<const Declaration*>(construct);
+                auto declaration = static_cast<const Declaration*>(construct);
                 printDeclaration(declaration, options, code);
                 break;
             }
 
             case Construct::Kind::Statement:
             {
-                const Statement* statement = static_cast<const Statement*>(construct);
+                auto statement = static_cast<const Statement*>(construct);
                 printStatement(statement, options, code);
                 break;
             }
 
             case Construct::Kind::Expression:
             {
-                const Expression* expression = static_cast<const Expression*>(construct);
+                auto expression = static_cast<const Expression*>(construct);
                 printExpression(expression, options, code);
                 break;
             }
