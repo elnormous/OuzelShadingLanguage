@@ -1809,21 +1809,21 @@ namespace ouzel
                 {
                     case Declaration::Kind::Type:
                     {
-                        TypeDeclaration* typeDeclaration = static_cast<TypeDeclaration*>(result->declaration);
+                        auto typeDeclaration = static_cast<const TypeDeclaration*>(result->declaration);
                         result->qualifiedType.type = typeDeclaration->type;
                         result->category = Expression::Category::Rvalue;
                         break;
                     }
                     case Declaration::Kind::Variable:
                     {
-                        VariableDeclaration* variableDeclaration = static_cast<VariableDeclaration*>(result->declaration);
+                        auto variableDeclaration = static_cast<const VariableDeclaration*>(result->declaration);
                         result->qualifiedType = variableDeclaration->qualifiedType;
                         result->category = Expression::Category::Lvalue;
                         break;
                     }
                     case Declaration::Kind::Parameter:
                     {
-                        ParameterDeclaration* parameterDeclaration = static_cast<ParameterDeclaration*>(result->declaration);
+                        auto parameterDeclaration = static_cast<const ParameterDeclaration*>(result->declaration);
                         result->qualifiedType = parameterDeclaration->qualifiedType;
                         result->category = Expression::Category::Rvalue;
                         break;

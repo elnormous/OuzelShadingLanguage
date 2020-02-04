@@ -256,13 +256,13 @@ namespace ouzel
 
             case Statement::Kind::Compound:
             {
-                const CompoundStatement* compoundStatement = static_cast<const CompoundStatement*>(statement);
+                auto compoundStatement = static_cast<const CompoundStatement*>(statement);
 
                 if (options.whitespaces) code.append(options.indentation, ' ');
                 code += "{";
                 if (options.whitespaces) code += "\n";
 
-                for (Statement* subStatement : compoundStatement->statements)
+                for (auto subStatement : compoundStatement->statements)
                 {
                     printConstruct(subStatement, Options(options.indentation + 4, options.whitespaces), code);
                     if (options.whitespaces) code += "\n";
@@ -491,7 +491,7 @@ namespace ouzel
             {
                 if (options.whitespaces) code.append(options.indentation, ' ');
 
-                const CallExpression* callExpression = static_cast<const CallExpression*>(expression);
+                auto callExpression = static_cast<const CallExpression*>(expression);
 
                 printConstruct(callExpression->declarationReference, Options(0, options.whitespaces), code);
 
@@ -499,7 +499,7 @@ namespace ouzel
 
                 bool firstParameter = true;
 
-                for (Expression* argument : callExpression->arguments)
+                for (auto argument : callExpression->arguments)
                 {
                     if (!firstParameter)
                     {
@@ -555,8 +555,8 @@ namespace ouzel
             {
                 if (options.whitespaces) code.append(options.indentation, ' ');
 
-                const DeclarationReferenceExpression* declarationReferenceExpression = static_cast<const DeclarationReferenceExpression*>(expression);
-                Declaration* declaration = declarationReferenceExpression->declaration;
+                auto declarationReferenceExpression = static_cast<const DeclarationReferenceExpression*>(expression);
+                auto declaration = declarationReferenceExpression->declaration;
 
                 switch (declaration->getDeclarationKind())
                 {
@@ -723,7 +723,7 @@ namespace ouzel
             {
                 if (options.whitespaces) code.append(options.indentation, ' ');
 
-                const TemporaryObjectExpression* temporaryObjectExpression = static_cast<const TemporaryObjectExpression*>(expression);
+                auto temporaryObjectExpression = static_cast<const TemporaryObjectExpression*>(expression);
 
                 const TypeDeclaration* typeDeclaration = static_cast<const TypeDeclaration*>(temporaryObjectExpression->constructorDeclaration->parent);
                 const Type* type = typeDeclaration->type;
@@ -737,7 +737,7 @@ namespace ouzel
 
                 bool firstParameter = true;
 
-                for (Expression* parameter : temporaryObjectExpression->parameters)
+                for (auto parameter : temporaryObjectExpression->parameters)
                 {
                     if (!firstParameter)
                     {
@@ -764,7 +764,7 @@ namespace ouzel
 
                 bool firstExpression = true;
 
-                for (Expression* subExpression : initializerListExpression->expressions)
+                for (auto subExpression : initializerListExpression->expressions)
                 {
                     if (!firstExpression)
                     {

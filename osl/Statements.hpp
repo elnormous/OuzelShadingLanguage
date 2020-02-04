@@ -46,7 +46,7 @@ namespace ouzel
     public:
         ExpressionStatement() noexcept: Statement(Statement::Kind::Expression) {}
 
-        Expression* expression = nullptr;
+        const Expression* expression = nullptr;
     };
 
     class DeclarationStatement: public Statement
@@ -54,7 +54,7 @@ namespace ouzel
     public:
         DeclarationStatement() noexcept: Statement(Statement::Kind::Declaration) {}
 
-        Declaration* declaration = nullptr;
+        const Declaration* declaration = nullptr;
     };
 
     class CompoundStatement: public Statement
@@ -62,7 +62,7 @@ namespace ouzel
     public:
         CompoundStatement() noexcept: Statement(Statement::Kind::Compound) {}
 
-        std::vector<Statement*> statements;
+        std::vector<const Statement*> statements;
     };
 
     class IfStatement: public Statement
@@ -70,9 +70,9 @@ namespace ouzel
     public:
         IfStatement() noexcept: Statement(Statement::Kind::If) {}
 
-        Construct* condition = nullptr;
-        Statement* body = nullptr;
-        Statement* elseBody = nullptr;
+        const Construct* condition = nullptr;
+        const Statement* body = nullptr;
+        const Statement* elseBody = nullptr;
     };
 
     class ForStatement: public Statement
@@ -80,10 +80,10 @@ namespace ouzel
     public:
         ForStatement() noexcept: Statement(Statement::Kind::For) {}
 
-        Construct* initialization = nullptr;
-        Construct* condition = nullptr;
-        Expression* increment = nullptr;
-        Statement* body = nullptr;
+        const Construct* initialization = nullptr;
+        const Construct* condition = nullptr;
+        const Expression* increment = nullptr;
+        const Statement* body = nullptr;
     };
 
     class SwitchStatement: public Statement
@@ -91,8 +91,8 @@ namespace ouzel
     public:
         SwitchStatement() noexcept: Statement(Statement::Kind::Switch) {}
 
-        Construct* condition = nullptr;
-        Statement* body = nullptr;
+        const Construct* condition = nullptr;
+        const Statement* body = nullptr;
     };
 
     class CaseStatement: public Statement
@@ -100,8 +100,8 @@ namespace ouzel
     public:
         CaseStatement() noexcept: Statement(Statement::Kind::Case) {}
 
-        Expression* condition = nullptr;
-        Statement* body = nullptr;
+        const Expression* condition = nullptr;
+        const Statement* body = nullptr;
     };
 
     class DefaultStatement: public Statement
@@ -109,7 +109,7 @@ namespace ouzel
     public:
         DefaultStatement() noexcept: Statement(Statement::Kind::Default) {}
 
-        Statement* body = nullptr;
+        const Statement* body = nullptr;
     };
 
     class WhileStatement: public Statement
@@ -117,8 +117,8 @@ namespace ouzel
     public:
         WhileStatement() noexcept: Statement(Statement::Kind::While) {}
 
-        Construct* condition = nullptr;
-        Statement* body = nullptr;
+        const Construct* condition = nullptr;
+        const Statement* body = nullptr;
     };
 
     class DoStatement: public Statement
@@ -126,8 +126,8 @@ namespace ouzel
     public:
         DoStatement() noexcept: Statement(Statement::Kind::Do) {}
 
-        Expression* condition = nullptr;
-        Statement* body = nullptr;
+        const Expression* condition = nullptr;
+        const Statement* body = nullptr;
     };
 
     class BreakStatement: public Statement
@@ -147,7 +147,7 @@ namespace ouzel
     public:
         ReturnStatement() noexcept: Statement(Statement::Kind::Return) {}
 
-        Expression* result = nullptr;
+        const Expression* result = nullptr;
     };
 }
 

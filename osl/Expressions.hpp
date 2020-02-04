@@ -64,7 +64,7 @@ namespace ouzel
 
         inline Kind getLiteralKind() const noexcept { return literalKind; }
 
-        TypeDeclaration* typeDeclaration = nullptr;
+        const Type* type = nullptr;
 
     protected:
         const Kind literalKind;
@@ -106,7 +106,7 @@ namespace ouzel
     public:
         DeclarationReferenceExpression(): Expression(Expression::Kind::DeclarationReference) {}
 
-        Declaration* declaration = nullptr;
+        const Declaration* declaration = nullptr;
     };
 
     class CallExpression: public Expression
@@ -114,8 +114,8 @@ namespace ouzel
     public:
         CallExpression(): Expression(Expression::Kind::Call) {}
 
-        DeclarationReferenceExpression* declarationReference = nullptr;
-        std::vector<Expression*> arguments;
+        const DeclarationReferenceExpression* declarationReference = nullptr;
+        std::vector<const Expression*> arguments;
     };
 
     class ParenExpression: public Expression
@@ -123,7 +123,7 @@ namespace ouzel
     public:
         ParenExpression() noexcept: Expression(Expression::Kind::Paren) {}
 
-        Expression* expression = nullptr;
+        const Expression* expression = nullptr;
     };
 
     class MemberExpression: public Expression
@@ -131,8 +131,8 @@ namespace ouzel
     public:
         MemberExpression() noexcept: Expression(Expression::Kind::Member) {}
 
-        Expression* expression = nullptr;
-        FieldDeclaration* fieldDeclaration = nullptr;
+        const Expression* expression = nullptr;
+        const FieldDeclaration* fieldDeclaration = nullptr;
     };
 
     class ArraySubscriptExpression: public Expression
@@ -140,8 +140,8 @@ namespace ouzel
     public:
         ArraySubscriptExpression() noexcept: Expression(Expression::Kind::ArraySubscript) {}
 
-        Expression* expression = nullptr;
-        Expression* subscript = nullptr;
+        const Expression* expression = nullptr;
+        const Expression* subscript = nullptr;
     };
 
     class UnaryOperatorExpression: public Expression
@@ -165,7 +165,7 @@ namespace ouzel
 
         inline Kind getOperatorKind() const noexcept { return operatorKind; }
 
-        Expression* expression = nullptr;
+        const Expression* expression = nullptr;
 
     private:
         Kind operatorKind;
@@ -203,8 +203,8 @@ namespace ouzel
 
         inline Kind getOperatorKind() const noexcept { return operatorKind; }
 
-        Expression* leftExpression = nullptr;
-        Expression* rightExpression = nullptr;
+        const Expression* leftExpression = nullptr;
+        const Expression* rightExpression = nullptr;
 
     private:
         Kind operatorKind;
@@ -215,9 +215,9 @@ namespace ouzel
     public:
         TernaryOperatorExpression() noexcept: Expression(Expression::Kind::TernaryOperator) {}
 
-        Expression* condition;
-        Expression* leftExpression = nullptr;
-        Expression* rightExpression = nullptr;
+        const Expression* condition;
+        const Expression* leftExpression = nullptr;
+        const Expression* rightExpression = nullptr;
     };
 
     class OperatorCallExpression: public Expression
@@ -225,8 +225,8 @@ namespace ouzel
     public:
         OperatorCallExpression() noexcept: Expression(Expression::Kind::OperatorCall) {}
 
-        DeclarationReferenceExpression* declarationReference = nullptr;
-        std::vector<Expression*> arguments;
+        const DeclarationReferenceExpression* declarationReference = nullptr;
+        std::vector<const Expression*> arguments;
     };
 
     class TemporaryObjectExpression: public Expression
@@ -234,8 +234,8 @@ namespace ouzel
     public:
         TemporaryObjectExpression(): Expression(Expression::Kind::TemporaryObject) {}
 
-        ConstructorDeclaration* constructorDeclaration = nullptr;
-        std::vector<Expression*> parameters;
+        const ConstructorDeclaration* constructorDeclaration = nullptr;
+        std::vector<const Expression*> parameters;
     };
 
     class InitializerListExpression: public Expression
@@ -243,7 +243,7 @@ namespace ouzel
     public:
         InitializerListExpression(): Expression(Expression::Kind::InitializerList) {}
 
-        std::vector<Expression*> expressions;
+        std::vector<const Expression*> expressions;
     };
 
     class CastExpression: public Expression
@@ -260,7 +260,7 @@ namespace ouzel
 
         inline Kind getCastKind() const noexcept { return castKind; }
 
-        Expression* expression;
+        const Expression* expression;
 
     protected:
         const Kind castKind;
@@ -271,7 +271,7 @@ namespace ouzel
     public:
         SizeofExpression() noexcept: Expression(Expression::Kind::Sizeof) {}
 
-        Expression* expression;
+        const Expression* expression;
         const Type* type;
     };
 

@@ -283,13 +283,13 @@ namespace ouzel
 
             case Statement::Kind::Compound:
             {
-                const CompoundStatement* compoundStatement = static_cast<const CompoundStatement*>(statement);
+                auto compoundStatement = static_cast<const CompoundStatement*>(statement);
 
                 if (options.whitespaces) code.append(options.indentation, ' ');
                 code += "{";
                 if (options.whitespaces) code += "\n";
 
-                for (Statement* subStatement : compoundStatement->statements)
+                for (auto subStatement : compoundStatement->statements)
                 {
                     printConstruct(subStatement, Options(options.indentation + 4, options.whitespaces), code);
                     if (options.whitespaces) code += "\n";
@@ -527,7 +527,7 @@ namespace ouzel
 
                 bool firstParameter = true;
 
-                for (Expression* argument : callExpression->arguments)
+                for (auto argument : callExpression->arguments)
                 {
                     if (!firstParameter)
                     {
@@ -583,8 +583,8 @@ namespace ouzel
             {
                 if (options.whitespaces) code.append(options.indentation, ' ');
 
-                const DeclarationReferenceExpression* declarationReferenceExpression = static_cast<const DeclarationReferenceExpression*>(expression);
-                Declaration* declaration = declarationReferenceExpression->declaration;
+                auto declarationReferenceExpression = static_cast<const DeclarationReferenceExpression*>(expression);
+                auto declaration = declarationReferenceExpression->declaration;
 
                 switch (declaration->getDeclarationKind())
                 {
@@ -765,7 +765,7 @@ namespace ouzel
 
                 bool firstParameter = true;
 
-                for (Expression* parameter : temporaryObjectExpression->parameters)
+                for (auto parameter : temporaryObjectExpression->parameters)
                 {
                     if (!firstParameter)
                     {
@@ -786,13 +786,13 @@ namespace ouzel
             {
                 if (options.whitespaces) code.append(options.indentation, ' ');
 
-                const InitializerListExpression* initializerListExpression = static_cast<const InitializerListExpression*>(expression);
+                auto initializerListExpression = static_cast<const InitializerListExpression*>(expression);
 
                 code += "{";
 
                 bool firstExpression = true;
 
-                for (Expression* subExpression : initializerListExpression->expressions)
+                for (auto subExpression : initializerListExpression->expressions)
                 {
                     if (!firstExpression)
                     {
