@@ -602,6 +602,19 @@ namespace
             throw TestError("Wrong definition");
     }
 
+    void testArray()
+    {
+        std::string code = R"OSL(
+        void main()
+        {
+            float a[4];
+            a[0] = 1.0f;
+        }
+        )OSL";
+
+        ouzel::ASTContext context(ouzel::tokenize(code));
+    }
+
     void testFloat()
     {
         std::string code = R"OSL(
@@ -739,6 +752,7 @@ int main(int argc, const char * argv[])
     testRunner.run(testReturnStatement);
     testRunner.run(testExpressions);
     testRunner.run(testStructDeclaration);
+    testRunner.run(testArray);
     testRunner.run(testFloat);
     testRunner.run(testVector);
     testRunner.run(testMatrix);

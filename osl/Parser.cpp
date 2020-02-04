@@ -2041,7 +2041,7 @@ namespace ouzel
                     expression->qualifiedType.type = vectorTypeIterator->second;
                 }
 
-                expression->category = expression->rightExpression->category;
+                expression->category = expression->leftExpression->category;
 
                 result->parent = expression;
                 result = expression;
