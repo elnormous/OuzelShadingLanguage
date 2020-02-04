@@ -2751,7 +2751,6 @@ namespace ouzel
             if ((expression->leftExpression->qualifiedType.qualifiers & Qualifiers::Const) == Qualifiers::Const)
                 throw ParseError("Cannot assign to const variable");
 
-            std::unique_ptr<Construct> right;
             if (!(expression->rightExpression = parseAdditionAssignmentExpression(iterator, end, declarationScopes, expression)))
                 return nullptr;
 
@@ -2785,7 +2784,6 @@ namespace ouzel
 
             ++iterator;
 
-            std::unique_ptr<Construct> right;
             if (!(expression->rightExpression = parseAdditionAssignmentExpression(iterator, end, declarationScopes, expression)))
                 return nullptr;
 
