@@ -266,7 +266,7 @@ namespace ouzel
         }
 
         QualifiedType qualifiedType;
-        Expression* initialization = nullptr;
+        const Expression* initialization = nullptr;
 
         StorageClass storageClass = StorageClass::Auto;
     };

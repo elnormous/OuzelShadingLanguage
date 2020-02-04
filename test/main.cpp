@@ -557,6 +557,7 @@ namespace
         )OSL";
 
         ouzel::ASTContext context(ouzel::tokenize(code));
+        context.dump();
 
         auto i = context.getDeclarations().begin();
         if (i == context.getDeclarations().end())

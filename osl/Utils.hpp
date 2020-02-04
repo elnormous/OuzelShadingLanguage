@@ -242,14 +242,22 @@ namespace ouzel
 
                     switch (type->getTypeKind())
                     {
+                        case Type::Kind::Void: // void types can not be declared in code
+                        {
+                            std::cout << ", name: " << type->name;
+                            break;
+                        }
+
                         case Type::Kind::Array: // array types can not be declared in code
                         {
+                            auto arrayType = static_cast<const ArrayType*>(type);
+                            std::cout << ", name: " << arrayType->name << ", element type: " << getPrintableTypeName(arrayType->elementType) << ", size" << arrayType->size;
                             break;
                         }
 
                         case Type::Kind::Struct:
                         {
-                            const StructType* structType = static_cast<const StructType*>(type);
+                            auto structType = static_cast<const StructType*>(type);
                             std::cout << ", name: " << structType->name;
 
                             if (structType->declaration)
@@ -266,16 +274,24 @@ namespace ouzel
                             break;
                         }
 
-                        case Type::Kind::Scalar:
+                        case Type::Kind::Scalar: // scalar types can not be declared in code
                         {
-                            const ScalarType* scalarType = static_cast<const ScalarType*>(type);
+                            auto scalarType = static_cast<const ScalarType*>(type);
                             std::cout << ", name: " << scalarType->name << ", scalar type kind: " << toString(scalarType->getScalarTypeKind());
                             break;
                         }
 
-                        case Type::Kind::Vector:
+                        case Type::Kind::Vector: // vector types can not be declared in code
                         {
-                            // TODO: implement
+                            auto vectorType = static_cast<const VectorType*>(type);
+                            std::cout << ", name: " << vectorType->name << ", type: " << vectorType->componentType->name << ", components: " << vectorType->componentCount;
+                            break;
+                        }
+
+                        case Type::Kind::Matrix: // matrix types can not be declared in code
+                        {
+                            auto matrixType = static_cast<const MatrixType*>(type);
+                            std::cout << ", name: " << matrixType->name << ", type: " << matrixType->componentType->name << ", columns: " << matrixType->columnCount << ", rows: " << matrixType->rowCount;
                             break;
                         }
                     }
