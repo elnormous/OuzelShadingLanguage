@@ -237,7 +237,7 @@ namespace ouzel
     public:
         VectorType(): Type(Type::Kind::Vector) {}
 
-        ScalarType* componentType = nullptr;
+        const ScalarType* componentType = nullptr;
         uint8_t componentCount = 1;
     };
 
@@ -246,7 +246,7 @@ namespace ouzel
     public:
         MatrixType(): Type(Type::Kind::Matrix) {}
 
-        ScalarType* componentType = nullptr;
+        const ScalarType* componentType = nullptr;
         uint8_t rowCount = 1;
         uint8_t columnCount = 1;
     };

@@ -94,7 +94,7 @@ namespace ouzel
             else return true;
         }
 
-        Type* type = nullptr;
+        const Type* type = nullptr;
         Qualifiers qualifiers = Qualifiers::None;
     };
 }

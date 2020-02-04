@@ -124,15 +124,15 @@ namespace ouzel
                                                                const std::vector<std::vector<Declaration*>>& declarationScopes,
                                                                const std::vector<QualifiedType>& arguments);
 
-        ArrayType* getArrayType(QualifiedType qualifiedType, uint32_t size);
+        const ArrayType* getArrayType(QualifiedType qualifiedType, uint32_t size);
 
         bool isType(std::vector<Token>::const_iterator iterator,
                     std::vector<Token>::const_iterator end,
                     std::vector<std::vector<Declaration*>>& declarationScopes);
 
-        Type* parseType(std::vector<Token>::const_iterator& iterator,
-                        std::vector<Token>::const_iterator end,
-                        std::vector<std::vector<Declaration*>>& declarationScopes);
+        const Type* parseType(std::vector<Token>::const_iterator& iterator,
+                              std::vector<Token>::const_iterator end,
+                              std::vector<std::vector<Declaration*>>& declarationScopes);
 
         bool isDeclaration(std::vector<Token>::const_iterator iterator,
                            std::vector<Token>::const_iterator end,
@@ -361,7 +361,7 @@ namespace ouzel
         }
 
         VectorType* addVectorType(const std::string& name,
-                                  ScalarType* componentType,
+                                  const ScalarType* componentType,
                                   uint8_t componentCount,
                                   std::vector<std::vector<Declaration*>>& declarationScopes)
         {
@@ -379,7 +379,7 @@ namespace ouzel
         }
 
         MatrixType* addMatrixType(const std::string& name,
-                                  ScalarType* componentType,
+                                  const ScalarType* componentType,
                                   uint8_t rowCount,
                                   uint8_t columnCount,
                                   std::vector<std::vector<Declaration*>>& declarationScopes)
@@ -446,15 +446,15 @@ namespace ouzel
         std::vector<Declaration*> declarations;
         std::vector<std::unique_ptr<Construct>> constructs;
 
-        std::map<std::pair<Type*, uint8_t>, VectorType*> vectorTypes;
-        std::map<std::pair<QualifiedType, uint32_t>, ArrayType*> arrayTypes;
+        std::map<std::pair<const Type*, uint8_t>, const VectorType*> vectorTypes;
+        std::map<std::pair<QualifiedType, uint32_t>, const ArrayType*> arrayTypes;
 
-        Type* voidType = nullptr;
-        ScalarType* boolType = nullptr;
-        ScalarType* intType = nullptr;
-        ScalarType* unsignedIntType = nullptr;
-        ScalarType* floatType = nullptr;
-        StructType* stringType = nullptr;
+        const Type* voidType = nullptr;
+        const ScalarType* boolType = nullptr;
+        const ScalarType* intType = nullptr;
+        const ScalarType* unsignedIntType = nullptr;
+        const ScalarType* floatType = nullptr;
+        const StructType* stringType = nullptr;
     };
 }
 

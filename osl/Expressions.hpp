@@ -272,7 +272,7 @@ namespace ouzel
         SizeofExpression() noexcept: Expression(Expression::Kind::Sizeof) {}
 
         Expression* expression;
-        Type* type;
+        const Type* type;
     };
 
     class VectorElementExpression: public Expression

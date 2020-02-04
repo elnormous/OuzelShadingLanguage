@@ -90,8 +90,10 @@ namespace ouzel
 
         addBuiltinFunctionDeclaration("discard", nullptr, {}, declarationScopes);
 
-        types.push_back(std::unique_ptr<Type>(voidType = new Type(Type::Kind::Void)));
-        voidType->name = "void";
+        Type* voidTypePtr;
+        types.push_back(std::unique_ptr<Type>(voidTypePtr = new Type(Type::Kind::Void)));
+        voidTypePtr->name = "void";
+        voidType = voidTypePtr;
 
         boolType = addScalarType("bool", ScalarType::Kind::Boolean, 1, false, declarationScopes);
 
@@ -300,7 +302,7 @@ namespace ouzel
         return nullptr;
     }
 
-    ArrayType* ASTContext::getArrayType(QualifiedType qualifiedType, uint32_t size)
+    const ArrayType* ASTContext::getArrayType(QualifiedType qualifiedType, uint32_t size)
     {
         auto i = arrayTypes.find(std::make_pair(qualifiedType, size));
 
@@ -336,14 +338,14 @@ namespace ouzel
              findType(iterator->value, declarationScopes));
     }
 
-    Type* ASTContext::parseType(std::vector<Token>::const_iterator& iterator,
-                                std::vector<Token>::const_iterator end,
-                                std::vector<std::vector<Declaration*>>& declarationScopes)
+    const Type* ASTContext::parseType(std::vector<Token>::const_iterator& iterator,
+                                      std::vector<Token>::const_iterator end,
+                                      std::vector<std::vector<Declaration*>>& declarationScopes)
     {
         if (iterator == end)
             throw ParseError("Unexpected end of file");
 
-        Type* result;
+        const Type* result;
 
         if (iterator->type == Token::Type::Void)
             result = voidType;
@@ -534,7 +536,7 @@ namespace ouzel
 
             if (qualifiedType.type->getTypeKind() == Type::Kind::Struct)
             {
-                StructType* structType = static_cast<StructType*>(qualifiedType.type);
+                auto structType = static_cast<const StructType*>(qualifiedType.type);
 
                 if (!structType->definition)
                     throw ParseError("Incomplete type " + qualifiedType.type->name);
@@ -821,7 +823,7 @@ namespace ouzel
 
             if (result->qualifiedType.type->getTypeKind() == Type::Kind::Struct)
             {
-                StructType* structType = static_cast<StructType*>(result->qualifiedType.type);
+                auto structType = static_cast<const StructType*>(result->qualifiedType.type);
 
                 if (!structType->definition)
                     throw ParseError("Incomplete type " + result->qualifiedType.type->name);
@@ -895,7 +897,7 @@ namespace ouzel
 
         if (result->qualifiedType.type->getTypeKind() == Type::Kind::Struct)
         {
-            StructType* structType = static_cast<StructType*>(result->qualifiedType.type);
+            auto structType = static_cast<const StructType*>(result->qualifiedType.type);
 
             if (!structType->definition)
                 throw ParseError("Incomplete type " + result->qualifiedType.type->name);
@@ -1994,7 +1996,7 @@ namespace ouzel
 
                 ++iterator;
 
-                ArrayType* arrayType = static_cast<ArrayType*>(result->qualifiedType.type);
+                auto arrayType = static_cast<const ArrayType*>(result->qualifiedType.type);
 
                 expression->qualifiedType = arrayType->elementType;
                 expression->category = result->category;
@@ -2024,12 +2026,12 @@ namespace ouzel
 
                 if (result->qualifiedType.type->getTypeKind() == Type::Kind::Vector)
                 {
-                    VectorType* vectorType = static_cast<VectorType*>(result->qualifiedType.type);
+                    auto vectorType = static_cast<const VectorType*>(result->qualifiedType.type);
                     expression->qualifiedType.type = vectorType->componentType;
                 }
                 else if (result->qualifiedType.type->getTypeKind() == Type::Kind::Matrix)
                 {
-                    MatrixType* matrixType = static_cast<MatrixType*>(result->qualifiedType.type);
+                    auto matrixType = static_cast<const MatrixType*>(result->qualifiedType.type);
 
                     auto vectorTypeIterator = vectorTypes.find(std::make_pair(matrixType->componentType, static_cast<uint8_t>(matrixType->columnCount)));
 
@@ -2089,7 +2091,7 @@ namespace ouzel
                 expression->parent = parent;
                 expression->expression = result;
 
-                auto structType = static_cast<StructType*>(result->qualifiedType.type);
+                auto structType = static_cast<const StructType*>(result->qualifiedType.type);
 
                 expectToken(Token::Type::Identifier, iterator, end);
 
@@ -2143,7 +2145,7 @@ namespace ouzel
 
                 ++iterator;
 
-                auto vectorType = static_cast<VectorType*>(result->qualifiedType.type);
+                auto vectorType = static_cast<const VectorType*>(result->qualifiedType.type);
 
                 auto resultTypeIterator = vectorTypes.find(std::make_pair(vectorType->componentType,
                                                                           static_cast<uint8_t>(components.size())));
