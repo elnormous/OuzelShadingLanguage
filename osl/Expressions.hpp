@@ -64,8 +64,6 @@ namespace ouzel
 
         inline Kind getLiteralKind() const noexcept { return literalKind; }
 
-        const Type* type = nullptr;
-
     protected:
         const Kind literalKind;
     };
