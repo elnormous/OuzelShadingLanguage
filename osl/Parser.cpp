@@ -187,7 +187,7 @@ namespace ouzel
                 if (arguments.size() == viableFunctionDeclaration->parameterDeclarations.size())
                 {
                     bool valid = true;
-                    for (uint32_t i = 0; i < arguments.size(); ++i)
+                    for (size_t i = 0; i < arguments.size(); ++i)
                     {
                         const QualifiedType& argument = arguments[i];
                         const QualifiedType& parameter = viableFunctionDeclaration->parameterDeclarations[i]->qualifiedType;
