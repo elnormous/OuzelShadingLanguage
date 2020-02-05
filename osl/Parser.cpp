@@ -124,66 +124,9 @@ namespace ouzel
         }
     }
 
-    enum class Rank
-    {
-        NoRank = 0,
-        Conversion = 1,
-        Promotion = 2,
-        ExactMatch = 3
-    };
-
-    namespace
-    {
-        Rank getRank(const QualifiedType& parameterType,
-                     const QualifiedType& argumentType)
-        {
-            if (!parameterType.type)
-                throw ParseError("Parameter does not have a type");
-
-            if (!argumentType.type)
-                throw ParseError("Argument does not have a type");
-
-            if (argumentType.type->getTypeKind() == parameterType.type->getTypeKind())
-            {
-                if (parameterType.type == argumentType.type)
-                    return Rank::ExactMatch;
-                else if (argumentType.type->getTypeKind() == Type::Kind::Array)
-                {
-                    auto argumentArrayType = static_cast<const ArrayType*>(argumentType.type);
-                    auto parameterArrayType = static_cast<const ArrayType*>(parameterType.type);
-
-                    if (argumentArrayType->size == parameterArrayType->size)
-                        return Rank::ExactMatch;
-                    else
-                        return Rank::NoRank;
-                }
-                else if (argumentType.type->getTypeKind() == Type::Kind::Scalar)
-                {
-                    auto argumentTypeDeclaration = static_cast<const ScalarType*>(argumentType.type);
-                    auto parameterTypeDeclaration = static_cast<const ScalarType*>(parameterType.type);
-
-                    if (argumentTypeDeclaration->getScalarTypeKind() == parameterTypeDeclaration->getScalarTypeKind() &&
-                        argumentTypeDeclaration->isUnsigned == parameterTypeDeclaration->isUnsigned)
-                    {
-                        if (argumentTypeDeclaration->size == parameterTypeDeclaration->size)
-                            return Rank::ExactMatch;
-                        else if (argumentTypeDeclaration->size < parameterTypeDeclaration->size)
-                            return Rank::Promotion;
-                        else
-                            return Rank::Conversion;
-                    }
-                    else
-                        return Rank::Conversion;
-                }
-            }
-
-            return Rank::NoRank;
-        }
-    }
-
     const CallableDeclaration* ASTContext::compareCallableDeclarations(const CallableDeclaration* callableDeclaration1,
-                                                                 const CallableDeclaration* callableDeclaration2,
-                                                                 const std::vector<QualifiedType>& arguments)
+                                                                       const CallableDeclaration* callableDeclaration2,
+                                                                       const std::vector<QualifiedType>& arguments)
     {
         const CallableDeclaration* result = nullptr;
 
@@ -197,21 +140,15 @@ namespace ouzel
                 const QualifiedType& parameter1 = callableDeclaration1->parameterDeclarations[i]->qualifiedType;
                 const QualifiedType& parameter2 = callableDeclaration2->parameterDeclarations[i]->qualifiedType;
 
-                const Rank rank1 = getRank(parameter1, argument);
-                const Rank rank2 = getRank(parameter2, argument);
-
-                if (rank1 == Rank::NoRank && rank2 == Rank::NoRank) // no valid rank for both
-                    return nullptr;
-                else if (rank1 == rank2) // equal ranks
-                    continue;
-                else if (rank1 > rank2)
+                if (parameter1.type == argument.type)
                 {
                     if (result == nullptr)
                         result = callableDeclaration1;
                     else if (result != callableDeclaration1)
                         return nullptr;
                 }
-                else if (rank2 > rank1)
+
+                if (parameter2.type == argument.type)
                 {
                     if (result == nullptr)
                         result = callableDeclaration2;
