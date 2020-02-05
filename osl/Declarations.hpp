@@ -13,6 +13,13 @@ namespace ouzel
     class Expression;
     class Statement;
 
+    enum class StorageClass
+    {
+        Auto,
+        Extern,
+        Static
+    };
+
     class Declaration: public Construct
     {
     public:
@@ -152,6 +159,7 @@ namespace ouzel
 
         inline Kind getCallableDeclarationKind() const { return callableDeclarationKind; }
 
+        StorageClass storageClass = StorageClass::Auto;
         QualifiedType qualifiedType;
         std::vector<ParameterDeclaration*> parameterDeclarations;
         Statement* body = nullptr;
@@ -254,21 +262,14 @@ namespace ouzel
     class VariableDeclaration: public Declaration
     {
     public:
-        enum class StorageClass
-        {
-            Auto,
-            Extern
-        };
-
         VariableDeclaration() noexcept: Declaration(Declaration::Kind::Variable)
         {
             definition = this;
         }
 
+        StorageClass storageClass = StorageClass::Auto;
         QualifiedType qualifiedType;
         const Expression* initialization = nullptr;
-
-        StorageClass storageClass = StorageClass::Auto;
     };
 
     class TypeDeclaration: public Declaration

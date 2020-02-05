@@ -665,7 +665,7 @@ namespace ouzel
                 constructs.push_back(std::unique_ptr<VariableDeclaration>(result = new VariableDeclaration()));
                 result->parent = parent;
                 result->qualifiedType = qualifiedType;
-                if (isExtern) result->storageClass = VariableDeclaration::StorageClass::Extern;
+                if (isExtern) result->storageClass = StorageClass::Extern;
                 result->name = name;
 
                 while (isToken(Token::Type::LeftBracket, iterator, end))
