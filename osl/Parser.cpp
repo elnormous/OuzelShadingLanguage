@@ -2226,11 +2226,11 @@ namespace ouzel
                 (iterator->type == Token::Type::Minus) ? UnaryOperatorExpression::Kind::Negative :
                 throw ParseError("Invalid operator");
 
+            ++iterator;
+
             UnaryOperatorExpression* result;
             constructs.push_back(std::unique_ptr<Construct>(result = new UnaryOperatorExpression(operatorKind)));
             result->parent = parent;
-
-            ++iterator;
 
             if (!(result->expression = parsePrefixExpression(iterator, end, declarationScopes, result)))
                 return nullptr;
@@ -2260,13 +2260,13 @@ namespace ouzel
     {
         if (isToken(Token::Type::Not, iterator, end))
         {
+            ++iterator;
+
             const auto operatorKind = UnaryOperatorExpression::Kind::Negation;
 
             UnaryOperatorExpression* result;
             constructs.push_back(std::unique_ptr<Construct>(result = new UnaryOperatorExpression(operatorKind)));
             result->parent = parent;
-
-            ++iterator;
 
             if (!(result->expression = parseExpression(iterator, end, declarationScopes, result)))
                 return nullptr;
@@ -2295,14 +2295,16 @@ namespace ouzel
     {
         if (isToken(Token::Type::Sizeof, iterator, end))
         {
+            ++iterator;
+            expectToken(Token::Type::LeftParenthesis, iterator, end);
+            ++iterator;
+
+            if (iterator == end)
+                throw ParseError("Unexpected end of file");
+
             SizeofExpression* result;
             constructs.push_back(std::unique_ptr<Construct>(result = new SizeofExpression()));
             result->parent = parent;
-
-            ++iterator;
-
-            expectToken(Token::Type::LeftParenthesis, iterator, end);
-            ++iterator;
 
             if (iterator->type == Token::Type::Void)
                 throw ParseError("Parameter of sizeof can not be void");
@@ -2351,14 +2353,12 @@ namespace ouzel
                 (iterator->type == Token::Type::Divide) ? BinaryOperatorExpression::Kind::Division :
                 throw ParseError("Invalid operator");
 
+            ++iterator;
+
             BinaryOperatorExpression* expression;
             constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression(operatorKind)));
             expression->parent = parent;
-
-
             expression->leftExpression = result;
-
-            ++iterator;
 
             if (!(expression->rightExpression = parseSizeofExpression(iterator, end, declarationScopes, expression)))
                 return nullptr;
@@ -2389,13 +2389,12 @@ namespace ouzel
                 (iterator->type == Token::Type::Minus) ? BinaryOperatorExpression::Kind::Subtraction :
                 throw ParseError("Invalid operator");
 
+            ++iterator;
+
             BinaryOperatorExpression* expression;
             constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression(operatorKind)));
             expression->parent = parent;
-
             expression->leftExpression = result;
-
-            ++iterator;
 
             if (!(expression->rightExpression = parseMultiplicationExpression(iterator, end, declarationScopes, expression)))
                 return nullptr;
@@ -2426,12 +2425,11 @@ namespace ouzel
                 (iterator->type == Token::Type::LessThanEqual) ? BinaryOperatorExpression::Kind::LessThanEqual :
                 throw ParseError("Invalid operator");
 
+            ++iterator;
+
             BinaryOperatorExpression* expression;
             constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression(operatorKind)));
             expression->parent = parent;
-
-            ++iterator;
-
             expression->leftExpression = result;
 
             if (!(expression->rightExpression = parseAdditionExpression(iterator, end, declarationScopes, expression)))
@@ -2463,12 +2461,11 @@ namespace ouzel
                 (iterator->type == Token::Type::GreaterThanEqual) ? BinaryOperatorExpression::Kind::GraterThanEqual :
                 throw ParseError("Invalid operator");
 
+            ++iterator;
+
             BinaryOperatorExpression* expression;
             constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression(operatorKind)));
             expression->parent = parent;
-
-            ++iterator;
-
             expression->leftExpression = result;
 
             if (!(expression->rightExpression = parseLessThanExpression(iterator, end, declarationScopes, expression)))
@@ -2500,12 +2497,11 @@ namespace ouzel
                 (iterator->type == Token::Type::NotEq) ? BinaryOperatorExpression::Kind::Inequality :
                 throw ParseError("Invalid operator");
 
+            ++iterator;
+
             BinaryOperatorExpression* expression;
             constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression(operatorKind)));
             expression->parent = parent;
-
-            ++iterator;
-
             expression->leftExpression = result;
 
             if (!(expression->rightExpression = parseGreaterThanExpression(iterator, end, declarationScopes, expression)))
@@ -2539,7 +2535,6 @@ namespace ouzel
             BinaryOperatorExpression* expression;
             constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression(operatorKind)));
             expression->parent = parent;
-
             expression->leftExpression = result;
 
             if (!(expression->rightExpression = parseEqualityExpression(iterator, end, declarationScopes, expression)))
@@ -2574,7 +2569,6 @@ namespace ouzel
             BinaryOperatorExpression* expression;
             constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression(operatorKind)));
             expression->parent = parent;
-
             expression->leftExpression = result;
 
             if (!(expression->rightExpression = parseLogicalAndExpression(iterator, end, declarationScopes, expression)))
@@ -2694,12 +2688,11 @@ namespace ouzel
                 (iterator->type == Token::Type::MinusAssignment) ? BinaryOperatorExpression::Kind::SubtractAssignment :
                 throw ParseError("Invalid operator");
 
+            ++iterator;
+
             BinaryOperatorExpression* expression;
             constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression(operatorKind)));
             expression->parent = parent;
-
-            ++iterator;
-
             expression->leftExpression = result;
 
             if (expression->leftExpression->category != Expression::Category::Lvalue)
@@ -2737,12 +2730,11 @@ namespace ouzel
                 (iterator->type == Token::Type::DivideAssignment) ? BinaryOperatorExpression::Kind::DivisionAssignment :
                 throw ParseError("Invalid operator");
 
+            ++iterator;
+
             BinaryOperatorExpression* expression;
             constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression(operatorKind)));
             expression->parent = parent;
-
-            ++iterator;
-
             expression->leftExpression = result;
 
             if (expression->leftExpression->category != Expression::Category::Lvalue)
@@ -2775,14 +2767,14 @@ namespace ouzel
 
         while (isToken(Token::Type::Comma, iterator, end))
         {
+            ++iterator;
+
             const auto operatorKind = BinaryOperatorExpression::Kind::Comma;
 
             BinaryOperatorExpression* expression;
             constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression(operatorKind)));
             expression->parent = parent;
             expression->leftExpression = result;
-
-            ++iterator;
 
             if (!(expression->rightExpression = parseAdditionAssignmentExpression(iterator, end, declarationScopes, expression)))
                 return nullptr;
