@@ -64,9 +64,7 @@ namespace ouzel
                 case Expression::Kind::InitializerList: return "InitializerList";
                 case Expression::Kind::Cast: return "Cast";
                 case Expression::Kind::Sizeof: return "Sizeof";
-                case Expression::Kind::VectorInitialize: return "VectorInitialize";
                 case Expression::Kind::VectorElement: return "VectorElement";
-                case Expression::Kind::MatrixInitialize: return "MatrixInitialize";
                 default: return "Unknown";
             }
         }
@@ -728,17 +726,6 @@ namespace ouzel
                         std::cout << ", type: " << sizeofExpression->type->name << '\n';
                     break;
                 }
-                case Expression::Kind::VectorInitialize:
-                {
-                    auto vectorInitializeExpression = static_cast<const VectorInitializeExpression*>(expression);
-
-                    std::cout << '\n';
-
-                    for (const auto subExpression : vectorInitializeExpression->expressions)
-                        dumpConstruct(subExpression, level + 1);
-
-                    break;
-                }
                 case Expression::Kind::VectorElement:
                 {
                     constexpr char components[4] = {'x', 'y', 'z', 'w'};
@@ -750,17 +737,6 @@ namespace ouzel
                         std::cout << components[vectorElementExpression->positions[i]];
 
                     std::cout << '\n';
-                    break;
-                }
-                case Expression::Kind::MatrixInitialize:
-                {
-                    auto matrixInitializeExpression = static_cast<const MatrixInitializeExpression*>(expression);
-
-                    std::cout << '\n';
-
-                    for (const auto subExpression : matrixInitializeExpression->expressions)
-                        dumpConstruct(subExpression, level + 1);
-
                     break;
                 }
             }

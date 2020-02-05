@@ -79,6 +79,16 @@ namespace ouzel
             return nullptr;
         }
 
+        const VectorType* findVectorType(const Type* componentType, size_t components)
+        {
+            auto vectorTypeIterator = vectorTypes.find(std::make_pair(componentType, static_cast<uint8_t>(components)));
+
+            if (vectorTypeIterator == vectorTypes.end())
+                return nullptr;
+
+            return vectorTypeIterator->second;
+        }
+
         static FunctionDeclaration* findFunctionDeclaration(const std::string& name,
                                                             const std::vector<std::vector<Declaration*>>& declarationScopes,
                                                             const std::vector<QualifiedType>& parameters)
@@ -375,6 +385,8 @@ namespace ouzel
 
             vectorTypes[std::make_pair(componentType, componentCount)] = vectorType;
 
+            // TODO: create constructors
+
             return vectorType;
         }
 
@@ -393,6 +405,18 @@ namespace ouzel
             matrixType->rowCount = rowCount;
             matrixType->columnCount = columnCount;
 
+            ConstructorDeclaration* constructorDeclaration;
+            constructs.push_back(std::unique_ptr<Construct>(constructorDeclaration = new ConstructorDeclaration()));
+
+            for (size_t row = 0; row < rowCount; ++row)
+            {
+                ParameterDeclaration* parameterDeclaration;
+                constructs.push_back(std::unique_ptr<Construct>(parameterDeclaration = new ParameterDeclaration()));
+                parameterDeclaration->qualifiedType.type = findVectorType(componentType, columnCount);
+            }
+
+            declarationScopes.back().push_back(constructorDeclaration);
+            
             return matrixType;
         }
 

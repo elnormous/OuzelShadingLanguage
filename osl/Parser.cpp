@@ -101,21 +101,31 @@ namespace ouzel
         unsignedIntType = addScalarType("unsigned int", ScalarType::Kind::Integer, 4, true, declarationScopes);
         floatType = addScalarType("float", ScalarType::Kind::FloatingPoint, 4, false, declarationScopes);
 
-        VectorType* float2Type = addVectorType("float2", floatType, 2, declarationScopes);
-        VectorType* float3Type = addVectorType("float3", floatType, 3, declarationScopes);
-        VectorType* float4Type = addVectorType("float4", floatType, 4, declarationScopes);
+        for (size_t components = 2; components <= 4; ++components)
+        {
+            std::string name = "float";
+            name.push_back('0' + components);
+            addVectorType(name, floatType, components, declarationScopes);
+        }
 
-        MatrixType* float2x2Type = addMatrixType("float2x2", floatType, 2, 2, declarationScopes);
-        MatrixType* float3x3Type = addMatrixType("float3x3", floatType, 3, 3, declarationScopes);
-        MatrixType* float4x4Type = addMatrixType("float4x4", floatType, 4, 4, declarationScopes);
+        for (size_t components = 2; components <= 4; ++components)
+        {
+            std::string name = "float";
+            name.push_back('0' + components);
+            name.push_back('x');
+            name.push_back('0' + components);
+
+            addMatrixType(name, floatType, components, components, declarationScopes);
+        }
+
         stringType = addStructType("string", 8, declarationScopes);
         StructType* texture2DType = addStructType("Texture2D", 0, declarationScopes);
 
-        addBuiltinFunctionDeclaration("sample", float4Type, {texture2DType, float2Type}, declarationScopes);
+        //addBuiltinFunctionDeclaration("sample", float4Type, {texture2DType, float2Type}, declarationScopes);
 
         StructType* texture2DMSType = addStructType("Texture2DMS", 0, declarationScopes);
 
-        addBuiltinFunctionDeclaration("load", float4Type, {texture2DMSType, float2Type}, declarationScopes);
+        //addBuiltinFunctionDeclaration("load", float4Type, {texture2DMSType, float2Type}, declarationScopes);
 
         for (auto iterator = tokens.begin(); iterator != tokens.end();)
         {
@@ -869,14 +879,14 @@ namespace ouzel
         result->kind = Construct::Kind::Declaration;
         result->declarationKind = Declaration::Kind::Type;
         result->typeKind = Type::Kind::TypeDefinition;
-        result->Declaration = findTypeDeclaration(iterator->value, declarationScopes);
+        result->declaration = findTypeDeclaration(iterator->value, declarationScopes);
 
         if (!(result->qualifiedType.type = parseType(iterator, end, declarationScopes)))
             return nullptr;
 
         if (result->qualifiedType.type->getTypeKind() == Type::Kind::STRUCT)
         {
-            auto structType = static_cast<StructType*>(result->qualifiedType.type);
+            auto structType = static_cast<const StructType*>(result->qualifiedType.type);
 
             if (!structType->hasDefinition)
                 throw ParseError("Incomplete type " + result->qualifiedType.type->name);
@@ -885,6 +895,7 @@ namespace ouzel
         expectToken(Token::Type::IDENTIFIER, iterator, end);
 
         result->name = iterator->value;
+        // TODO: forbid declaring type with an existing name
 
         ++iterator;
 
@@ -1946,12 +1957,12 @@ namespace ouzel
                 {
                     auto matrixType = static_cast<const MatrixType*>(result->qualifiedType.type);
 
-                    auto vectorTypeIterator = vectorTypes.find(std::make_pair(matrixType->componentType, static_cast<uint8_t>(matrixType->columnCount)));
+                    auto vectorType = findVectorType(matrixType->componentType, matrixType->columnCount);
 
-                    if (vectorTypeIterator == vectorTypes.end())
+                    if (!vectorType)
                         throw ParseError("Invalid vector type");
 
-                    expression->qualifiedType.type = vectorTypeIterator->second;
+                    expression->qualifiedType.type = vectorType;
                 }
 
                 expression->category = expression->leftExpression->category;
@@ -2060,13 +2071,12 @@ namespace ouzel
 
                 auto vectorType = static_cast<const VectorType*>(result->qualifiedType.type);
 
-                auto resultTypeIterator = vectorTypes.find(std::make_pair(vectorType->componentType,
-                                                                          static_cast<uint8_t>(components.size())));
+                auto resultType = findVectorType(vectorType->componentType, components.size());
 
-                if (resultTypeIterator == vectorTypes.end())
+                if (!resultType)
                     throw ParseError("Invalid swizzle");
 
-                expression->qualifiedType.type = resultTypeIterator->second;
+                expression->qualifiedType.type = resultType;
 
                 for (uint8_t component : components)
                     if (component >= vectorType->componentCount)
