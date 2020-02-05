@@ -124,43 +124,6 @@ namespace ouzel
         }
     }
 
-    const CallableDeclaration* ASTContext::compareCallableDeclarations(const CallableDeclaration* callableDeclaration1,
-                                                                       const CallableDeclaration* callableDeclaration2,
-                                                                       const std::vector<QualifiedType>& arguments)
-    {
-        const CallableDeclaration* result = nullptr;
-
-        if (!arguments.empty() && // both functions should have arguments
-            arguments.size() == callableDeclaration1->parameterDeclarations.size() &&
-            arguments.size() == callableDeclaration2->parameterDeclarations.size()) // they should have the same number of parameters
-        {
-            for (uint32_t i = 0; i < arguments.size(); ++i)
-            {
-                const QualifiedType& argument = arguments[i];
-                const QualifiedType& parameter1 = callableDeclaration1->parameterDeclarations[i]->qualifiedType;
-                const QualifiedType& parameter2 = callableDeclaration2->parameterDeclarations[i]->qualifiedType;
-
-                if (parameter1.type == argument.type)
-                {
-                    if (result == nullptr)
-                        result = callableDeclaration1;
-                    else if (result != callableDeclaration1)
-                        return nullptr;
-                }
-
-                if (parameter2.type == argument.type)
-                {
-                    if (result == nullptr)
-                        result = callableDeclaration2;
-                    else if (result != callableDeclaration2)
-                        return nullptr;
-                }
-            }
-        }
-
-        return result;
-    }
-
     FunctionDeclaration* ASTContext::resolveFunctionDeclaration(const std::string& name,
                                                                 const std::vector<std::vector<Declaration*>>& declarationScopes,
                                                                 const std::vector<QualifiedType>& arguments)
@@ -217,23 +180,36 @@ namespace ouzel
             if (arguments.empty()) // two or more functions with zero parameters
                 throw ParseError("Ambiguous call to " + name);
 
-            for (auto first = viableFunctionDeclarations.begin(); first != viableFunctionDeclarations.end(); ++first)
+            FunctionDeclaration* result = nullptr;
+
+            for (auto viableFunctionDeclaration : viableFunctionDeclarations)
             {
-                bool best = true;
-                for (auto second = viableFunctionDeclarations.begin(); second != viableFunctionDeclarations.end(); ++second)
+                if (arguments.size() == viableFunctionDeclaration->parameterDeclarations.size())
                 {
-                    if (first != second &&
-                        compareCallableDeclarations(*first, *second, arguments) != *first)
+                    bool valid = true;
+                    for (uint32_t i = 0; i < arguments.size(); ++i)
                     {
-                        best = false;
-                        break;
+                        const QualifiedType& argument = arguments[i];
+                        const QualifiedType& parameter = viableFunctionDeclaration->parameterDeclarations[i]->qualifiedType;
+
+                        if (parameter.type != argument.type)
+                        {
+                            valid = false;
+                            break;
+                        }
+                    }
+
+                    if (valid)
+                    {
+                        if (result)
+                            throw ParseError("Ambiguous call to " + name);
+                        else
+                            result = viableFunctionDeclaration;
                     }
                 }
+            }
 
-                if (best) return *first;
-            };
-
-            throw ParseError("Ambiguous call to " + name);
+            return result;
         }
 
         return nullptr;
