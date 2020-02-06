@@ -1583,6 +1583,11 @@ namespace ouzel
                                 result->parameters.push_back(parameter);
                             }
 
+                            if (parameters.empty())
+                                throw ParseError(vectorType->name + " cannot not have an empty initializer");
+
+                            // TODO: check for too few/too many elements in vector initialization
+
                             return result;
                         }
                         case Type::Kind::Matrix:
@@ -1600,6 +1605,11 @@ namespace ouzel
                                 parameter->parent = result;
                                 result->parameters.push_back(parameter);
                             }
+
+                            if (parameters.empty())
+                                throw ParseError(matrixType->name + " cannot not have an empty initializer");
+
+                            // TODO: check for too few/too many elements in matrix initialization
 
                             return result;
                         }
@@ -2572,4 +2582,3 @@ namespace ouzel
             dumpConstruct(declaration);
     }
 }
-
