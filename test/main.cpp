@@ -684,7 +684,7 @@ namespace
             {
                 float3 [[position]] position;
                 float3 [[normal]] normal;
-                float2 [[texture_coordinates]] texCoord;
+                float2 [[texture_coordinates(0)]] texCoord;
             };
         )OSL";
 

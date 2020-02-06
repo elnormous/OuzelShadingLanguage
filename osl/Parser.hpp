@@ -159,6 +159,7 @@ namespace ouzel
             bool isExtern = false;
             Program program = Program::None;
             Semantic semantic = Semantic::None;
+            size_t semanticIndex = 0;
         };
 
         static Specifiers parseSpecifiers(std::vector<Token>::const_iterator& iterator,

@@ -475,8 +475,20 @@ namespace ouzel
                 else
                     throw ParseError("Invalid attribute " + iterator->value);
 
-
                 ++iterator;
+                
+                if (isToken(Token::Type::LeftParenthesis, iterator, end))
+                {
+                    ++iterator;
+
+                    // TODO: check if attribute contains semantic
+                    expectToken(Token::Type::IntLiteral, iterator, end);
+                    result.semanticIndex = std::stoul(iterator->value);
+                    ++iterator;
+
+                    expectToken(Token::Type::RightParenthesis, iterator, end);
+                    ++iterator;
+                }
 
                 expectToken(Token::Type::RightBracket, iterator, end);
                 ++iterator;
