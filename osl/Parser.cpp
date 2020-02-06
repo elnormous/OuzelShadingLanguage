@@ -221,8 +221,6 @@ namespace ouzel
 
             return result;
         }
-
-        return nullptr;
     }
 
     const ArrayType* ASTContext::getArrayType(QualifiedType qualifiedType, uint32_t size)
@@ -316,8 +314,6 @@ namespace ouzel
                                                       std::vector<std::vector<Declaration*>>& declarationScopes)
     {
         auto declaration = parseDeclaration(iterator, end, declarationScopes);
-        if (!declaration)
-            throw ParseError("Failed to parse a declaration");
 
         if (declaration->getDeclarationKind() == Declaration::Kind::Callable)
         {
@@ -424,22 +420,13 @@ namespace ouzel
         {
             ++iterator;
 
-            auto typeDeclaration = parseStructTypeDeclaration(iterator, end, declarationScopes);
-
-            if (!typeDeclaration)
-                throw ParseError("Failed to parse a structure declaration");
-
-            return typeDeclaration;
+            return parseStructTypeDeclaration(iterator, end, declarationScopes);
         }
         /*else if (isToken(Token::Type::KEYWORD_TYPEDEF, iterator, end))
         {
             ++iterator;
 
-            auto declaration = parseTypeDefinitionDeclaration(iterator, end, declarationScopes);
-            if (!declaration)
-                throw ParseError("Failed to parse a type definition declaration");
-
-            return declaration;
+            return parseTypeDefinitionDeclaration(iterator, end, declarationScopes);
         }*/
         else
         {
@@ -452,13 +439,11 @@ namespace ouzel
             bool isInline = specifiers.isInline;
             Program program = specifiers.program;
 
-            if (!(qualifiedType.type = parseType(iterator, end, declarationScopes)))
-                return nullptr;
+            qualifiedType.type = parseType(iterator, end, declarationScopes);
 
             if (qualifiedType.type->getTypeKind() == Type::Kind::Struct)
             {
                 auto structType = static_cast<const StructType*>(qualifiedType.type);
-
                 if (!structType->definition)
                     throw ParseError("Incomplete type " + qualifiedType.type->name);
             }
@@ -558,9 +543,6 @@ namespace ouzel
 
                     // parse body
                     auto body = parseCompoundStatement(iterator, end, declarationScopes);
-                    if (!body)
-                        throw ParseError("Failed to parse a compound statement");
-
                     body->parent = result;
                     result->body = body;
 
@@ -657,7 +639,7 @@ namespace ouzel
         expectToken(Token::Type::Identifier, iterator, end);
         result->name = iterator->value;
 
-        StructType* structType = findStructType(result->name, declarationScopes);
+        auto structType = findStructType(result->name, declarationScopes);
         if (!structType)
         {
             types.push_back(std::unique_ptr<Type>(structType = new StructType()));
@@ -738,7 +720,6 @@ namespace ouzel
             if (result->qualifiedType.type->getTypeKind() == Type::Kind::Struct)
             {
                 auto structType = static_cast<const StructType*>(result->qualifiedType.type);
-
                 if (!structType->definition)
                     throw ParseError("Incomplete type " + result->qualifiedType.type->name);
             }
@@ -807,7 +788,6 @@ namespace ouzel
         if (result->qualifiedType.type->getTypeKind() == Type::Kind::Struct)
         {
             auto structType = static_cast<const StructType*>(result->qualifiedType.type);
-
             if (!structType->definition)
                 throw ParseError("Incomplete type " + result->qualifiedType.type->name);
         }
@@ -869,7 +849,6 @@ namespace ouzel
         if (result->qualifiedType.type->getTypeKind() == Type::Kind::STRUCT)
         {
             auto structType = static_cast<const StructType*>(result->qualifiedType.type);
-
             if (!structType->hasDefinition)
                 throw ParseError("Incomplete type " + result->qualifiedType.type->name);
         }
@@ -942,9 +921,6 @@ namespace ouzel
             constructs.push_back(std::unique_ptr<Construct>(result = new ReturnStatement()));
 
             auto resultExpression = parseExpression(iterator, end, declarationScopes);
-            if (!resultExpression)
-                throw ParseError("Expected an expression");
-
             resultExpression->parent = result;
             result->result = resultExpression;
 
@@ -1033,9 +1009,6 @@ namespace ouzel
             else
             {
                 auto statement = parseStatement(iterator, end, declarationScopes);
-                if (!statement)
-                    throw ParseError("Failed to parse a statement");
-
                 statement->parent = result;
 
                 result->statements.push_back(statement);
@@ -1090,9 +1063,6 @@ namespace ouzel
         ++iterator;
 
         auto statement = parseStatement(iterator, end, declarationScopes);
-        if (!statement)
-            throw ParseError("Failed to parse the statement");
-
         statement->parent = result;
         result->body = statement;
 
@@ -1100,9 +1070,7 @@ namespace ouzel
         {
             ++iterator;
 
-            if (!(statement = parseStatement(iterator, end, declarationScopes)))
-                throw ParseError("Failed to parse the statement");
-
+            statement = parseStatement(iterator, end, declarationScopes);
             statement->parent = result;
             result->elseBody = statement;
         }
@@ -1247,10 +1215,6 @@ namespace ouzel
         else
         {
             auto condition = parseExpression(iterator, end, declarationScopes);
-
-            if (!condition)
-                throw ParseError("Expected an expression");
-
             condition->parent = result;
 
             if (!isIntegerType(condition->qualifiedType.type))
@@ -1282,10 +1246,6 @@ namespace ouzel
         constructs.push_back(std::unique_ptr<Construct>(result = new CaseStatement()));
 
         auto condition = parseExpression(iterator, end, declarationScopes);
-
-        if (!condition)
-            throw ParseError("Expected an expression");
-
         condition->parent = result;
 
         if (!isIntegerType(condition->qualifiedType.type))
@@ -1557,10 +1517,33 @@ namespace ouzel
             {
                 ++iterator;
 
-                Type* type;
-
-                if ((type = findType(name, declarationScopes)))
+                if (auto type = findType(name, declarationScopes))
                 {
+                    std::vector<Expression*> parameters;
+                    std::vector<QualifiedType> parameterTypes;
+
+                    if (isToken(Token::Type::RightParenthesis, iterator, end)) // no arguments
+                        ++iterator;
+                    else
+                    {
+                        for (;;)
+                        {
+                            auto parameter = parseMultiplicationAssignmentExpression(iterator, end, declarationScopes);
+
+                            parameters.push_back(parameter);
+                            parameterTypes.push_back(parameter->qualifiedType);
+
+                            if (isToken(Token::Type::Comma, iterator, end))
+                                ++iterator;
+                            else
+                                break;
+                        }
+
+                        expectToken(Token::Type::RightParenthesis, iterator, end);
+
+                        ++iterator;
+                    }
+
                     switch (type->getTypeKind())
                     {
                         case Type::Kind::Struct:
@@ -1573,32 +1556,13 @@ namespace ouzel
                             result->qualifiedType.qualifiers = Qualifiers::Const;
                             result->category = Expression::Category::Rvalue;
 
-                            std::vector<QualifiedType> parameters;
-
-                            if (isToken(Token::Type::RightParenthesis, iterator, end)) // no arguments
-                                ++iterator;
-                            else
+                            for (auto parameter : parameters)
                             {
-                                for (;;)
-                                {
-                                    auto parameter = parseMultiplicationAssignmentExpression(iterator, end, declarationScopes);
-                                    parameter->parent = result;
-
-                                    result->parameters.push_back(parameter);
-                                    parameters.push_back(parameter->qualifiedType);
-
-                                    if (isToken(Token::Type::Comma, iterator, end))
-                                        ++iterator;
-                                    else
-                                        break;
-                                }
-
-                                expectToken(Token::Type::RightParenthesis, iterator, end);
-
-                                ++iterator;
+                                parameter->parent = result;
+                                result->parameters.push_back(parameter);
                             }
 
-                            if (!(result->constructorDeclaration = structType->findConstructorDeclaration(parameters)))
+                            if (!(result->constructorDeclaration = structType->findConstructorDeclaration(parameterTypes)))
                                 throw ParseError("No matching constructor found");
 
                             return result;
@@ -1613,7 +1577,13 @@ namespace ouzel
                             result->qualifiedType.qualifiers = Qualifiers::Const;
                             result->category = Expression::Category::Rvalue;
 
-                            break;
+                            for (auto parameter : parameters)
+                            {
+                                parameter->parent = result;
+                                result->parameters.push_back(parameter);
+                            }
+
+                            return result;
                         }
                         case Type::Kind::Matrix:
                         {
@@ -1625,7 +1595,13 @@ namespace ouzel
                             result->qualifiedType.qualifiers = Qualifiers::Const;
                             result->category = Expression::Category::Rvalue;
 
-                            break;
+                            for (auto parameter : parameters)
+                            {
+                                parameter->parent = result;
+                                result->parameters.push_back(parameter);
+                            }
+
+                            return result;
                         }
                         default:
                             throw ParseError("Expected a struct type");
@@ -1665,8 +1641,7 @@ namespace ouzel
                     constructs.push_back(std::unique_ptr<Construct>(declRefExpression = new DeclarationReferenceExpression()));
                     declRefExpression->parent = result;
 
-                    FunctionDeclaration* functionDeclaration = resolveFunctionDeclaration(name, declarationScopes, arguments);
-
+                    auto functionDeclaration = resolveFunctionDeclaration(name, declarationScopes, arguments);
                     if (!functionDeclaration)
                         throw ParseError("Invalid function reference: " + name);
 
@@ -1685,7 +1660,6 @@ namespace ouzel
                 DeclarationReferenceExpression* result;
                 constructs.push_back(std::unique_ptr<Construct>(result = new DeclarationReferenceExpression()));
                 result->declaration = findDeclaration(name, declarationScopes);
-
                 if (!result->declaration)
                     throw ParseError("Invalid declaration reference: " + name);
 
@@ -1808,8 +1782,6 @@ namespace ouzel
         }
         else
             throw ParseError("Expected an expression");
-
-        return nullptr;
     }
 
     Expression* ASTContext::parsePostfixExpression(std::vector<Token>::const_iterator& iterator,
@@ -1868,7 +1840,6 @@ namespace ouzel
 
                 auto subscript = parseExpression(iterator, end, declarationScopes);
                 subscript->parent = expression;
-
                 if (!isIntegerType(subscript->qualifiedType.type))
                     throw ParseError("Subscript is not an integer");
 
@@ -1897,7 +1868,6 @@ namespace ouzel
 
                 auto rightExpression = parseExpression(iterator, end, declarationScopes);
                 rightExpression->parent = expression;
-
                 if (!isIntegerType(rightExpression->qualifiedType.type))
                     throw ParseError("Subscript is not an integer");
 
@@ -1917,7 +1887,6 @@ namespace ouzel
                     auto matrixType = static_cast<const MatrixType*>(result->qualifiedType.type);
 
                     auto vectorType = findVectorType(matrixType->componentType, matrixType->columnCount);
-
                     if (!vectorType)
                         throw ParseError("Invalid vector type");
 
@@ -1975,12 +1944,8 @@ namespace ouzel
                 expectToken(Token::Type::Identifier, iterator, end);
 
                 Declaration* memberDeclaration = structType->findMemberDeclaration(iterator->value);
-
                 if (!memberDeclaration)
-                {
                     throw ParseError("Structure " + structType->name +  " has no member " + iterator->value);
-                    return nullptr;
-                }
 
                 if (memberDeclaration->getDeclarationKind() != Declaration::Kind::Field)
                     throw ParseError(iterator->value + " is not a field");
@@ -2026,7 +1991,6 @@ namespace ouzel
                 auto vectorType = static_cast<const VectorType*>(result->qualifiedType.type);
 
                 auto resultType = findVectorType(vectorType->componentType, components.size());
-
                 if (!resultType)
                     throw ParseError("Invalid swizzle");
 
@@ -2131,7 +2095,6 @@ namespace ouzel
 
             auto expression = parseExpression(iterator, end, declarationScopes);
             expression->parent = result;
-
             if (!isBooleanType(expression->qualifiedType.type))
                 throw ParseError("Expression is not a boolean");
 

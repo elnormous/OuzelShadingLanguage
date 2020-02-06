@@ -280,7 +280,7 @@ namespace ouzel
     public:
         VectorInitializeExpression() noexcept: Expression(Expression::Kind::VectorInitialize) {}
 
-        std::vector<const Expression*> expressions;
+        std::vector<const Expression*> parameters;
     };
 
     class VectorElementExpression: public Expression
@@ -297,7 +297,7 @@ namespace ouzel
     public:
         MatrixInitializeExpression() noexcept: Expression(Expression::Kind::MatrixInitialize) {}
 
-        std::vector<const Expression*> expressions;
+        std::vector<const Expression*> parameters;
     };
 }
 

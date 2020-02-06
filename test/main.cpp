@@ -651,6 +651,8 @@ namespace
             v1.xyzw = v2.xxxx;
             float f1 = v1[0];
             v1[0] = f1;
+            float4 v3 = float4(v1.xyz, 1.0f);
+            v3 = float4(v2);
         }
         )OSL";
 
@@ -666,6 +668,8 @@ namespace
             float4 v1 = m1[0];
             float f1 = m1[0][0];
             m1[0][0] = f1;
+            float2x2 m2 = float2x2(v1.xy, v1.zw);
+            float4x4 m3 = float2x2(m1);
         }
         )OSL";
 

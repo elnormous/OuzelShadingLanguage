@@ -734,8 +734,8 @@ namespace ouzel
 
                     std::cout << '\n';
 
-                    for (const auto subExpression : vectorInitializeExpression->expressions)
-                        dumpConstruct(subExpression, level + 1);
+                    for (const auto parameter : vectorInitializeExpression->parameters)
+                        dumpConstruct(parameter, level + 1);
 
                     break;
                 }
@@ -758,8 +758,8 @@ namespace ouzel
 
                     std::cout << '\n';
 
-                    for (const auto subExpression : matrixInitializeExpression->expressions)
-                        dumpConstruct(subExpression, level + 1);
+                    for (const auto parameter : matrixInitializeExpression->parameters)
+                        dumpConstruct(parameter, level + 1);
 
                     break;
                 }
