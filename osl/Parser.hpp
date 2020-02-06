@@ -165,180 +165,145 @@ namespace ouzel
 
         Declaration* parseDeclaration(std::vector<Token>::const_iterator& iterator,
                                       std::vector<Token>::const_iterator end,
-                                      std::vector<std::vector<Declaration*>>& declarationScopes,
-                                      Construct* parent);
+                                      std::vector<std::vector<Declaration*>>& declarationScopes);
 
         TypeDeclaration* parseStructTypeDeclaration(std::vector<Token>::const_iterator& iterator,
                                                     std::vector<Token>::const_iterator end,
-                                                    std::vector<std::vector<Declaration*>>& declarationScopes,
-                                                    Construct* parent);
+                                                    std::vector<std::vector<Declaration*>>& declarationScopes);
 
         Declaration* parseMemberDeclaration(std::vector<Token>::const_iterator& iterator,
                                             std::vector<Token>::const_iterator end,
-                                            std::vector<std::vector<Declaration*>>& declarationScopes,
-                                            Construct* parent);
+                                            std::vector<std::vector<Declaration*>>& declarationScopes);
 
         ParameterDeclaration* parseParameterDeclaration(std::vector<Token>::const_iterator& iterator,
                                                         std::vector<Token>::const_iterator end,
-                                                        std::vector<std::vector<Declaration*>>& declarationScopes,
-                                                        Construct* parent);
+                                                        std::vector<std::vector<Declaration*>>& declarationScopes);
 
         /*TypeDefinitionDeclaration* parseTypeDefinitionDeclaration(const std::vector<Token>& tokens,
                                                                     std::vector<Token>::const_iterator& iterator,
-                                                                    std::vector<std::vector<Declaration*>>& declarationScopes,
-                                                                    Construct* parent);*/
+                                                                    std::vector<std::vector<Declaration*>>& declarationScopes);*/
 
         Statement* parseStatement(std::vector<Token>::const_iterator& iterator,
                                   std::vector<Token>::const_iterator end,
-                                  std::vector<std::vector<Declaration*>>& declarationScopes,
-                                  Construct* parent);
+                                  std::vector<std::vector<Declaration*>>& declarationScopes);
 
         CompoundStatement* parseCompoundStatement(std::vector<Token>::const_iterator& iterator,
                                                   std::vector<Token>::const_iterator end,
-                                                  std::vector<std::vector<Declaration*>>& declarationScopes,
-                                                  Construct* parent);
+                                                  std::vector<std::vector<Declaration*>>& declarationScopes);
 
         IfStatement* parseIfStatement(std::vector<Token>::const_iterator& iterator,
                                       std::vector<Token>::const_iterator end,
-                                      std::vector<std::vector<Declaration*>>& declarationScopes,
-                                      Construct* parent);
+                                      std::vector<std::vector<Declaration*>>& declarationScopes);
 
         ForStatement* parseForStatement(std::vector<Token>::const_iterator& iterator,
                                         std::vector<Token>::const_iterator end,
-                                        std::vector<std::vector<Declaration*>>& declarationScopes,
-                                        Construct* parent);
+                                        std::vector<std::vector<Declaration*>>& declarationScopes);
 
         SwitchStatement* parseSwitchStatement(std::vector<Token>::const_iterator& iterator,
                                               std::vector<Token>::const_iterator end,
-                                              std::vector<std::vector<Declaration*>>& declarationScopes,
-                                              Construct* parent);
+                                              std::vector<std::vector<Declaration*>>& declarationScopes);
 
         CaseStatement* parseCaseStatement(std::vector<Token>::const_iterator& iterator,
                                           std::vector<Token>::const_iterator end,
-                                          std::vector<std::vector<Declaration*>>& declarationScopes,
-                                          Construct* parent);
+                                          std::vector<std::vector<Declaration*>>& declarationScopes);
 
         DefaultStatement* parseDefaultStatement(std::vector<Token>::const_iterator& iterator,
                                                 std::vector<Token>::const_iterator end,
-                                                std::vector<std::vector<Declaration*>>& declarationScopes,
-                                                Construct* parent);
+                                                std::vector<std::vector<Declaration*>>& declarationScopes);
 
         WhileStatement* parseWhileStatement(std::vector<Token>::const_iterator& iterator,
                                             std::vector<Token>::const_iterator end,
-                                            std::vector<std::vector<Declaration*>>& declarationScopes,
-                                            Construct* parent);
+                                            std::vector<std::vector<Declaration*>>& declarationScopes);
 
         DoStatement* parseDoStatement(std::vector<Token>::const_iterator& iterator,
                                       std::vector<Token>::const_iterator end,
-                                      std::vector<std::vector<Declaration*>>& declarationScopes,
-                                      Construct* parent);
+                                      std::vector<std::vector<Declaration*>>& declarationScopes);
 
         Expression* parsePrimaryExpression(std::vector<Token>::const_iterator& iterator,
                                            std::vector<Token>::const_iterator end,
-                                           std::vector<std::vector<Declaration*>>& declarationScopes,
-                                           Construct* parent);
+                                           std::vector<std::vector<Declaration*>>& declarationScopes);
 
         Expression* parsePostfixExpression(std::vector<Token>::const_iterator& iterator,
                                            std::vector<Token>::const_iterator end,
-                                           std::vector<std::vector<Declaration*>>& declarationScopes,
-                                           Construct* parent);
+                                           std::vector<std::vector<Declaration*>>& declarationScopes);
 
         Expression* parseSubscriptExpression(std::vector<Token>::const_iterator& iterator,
                                              std::vector<Token>::const_iterator end,
-                                             std::vector<std::vector<Declaration*>>& declarationScopes,
-                                             Construct* parent);
+                                             std::vector<std::vector<Declaration*>>& declarationScopes);
 
         Expression* parseMemberExpression(std::vector<Token>::const_iterator& iterator,
                                           std::vector<Token>::const_iterator end,
-                                          std::vector<std::vector<Declaration*>>& declarationScopes,
-                                          Construct* parent);
+                                          std::vector<std::vector<Declaration*>>& declarationScopes);
 
         Expression* parsePrefixExpression(std::vector<Token>::const_iterator& iterator,
                                           std::vector<Token>::const_iterator end,
-                                          std::vector<std::vector<Declaration*>>& declarationScopes,
-                                          Construct* parent);
+                                          std::vector<std::vector<Declaration*>>& declarationScopes);
 
         Expression* parseSignExpression(std::vector<Token>::const_iterator& iterator,
                                         std::vector<Token>::const_iterator end,
-                                        std::vector<std::vector<Declaration*>>& declarationScopes,
-                                        Construct* parent);
+                                        std::vector<std::vector<Declaration*>>& declarationScopes);
 
         Expression* parseNotExpression(std::vector<Token>::const_iterator& iterator,
                                        std::vector<Token>::const_iterator end,
-                                       std::vector<std::vector<Declaration*>>& declarationScopes,
-                                       Construct* parent);
+                                       std::vector<std::vector<Declaration*>>& declarationScopes);
 
         Expression* parseSizeofExpression(std::vector<Token>::const_iterator& iterator,
                                           std::vector<Token>::const_iterator end,
-                                          std::vector<std::vector<Declaration*>>& declarationScopes,
-                                          Construct* parent);
+                                          std::vector<std::vector<Declaration*>>& declarationScopes);
 
         Expression* parseMultiplicationExpression(std::vector<Token>::const_iterator& iterator,
                                                   std::vector<Token>::const_iterator end,
-                                                  std::vector<std::vector<Declaration*>>& declarationScopes,
-                                                  Construct* parent);
+                                                  std::vector<std::vector<Declaration*>>& declarationScopes);
 
         Expression* parseAdditionExpression(std::vector<Token>::const_iterator& iterator,
                                             std::vector<Token>::const_iterator end,
-                                            std::vector<std::vector<Declaration*>>& declarationScopes,
-                                            Construct* parent);
+                                            std::vector<std::vector<Declaration*>>& declarationScopes);
 
         Expression* parseLessThanExpression(std::vector<Token>::const_iterator& iterator,
                                             std::vector<Token>::const_iterator end,
-                                            std::vector<std::vector<Declaration*>>& declarationScopes,
-                                            Construct* parent);
+                                            std::vector<std::vector<Declaration*>>& declarationScopes);
 
         Expression* parseGreaterThanExpression(std::vector<Token>::const_iterator& iterator,
                                                std::vector<Token>::const_iterator end,
-                                               std::vector<std::vector<Declaration*>>& declarationScopes,
-                                               Construct* parent);
+                                               std::vector<std::vector<Declaration*>>& declarationScopes);
 
         Expression* parseEqualityExpression(std::vector<Token>::const_iterator& iterator,
                                             std::vector<Token>::const_iterator end,
-                                            std::vector<std::vector<Declaration*>>& declarationScopes,
-                                            Construct* parent);
+                                            std::vector<std::vector<Declaration*>>& declarationScopes);
 
         Expression* parseLogicalAndExpression(std::vector<Token>::const_iterator& iterator,
                                               std::vector<Token>::const_iterator end,
-                                              std::vector<std::vector<Declaration*>>& declarationScopes,
-                                              Construct* parent);
+                                              std::vector<std::vector<Declaration*>>& declarationScopes);
 
         Expression* parseLogicalOrExpression(std::vector<Token>::const_iterator& iterator,
                                              std::vector<Token>::const_iterator end,
-                                             std::vector<std::vector<Declaration*>>& declarationScopes,
-                                             Construct* parent);
+                                             std::vector<std::vector<Declaration*>>& declarationScopes);
 
         Expression* parseTernaryExpression(std::vector<Token>::const_iterator& iterator,
                                            std::vector<Token>::const_iterator end,
-                                           std::vector<std::vector<Declaration*>>& declarationScopes,
-                                           Construct* parent);
+                                           std::vector<std::vector<Declaration*>>& declarationScopes);
 
         Expression* parseAssignmentExpression(std::vector<Token>::const_iterator& iterator,
                                               std::vector<Token>::const_iterator end,
-                                              std::vector<std::vector<Declaration*>>& declarationScopes,
-                                              Construct* parent);
+                                              std::vector<std::vector<Declaration*>>& declarationScopes);
 
         Expression* parseAdditionAssignmentExpression(std::vector<Token>::const_iterator& iterator,
                                                       std::vector<Token>::const_iterator end,
-                                                      std::vector<std::vector<Declaration*>>& declarationScopes,
-                                                      Construct* parent);
+                                                      std::vector<std::vector<Declaration*>>& declarationScopes);
 
         Expression* parseMultiplicationAssignmentExpression(std::vector<Token>::const_iterator& iterator,
                                                             std::vector<Token>::const_iterator end,
-                                                            std::vector<std::vector<Declaration*>>& declarationScopes,
-                                                            Construct* parent);
+                                                            std::vector<std::vector<Declaration*>>& declarationScopes);
 
         Expression* parseCommaExpression(std::vector<Token>::const_iterator& iterator,
                                          std::vector<Token>::const_iterator end,
-                                         std::vector<std::vector<Declaration*>>& declarationScopes,
-                                         Construct* parent);
+                                         std::vector<std::vector<Declaration*>>& declarationScopes);
 
         Expression* parseExpression(std::vector<Token>::const_iterator& iterator,
                                     std::vector<Token>::const_iterator end,
-                                    std::vector<std::vector<Declaration*>>& declarationScopes,
-                                    Construct* parent)
+                                    std::vector<std::vector<Declaration*>>& declarationScopes)
         {
-            return parseCommaExpression(iterator, end, declarationScopes, parent);
+            return parseCommaExpression(iterator, end, declarationScopes);
         }
 
         ScalarType* addScalarType(const std::string& name,
@@ -385,7 +350,11 @@ namespace ouzel
 
             vectorTypes[std::make_pair(componentType, componentCount)] = vectorType;
 
-            // TODO: create constructors
+            VectorType::Initializer copyInitializer;
+            copyInitializer.push_back(vectorType);
+            vectorType->initializers.push_back(copyInitializer);
+
+            // TODO: create initializes
 
             return vectorType;
         }
@@ -408,11 +377,13 @@ namespace ouzel
             ConstructorDeclaration* constructorDeclaration;
             constructs.push_back(std::unique_ptr<Construct>(constructorDeclaration = new ConstructorDeclaration()));
 
-            MatrixType::Initializer vectorInitializer;
+            MatrixType::Initializer copyInitializer;
+            copyInitializer.push_back(matrixType);
+            matrixType->initializers.push_back(copyInitializer);
 
+            MatrixType::Initializer vectorInitializer;
             for (size_t row = 0; row < rowCount; ++row)
                 vectorInitializer.push_back(findVectorType(componentType, columnCount));
-
             matrixType->initializers.push_back(vectorInitializer);
 
             declarationScopes.back().push_back(constructorDeclaration);

@@ -162,7 +162,7 @@ namespace ouzel
         StorageClass storageClass = StorageClass::Auto;
         QualifiedType qualifiedType;
         std::vector<ParameterDeclaration*> parameterDeclarations;
-        Statement* body = nullptr;
+        const Statement* body = nullptr;
 
     protected:
         const Kind callableDeclarationKind;
