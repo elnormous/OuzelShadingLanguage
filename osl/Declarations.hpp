@@ -41,6 +41,8 @@ namespace ouzel
         Declaration* firstDeclaration = nullptr;
         Declaration* previousDeclaration = nullptr;
         Declaration* definition = nullptr;
+        Semantic semantic = Semantic::None;
+        size_t semanticIndex = 0;
 
     protected:
         const Kind declarationKind;

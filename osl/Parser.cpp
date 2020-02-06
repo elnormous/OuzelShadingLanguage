@@ -390,84 +390,84 @@ namespace ouzel
 
                 if (iterator->value == "fragment")
                 {
-                    if (result.program != Program::None && result.program != Program::Fragment)
+                    if (result.program != Program::None)
                         throw ParseError("Single function can not have multiple program attributes");
 
                     result.program = Program::Fragment;
                 }
                 else if (iterator->value == "vertex")
                 {
-                    if (result.program != Program::None && result.program != Program::Vertex)
+                    if (result.program != Program::None)
                         throw ParseError("Single function can not have multiple program attributes");
 
                     result.program = Program::Vertex;
                 }
                 else if (iterator->value == "binormal")
                 {
-                    if (result.semantic != Semantic::None && result.semantic != Semantic::Binormal)
+                    if (result.semantic != Semantic::None)
                         throw ParseError("Single variable can not have multiple semantic attributes");
 
                     result.semantic = Semantic::Binormal;
                 }
                 else if (iterator->value == "blend_indices")
                 {
-                    if (result.semantic != Semantic::None && result.semantic != Semantic::BlendIndices)
+                    if (result.semantic != Semantic::None)
                         throw ParseError("Single variable can not have multiple semantic attributes");
 
                     result.semantic = Semantic::BlendIndices;
                 }
                 else if (iterator->value == "blend_weight")
                 {
-                    if (result.semantic != Semantic::None && result.semantic != Semantic::BlendWeight)
+                    if (result.semantic != Semantic::None)
                         throw ParseError("Single variable can not have multiple semantic attributes");
 
                     result.semantic = Semantic::BlendWeight;
                 }
                 else if (iterator->value == "color")
                 {
-                    if (result.semantic != Semantic::None && result.semantic != Semantic::Color)
+                    if (result.semantic != Semantic::None)
                         throw ParseError("Single variable can not have multiple semantic attributes");
 
                     result.semantic = Semantic::Color;
                 }
                 else if (iterator->value == "normal")
                 {
-                    if (result.semantic != Semantic::None && result.semantic != Semantic::Normal)
+                    if (result.semantic != Semantic::None)
                         throw ParseError("Single variable can not have multiple semantic attributes");
 
                     result.semantic = Semantic::Normal;
                 }
                 else if (iterator->value == "position")
                 {
-                    if (result.semantic != Semantic::None && result.semantic != Semantic::Position)
+                    if (result.semantic != Semantic::None)
                         throw ParseError("Single variable can not have multiple semantic attributes");
 
                     result.semantic = Semantic::Position;
                 }
                 else if (iterator->value == "position_transformed")
                 {
-                    if (result.semantic != Semantic::None && result.semantic != Semantic::PositionTransformed)
+                    if (result.semantic != Semantic::None)
                         throw ParseError("Single variable can not have multiple semantic attributes");
 
                     result.semantic = Semantic::PositionTransformed;
                 }
                 else if (iterator->value == "point_size")
                 {
-                    if (result.semantic != Semantic::None && result.semantic != Semantic::PointSize)
+                    if (result.semantic != Semantic::None)
                         throw ParseError("Single variable can not have multiple semantic attributes");
 
                     result.semantic = Semantic::PointSize;
                 }
                 else if (iterator->value == "tangent")
                 {
-                    if (result.semantic != Semantic::None && result.semantic != Semantic::Tangent)
+                    if (result.semantic != Semantic::None)
                         throw ParseError("Single variable can not have multiple semantic attributes");
 
                     result.semantic = Semantic::Tangent;
                 }
                 else if (iterator->value == "texture_coordinates")
                 {
-                    if (result.semantic != Semantic::None && result.semantic != Semantic::TextureCoordinates)
+                    if (result.semantic != Semantic::None)
                         throw ParseError("Single variable can not have multiple semantic attributes");
 
                     result.semantic = Semantic::TextureCoordinates;
@@ -536,6 +536,8 @@ namespace ouzel
             bool isExtern = specifiers.isExtern;
             bool isInline = specifiers.isInline;
             Program program = specifiers.program;
+            Semantic semantic = specifiers.semantic;
+            size_t semanticIndex = specifiers.semanticIndex;
 
             qualifiedType.type = parseType(iterator, end, declarationScopes);
 
@@ -550,10 +552,19 @@ namespace ouzel
 
             if (specifiers.program != Program::None)
             {
-                if (program != Program::None && program != specifiers.program)
+                if (program != Program::None)
                     throw ParseError("Single function can not have multiple program attributes");
 
                 program = specifiers.program;
+            }
+
+            if (specifiers.semantic != Semantic::None)
+            {
+                if (semantic != Semantic::None)
+                    throw ParseError("Single variable can not have multiple semantic attributes");
+
+                semantic = specifiers.semantic;
+                semanticIndex = specifiers.semanticIndex;
             }
 
             qualifiedType.qualifiers |= specifiers.qualifiers;
@@ -587,6 +598,8 @@ namespace ouzel
                 result->isInline = isInline;
                 result->program = program;
                 result->name = name;
+                result->semantic = semantic;
+                result->semanticIndex = semanticIndex;
 
                 std::vector<QualifiedType> parameters;
 
@@ -674,6 +687,8 @@ namespace ouzel
                 result->qualifiedType = qualifiedType;
                 result->storageClass = isExtern ? StorageClass::Extern : StorageClass::Auto;
                 result->name = name;
+                result->semantic = semantic;
+                result->semanticIndex = semanticIndex;
 
                 while (isToken(Token::Type::LeftBracket, iterator, end))
                 {
@@ -841,6 +856,8 @@ namespace ouzel
             result->qualifiedType.qualifiers |= specifiers.qualifiers;
 
             bool isInline = specifiers.isInline;
+            Semantic semantic = specifiers.semantic;
+            size_t semanticIndex = specifiers.semanticIndex;
 
             result->qualifiedType.type = parseType(iterator, end, declarationScopes);
 
@@ -857,8 +874,19 @@ namespace ouzel
             specifiers = parseSpecifiers(iterator, end);
 
             result->qualifiedType.qualifiers |= specifiers.qualifiers;
+            result->semantic = semantic;
+            result->semanticIndex = semanticIndex;
 
             if (specifiers.isInline) isInline = true;
+
+            if (specifiers.semantic != Semantic::None)
+            {
+                if (semantic != Semantic::None)
+                    throw ParseError("Single variable can not have multiple semantic attributes");
+
+                semantic = specifiers.semantic;
+                semanticIndex = specifiers.semanticIndex;
+            }
 
             if (isInline)
                 throw ParseError("Members can not be inline");
@@ -909,6 +937,8 @@ namespace ouzel
         result->qualifiedType.qualifiers |= specifiers.qualifiers;
 
         bool isInline = specifiers.isInline;
+        Semantic semantic = specifiers.semantic;
+        size_t semanticIndex = specifiers.semanticIndex;
 
         result->qualifiedType.type = parseType(iterator, end, declarationScopes);
 
@@ -925,11 +955,22 @@ namespace ouzel
         specifiers = parseSpecifiers(iterator, end);
 
         result->qualifiedType.qualifiers |= specifiers.qualifiers;
+        result->semantic = semantic;
+        result->semanticIndex = semanticIndex;
 
         if (specifiers.isInline) isInline = true;
 
         if (isInline)
             throw ParseError("Parameters can not be inline");
+
+        if (specifiers.semantic != Semantic::None)
+        {
+            if (semantic != Semantic::None)
+                throw ParseError("Single variable can not have multiple semantic attributes");
+
+            semantic = specifiers.semantic;
+            semanticIndex = specifiers.semanticIndex;
+        }
 
         if (isToken(Token::Type::Identifier, iterator, end))
         {
