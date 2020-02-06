@@ -247,6 +247,9 @@ namespace ouzel
 
         const ScalarType* componentType = nullptr;
         uint8_t componentCount = 1;
+
+        using Initializer = std::vector<const Type*>;
+        std::vector<Initializer> initializers;
     };
 
     class MatrixType final: public Type
@@ -257,6 +260,9 @@ namespace ouzel
         const ScalarType* componentType = nullptr;
         uint8_t rowCount = 1;
         uint8_t columnCount = 1;
+
+        using Initializer = std::vector<const Type*>;
+        std::vector<Initializer> initializers;
     };
 
     class VariableDeclaration: public Declaration

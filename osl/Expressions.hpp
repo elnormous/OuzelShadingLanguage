@@ -29,7 +29,9 @@ namespace ouzel
             InitializerList,
             Cast,
             Sizeof,
-            VectorElement
+            VectorInitialize,
+            VectorElement,
+            MatrixInitialize
         };
 
         enum class Category: uint8_t
@@ -273,6 +275,14 @@ namespace ouzel
         const Type* type;
     };
 
+    class VectorInitializeExpression: public Expression
+    {
+    public:
+        VectorInitializeExpression() noexcept: Expression(Expression::Kind::VectorInitialize) {}
+
+        std::vector<const Expression*> expressions;
+    };
+
     class VectorElementExpression: public Expression
     {
     public:
@@ -280,6 +290,14 @@ namespace ouzel
 
         uint8_t count = 0;
         uint8_t positions[4]{};
+    };
+
+    class MatrixInitializeExpression: public Expression
+    {
+    public:
+        MatrixInitializeExpression() noexcept: Expression(Expression::Kind::MatrixInitialize) {}
+
+        std::vector<const Expression*> expressions;
     };
 }
 

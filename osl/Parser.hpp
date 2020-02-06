@@ -408,12 +408,12 @@ namespace ouzel
             ConstructorDeclaration* constructorDeclaration;
             constructs.push_back(std::unique_ptr<Construct>(constructorDeclaration = new ConstructorDeclaration()));
 
+            MatrixType::Initializer vectorInitializer;
+
             for (size_t row = 0; row < rowCount; ++row)
-            {
-                ParameterDeclaration* parameterDeclaration;
-                constructs.push_back(std::unique_ptr<Construct>(parameterDeclaration = new ParameterDeclaration()));
-                parameterDeclaration->qualifiedType.type = findVectorType(componentType, columnCount);
-            }
+                vectorInitializer.push_back(findVectorType(componentType, columnCount));
+
+            matrixType->initializers.push_back(vectorInitializer);
 
             declarationScopes.back().push_back(constructorDeclaration);
             
@@ -422,16 +422,16 @@ namespace ouzel
 
         FieldDeclaration* addFieldDeclaration(StructType* structType,
                                               const std::string& name,
-                                              TypeDeclaration* type,
+                                              Type* type,
                                               bool isConst,
                                               std::vector<std::vector<Declaration*>>& declarationScopes)
         {
             FieldDeclaration* fieldDeclaration;
             constructs.push_back(std::unique_ptr<Construct>(fieldDeclaration = new FieldDeclaration()));
 
-            //fieldDeclaration->parent = structDeclaration;
+            fieldDeclaration->parent = structType->definition;
             fieldDeclaration->name = name;
-            //fieldDeclaration->qualifiedType.type = type;
+            fieldDeclaration->qualifiedType.type = type;
             fieldDeclaration->qualifiedType.qualifiers = (isConst ? Qualifiers::Const : Qualifiers::None);
             declarationScopes.back().push_back(fieldDeclaration);
 
@@ -456,6 +456,7 @@ namespace ouzel
                 ParameterDeclaration* parameterDeclaration;
                 constructs.push_back(std::unique_ptr<Construct>(parameterDeclaration = new ParameterDeclaration()));
 
+                parameterDeclaration->parent = functionDeclaration;
                 parameterDeclaration->qualifiedType.type = parameter;
                 functionDeclaration->parameterDeclarations.push_back(parameterDeclaration);
             }
