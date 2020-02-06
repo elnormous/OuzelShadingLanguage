@@ -388,7 +388,93 @@ namespace ouzel
                 if (iterator == end)
                     throw ParseError("Unexpected end of file");
 
-                result.attributes.push_back(iterator->value);
+                if (iterator->value == "fragment")
+                {
+                    if (result.program != Program::None && result.program != Program::Fragment)
+                        throw ParseError("Single function can not have multiple program attributes");
+
+                    result.program = Program::Fragment;
+                }
+                else if (iterator->value == "vertex")
+                {
+                    if (result.program != Program::None && result.program != Program::Vertex)
+                        throw ParseError("Single function can not have multiple program attributes");
+
+                    result.program = Program::Vertex;
+                }
+                else if (iterator->value == "binormal")
+                {
+                    if (result.semantic != Semantic::None && result.semantic != Semantic::Binormal)
+                        throw ParseError("Single variable can not have multiple semantic attributes");
+
+                    result.semantic = Semantic::Binormal;
+                }
+                else if (iterator->value == "blend_indices")
+                {
+                    if (result.semantic != Semantic::None && result.semantic != Semantic::BlendIndices)
+                        throw ParseError("Single variable can not have multiple semantic attributes");
+
+                    result.semantic = Semantic::BlendIndices;
+                }
+                else if (iterator->value == "blend_weight")
+                {
+                    if (result.semantic != Semantic::None && result.semantic != Semantic::BlendWeight)
+                        throw ParseError("Single variable can not have multiple semantic attributes");
+
+                    result.semantic = Semantic::BlendWeight;
+                }
+                else if (iterator->value == "color")
+                {
+                    if (result.semantic != Semantic::None && result.semantic != Semantic::Color)
+                        throw ParseError("Single variable can not have multiple semantic attributes");
+
+                    result.semantic = Semantic::Color;
+                }
+                else if (iterator->value == "normal")
+                {
+                    if (result.semantic != Semantic::None && result.semantic != Semantic::Normal)
+                        throw ParseError("Single variable can not have multiple semantic attributes");
+
+                    result.semantic = Semantic::Normal;
+                }
+                else if (iterator->value == "position")
+                {
+                    if (result.semantic != Semantic::None && result.semantic != Semantic::Position)
+                        throw ParseError("Single variable can not have multiple semantic attributes");
+
+                    result.semantic = Semantic::Position;
+                }
+                else if (iterator->value == "position_transformed")
+                {
+                    if (result.semantic != Semantic::None && result.semantic != Semantic::PositionTransformed)
+                        throw ParseError("Single variable can not have multiple semantic attributes");
+
+                    result.semantic = Semantic::PositionTransformed;
+                }
+                else if (iterator->value == "point_size")
+                {
+                    if (result.semantic != Semantic::None && result.semantic != Semantic::PointSize)
+                        throw ParseError("Single variable can not have multiple semantic attributes");
+
+                    result.semantic = Semantic::PointSize;
+                }
+                else if (iterator->value == "tangent")
+                {
+                    if (result.semantic != Semantic::None && result.semantic != Semantic::Tangent)
+                        throw ParseError("Single variable can not have multiple semantic attributes");
+
+                    result.semantic = Semantic::Tangent;
+                }
+                else if (iterator->value == "texture_coordinates")
+                {
+                    if (result.semantic != Semantic::None && result.semantic != Semantic::TextureCoordinates)
+                        throw ParseError("Single variable can not have multiple semantic attributes");
+
+                    result.semantic = Semantic::TextureCoordinates;
+                }
+                else
+                    throw ParseError("Invalid attribute " + iterator->value);
+
 
                 ++iterator;
 
@@ -437,25 +523,7 @@ namespace ouzel
 
             bool isExtern = specifiers.isExtern;
             bool isInline = specifiers.isInline;
-            Program program = Program::None;
-
-            for (const std::string& attribute : specifiers.attributes)
-                if (attribute == "fragment")
-                {
-                    if (program != Program::None &&
-                        program != Program::Fragment)
-                        throw ParseError("Single function can not have multiple program attributes");
-
-                    program = Program::Fragment;
-                }
-                else if (attribute == "vertex")
-                {
-                    if (program != Program::None &&
-                        program != Program::Vertex)
-                        throw ParseError("Single function can not have multiple program attributes");
-
-                    program = Program::Vertex;
-                }
+            Program program = specifiers.program;
 
             qualifiedType.type = parseType(iterator, end, declarationScopes);
 
@@ -468,23 +536,13 @@ namespace ouzel
 
             specifiers = parseSpecifiers(iterator, end);
 
-            for (const std::string& attribute : specifiers.attributes)
-                if (attribute == "fragment")
-                {
-                    if (program != Program::None &&
-                        program != Program::Fragment)
-                        throw ParseError("Single function can not have multiple program attributes");
+            if (specifiers.program != Program::None)
+            {
+                if (program != Program::None && program != specifiers.program)
+                    throw ParseError("Single function can not have multiple program attributes");
 
-                    program = Program::Fragment;
-                }
-                else if (attribute == "vertex")
-                {
-                    if (program != Program::None &&
-                        program != Program::Vertex)
-                        throw ParseError("Single function can not have multiple program attributes");
-
-                    program = Program::Vertex;
-                }
+                program = specifiers.program;
+            }
 
             qualifiedType.qualifiers |= specifiers.qualifiers;
 

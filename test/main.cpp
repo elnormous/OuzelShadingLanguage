@@ -677,6 +677,20 @@ namespace
         ouzel::ASTContext context(ouzel::tokenize(code));
     }
 
+    void testSemantics()
+    {
+        std::string code = R"OSL(
+            struct Vertex
+            {
+                float3 [[position]] position;
+                float3 [[normal]] normal;
+                float2 [[texture_coordinates]] texCoord;
+            };
+        )OSL";
+
+        ouzel::ASTContext context(ouzel::tokenize(code));
+}
+
     void testPrograms()
     {
         std::string code = R"OSL(
@@ -774,6 +788,7 @@ int main(int argc, const char * argv[])
     testRunner.run(testFloat);
     testRunner.run(testVector);
     testRunner.run(testMatrix);
+    testRunner.run(testSemantics);
     testRunner.run(testPrograms);
     testRunner.run(testOperators);
 
