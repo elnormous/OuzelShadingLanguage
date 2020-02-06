@@ -350,12 +350,6 @@ namespace ouzel
 
             vectorTypes[std::make_pair(componentType, componentCount)] = vectorType;
 
-            VectorType::Initializer copyInitializer;
-            copyInitializer.push_back(vectorType);
-            vectorType->initializers.push_back(copyInitializer);
-
-            // TODO: create initializes
-
             return vectorType;
         }
 
@@ -376,15 +370,6 @@ namespace ouzel
 
             ConstructorDeclaration* constructorDeclaration;
             constructs.push_back(std::unique_ptr<Construct>(constructorDeclaration = new ConstructorDeclaration()));
-
-            MatrixType::Initializer copyInitializer;
-            copyInitializer.push_back(matrixType);
-            matrixType->initializers.push_back(copyInitializer);
-
-            MatrixType::Initializer vectorInitializer;
-            for (size_t row = 0; row < rowCount; ++row)
-                vectorInitializer.push_back(findVectorType(componentType, columnCount));
-            matrixType->initializers.push_back(vectorInitializer);
 
             declarationScopes.back().push_back(constructorDeclaration);
             
