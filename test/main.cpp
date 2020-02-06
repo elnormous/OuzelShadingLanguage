@@ -670,7 +670,7 @@ namespace
             float f1 = m1[0][0];
             m1[0][0] = f1;
             float2x2 m2 = float2x2(v1.xy, v1.zw);
-            float4x4 m3 = float2x2(m1);
+            float4x4 m3 = float4x4(m1);
         }
         )OSL";
 

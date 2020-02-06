@@ -575,7 +575,7 @@ namespace ouzel
                 VariableDeclaration* result;
                 constructs.push_back(std::unique_ptr<VariableDeclaration>(result = new VariableDeclaration()));
                 result->qualifiedType = qualifiedType;
-                if (isExtern) result->storageClass = StorageClass::Extern;
+                result->storageClass = isExtern ? StorageClass::Extern : StorageClass::Auto;
                 result->name = name;
 
                 while (isToken(Token::Type::LeftBracket, iterator, end))
@@ -1610,8 +1610,27 @@ namespace ouzel
                             result->qualifiedType.qualifiers = Qualifiers::Const;
                             result->category = Expression::Category::Rvalue;
 
+                            size_t componentCount = 0;
+
                             for (auto parameter : parameters)
                             {
+                                auto parameterType = parameter->qualifiedType.type;
+                                if (parameterType->getTypeKind() == Type::Kind::Scalar)
+                                {
+                                    if (parameterType != vectorType->componentType)
+                                        throw ParseError("Invalid vector initialization");
+
+                                    ++componentCount;
+                                }
+                                else if (parameterType->getTypeKind() == Type::Kind::Vector)
+                                {
+                                    auto vectorParameterType = static_cast<const VectorType*>(parameterType);
+                                    if (vectorParameterType->componentType != vectorType->componentType)
+                                        throw ParseError("Invalid vector initialization");
+
+                                    componentCount += vectorParameterType->componentCount;
+                                }
+
                                 parameter->parent = result;
                                 result->parameters.push_back(parameter);
                             }
@@ -1619,7 +1638,8 @@ namespace ouzel
                             if (parameters.empty())
                                 throw ParseError(vectorType->name + " cannot not have an empty initializer");
 
-                            // TODO: check for too few/too many elements in vector initialization
+                            if (componentCount != vectorType->componentCount)
+                                throw ParseError("Invalid vector initialization");
 
                             return result;
                         }
@@ -1633,8 +1653,33 @@ namespace ouzel
                             result->qualifiedType.qualifiers = Qualifiers::Const;
                             result->category = Expression::Category::Rvalue;
 
+                            size_t rowCount = 0;
+
                             for (auto parameter : parameters)
                             {
+                                auto parameterType = parameter->qualifiedType.type;
+                                if (parameterType->getTypeKind() == Type::Kind::Vector)
+                                {
+                                    auto vectorParameterType = static_cast<const VectorType*>(parameterType);
+
+                                    if (vectorParameterType->componentType != matrixType->componentType ||
+                                        vectorParameterType->componentCount != matrixType->columnCount)
+                                        throw ParseError("Invalid matrix initialization");
+
+                                    ++rowCount;
+                                }
+                                else if (parameterType->getTypeKind() == Type::Kind::Matrix)
+                                {
+                                    auto matrixParameterType = static_cast<const MatrixType*>(parameterType);
+
+                                    if (matrixParameterType->componentType != matrixType->componentType ||
+                                        matrixParameterType->rowCount != matrixType->rowCount ||
+                                        matrixParameterType->columnCount != matrixType->columnCount)
+                                        throw ParseError("Invalid matrix initialization");
+
+                                    rowCount += matrixParameterType->rowCount;
+                                }
+
                                 parameter->parent = result;
                                 result->parameters.push_back(parameter);
                             }
@@ -1642,7 +1687,8 @@ namespace ouzel
                             if (parameters.empty())
                                 throw ParseError(matrixType->name + " cannot not have an empty initializer");
 
-                            // TODO: check for too few/too many elements in matrix initialization
+                            if (rowCount != matrixType->rowCount)
+                                throw ParseError("Invalid matrix initialization");
 
                             return result;
                         }
