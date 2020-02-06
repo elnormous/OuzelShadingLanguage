@@ -37,16 +37,8 @@ namespace ouzel
 
         inline Kind getDeclarationKind() const noexcept { return declarationKind; }
 
-        Declaration* getFirstDeclaration() noexcept
-        {
-            Declaration* result = this;
-
-            while (result->previousDeclaration) result = result->previousDeclaration;
-
-            return result;
-        }
-
         std::string name;
+        Declaration* firstDeclaration = nullptr;
         Declaration* previousDeclaration = nullptr;
         Declaration* definition = nullptr;
 
@@ -75,8 +67,7 @@ namespace ouzel
 
         std::string name;
         uint32_t size = 0;
-        TypeDeclaration* declaration = nullptr; // first declaration
-        TypeDeclaration* definition = nullptr; // first declaration
+        TypeDeclaration* declaration = nullptr;
 
     protected:
         Kind typeKind;

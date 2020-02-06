@@ -152,7 +152,7 @@ namespace ouzel
 
                     if (callableDeclaration->getCallableDeclarationKind() != CallableDeclaration::Kind::Function) return nullptr;
 
-                    auto functionDeclaration = static_cast<FunctionDeclaration*>(callableDeclaration->getFirstDeclaration());
+                    auto functionDeclaration = static_cast<FunctionDeclaration*>(callableDeclaration->firstDeclaration);
 
                     if (std::find(candidateFunctionDeclarations.begin(), candidateFunctionDeclarations.end(), functionDeclaration) == candidateFunctionDeclarations.end())
                         candidateFunctionDeclarations.push_back(functionDeclaration);
@@ -444,7 +444,7 @@ namespace ouzel
             if (qualifiedType.type->getTypeKind() == Type::Kind::Struct)
             {
                 auto structType = static_cast<const StructType*>(qualifiedType.type);
-                if (!structType->definition)
+                if (!structType->declaration->definition)
                     throw ParseError("Incomplete type " + qualifiedType.type->name);
             }
 
@@ -515,12 +515,19 @@ namespace ouzel
 
                 ++iterator;
 
-                result->previousDeclaration = findFunctionDeclaration(name, declarationScopes, parameters);
+                // TODO: forbid declaring a function with the same name as a declared type (not supported by GLSL)
+                auto previousDeclaration = findFunctionDeclaration(name, declarationScopes, parameters);
+
+                if (previousDeclaration)
+                {
+                    result->previousDeclaration = previousDeclaration;
+                    result->firstDeclaration = previousDeclaration->firstDeclaration;
+                    result->definition = previousDeclaration->definition;
+                }
+                else
+                    result->firstDeclaration = result;
 
                 declarationScopes.back().push_back(result);
-
-                // set the definition of the previous declaration
-                if (result->previousDeclaration) result->definition = result->previousDeclaration->definition;
 
                 if (isToken(Token::Type::LeftBrace, iterator, end))
                 {
@@ -529,7 +536,7 @@ namespace ouzel
                         throw ParseError("Redefinition of " + result->name);
 
                     // set the definition pointer of all previous declarations
-                    Declaration* previousDeclaration = result->previousDeclaration;
+                    Declaration* previousDeclaration = result;
                     while (previousDeclaration)
                     {
                         previousDeclaration->definition = result;
@@ -639,15 +646,35 @@ namespace ouzel
         expectToken(Token::Type::Identifier, iterator, end);
         result->name = iterator->value;
 
-        auto structType = findStructType(result->name, declarationScopes);
-        if (!structType)
+        auto previousDeclaration = findDeclaration(result->name, declarationScopes);
+
+        StructType* structType = nullptr;
+
+        if (previousDeclaration)
+        {
+            if (previousDeclaration->getDeclarationKind() != Declaration::Kind::Type)
+                throw ParseError("Redeclaration of " + result->name);
+
+            auto typeDeclaration = static_cast<TypeDeclaration*>(previousDeclaration);
+
+            if (typeDeclaration->type->getTypeKind() != Type::Kind::Struct)
+                throw ParseError("Redeclaration of " + result->name);
+
+            structType = static_cast<StructType*>(typeDeclaration->type);
+
+            result->firstDeclaration = typeDeclaration->firstDeclaration;
+            result->previousDeclaration = typeDeclaration;
+            result->definition = typeDeclaration->definition;
+            result->type = structType;
+        }
+        else
         {
             types.push_back(std::unique_ptr<Type>(structType = new StructType()));
             structType->name = iterator->value;
             structType->declaration = result;
+            result->firstDeclaration = result;
+            result->type = structType;
         }
-
-        result->type = structType;
 
         ++iterator;
 
@@ -658,10 +685,16 @@ namespace ouzel
             ++iterator;
 
             // check if only one definition exists
-            if (structType->definition)
-                throw ParseError("Redefinition of " + structType->name);
+            if (result->definition)
+                throw ParseError("Redefinition of " + result->name);
 
-            structType->definition = result;
+            // set the definition pointer of all previous declarations
+            Declaration* previousDeclaration = result;
+            while (previousDeclaration)
+            {
+                previousDeclaration->definition = result;
+                previousDeclaration = previousDeclaration->previousDeclaration;
+            }
 
             for (;;)
             {
@@ -720,7 +753,7 @@ namespace ouzel
             if (result->qualifiedType.type->getTypeKind() == Type::Kind::Struct)
             {
                 auto structType = static_cast<const StructType*>(result->qualifiedType.type);
-                if (!structType->definition)
+                if (!structType->declaration->definition)
                     throw ParseError("Incomplete type " + result->qualifiedType.type->name);
             }
 
@@ -788,7 +821,7 @@ namespace ouzel
         if (result->qualifiedType.type->getTypeKind() == Type::Kind::Struct)
         {
             auto structType = static_cast<const StructType*>(result->qualifiedType.type);
-            if (!structType->definition)
+            if (!structType->declaration->definition)
                 throw ParseError("Incomplete type " + result->qualifiedType.type->name);
         }
 

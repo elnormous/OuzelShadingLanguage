@@ -385,7 +385,6 @@ namespace ouzel
             FieldDeclaration* fieldDeclaration;
             constructs.push_back(std::unique_ptr<Construct>(fieldDeclaration = new FieldDeclaration()));
 
-            fieldDeclaration->parent = structType->definition;
             fieldDeclaration->name = name;
             fieldDeclaration->qualifiedType.type = type;
             fieldDeclaration->qualifiedType.qualifiers = (isConst ? Qualifiers::Const : Qualifiers::None);

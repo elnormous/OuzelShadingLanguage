@@ -96,7 +96,7 @@ namespace ouzel
                 code += "struct " + type->name;
 
                 // if this is the definition
-                if (structType->definition == typeDeclaration)
+                if (typeDeclaration->definition == typeDeclaration)
                 {
                     if (options.whitespaces) code.append(options.indentation, ' ');
                     if (options.whitespaces) code += "\n";

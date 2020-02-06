@@ -263,10 +263,7 @@ namespace ouzel
                             std::cout << ", name: " << structType->name;
 
                             if (structType->declaration)
-                                std::cout << ", first declaration: " << structType->declaration;
-
-                            if (structType->definition)
-                                std::cout << ", definition: " << structType->definition;
+                                std::cout << ", declaration: " << structType->declaration;
 
                             std::cout << '\n';
 

@@ -594,7 +594,7 @@ namespace
         if (structDeclarationType != structDefinitionType)
             throw TestError("Expected the same type for declaration and definition");
 
-        if (structDefinitionType->definition != structTypeDefinition)
+        if (structDefinitionType->declaration->definition != structTypeDefinition)
             throw TestError("Wrong definition");
     }
 
