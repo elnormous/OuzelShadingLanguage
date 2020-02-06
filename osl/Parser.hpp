@@ -157,7 +157,7 @@ namespace ouzel
             Qualifiers qualifiers = Qualifiers::None;
             bool isInline = false;
             bool isExtern = false;
-            Program program = Program::None;
+            std::vector<std::string> attributes;
         };
 
         static Specifiers parseSpecifiers(std::vector<Token>::const_iterator& iterator,

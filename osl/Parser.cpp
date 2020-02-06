@@ -380,23 +380,23 @@ namespace ouzel
                 ++iterator;
                 result.qualifiers |= Qualifiers::Out;
             }
-            else if (isToken(Token::Type::ProgFragment, iterator, end))
+            else if (isToken(Token::Type::LeftBracket, iterator, end) &&
+                     isToken(Token::Type::LeftBracket, iterator + 1, end))
             {
-                if (result.program != Program::None &&
-                    result.program != Program::Fragment)
-                    throw ParseError("Single function can not have multiple program specifiers");
+                ++iterator;
+                ++iterator;
+                if (iterator == end)
+                    throw ParseError("Unexpected end of file");
+
+                result.attributes.push_back(iterator->value);
 
                 ++iterator;
-                result.program = Program::Fragment;
-            }
-            else if (isToken(Token::Type::ProgVertex, iterator, end))
-            {
-                if (result.program != Program::None &&
-                    result.program != Program::Vertex)
-                    throw ParseError("Single function can not have multiple program specifiers");
 
+                expectToken(Token::Type::RightBracket, iterator, end);
                 ++iterator;
-                result.program = Program::Vertex;
+
+                expectToken(Token::Type::RightBracket, iterator, end);
+                ++iterator;
             }
             else break;
         }
@@ -437,7 +437,25 @@ namespace ouzel
 
             bool isExtern = specifiers.isExtern;
             bool isInline = specifiers.isInline;
-            Program program = specifiers.program;
+            Program program = Program::None;
+
+            for (const std::string& attribute : specifiers.attributes)
+                if (attribute == "fragment")
+                {
+                    if (program != Program::None &&
+                        program != Program::Fragment)
+                        throw ParseError("Single function can not have multiple program attributes");
+
+                    program = Program::Fragment;
+                }
+                else if (attribute == "vertex")
+                {
+                    if (program != Program::None &&
+                        program != Program::Vertex)
+                        throw ParseError("Single function can not have multiple program attributes");
+
+                    program = Program::Vertex;
+                }
 
             qualifiedType.type = parseType(iterator, end, declarationScopes);
 
@@ -450,19 +468,28 @@ namespace ouzel
 
             specifiers = parseSpecifiers(iterator, end);
 
+            for (const std::string& attribute : specifiers.attributes)
+                if (attribute == "fragment")
+                {
+                    if (program != Program::None &&
+                        program != Program::Fragment)
+                        throw ParseError("Single function can not have multiple program attributes");
+
+                    program = Program::Fragment;
+                }
+                else if (attribute == "vertex")
+                {
+                    if (program != Program::None &&
+                        program != Program::Vertex)
+                        throw ParseError("Single function can not have multiple program attributes");
+
+                    program = Program::Vertex;
+                }
+
             qualifiedType.qualifiers |= specifiers.qualifiers;
 
             if (specifiers.isExtern) isExtern = true;
             if (specifiers.isInline) isInline = true;
-
-            if (specifiers.program != Program::None)
-            {
-                if (program != Program::None &&
-                    program != specifiers.program)
-                    throw ParseError("Single function can not have multiple program specifiers");
-
-                program = specifiers.program;
-            }
 
             if (isToken(Token::Type::Operator, iterator, end))
                 throw ParseError("Operator overloads are not supported");
