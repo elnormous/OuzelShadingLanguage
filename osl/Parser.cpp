@@ -2786,6 +2786,10 @@ namespace ouzel
             expression->qualifiedType.type = expression->rightExpression->qualifiedType.type;
             expression->category = expression->rightExpression->category;
 
+            if (expression->leftExpression->qualifiedType.type !=
+                expression->rightExpression->qualifiedType.type)
+                throw ParseError("Incompatible operand types");
+
             result->parent = expression;
             result = expression;
         }
