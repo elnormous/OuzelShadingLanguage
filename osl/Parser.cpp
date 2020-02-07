@@ -2730,10 +2730,10 @@ namespace ouzel
     {
         auto result = parseAdditionAssignmentExpression(iterator, end, declarationScopes);
 
-        while (isToken({Token::Type::Multiply, Token::Type::DivideAssignment}, iterator, end))
+        while (isToken({Token::Type::MultiplyAssignment, Token::Type::DivideAssignment}, iterator, end))
         {
             const auto operatorKind =
-                (iterator->type == Token::Type::Multiply) ? BinaryOperatorExpression::Kind::MultiplicationAssignment :
+                (iterator->type == Token::Type::MultiplyAssignment) ? BinaryOperatorExpression::Kind::MultiplicationAssignment :
                 (iterator->type == Token::Type::DivideAssignment) ? BinaryOperatorExpression::Kind::DivisionAssignment :
                 throw ParseError("Invalid operator");
 
