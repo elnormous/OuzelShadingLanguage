@@ -306,6 +306,7 @@ namespace ouzel
             iterator->type == Token::Type::In ||
             iterator->type == Token::Type::Inout ||
             iterator->type == Token::Type::Out ||
+            iterator->type == Token::Type::Uniform ||
             isType(iterator, end, declarationScopes);
     }
 
@@ -341,162 +342,181 @@ namespace ouzel
                                                        std::vector<Token>::const_iterator end)
     {
         ASTContext::Specifiers result;
-        result.isInline = false;
 
         for (;;)
         {
-            if (isToken(Token::Type::Const, iterator, end))
+            if (iterator == end) break;
+
+            switch(iterator->type)
             {
-                ++iterator;
-                result.qualifiers |= Qualifiers::Const;
-            }
-            else if (isToken(Token::Type::Extern, iterator, end))
-            {
-                ++iterator;
-                result.isExtern = true;
-            }
-            else if (isToken(Token::Type::Inline, iterator, end))
-            {
-                ++iterator;
-                result.isInline = true;
-            }
-            else if (isToken(Token::Type::Volatile, iterator, end))
-            {
-                ++iterator;
-                result.qualifiers |= Qualifiers::Volatile;
-            }
-            else if (isToken(Token::Type::In, iterator, end))
-            {
-                ++iterator;
-                result.qualifiers |= Qualifiers::In;
-            }
-            else if (isToken(Token::Type::Inout, iterator, end))
-            {
-                ++iterator;
-                result.qualifiers |= Qualifiers::In | Qualifiers::Out;
-            }
-            else if (isToken(Token::Type::Out, iterator, end))
-            {
-                ++iterator;
-                result.qualifiers |= Qualifiers::Out;
-            }
-            else if (isToken(Token::Type::LeftBracket, iterator, end) &&
-                     isToken(Token::Type::LeftBracket, iterator + 1, end))
-            {
-                ++iterator;
-                ++iterator;
-                if (iterator == end)
-                    throw ParseError("Unexpected end of file");
-
-                if (iterator->value == "fragment")
-                {
-                    if (result.program != Program::None)
-                        throw ParseError("Single function can not have multiple program attributes");
-
-                    result.program = Program::Fragment;
-                }
-                else if (iterator->value == "vertex")
-                {
-                    if (result.program != Program::None)
-                        throw ParseError("Single function can not have multiple program attributes");
-
-                    result.program = Program::Vertex;
-                }
-                else if (iterator->value == "binormal")
-                {
-                    if (result.semantic != Semantic::None)
-                        throw ParseError("Single variable can not have multiple semantic attributes");
-
-                    result.semantic = Semantic::Binormal;
-                }
-                else if (iterator->value == "blend_indices")
-                {
-                    if (result.semantic != Semantic::None)
-                        throw ParseError("Single variable can not have multiple semantic attributes");
-
-                    result.semantic = Semantic::BlendIndices;
-                }
-                else if (iterator->value == "blend_weight")
-                {
-                    if (result.semantic != Semantic::None)
-                        throw ParseError("Single variable can not have multiple semantic attributes");
-
-                    result.semantic = Semantic::BlendWeight;
-                }
-                else if (iterator->value == "color")
-                {
-                    if (result.semantic != Semantic::None)
-                        throw ParseError("Single variable can not have multiple semantic attributes");
-
-                    result.semantic = Semantic::Color;
-                }
-                else if (iterator->value == "normal")
-                {
-                    if (result.semantic != Semantic::None)
-                        throw ParseError("Single variable can not have multiple semantic attributes");
-
-                    result.semantic = Semantic::Normal;
-                }
-                else if (iterator->value == "position")
-                {
-                    if (result.semantic != Semantic::None)
-                        throw ParseError("Single variable can not have multiple semantic attributes");
-
-                    result.semantic = Semantic::Position;
-                }
-                else if (iterator->value == "position_transformed")
-                {
-                    if (result.semantic != Semantic::None)
-                        throw ParseError("Single variable can not have multiple semantic attributes");
-
-                    result.semantic = Semantic::PositionTransformed;
-                }
-                else if (iterator->value == "point_size")
-                {
-                    if (result.semantic != Semantic::None)
-                        throw ParseError("Single variable can not have multiple semantic attributes");
-
-                    result.semantic = Semantic::PointSize;
-                }
-                else if (iterator->value == "tangent")
-                {
-                    if (result.semantic != Semantic::None)
-                        throw ParseError("Single variable can not have multiple semantic attributes");
-
-                    result.semantic = Semantic::Tangent;
-                }
-                else if (iterator->value == "texture_coordinates")
-                {
-                    if (result.semantic != Semantic::None)
-                        throw ParseError("Single variable can not have multiple semantic attributes");
-
-                    result.semantic = Semantic::TextureCoordinates;
-                }
-                else
-                    throw ParseError("Invalid attribute " + iterator->value);
-
-                ++iterator;
-                
-                if (isToken(Token::Type::LeftParenthesis, iterator, end))
+                case Token::Type::Const:
                 {
                     ++iterator;
+                    result.qualifiers |= Qualifiers::Const;
+                    break;
+                }
+                case Token::Type::Extern:
+                {
+                    ++iterator;
+                    result.isExtern = true;
+                    break;
+                }
+                case Token::Type::Inline:
+                {
+                    ++iterator;
+                    result.isInline = true;
+                    break;
+                }
+                case Token::Type::Volatile:
+                {
+                    ++iterator;
+                    result.qualifiers |= Qualifiers::Volatile;
+                    break;
+                }
+                case Token::Type::In:
+                {
+                    ++iterator;
+                    result.qualifiers |= Qualifiers::In;
+                    break;
+                }
+                case Token::Type::Inout:
+                {
+                    ++iterator;
+                    result.qualifiers |= Qualifiers::In | Qualifiers::Out;
+                    break;
+                }
+                case Token::Type::Out:
+                {
+                    ++iterator;
+                    result.qualifiers |= Qualifiers::Out;
+                    break;
+                }
+                case Token::Type::Uniform:
+                {
+                    ++iterator;
+                    result.qualifiers |= Qualifiers::Uniform;
+                }
+                case Token::Type::LeftBracket:
+                {
+                    if (!isToken(Token::Type::LeftBracket, iterator + 1, end))
+                        return result;
 
-                    // TODO: check if attribute contains semantic
-                    expectToken(Token::Type::IntLiteral, iterator, end);
-                    result.semanticIndex = std::stoul(iterator->value);
+                    ++iterator;
+                    ++iterator;
+                    if (iterator == end)
+                        throw ParseError("Unexpected end of file");
+
+                    if (iterator->value == "fragment")
+                    {
+                        if (result.program != Program::None)
+                            throw ParseError("Single function can not have multiple program attributes");
+
+                        result.program = Program::Fragment;
+                    }
+                    else if (iterator->value == "vertex")
+                    {
+                        if (result.program != Program::None)
+                            throw ParseError("Single function can not have multiple program attributes");
+
+                        result.program = Program::Vertex;
+                    }
+                    else if (iterator->value == "binormal")
+                    {
+                        if (result.semantic != Semantic::None)
+                            throw ParseError("Single variable can not have multiple semantic attributes");
+
+                        result.semantic = Semantic::Binormal;
+                    }
+                    else if (iterator->value == "blend_indices")
+                    {
+                        if (result.semantic != Semantic::None)
+                            throw ParseError("Single variable can not have multiple semantic attributes");
+
+                        result.semantic = Semantic::BlendIndices;
+                    }
+                    else if (iterator->value == "blend_weight")
+                    {
+                        if (result.semantic != Semantic::None)
+                            throw ParseError("Single variable can not have multiple semantic attributes");
+
+                        result.semantic = Semantic::BlendWeight;
+                    }
+                    else if (iterator->value == "color")
+                    {
+                        if (result.semantic != Semantic::None)
+                            throw ParseError("Single variable can not have multiple semantic attributes");
+
+                        result.semantic = Semantic::Color;
+                    }
+                    else if (iterator->value == "normal")
+                    {
+                        if (result.semantic != Semantic::None)
+                            throw ParseError("Single variable can not have multiple semantic attributes");
+
+                        result.semantic = Semantic::Normal;
+                    }
+                    else if (iterator->value == "position")
+                    {
+                        if (result.semantic != Semantic::None)
+                            throw ParseError("Single variable can not have multiple semantic attributes");
+
+                        result.semantic = Semantic::Position;
+                    }
+                    else if (iterator->value == "position_transformed")
+                    {
+                        if (result.semantic != Semantic::None)
+                            throw ParseError("Single variable can not have multiple semantic attributes");
+
+                        result.semantic = Semantic::PositionTransformed;
+                    }
+                    else if (iterator->value == "point_size")
+                    {
+                        if (result.semantic != Semantic::None)
+                            throw ParseError("Single variable can not have multiple semantic attributes");
+
+                        result.semantic = Semantic::PointSize;
+                    }
+                    else if (iterator->value == "tangent")
+                    {
+                        if (result.semantic != Semantic::None)
+                            throw ParseError("Single variable can not have multiple semantic attributes");
+
+                        result.semantic = Semantic::Tangent;
+                    }
+                    else if (iterator->value == "texture_coordinates")
+                    {
+                        if (result.semantic != Semantic::None)
+                            throw ParseError("Single variable can not have multiple semantic attributes");
+
+                        result.semantic = Semantic::TextureCoordinates;
+                    }
+                    else
+                        throw ParseError("Invalid attribute " + iterator->value);
+
                     ++iterator;
 
-                    expectToken(Token::Type::RightParenthesis, iterator, end);
+                    if (isToken(Token::Type::LeftParenthesis, iterator, end))
+                    {
+                        ++iterator;
+
+                        // TODO: check if attribute contains semantic
+                        expectToken(Token::Type::IntLiteral, iterator, end);
+                        result.semanticIndex = std::stoul(iterator->value);
+                        ++iterator;
+
+                        expectToken(Token::Type::RightParenthesis, iterator, end);
+                        ++iterator;
+                    }
+
+                    expectToken(Token::Type::RightBracket, iterator, end);
+                    ++iterator;
+
+                    expectToken(Token::Type::RightBracket, iterator, end);
                     ++iterator;
                 }
-
-                expectToken(Token::Type::RightBracket, iterator, end);
-                ++iterator;
-
-                expectToken(Token::Type::RightBracket, iterator, end);
-                ++iterator;
+                default:
+                    return result;
             }
-            else break;
         }
 
         return result;

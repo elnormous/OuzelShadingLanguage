@@ -15,9 +15,10 @@ namespace ouzel
     {
         None = 0x00,
         Const = 0x01,
-        Volatile = 0x02,
-        In = 0x04,
-        Out = 0x08
+        In = 0x02,
+        Out = 0x04,
+        Uniform = 0x08,
+        Volatile = 0x10
     };
 
     inline constexpr Qualifiers operator&(const Qualifiers a, const Qualifiers b) noexcept
