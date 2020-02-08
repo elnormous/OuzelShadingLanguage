@@ -24,7 +24,6 @@ namespace ouzel
             UnaryOperator,
             BinaryOperator,
             TernaryOperator,
-            OperatorCall,
             TemporaryObject,
             InitializerList,
             Cast,
@@ -218,15 +217,6 @@ namespace ouzel
         const Expression* condition;
         const Expression* leftExpression = nullptr;
         const Expression* rightExpression = nullptr;
-    };
-
-    class OperatorCallExpression: public Expression
-    {
-    public:
-        OperatorCallExpression() noexcept: Expression(Expression::Kind::OperatorCall) {}
-
-        const DeclarationReferenceExpression* declarationReference = nullptr;
-        std::vector<const Expression*> arguments;
     };
 
     class TemporaryObjectExpression: public Expression
