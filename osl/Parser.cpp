@@ -345,7 +345,7 @@ namespace ouzel
 
         for (;;)
         {
-            if (iterator == end) break;
+            if (iterator == end) return result;
 
             switch(iterator->type)
             {
@@ -518,8 +518,6 @@ namespace ouzel
                     return result;
             }
         }
-
-        return result;
     }
 
     Declaration* ASTContext::parseDeclaration(std::vector<Token>::const_iterator& iterator,
