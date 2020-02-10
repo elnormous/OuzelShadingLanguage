@@ -27,6 +27,7 @@
     <ClCompile Include="osl\Tokenizer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="osl\Attributes.hpp" />
     <ClInclude Include="osl\Construct.hpp" />
     <ClInclude Include="osl\Declarations.hpp" />
     <ClInclude Include="osl\Expressions.hpp" />

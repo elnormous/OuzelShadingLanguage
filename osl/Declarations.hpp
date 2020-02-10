@@ -7,6 +7,7 @@
 
 #include "Construct.hpp"
 #include "QualifiedType.hpp"
+#include "Attributes.hpp"
 
 namespace ouzel
 {
@@ -41,6 +42,7 @@ namespace ouzel
         Declaration* firstDeclaration = nullptr;
         Declaration* previousDeclaration = nullptr;
         Declaration* definition = nullptr;
+        std::vector<Attribute*> attributes;
         Semantic semantic = Semantic::None;
         size_t semanticIndex = 0;
 

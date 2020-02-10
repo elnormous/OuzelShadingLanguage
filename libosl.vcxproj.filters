@@ -35,6 +35,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="osl\Attributes.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="osl\Construct.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>

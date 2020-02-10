@@ -14,7 +14,8 @@ namespace ouzel
         {
             Declaration,
             Statement,
-            Expression
+            Expression,
+            Attribute
         };
 
         explicit Construct(Kind initKind) noexcept: kind(initKind) {}

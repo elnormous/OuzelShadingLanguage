@@ -186,6 +186,16 @@ namespace ouzel
             }
         }
 
+        std::string toString(Attribute::Kind attributeKind)
+        {
+            switch (attributeKind)
+            {
+                case Attribute::Kind::Fragment: return "Fragment";
+                case Attribute::Kind::Vertex: return "Vertex";
+                default: return "Unknown";
+            }
+        }
+
         std::string getPrintableTypeName(const QualifiedType& qualifiedType)
         {
             std::string result;
@@ -749,6 +759,11 @@ namespace ouzel
             }
         }
 
+        void dumpAttribute(const Attribute* attribute, const uint32_t level = 0)
+        {
+            std::cout << " " << toString(attribute->getAttributeKind());
+        }
+
         void dumpConstruct(const Construct* construct, const uint32_t level)
         {
             for (uint32_t i = 0; i < level; ++i)
@@ -779,6 +794,12 @@ namespace ouzel
                 {
                     auto expression = static_cast<const Expression*>(construct);
                     dumpExpression(expression, level);
+                    break;
+                }
+                case Construct::Kind::Attribute:
+                {
+                    auto attribute = static_cast<const Attribute*>(construct);
+                    dumpAttribute(attribute, level);
                     break;
                 }
             }

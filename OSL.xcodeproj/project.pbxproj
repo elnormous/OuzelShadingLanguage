@@ -65,6 +65,7 @@
 		30DD17481EAF967B004CAD77 /* Tokenizer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Tokenizer.hpp; sourceTree = "<group>"; };
 		30DD174A1EAF96CE004CAD77 /* Parser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Parser.cpp; sourceTree = "<group>"; };
 		30DD174B1EAF96CE004CAD77 /* Parser.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Parser.hpp; sourceTree = "<group>"; };
+		C67DD88923F1946C00733D81 /* Attributes.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Attributes.hpp; sourceTree = "<group>"; };
 		C6C9104621C2635200B5FCB7 /* Preprocessor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Preprocessor.cpp; sourceTree = "<group>"; };
 		C6C9104721C2635200B5FCB7 /* Preprocessor.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Preprocessor.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -143,6 +144,7 @@
 		30DD173F1EAE944F004CAD77 /* osl */ = {
 			isa = PBXGroup;
 			children = (
+				C67DD88923F1946C00733D81 /* Attributes.hpp */,
 				30D57FA4210AA3B800377C5E /* Construct.hpp */,
 				30D57FA8210AA47600377C5E /* Declarations.hpp */,
 				30D57FA7210AA46A00377C5E /* Expressions.hpp */,
