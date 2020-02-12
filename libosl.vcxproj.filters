@@ -68,13 +68,7 @@
     <ClInclude Include="osl\Preprocessor.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="osl\Program.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="osl\QualifiedType.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="osl\Semantic.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="osl\Statements.hpp">

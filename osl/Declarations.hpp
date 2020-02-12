@@ -43,8 +43,6 @@ namespace ouzel
         Declaration* previousDeclaration = nullptr;
         Declaration* definition = nullptr;
         std::vector<Attribute*> attributes;
-        Semantic semantic = Semantic::None;
-        size_t semanticIndex = 0;
 
     protected:
         const Kind declarationKind;
@@ -119,8 +117,6 @@ namespace ouzel
         }
 
         QualifiedType qualifiedType;
-
-        Semantic semantic = Semantic::None;
     };
 
     class ParameterDeclaration: public Declaration
@@ -170,7 +166,6 @@ namespace ouzel
 
         bool isInline = false;
         bool isBuiltin = false;
-        Program program;
     };
 
     class ConstructorDeclaration: public CallableDeclaration

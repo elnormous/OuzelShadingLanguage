@@ -128,45 +128,7 @@ namespace ouzel
 
                 code += printableTypeName.first + " " + fieldDeclaration->name + printableTypeName.second;
 
-                if (fieldDeclaration->semantic != Semantic::None)
-                {
-                    code += ":";
-
-                    switch (fieldDeclaration->semantic)
-                    {
-                        case Semantic::None: break;
-                        case Semantic::Binormal:
-                            code += "BINORMAL";
-                            break;
-                        case Semantic::BlendIndices:
-                            code += "BLEND_INDICES";
-                            break;
-                        case Semantic::BlendWeight:
-                            code += "BLEND_WEIGHT";
-                            break;
-                        case Semantic::Color:
-                            code += "COLOR";
-                            break;
-                        case Semantic::Normal:
-                            code += "NORMAL";
-                            break;
-                        case Semantic::Position:
-                            code += "POSITION";
-                            break;
-                        case Semantic::PositionTransformed:
-                            code += "POSITION_TRANSFORMED";
-                            break;
-                        case Semantic::PointSize:
-                            code += "POINT_SIZE";
-                            break;
-                        case Semantic::Tangent:
-                            code += "TANGENT";
-                            break;
-                        case Semantic::TextureCoordinates:
-                            code += "TEXTURE_COORDINATES";
-                            break;
-                    }
-                }
+                // TODO: print semantics
 
                 break;
             }

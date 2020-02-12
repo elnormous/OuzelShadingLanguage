@@ -406,7 +406,7 @@ namespace ouzel
                     if (iterator == end)
                         throw ParseError("Unexpected end of file");
 
-                    if (iterator->value == "fragment")
+                    /*if (iterator->value == "fragment")
                     {
                         if (result.program != Program::None)
                             throw ParseError("Single function can not have multiple program attributes");
@@ -491,7 +491,7 @@ namespace ouzel
                         result.semantic = Semantic::TextureCoordinates;
                     }
                     else
-                        throw ParseError("Invalid attribute " + iterator->value);
+                        throw ParseError("Invalid attribute " + iterator->value);*/
 
                     ++iterator;
 
@@ -501,7 +501,6 @@ namespace ouzel
 
                         // TODO: check if attribute contains semantic
                         expectToken(Token::Type::IntLiteral, iterator, end);
-                        result.semanticIndex = std::stoul(iterator->value);
                         ++iterator;
 
                         expectToken(Token::Type::RightParenthesis, iterator, end);
@@ -553,9 +552,6 @@ namespace ouzel
 
             bool isExtern = specifiers.isExtern;
             bool isInline = specifiers.isInline;
-            Program program = specifiers.program;
-            Semantic semantic = specifiers.semantic;
-            size_t semanticIndex = specifiers.semanticIndex;
 
             qualifiedType.type = parseType(iterator, end, declarationScopes);
 
@@ -567,24 +563,6 @@ namespace ouzel
             }
 
             specifiers = parseSpecifiers(iterator, end);
-
-            if (specifiers.program != Program::None)
-            {
-                if (program != Program::None)
-                    throw ParseError("Single function can not have multiple program attributes");
-
-                program = specifiers.program;
-            }
-
-            if (specifiers.semantic != Semantic::None)
-            {
-                if (semantic != Semantic::None)
-                    throw ParseError("Single variable can not have multiple semantic attributes");
-
-                semantic = specifiers.semantic;
-                semanticIndex = specifiers.semanticIndex;
-            }
-
             qualifiedType.qualifiers |= specifiers.qualifiers;
 
             if (specifiers.isExtern) isExtern = true;
@@ -614,10 +592,7 @@ namespace ouzel
                 constructs.push_back(std::unique_ptr<Construct>(result = new FunctionDeclaration()));
                 result->qualifiedType = qualifiedType;
                 result->isInline = isInline;
-                result->program = program;
                 result->name = name;
-                result->semantic = semantic;
-                result->semanticIndex = semanticIndex;
 
                 std::vector<QualifiedType> parameters;
 
@@ -694,9 +669,6 @@ namespace ouzel
                 if (isInline)
                     throw ParseError("Variables can not be inline");
 
-                if (program != Program::None)
-                    throw ParseError("Variables can not have program specifier");
-
                 if (findDeclaration(name, declarationScopes.back()))
                     throw ParseError("Redefinition of " + name);
 
@@ -705,8 +677,6 @@ namespace ouzel
                 result->qualifiedType = qualifiedType;
                 result->storageClass = isExtern ? StorageClass::Extern : StorageClass::Auto;
                 result->name = name;
-                result->semantic = semantic;
-                result->semanticIndex = semanticIndex;
 
                 while (isToken(Token::Type::LeftBracket, iterator, end))
                 {
@@ -874,8 +844,6 @@ namespace ouzel
             result->qualifiedType.qualifiers |= specifiers.qualifiers;
 
             bool isInline = specifiers.isInline;
-            Semantic semantic = specifiers.semantic;
-            size_t semanticIndex = specifiers.semanticIndex;
 
             result->qualifiedType.type = parseType(iterator, end, declarationScopes);
 
@@ -892,19 +860,8 @@ namespace ouzel
             specifiers = parseSpecifiers(iterator, end);
 
             result->qualifiedType.qualifiers |= specifiers.qualifiers;
-            result->semantic = semantic;
-            result->semanticIndex = semanticIndex;
 
             if (specifiers.isInline) isInline = true;
-
-            if (specifiers.semantic != Semantic::None)
-            {
-                if (semantic != Semantic::None)
-                    throw ParseError("Single variable can not have multiple semantic attributes");
-
-                semantic = specifiers.semantic;
-                semanticIndex = specifiers.semanticIndex;
-            }
 
             if (isInline)
                 throw ParseError("Members can not be inline");
@@ -955,8 +912,6 @@ namespace ouzel
         result->qualifiedType.qualifiers |= specifiers.qualifiers;
 
         bool isInline = specifiers.isInline;
-        Semantic semantic = specifiers.semantic;
-        size_t semanticIndex = specifiers.semanticIndex;
 
         result->qualifiedType.type = parseType(iterator, end, declarationScopes);
 
@@ -973,22 +928,11 @@ namespace ouzel
         specifiers = parseSpecifiers(iterator, end);
 
         result->qualifiedType.qualifiers |= specifiers.qualifiers;
-        result->semantic = semantic;
-        result->semanticIndex = semanticIndex;
 
         if (specifiers.isInline) isInline = true;
 
         if (isInline)
             throw ParseError("Parameters can not be inline");
-
-        if (specifiers.semantic != Semantic::None)
-        {
-            if (semantic != Semantic::None)
-                throw ParseError("Single variable can not have multiple semantic attributes");
-
-            semantic = specifiers.semantic;
-            semanticIndex = specifiers.semanticIndex;
-        }
 
         if (isToken(Token::Type::Identifier, iterator, end))
         {

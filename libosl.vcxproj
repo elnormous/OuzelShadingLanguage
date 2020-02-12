@@ -38,9 +38,7 @@
     <ClInclude Include="osl\OutputMSL.hpp" />
     <ClInclude Include="osl\Parser.hpp" />
     <ClInclude Include="osl\Preprocessor.hpp" />
-    <ClInclude Include="osl\Program.hpp" />
     <ClInclude Include="osl\QualifiedType.hpp" />
-    <ClInclude Include="osl\Semantic.hpp" />
     <ClInclude Include="osl\Statements.hpp" />
     <ClInclude Include="osl\Tokenizer.hpp" />
     <ClInclude Include="osl\Utils.hpp" />

@@ -6,7 +6,6 @@
 #define OUTPUTHLSL_HPP
 
 #include "Output.hpp"
-#include "Program.hpp"
 
 namespace ouzel
 {

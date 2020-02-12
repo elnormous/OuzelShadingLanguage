@@ -8,7 +8,7 @@
 #include <map>
 #include <string>
 #include "Output.hpp"
-#include "Program.hpp"
+#include "Attributes.hpp"
 
 namespace ouzel
 {
@@ -16,8 +16,7 @@ namespace ouzel
     {
     public:
         OutputGLSL(Program initProgram,
-                   uint32_t initGLSLVersion,
-                   const std::map<Semantic, std::string>& initSemantics);
+                   uint32_t initGLSLVersion);
         virtual std::string output(const ASTContext& context, bool whitespaces);
 
     private:
@@ -36,7 +35,6 @@ namespace ouzel
 
         Program program;
         uint32_t glslVersion;
-        const std::map<Semantic, std::string> semantics;
     };
 }
 

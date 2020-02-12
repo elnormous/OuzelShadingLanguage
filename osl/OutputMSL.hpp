@@ -7,15 +7,14 @@
 
 #include <map>
 #include "Output.hpp"
-#include "Program.hpp"
+#include "Attributes.hpp"
 
 namespace ouzel
 {
     class OutputMSL: public Output
     {
     public:
-        OutputMSL(Program initProgram,
-                  const std::map<Semantic, uint32_t>& initSemantics);
+        OutputMSL(Program initProgram);
         virtual std::string output(const ASTContext& context, bool whitespaces);
 
     private:
@@ -33,7 +32,6 @@ namespace ouzel
         void printConstruct(const Construct* construct, Options options, std::string& code);
 
         Program program;
-        const std::map<Semantic, uint32_t> semantics;
     };
 }
 

@@ -3,7 +3,6 @@
 //
 
 #include "OutputMSL.hpp"
-#include "Semantic.hpp"
 
 namespace ouzel
 {
@@ -18,9 +17,8 @@ namespace ouzel
         std::map<std::string, BuiltinFunction> builtinFunctions;
     }
 
-    OutputMSL::OutputMSL(Program initProgram,
-                         const std::map<Semantic, uint32_t>& initSemantics):
-        program(initProgram), semantics(initSemantics)
+    OutputMSL::OutputMSL(Program initProgram):
+        program(initProgram)
     {
     }
 
@@ -131,15 +129,7 @@ namespace ouzel
 
                 code += printableTypeName.first + " " + fieldDeclaration->name + printableTypeName.second;
 
-                if (fieldDeclaration->semantic != Semantic::None)
-                {
-                    auto attribute = semantics.find(fieldDeclaration->semantic);
-
-                    if (attribute == semantics.end())
-                        throw std::runtime_error("Invalid semantic " + toString(fieldDeclaration->semantic));
-
-                    code += " [[attribute(" + std::to_string(attribute->second) + ")]]";
-                }
+                // TODO: print semantics
 
                 break;
             }

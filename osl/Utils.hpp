@@ -192,6 +192,16 @@ namespace ouzel
             {
                 case Attribute::Kind::Fragment: return "Fragment";
                 case Attribute::Kind::Vertex: return "Vertex";
+                case Attribute::Kind::Binormal: return "Binormal";
+                case Attribute::Kind::BlendIndices: return "BlendIndices";
+                case Attribute::Kind::BlendWeight: return "BlendWeight";
+                case Attribute::Kind::Color: return "Color";
+                case Attribute::Kind::Normal: return "Normal";
+                case Attribute::Kind::Position: return "Position";
+                case Attribute::Kind::PositionTransformed: return "PositionTransformed";
+                case Attribute::Kind::PointSize: return "PointSize";
+                case Attribute::Kind::Tangent: return "Tangent";
+                case Attribute::Kind::TextureCoordinates: return "TextureCoordinates";
                 default: return "Unknown";
             }
         }
@@ -311,12 +321,11 @@ namespace ouzel
                 {
                     auto fieldDeclaration = static_cast<const FieldDeclaration*>(declaration);
 
-                    std::cout << ", name: " << fieldDeclaration->name << ", type: " << getPrintableTypeName(fieldDeclaration->qualifiedType);
+                    std::cout << ", name: " << fieldDeclaration->name << ", type: " << getPrintableTypeName(fieldDeclaration->qualifiedType) << '\n';
 
-                    if (fieldDeclaration->semantic != Semantic::None)
-                        std::cout << ", semantic: " << toString(fieldDeclaration->semantic);
+                    for (const auto attribute : fieldDeclaration->attributes)
+                        dumpConstruct(attribute, level + 1);
 
-                    std::cout << '\n';
                     break;
                 }
 
@@ -331,9 +340,6 @@ namespace ouzel
                         auto functionDeclaration = static_cast<const FunctionDeclaration*>(callableDeclaration);
 
                         if (functionDeclaration->isInline) std::cout << " inline";
-
-                        if (functionDeclaration->program != Program::None)
-                            std::cout << ", program: " << toString(functionDeclaration->program);
                     }
 
                     if (callableDeclaration->previousDeclaration)
@@ -347,6 +353,9 @@ namespace ouzel
                     for (ParameterDeclaration* parameter : callableDeclaration->parameterDeclarations)
                         dumpConstruct(parameter, level + 1);
 
+                    for (const auto attribute : callableDeclaration->attributes)
+                        dumpConstruct(attribute, level + 1);
+
                     if (callableDeclaration->body)
                         dumpConstruct(callableDeclaration->body, level + 1);
 
@@ -358,10 +367,11 @@ namespace ouzel
                     auto variableDeclaration = static_cast<const VariableDeclaration*>(declaration);
                     std::cout << ", name: " << variableDeclaration->name << ", type: " << getPrintableTypeName(variableDeclaration->qualifiedType) << '\n';
 
+                    for (const auto attribute : variableDeclaration->attributes)
+                        dumpConstruct(attribute, level + 1);
+
                     if (variableDeclaration->initialization)
-                    {
                         dumpConstruct(variableDeclaration->initialization, level + 1);
-                    }
 
                     break;
                 }
@@ -370,6 +380,10 @@ namespace ouzel
                 {
                     auto parameterDeclaration = static_cast<const ParameterDeclaration*>(declaration);
                     std::cout << ", name: " << parameterDeclaration->name << ", type: " << getPrintableTypeName(parameterDeclaration->qualifiedType) << '\n';
+
+                    for (const auto attribute : parameterDeclaration->attributes)
+                        dumpConstruct(attribute, level + 1);
+
                     break;
                 }
 

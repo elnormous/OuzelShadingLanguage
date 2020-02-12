@@ -11,8 +11,6 @@
 #include <string>
 #include <vector>
 #include "Tokenizer.hpp"
-#include "Program.hpp"
-#include "Semantic.hpp"
 #include "Declarations.hpp"
 #include "Expressions.hpp"
 #include "Statements.hpp"
@@ -157,9 +155,6 @@ namespace ouzel
             Qualifiers qualifiers = Qualifiers::None;
             bool isInline = false;
             bool isExtern = false;
-            Program program = Program::None;
-            Semantic semantic = Semantic::None;
-            size_t semanticIndex = 0;
         };
 
         static Specifiers parseSpecifiers(std::vector<Token>::const_iterator& iterator,

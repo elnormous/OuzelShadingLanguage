@@ -18,9 +18,8 @@ namespace ouzel
     }
 
     OutputGLSL::OutputGLSL(Program initProgram,
-                           uint32_t initGLSLVersion,
-                           const std::map<Semantic, std::string>& initSemantics):
-        program(initProgram), glslVersion(initGLSLVersion), semantics(initSemantics)
+                           uint32_t initGLSLVersion):
+        program(initProgram), glslVersion(initGLSLVersion)
     {
     }
 
@@ -125,44 +124,6 @@ namespace ouzel
                 if (options.whitespaces) code.append(options.indentation, ' ');
 
                 auto fieldDeclaration = static_cast<const FieldDeclaration*>(declaration);
-
-                if (fieldDeclaration->semantic != Semantic::None)
-                {
-                    switch (fieldDeclaration->semantic)
-                    {
-                        case Semantic::None: break;
-                        case Semantic::Binormal:
-                            // TODO: implement
-                            break;
-                        case Semantic::BlendIndices:
-                            // TODO: implement
-                            break;
-                        case Semantic::BlendWeight:
-                            // TODO: implement
-                            break;
-                        case Semantic::Color:
-                            // TODO: implement
-                            break;
-                        case Semantic::Normal:
-                            // TODO: implement
-                            break;
-                        case Semantic::Position:
-                            // TODO: implement
-                            break;
-                        case Semantic::PositionTransformed:
-                            // TODO: implement
-                            break;
-                        case Semantic::PointSize:
-                            // TODO: implement
-                            break;
-                        case Semantic::Tangent:
-                            // TODO: implement
-                            break;
-                        case Semantic::TextureCoordinates:
-                            // TODO: implement
-                            break;
-                    }
-                }
 
                 break;
             }
