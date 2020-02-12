@@ -307,6 +307,7 @@ namespace ouzel
             iterator->type == Token::Type::Inout ||
             iterator->type == Token::Type::Out ||
             iterator->type == Token::Type::Uniform ||
+            iterator->type == Token::Type::LeftBracket ||
             isType(iterator, end, declarationScopes);
     }
 
