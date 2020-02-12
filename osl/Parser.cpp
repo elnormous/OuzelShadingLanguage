@@ -1063,6 +1063,23 @@ namespace ouzel
 
             return result;
         }
+        else if (isToken(Token::Type::Semicolon, iterator, end))
+        {
+            ++iterator;
+
+            Statement* statement = new Statement(Statement::Kind::Empty);
+            constructs.push_back(std::unique_ptr<Construct>(statement));
+
+            return statement;
+        }
+        else if (isToken(Token::Type::Asm, iterator, end))
+            throw ParseError("asm statements are not supported");
+        else if (isToken(Token::Type::Goto, iterator, end))
+            throw ParseError("goto statements are not supported");
+        else if (isToken({Token::Type::Try, Token::Type::Catch, Token::Type::Throw}, iterator, end))
+            throw ParseError("Exceptions are not supported");
+        else if (iterator == end || isToken(Token::Type::RightBrace, iterator, end))
+            throw ParseError("Exceptions a statement");
         else if (isDeclaration(iterator, end, declarationScopes))
         {
             DeclarationStatement* result;
@@ -1082,26 +1099,6 @@ namespace ouzel
 
             return result;
         }
-        else if (isToken(Token::Type::Semicolon, iterator, end))
-        {
-            ++iterator;
-
-            Statement* statement = new Statement(Statement::Kind::Empty);
-            constructs.push_back(std::unique_ptr<Construct>(statement));
-
-            return statement;
-        }
-        else if (isToken(Token::Type::Asm, iterator, end))
-            throw ParseError("asm statements are not supported");
-        else if (isToken(Token::Type::Goto, iterator, end))
-            throw ParseError("goto statements are not supported");
-        else if (isToken({Token::Type::Try,
-            Token::Type::Catch,
-            Token::Type::Throw}, iterator, end))
-            throw ParseError("Exceptions are not supported");
-        else if (iterator == end ||
-                 isToken(Token::Type::RightBrace, iterator, end))
-            throw ParseError("Exceptions a statement");
         else
         {
             ExpressionStatement* result;
