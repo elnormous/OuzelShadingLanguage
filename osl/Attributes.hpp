@@ -15,20 +15,6 @@ namespace ouzel
         Vertex
     };
 
-    enum class Semantic
-    {
-        Binormal,
-        BlendIndices,
-        BlendWeight,
-        Color,
-        Normal,
-        Position,
-        PositionTransformed,
-        PointSize,
-        Tangent,
-        TextureCoordinates
-    };
-
     class Attribute: public Construct
     {
     public:
