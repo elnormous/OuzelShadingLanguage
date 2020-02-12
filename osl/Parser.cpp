@@ -303,9 +303,6 @@ namespace ouzel
             iterator->type == Token::Type::Signed ||
             iterator->type == Token::Type::Unsigned ||
             iterator->type == Token::Type::Struct ||
-            iterator->type == Token::Type::In ||
-            iterator->type == Token::Type::Inout ||
-            iterator->type == Token::Type::Out ||
             iterator->type == Token::Type::Uniform ||
             iterator->type == Token::Type::LeftBracket ||
             isType(iterator, end, declarationScopes);
@@ -372,24 +369,6 @@ namespace ouzel
                 {
                     ++iterator;
                     result.qualifiers |= Qualifiers::Volatile;
-                    break;
-                }
-                case Token::Type::In:
-                {
-                    ++iterator;
-                    result.qualifiers |= Qualifiers::In;
-                    break;
-                }
-                case Token::Type::Inout:
-                {
-                    ++iterator;
-                    result.qualifiers |= Qualifiers::In | Qualifiers::Out;
-                    break;
-                }
-                case Token::Type::Out:
-                {
-                    ++iterator;
-                    result.qualifiers |= Qualifiers::Out;
                     break;
                 }
                 case Token::Type::Uniform:
@@ -583,10 +562,6 @@ namespace ouzel
                  isToken(Token::Type::Void, iterator + 1, end) ||
                  isDeclaration(iterator + 1, end, declarationScopes)))  // function declaration
             {
-                if ((qualifiedType.qualifiers & Qualifiers::In) == Qualifiers::In ||
-                    (qualifiedType.qualifiers & Qualifiers::Out) == Qualifiers::Out)
-                    throw ParseError("Functions can not have in or out qualifiers");
-
                 ++iterator;
 
                 FunctionDeclaration* result;
@@ -866,10 +841,6 @@ namespace ouzel
 
             if (isInline)
                 throw ParseError("Members can not be inline");
-
-            if ((result->qualifiedType.qualifiers & Qualifiers::In) == Qualifiers::In ||
-                (result->qualifiedType.qualifiers & Qualifiers::Out) == Qualifiers::Out)
-                throw ParseError("Members can not have in or out qualifiers");
 
             expectToken(Token::Type::Identifier, iterator, end);
 

@@ -48,10 +48,8 @@ namespace ouzel
             Friend, // friend
             Goto, // goto
             If, // if
-            In, // in
             Inline, // inline
             Int, // int
-            Inout, // inout
             Long, // long
             Mutable, // mutable
             Namespace, // namespace
@@ -62,7 +60,6 @@ namespace ouzel
             Nullptr, // nullptr
             Operator, // operator
             Or, // || or or
-            Out, // out
             Private, // private
             Protected, // protected
             Public, // public
@@ -184,10 +181,8 @@ namespace ouzel
             case Token::Type::Friend: return "Friend";
             case Token::Type::Goto: return "Goto";
             case Token::Type::If: return "If";
-            case Token::Type::In: return "In";
             case Token::Type::Inline: return "Inline";
             case Token::Type::Int: return "Int";
-            case Token::Type::Inout: return "Inout";
             case Token::Type::Long: return "Long";
             case Token::Type::Mutable: return "Mutable";
             case Token::Type::Namespace: return "Namespace";
@@ -198,7 +193,6 @@ namespace ouzel
             case Token::Type::Nullptr: return "Nullptr";
             case Token::Type::Operator: return "Operator";
             case Token::Type::Or: return "Or";
-            case Token::Type::Out: return "Out";
             case Token::Type::Private: return "Private";
             case Token::Type::Protected: return "Protected";
             case Token::Type::Public: return "Public";

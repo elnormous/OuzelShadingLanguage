@@ -15,8 +15,6 @@ namespace ouzel
     {
         None = 0x00,
         Const = 0x01,
-        In = 0x02,
-        Out = 0x04,
         Uniform = 0x08,
         Volatile = 0x10
     };

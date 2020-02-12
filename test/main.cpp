@@ -694,11 +694,11 @@ namespace
     void testPrograms()
     {
         std::string code = R"OSL(
-        [[fragment]] float fragmentMain(in float4 param)
+        [[fragment]] float fragmentMain([[in]] float4 param)
         {
             return 0.0f;
         }
-        [[vertex]] float vertexMain(in float4 param)
+        [[vertex]] float vertexMain([[in]] float4 param)
         {
             return 0.0f;
         }

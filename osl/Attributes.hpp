@@ -31,6 +31,7 @@ namespace ouzel
             PositionTransformed,
             PointSize,
             Tangent,
+            TesselationFactor,
             TextureCoordinates,
             In,
             Inout,
@@ -61,36 +62,48 @@ namespace ouzel
     {
     public:
         BinormalAttribute(): Attribute(Attribute::Kind::Binormal) {}
+
+        size_t n = 0;
     };
 
     class BlendIndicesAttribute: public Attribute
     {
     public:
         BlendIndicesAttribute(): Attribute(Attribute::Kind::BlendIndices) {}
+
+        size_t n = 0;
     };
 
     class BlendWeightAttribute: public Attribute
     {
     public:
         BlendWeightAttribute(): Attribute(Attribute::Kind::BlendWeight) {}
+
+        size_t n = 0;
     };
 
     class ColorAttribute: public Attribute
     {
     public:
         ColorAttribute(): Attribute(Attribute::Kind::Color) {}
+
+        size_t n = 0;
     };
 
     class NormalAttribute: public Attribute
     {
     public:
         NormalAttribute(): Attribute(Attribute::Kind::Normal) {}
+
+        size_t n = 0;
     };
 
     class PositionAttribute: public Attribute
     {
     public:
         PositionAttribute(): Attribute(Attribute::Kind::Position) {}
+
+        size_t n = 0;
     };
 
     class PositionTransformedAttribute: public Attribute
@@ -103,18 +116,32 @@ namespace ouzel
     {
     public:
         PointSizeAttribute(): Attribute(Attribute::Kind::PointSize) {}
+
+        size_t n = 0;
     };
 
     class TangentAttribute: public Attribute
     {
     public:
         TangentAttribute(): Attribute(Attribute::Kind::Tangent) {}
+
+        size_t n = 0;
+    };
+
+    class TesselationFactorAttribute: public Attribute
+    {
+    public:
+        TesselationFactorAttribute(): Attribute(Attribute::Kind::TesselationFactor) {}
+
+        size_t n = 0;
     };
 
     class TextureCoordinatesAttribute: public Attribute
     {
     public:
         TextureCoordinatesAttribute(): Attribute(Attribute::Kind::TextureCoordinates) {}
+
+        size_t n = 0;
     };
 
     class InAttribute: public Attribute
