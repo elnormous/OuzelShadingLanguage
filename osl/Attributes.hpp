@@ -26,6 +26,7 @@ namespace ouzel
             BlendIndices,
             BlendWeight,
             Color,
+            Fog,
             Normal,
             Position,
             PositionTransformed,
@@ -88,6 +89,12 @@ namespace ouzel
         ColorAttribute(): Attribute(Attribute::Kind::Color) {}
 
         size_t n = 0;
+    };
+
+    class FogAttribute: public Attribute
+    {
+    public:
+        FogAttribute(): Attribute(Attribute::Kind::Fog) {}
     };
 
     class NormalAttribute: public Attribute
