@@ -18,8 +18,9 @@ namespace ouzel
     }
 
     OutputGLSL::OutputGLSL(Program initProgram,
+                           const std::string& initMainFunction,
                            uint32_t initGLSLVersion):
-        program(initProgram), glslVersion(initGLSLVersion)
+        Output(initProgram, initMainFunction), glslVersion(initGLSLVersion)
     {
     }
 

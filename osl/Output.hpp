@@ -10,11 +10,27 @@
 
 namespace ouzel
 {
+    enum class Program
+    {
+        Fragment,
+        Vertex
+    };
+
     class Output
     {
     public:
+        Output(Program initProgram, const std::string& initMainFunction):
+            program(initProgram), mainFunction(initMainFunction)
+        {
+        }
+
         virtual ~Output() {}
+
         virtual std::string output(const ASTContext& context, bool whitespaces) = 0;
+
+    protected:
+        Program program;
+        std::string mainFunction;
     };
 }
 

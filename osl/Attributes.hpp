@@ -9,19 +9,11 @@
 
 namespace ouzel
 {
-    enum class Program
-    {
-        Fragment,
-        Vertex
-    };
-
     class Attribute: public Construct
     {
     public:
         enum class Kind
         {
-            Fragment,
-            Vertex,
             Binormal,
             BlendIndices,
             BlendWeight,
@@ -45,18 +37,6 @@ namespace ouzel
 
     protected:
         const Kind attributeKind;
-    };
-
-    class FragmentAttribute: public Attribute
-    {
-    public:
-        FragmentAttribute(): Attribute(Attribute::Kind::Fragment) {}
-    };
-
-    class VertexAttribute: public Attribute
-    {
-    public:
-        VertexAttribute(): Attribute(Attribute::Kind::Vertex) {}
     };
 
     class BinormalAttribute: public Attribute

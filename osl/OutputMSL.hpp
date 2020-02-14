@@ -14,7 +14,7 @@ namespace ouzel
     class OutputMSL: public Output
     {
     public:
-        OutputMSL(Program initProgram);
+        OutputMSL(Program initProgram, const std::string& initMainFunction);
         virtual std::string output(const ASTContext& context, bool whitespaces);
 
     private:
@@ -30,8 +30,6 @@ namespace ouzel
         void printStatement(const Statement* statement, Options options, std::string& code);
         void printExpression(const Expression* expression, Options options, std::string& code);
         void printConstruct(const Construct* construct, Options options, std::string& code);
-
-        Program program;
     };
 }
 

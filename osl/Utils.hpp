@@ -190,17 +190,17 @@ namespace ouzel
         {
             switch (attributeKind)
             {
-                case Attribute::Kind::Fragment: return "Fragment";
-                case Attribute::Kind::Vertex: return "Vertex";
                 case Attribute::Kind::Binormal: return "Binormal";
                 case Attribute::Kind::BlendIndices: return "BlendIndices";
                 case Attribute::Kind::BlendWeight: return "BlendWeight";
                 case Attribute::Kind::Color: return "Color";
+                case Attribute::Kind::Fog: return "Fog";
                 case Attribute::Kind::Normal: return "Normal";
                 case Attribute::Kind::Position: return "Position";
                 case Attribute::Kind::PositionTransformed: return "PositionTransformed";
                 case Attribute::Kind::PointSize: return "PointSize";
                 case Attribute::Kind::Tangent: return "Tangent";
+                case Attribute::Kind::TesselationFactor: return "TesselationFactor";
                 case Attribute::Kind::TextureCoordinates: return "TextureCoordinates";
                 default: return "Unknown";
             }

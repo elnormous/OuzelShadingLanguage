@@ -17,8 +17,8 @@ namespace ouzel
         std::map<std::string, BuiltinFunction> builtinFunctions;
     }
 
-    OutputMSL::OutputMSL(Program initProgram):
-        program(initProgram)
+    OutputMSL::OutputMSL(Program initProgram, const std::string& initMainFunction):
+        Output(initProgram, initMainFunction)
     {
     }
 

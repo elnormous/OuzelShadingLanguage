@@ -16,6 +16,7 @@ namespace ouzel
     {
     public:
         OutputGLSL(Program initProgram,
+                   const std::string& initMainFunction,
                    uint32_t initGLSLVersion);
         virtual std::string output(const ASTContext& context, bool whitespaces);
 
