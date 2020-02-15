@@ -322,14 +322,12 @@ namespace ouzel
             if (!callableDeclaration->body)
             {
                 expectToken(Token::Type::Semicolon, iterator, end);
-
                 ++iterator;
             }
         }
         else
         {
             expectToken(Token::Type::Semicolon, iterator, end);
-
             ++iterator;
         }
 
@@ -356,7 +354,7 @@ namespace ouzel
                 case Token::Type::Extern:
                 {
                     ++iterator;
-                    result.isExtern = true;
+                    result.storageClass = StorageClass::Extern;
                     break;
                 }
                 case Token::Type::Inline:
@@ -530,7 +528,7 @@ namespace ouzel
             QualifiedType qualifiedType;
             qualifiedType.qualifiers |= specifiers.qualifiers;
 
-            bool isExtern = specifiers.isExtern;
+            StorageClass storageClass = specifiers.storageClass;
             bool isInline = specifiers.isInline;
 
             qualifiedType.type = parseType(iterator, end, declarationScopes);
@@ -545,7 +543,7 @@ namespace ouzel
             specifiers = parseSpecifiers(iterator, end);
             qualifiedType.qualifiers |= specifiers.qualifiers;
 
-            if (specifiers.isExtern) isExtern = true;
+            // TODO: check storage class
             if (specifiers.isInline) isInline = true;
 
             if (isToken(Token::Type::Operator, iterator, end))
@@ -651,7 +649,7 @@ namespace ouzel
                 VariableDeclaration* result;
                 constructs.push_back(std::unique_ptr<VariableDeclaration>(result = new VariableDeclaration()));
                 result->qualifiedType = qualifiedType;
-                result->storageClass = isExtern ? StorageClass::Extern : StorageClass::Auto;
+                result->storageClass = storageClass;
                 result->name = name;
 
                 while (isToken(Token::Type::LeftBracket, iterator, end))

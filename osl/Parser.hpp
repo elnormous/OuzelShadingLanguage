@@ -154,7 +154,7 @@ namespace ouzel
         {
             Qualifiers qualifiers = Qualifiers::None;
             bool isInline = false;
-            bool isExtern = false;
+            StorageClass storageClass = StorageClass::Auto;
         };
 
         static Specifiers parseSpecifiers(std::vector<Token>::const_iterator& iterator,
