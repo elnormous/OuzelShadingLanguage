@@ -806,73 +806,63 @@ namespace ouzel
                                                     std::vector<Token>::const_iterator end,
                                                     std::vector<std::vector<Declaration*>>& declarationScopes)
     {
-        if (isToken(Token::Type::Semicolon, iterator, end))
-        {
-            Declaration* result;
-            constructs.push_back(std::unique_ptr<Construct>(result = new Declaration(Declaration::Kind::Empty)));
+        FieldDeclaration* result;
+        constructs.push_back(std::unique_ptr<Construct>(result = new FieldDeclaration()));
 
-            return result;
+        ASTContext::Specifiers specifiers = parseSpecifiers(iterator, end);
+
+        result->qualifiedType.qualifiers |= specifiers.qualifiers;
+
+        bool isInline = specifiers.isInline;
+
+        result->qualifiedType.type = parseType(iterator, end, declarationScopes);
+
+        if (result->qualifiedType.type->getTypeKind() == Type::Kind::Void)
+            throw ParseError("Member can not have a void type");
+
+        if (result->qualifiedType.type->getTypeKind() == Type::Kind::Struct)
+        {
+            auto structType = static_cast<const StructType*>(result->qualifiedType.type);
+            if (!structType->declaration->definition)
+                throw ParseError("Incomplete type " + result->qualifiedType.type->name);
         }
-        else
+
+        specifiers = parseSpecifiers(iterator, end);
+
+        result->qualifiedType.qualifiers |= specifiers.qualifiers;
+
+        if (specifiers.isInline) isInline = true;
+
+        if (isInline)
+            throw ParseError("Members can not be inline");
+
+        expectToken(Token::Type::Identifier, iterator, end);
+
+        result->name = iterator->value;
+
+        ++iterator;
+
+        while (isToken(Token::Type::LeftBracket, iterator, end))
         {
-            FieldDeclaration* result;
-            constructs.push_back(std::unique_ptr<Construct>(result = new FieldDeclaration()));
+            ++iterator;
 
-            ASTContext::Specifiers specifiers = parseSpecifiers(iterator, end);
+            expectToken(Token::Type::IntLiteral, iterator, end);
 
-            result->qualifiedType.qualifiers |= specifiers.qualifiers;
-
-            bool isInline = specifiers.isInline;
-
-            result->qualifiedType.type = parseType(iterator, end, declarationScopes);
-
-            if (result->qualifiedType.type->getTypeKind() == Type::Kind::Void)
-                throw ParseError("Member can not have a void type");
-
-            if (result->qualifiedType.type->getTypeKind() == Type::Kind::Struct)
-            {
-                auto structType = static_cast<const StructType*>(result->qualifiedType.type);
-                if (!structType->declaration->definition)
-                    throw ParseError("Incomplete type " + result->qualifiedType.type->name);
-            }
-
-            specifiers = parseSpecifiers(iterator, end);
-
-            result->qualifiedType.qualifiers |= specifiers.qualifiers;
-
-            if (specifiers.isInline) isInline = true;
-
-            if (isInline)
-                throw ParseError("Members can not be inline");
-
-            expectToken(Token::Type::Identifier, iterator, end);
-
-            result->name = iterator->value;
+            const int size = std::stoi(iterator->value);
 
             ++iterator;
 
-            while (isToken(Token::Type::LeftBracket, iterator, end))
-            {
-                ++iterator;
+            if (size <= 0)
+                throw ParseError("Array size must be greater than zero");
 
-                expectToken(Token::Type::IntLiteral, iterator, end);
+            result->qualifiedType.type = getArrayType(result->qualifiedType, static_cast<uint32_t>(size));
 
-                const int size = std::stoi(iterator->value);
+            expectToken(Token::Type::RightBracket, iterator, end);
 
-                ++iterator;
-
-                if (size <= 0)
-                    throw ParseError("Array size must be greater than zero");
-
-                result->qualifiedType.type = getArrayType(result->qualifiedType, static_cast<uint32_t>(size));
-
-                expectToken(Token::Type::RightBracket, iterator, end);
-
-                ++iterator;
-            }
-
-            return result;
+            ++iterator;
         }
+
+        return result;
     }
 
     ParameterDeclaration* ASTContext::parseParameterDeclaration(std::vector<Token>::const_iterator& iterator,
