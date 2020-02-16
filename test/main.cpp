@@ -144,7 +144,7 @@ namespace
     void testEmptyStatement()
     {
         std::string code = R"OSL(
-        void main()
+        function main():void
         {
             ;
         }
@@ -167,9 +167,9 @@ namespace
     void testDeclaration()
     {
         std::string code = R"OSL(
-        void main()
+        function main():void
         {
-            int i = 3;
+            var i:int = 3;
         }
         )OSL";
 
@@ -207,7 +207,7 @@ namespace
     void testIfStatement()
     {
         std::string code = R"OSL(
-        void main()
+        function main():void
         {
             if (true)
             {
@@ -270,7 +270,7 @@ namespace
     void testWhileStatement()
     {
         std::string code = R"OSL(
-        void main()
+        function main():void
         {
             while (true)
             {
@@ -309,7 +309,7 @@ namespace
     void testDoStatement()
     {
         std::string code = R"OSL(
-        void main()
+        function main():void
         {
             do
             {
@@ -349,7 +349,7 @@ namespace
     void testForStatement()
     {
         std::string code = R"OSL(
-        void main()
+        function main():void
         {
             for (; true;)
             {
@@ -388,7 +388,7 @@ namespace
     void testSwitchStatement()
     {
         std::string code = R"OSL(
-        void main()
+        function main():void
         {
             switch (1)
             {
@@ -466,7 +466,7 @@ namespace
     void testReturnStatement()
     {
         std::string code = R"OSL(
-        int main()
+        function main():int
         {
             return 1;
         }
@@ -493,7 +493,7 @@ namespace
     void testBoolLiteral()
     {
         std::string code = R"OSL(
-        void main()
+        function main():void
         {
             true;
         }
@@ -506,7 +506,7 @@ namespace
     void testIntLiteral()
     {
         std::string code = R"OSL(
-        void main()
+        function main():void
         {
             1;
         }
@@ -519,7 +519,7 @@ namespace
     void testFloatLiteral()
     {
         std::string code = R"OSL(
-        void main()
+        function main():void
         {
             1.0F;
         }
@@ -548,8 +548,8 @@ namespace
 
         struct Foo
         {
-            float f;
-        };
+            var f:float;
+        }
         )OSL";
 
         ouzel::ASTContext context(ouzel::tokenize(code));
@@ -601,10 +601,10 @@ namespace
     void testFunction()
     {
         std::string code = R"OSL(
-        float foo(float a) { return 1.0f; }
-        float foo(int a) { return 1.0f; }
+        function foo(a:float):float { return 1.0f; }
+        function foo(a:int):float { return 1.0f; }
 
-        void main()
+        function main():void
         {
             foo(1);
             foo(1.0f);
@@ -617,9 +617,9 @@ namespace
     void testArray()
     {
         std::string code = R"OSL(
-        void main()
+        function main():void
         {
-            float a[4];
+            var a:float[4];
             a[0] = 1.0f;
         }
         )OSL";
@@ -630,12 +630,12 @@ namespace
     void testFloat()
     {
         std::string code = R"OSL(
-        void main()
+        function main():void
         {
-            float f1 = 1.0f;
-            float f2 = ++f1;
-            float f3 = f2++;
-            float f4 = float(1);
+            var f1:float = 1.0f;
+            var f2:float = ++f1;
+            var f3:float = f2++;
+            var f4:float = float(1);
         }
         )OSL";
 
@@ -645,14 +645,14 @@ namespace
     void testVector()
     {
         std::string code = R"OSL(
-        void main()
+        function main():void
         {
-            float4 v1;
-            float4 v2;
+            var v1:float4;
+            var v2:float4;
             v1.xyzw = v2.xxxx;
-            float f1 = v1[0];
+            var f1:float = v1[0];
             v1[0] = f1;
-            float4 v3 = float4(v1.xyz, 1.0f);
+            var v3:float4 = float4(v1.xyz, 1.0f);
             v3 = float4(v2);
         }
         )OSL";
@@ -663,14 +663,14 @@ namespace
     void testMatrix()
     {
         std::string code = R"OSL(
-        void main()
+        function main():void
         {
-            float4x4 m1;
-            float4 v1 = m1[0];
-            float f1 = m1[0][0];
+            var m1:float4x4;
+            var v1:float4 = m1[0];
+            var f1:float = m1[0][0];
             m1[0][0] = f1;
-            float2x2 m2 = float2x2(v1.xy, v1.zw);
-            float4x4 m3 = float4x4(m1);
+            var m2:float2x2 = float2x2(v1.xy, v1.zw);
+            var m3:float4x4 = float4x4(m1);
         }
         )OSL";
 
@@ -679,13 +679,14 @@ namespace
 
     void testSemantics()
     {
+        // TODO: add position, normal, texture_coordinates(0) semantics
         std::string code = R"OSL(
             struct Vertex
             {
-                float3 [[position]] position;
-                float3 [[normal]] normal;
-                float2 [[texture_coordinates(0)]] texCoord;
-            };
+                var position:float3;
+                var normal: float3;
+                var texCoord:float2;
+            }
         )OSL";
 
         ouzel::ASTContext context(ouzel::tokenize(code));
@@ -693,12 +694,13 @@ namespace
 
     void testPrograms()
     {
+        // TODO: add in/out specifiers
         std::string code = R"OSL(
-        [[fragment]] float fragmentMain([[in]] float4 param)
+        function fragmentMain(param:float4):float
         {
             return 0.0f;
         }
-        [[vertex]] float vertexMain([[in]] float4 param)
+        function vertexMain(param:float4):float
         {
             return 0.0f;
         }
@@ -756,15 +758,15 @@ namespace
     void testOperators()
     {
         std::string code = R"OSL(
-        void main()
+        function main():void
         {
-            float a = 1.0f;
-            float b = a * 1.0f;
-            float4 v1;
-            float4 v2 = v1;
-            float4 v3 = v1 + v2;
-            float4x4 mat1;
-            float4 v4 = mat1 * v1;
+            var a:float = 1.0f;
+            var b:float = a * 1.0f;
+            var v1:float4;
+            var v2:float4 = v1;
+            var v3:float4 = v1 + v2;
+            var mat1:float4x4;
+            var v4:float4 = mat1 * v1;
         }
         )OSL";
 

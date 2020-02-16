@@ -40,6 +40,7 @@ namespace ouzel
             {"float", Token::Type::Float},
             {"for", Token::Type::For},
             {"friend", Token::Type::Friend},
+            {"function", Token::Type::Function},
             {"goto", Token::Type::Goto},
             {"if", Token::Type::If},
             {"inline", Token::Type::Inline},
@@ -80,6 +81,7 @@ namespace ouzel
             {"union", Token::Type::Union},
             {"unsigned", Token::Type::Unsigned},
             {"using", Token::Type::Using},
+            {"var", Token::Type::Var},
             {"varying", Token::Type::Varying},
             {"virtual", Token::Type::Virtual},
             {"void", Token::Type::Void},
@@ -615,7 +617,7 @@ namespace ouzel
 
     void dump(const std::vector<Token>& tokens)
     {
-        for (const Token& token : tokens)
+        for (const auto& token : tokens)
         {
             std::cout << "Token, type: " << toString(token.type) <<
                 ", value: " << token.value <<

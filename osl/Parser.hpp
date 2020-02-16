@@ -132,6 +132,7 @@ namespace ouzel
                                                                const std::vector<std::vector<Declaration*>>& declarationScopes,
                                                                const std::vector<QualifiedType>& arguments);
 
+        const ArrayType* getArrayType(const Type* type, uint32_t size);
         const ArrayType* getArrayType(QualifiedType qualifiedType, uint32_t size);
 
         bool isType(std::vector<Token>::const_iterator iterator,
@@ -163,6 +164,14 @@ namespace ouzel
         Declaration* parseDeclaration(std::vector<Token>::const_iterator& iterator,
                                       std::vector<Token>::const_iterator end,
                                       std::vector<std::vector<Declaration*>>& declarationScopes);
+
+        Declaration* parseFunctionDeclaration(std::vector<Token>::const_iterator& iterator,
+                                              std::vector<Token>::const_iterator end,
+                                              std::vector<std::vector<Declaration*>>& declarationScopes);
+
+        Declaration* parseVariableDeclaration(std::vector<Token>::const_iterator& iterator,
+                                              std::vector<Token>::const_iterator end,
+                                              std::vector<std::vector<Declaration*>>& declarationScopes);
 
         TypeDeclaration* parseStructTypeDeclaration(std::vector<Token>::const_iterator& iterator,
                                                     std::vector<Token>::const_iterator end,

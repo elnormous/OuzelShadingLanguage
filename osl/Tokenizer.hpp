@@ -46,6 +46,7 @@ namespace ouzel
             Float, // float
             For, // for
             Friend, // friend
+            Function, // function
             Goto, // goto
             If, // if
             Inline, // inline
@@ -85,6 +86,7 @@ namespace ouzel
             Union, // union
             Unsigned, // unsigned
             Using, // using
+            Var, // var
             Varying, // varying
             Virtual, // virtual
             Void, // void
@@ -179,6 +181,7 @@ namespace ouzel
             case Token::Type::Float: return "Float";
             case Token::Type::For: return "For";
             case Token::Type::Friend: return "Friend";
+            case Token::Type::Function: return "Function";
             case Token::Type::Goto: return "Goto";
             case Token::Type::If: return "If";
             case Token::Type::Inline: return "Inline";
@@ -218,6 +221,7 @@ namespace ouzel
             case Token::Type::Union: return "Union";
             case Token::Type::Unsigned: return "Unsigned";
             case Token::Type::Using: return "Using";
+            case Token::Type::Var: return "Var";
             case Token::Type::Varying: return "Varying";
             case Token::Type::Virtual: return "Virtual";
             case Token::Type::Void: return "Void";

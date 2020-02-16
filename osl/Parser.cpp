@@ -223,6 +223,29 @@ namespace ouzel
         }
     }
 
+    const ArrayType* ASTContext::getArrayType(const Type* type, uint32_t size)
+    {
+        QualifiedType qualifiedType;
+        qualifiedType.type = type;
+
+        auto i = arrayTypes.find(std::make_pair(qualifiedType, size));
+
+        if (i != arrayTypes.end())
+        {
+            return i->second;
+        }
+        else
+        {
+            ArrayType* result;
+            types.push_back(std::unique_ptr<Type>(result = new ArrayType()));
+            result->elementType = qualifiedType;
+            result->size = size;
+
+            arrayTypes[std::make_pair(qualifiedType, size)] = result;
+            return result;
+        }
+    }
+
     const ArrayType* ASTContext::getArrayType(QualifiedType qualifiedType, uint32_t size)
     {
         auto i = arrayTypes.find(std::make_pair(qualifiedType, size));
@@ -288,6 +311,26 @@ namespace ouzel
 
         ++iterator;
 
+        while (isToken(Token::Type::LeftBracket, iterator, end))
+        {
+            ++iterator;
+
+            expectToken(Token::Type::IntLiteral, iterator, end);
+
+            const int size = std::stoi(iterator->value);
+
+            ++iterator;
+
+            if (size <= 0)
+                throw ParseError("Array size must be greater than zero");
+
+            result = getArrayType(result, static_cast<uint32_t>(size));
+
+            expectToken(Token::Type::RightBracket, iterator, end);
+
+            ++iterator;
+        }
+
         return result;
     }
 
@@ -299,13 +342,7 @@ namespace ouzel
             throw ParseError("Unexpected end of file");
 
         return iterator->type == Token::Type::Const ||
-            iterator->type == Token::Type::Inline ||
-            iterator->type == Token::Type::Signed ||
-            iterator->type == Token::Type::Unsigned ||
-            iterator->type == Token::Type::Struct ||
-            iterator->type == Token::Type::Uniform ||
-            iterator->type == Token::Type::LeftBracket ||
-            isType(iterator, end, declarationScopes);
+            iterator->type == Token::Type::Var;
     }
 
     Declaration* ASTContext::parseTopLevelDeclaration(std::vector<Token>::const_iterator& iterator,
@@ -320,6 +357,17 @@ namespace ouzel
 
             // semicolon is not needed after a function definition
             if (!callableDeclaration->body)
+            {
+                expectToken(Token::Type::Semicolon, iterator, end);
+                ++iterator;
+            }
+        }
+        else if (declaration->getDeclarationKind() == Declaration::Kind::Type)
+        {
+            auto typeDeclaration = static_cast<TypeDeclaration*>(declaration);
+
+            // semicolon is not needed after a struct definition
+            if (typeDeclaration->definition != typeDeclaration)
             {
                 expectToken(Token::Type::Semicolon, iterator, end);
                 ++iterator;
@@ -510,206 +558,148 @@ namespace ouzel
             return declaration;
         }
         else if (isToken(Token::Type::Struct, iterator, end))
-        {
             return parseStructTypeDeclaration(iterator, end, declarationScopes);
-        }
         /*else if (isToken(Token::Type::Typedef, iterator, end))
-        {
-            return parseTypeDefinitionDeclaration(iterator, end, declarationScopes);
-        }*/
+            return parseTypeDefinitionDeclaration(iterator, end, declarationScopes);*/
         else if (isToken(Token::Type::Function, iterator, end))
-        {
-            ++iterator;
-
             return parseFunctionDeclaration(iterator, end, declarationScopes);
+        else if (isToken({Token::Type::Var, Token::Type::Const}, iterator, end))
+            return parseVariableDeclaration(iterator, end, declarationScopes);
+        else
+            throw ParseError("Unknown declaration type");
+    }
+
+    Declaration* ASTContext::parseFunctionDeclaration(std::vector<Token>::const_iterator& iterator,
+                                                      std::vector<Token>::const_iterator end,
+                                                      std::vector<std::vector<Declaration*>>& declarationScopes)
+    {
+        expectToken(Token::Type::Function, iterator, end);
+        ++iterator;
+
+        FunctionDeclaration* result;
+        constructs.push_back(std::unique_ptr<Construct>(result = new FunctionDeclaration()));
+
+        expectToken(Token::Type::Identifier, iterator, end);
+        result->name = iterator->value;
+        ++iterator;
+
+        expectToken(Token::Type::LeftParenthesis, iterator, end);
+        ++iterator;
+
+        std::vector<QualifiedType> parameters;
+
+        if (!isToken(Token::Type::RightParenthesis, iterator, end))
+        {
+            for (;;)
+            {
+                auto parameterDeclaration = parseParameterDeclaration(iterator, end, declarationScopes);
+                parameterDeclaration->parent = result;
+                result->parameterDeclarations.push_back(parameterDeclaration);
+                parameters.push_back(parameterDeclaration->qualifiedType);
+
+                if (!isToken(Token::Type::Comma, iterator, end))
+                    break;
+
+                ++iterator;
+            }
+        }
+
+        expectToken(Token::Type::RightParenthesis, iterator, end);
+        ++iterator;
+
+        // TODO: forbid declaring a function with the same name as a declared type (not supported by GLSL)
+        auto previousDeclaration = findFunctionDeclaration(result->name, declarationScopes, parameters);
+
+        if (previousDeclaration)
+        {
+            result->previousDeclaration = previousDeclaration;
+            result->firstDeclaration = previousDeclaration->firstDeclaration;
+            result->definition = previousDeclaration->definition;
         }
         else
+            result->firstDeclaration = result;
+
+        expectToken(Token::Type::Colon, iterator, end);
+        ++iterator;
+
+        result->qualifiedType.type = parseType(iterator, end, declarationScopes);
+
+        declarationScopes.back().push_back(result);
+
+        if (isToken(Token::Type::LeftBrace, iterator, end))
         {
-            ASTContext::Specifiers specifiers = parseSpecifiers(iterator, end);
+            // check if only one definition exists
+            if (result->definition)
+                throw ParseError("Redefinition of " + result->name);
 
-            QualifiedType qualifiedType;
-            qualifiedType.qualifiers |= specifiers.qualifiers;
-
-            StorageClass storageClass = specifiers.storageClass;
-            bool isInline = specifiers.isInline;
-
-            qualifiedType.type = parseType(iterator, end, declarationScopes);
-
-            if (qualifiedType.type->getTypeKind() == Type::Kind::Struct)
+            // set the definition pointer of all previous declarations
+            Declaration* previousDeclaration = result;
+            while (previousDeclaration)
             {
-                auto structType = static_cast<const StructType*>(qualifiedType.type);
-                if (!structType->declaration->definition)
-                    throw ParseError("Incomplete type " + qualifiedType.type->name);
+                previousDeclaration->definition = result;
+                previousDeclaration = previousDeclaration->previousDeclaration;
             }
 
-            specifiers = parseSpecifiers(iterator, end);
-            qualifiedType.qualifiers |= specifiers.qualifiers;
+            declarationScopes.push_back(std::vector<Declaration*>()); // add scope for parameters
 
-            // TODO: check storage class
-            if (specifiers.isInline) isInline = true;
+            for (ParameterDeclaration* parameterDeclaration : result->parameterDeclarations)
+                declarationScopes.back().push_back(parameterDeclaration);
 
-            if (isToken(Token::Type::Operator, iterator, end))
-                throw ParseError("Operator overloads are not supported");
+            // parse body
+            auto body = parseCompoundStatement(iterator, end, declarationScopes);
+            body->parent = result;
+            result->body = body;
 
-            expectToken(Token::Type::Identifier, iterator, end);
+            declarationScopes.pop_back();
+        }
 
-            const std::string name = iterator->value;
+        return result;
+    }
 
+    Declaration* ASTContext::parseVariableDeclaration(std::vector<Token>::const_iterator& iterator,
+                                                      std::vector<Token>::const_iterator end,
+                                                      std::vector<std::vector<Declaration*>>& declarationScopes)
+    {
+        VariableDeclaration* result;
+        constructs.push_back(std::unique_ptr<Construct>(result = new VariableDeclaration()));
+
+        if (isToken(Token::Type::Var, iterator, end))
+            result->qualifiedType.qualifiers = Qualifiers::None;
+        else if (isToken(Token::Type::Const, iterator, end))
+            result->qualifiedType.qualifiers = Qualifiers::Const;
+        else
+            throw ParseError("Expected a variable declaration");
+
+        ++iterator;
+
+        expectToken(Token::Type::Identifier, iterator, end);
+        result->name = iterator->value;
+        ++iterator;
+
+        expectToken(Token::Type::Colon, iterator, end);
+        ++iterator;
+
+        result->qualifiedType.type = parseType(iterator, end, declarationScopes);
+
+        if (result->qualifiedType.type->getTypeKind() == Type::Kind::Void)
+            throw ParseError("Variable can not have a void type");
+
+        if (isToken(Token::Type::Assignment, iterator, end))
+        {
             ++iterator;
 
-            if (isToken(Token::Type::LeftParenthesis, iterator, end) &&
-                (isToken(Token::Type::RightParenthesis, iterator + 1, end) ||
-                 isToken(Token::Type::Void, iterator + 1, end) ||
-                 isDeclaration(iterator + 1, end, declarationScopes)))  // function declaration
-            {
-                ++iterator;
+            auto initialization = parseMultiplicationAssignmentExpression(iterator, end, declarationScopes);
+            initialization->parent = result;
 
-                FunctionDeclaration* result;
-                constructs.push_back(std::unique_ptr<Construct>(result = new FunctionDeclaration()));
-                result->qualifiedType = qualifiedType;
-                result->isInline = isInline;
-                result->name = name;
+            if (initialization->qualifiedType.type->getTypeKind() == Type::Kind::Void)
+                throw ParseError("Initialization with a void type");
 
-                std::vector<QualifiedType> parameters;
-
-                if (isToken(Token::Type::Void, iterator, end))
-                    ++iterator;
-                else if (!isToken(Token::Type::RightParenthesis, iterator, end))
-                {
-                    for (;;)
-                    {
-                        auto parameterDeclaration = parseParameterDeclaration(iterator, end, declarationScopes);
-                        parameterDeclaration->parent = result;
-                        result->parameterDeclarations.push_back(parameterDeclaration);
-                        parameters.push_back(parameterDeclaration->qualifiedType);
-
-                        if (!isToken(Token::Type::Comma, iterator, end))
-                            break;
-
-                        ++iterator;
-                    }
-                }
-
-                expectToken(Token::Type::RightParenthesis, iterator, end);
-
-                ++iterator;
-
-                // TODO: forbid declaring a function with the same name as a declared type (not supported by GLSL)
-                auto previousDeclaration = findFunctionDeclaration(name, declarationScopes, parameters);
-
-                if (previousDeclaration)
-                {
-                    result->previousDeclaration = previousDeclaration;
-                    result->firstDeclaration = previousDeclaration->firstDeclaration;
-                    result->definition = previousDeclaration->definition;
-                }
-                else
-                    result->firstDeclaration = result;
-
-                declarationScopes.back().push_back(result);
-
-                if (isToken(Token::Type::LeftBrace, iterator, end))
-                {
-                    // check if only one definition exists
-                    if (result->definition)
-                        throw ParseError("Redefinition of " + result->name);
-
-                    // set the definition pointer of all previous declarations
-                    Declaration* previousDeclaration = result;
-                    while (previousDeclaration)
-                    {
-                        previousDeclaration->definition = result;
-                        previousDeclaration = previousDeclaration->previousDeclaration;
-                    }
-
-                    declarationScopes.push_back(std::vector<Declaration*>()); // add scope for parameters
-
-                    for (ParameterDeclaration* parameterDeclaration : result->parameterDeclarations)
-                        declarationScopes.back().push_back(parameterDeclaration);
-
-                    // parse body
-                    auto body = parseCompoundStatement(iterator, end, declarationScopes);
-                    body->parent = result;
-                    result->body = body;
-
-                    declarationScopes.pop_back();
-                }
-
-                return result;
-            }
-            else // variable declaration
-            {
-                if (qualifiedType.type->getTypeKind() == Type::Kind::Void)
-                    throw ParseError("Variable can not have a void type");
-
-                if (isInline)
-                    throw ParseError("Variables can not be inline");
-
-                if (findDeclaration(name, declarationScopes.back()))
-                    throw ParseError("Redefinition of " + name);
-
-                VariableDeclaration* result;
-                constructs.push_back(std::unique_ptr<VariableDeclaration>(result = new VariableDeclaration()));
-                result->qualifiedType = qualifiedType;
-                result->storageClass = storageClass;
-                result->name = name;
-
-                while (isToken(Token::Type::LeftBracket, iterator, end))
-                {
-                    ++iterator;
-
-                    expectToken(Token::Type::IntLiteral, iterator, end);
-
-                    const int size = std::stoi(iterator->value);
-
-                    ++iterator;
-
-                    if (size <= 0)
-                        throw ParseError("Array size must be greater than zero");
-
-                    result->qualifiedType.type = getArrayType(result->qualifiedType, static_cast<uint32_t>(size));
-
-                    expectToken(Token::Type::RightBracket, iterator, end);
-
-                    ++iterator;
-                }
-
-                if (isToken(Token::Type::LeftParenthesis, iterator, end))
-                {
-                    ++iterator;
-
-                    auto initialization = parseMultiplicationAssignmentExpression(iterator, end, declarationScopes);
-                    initialization->parent = result;
-
-                    if (initialization->qualifiedType.type->getTypeKind() == Type::Kind::Void)
-                        throw ParseError("Member can not have a void type");
-
-                    result->initialization = initialization;
-
-                    // TODO: check for comma and parse multiple expressions
-
-                    expectToken(Token::Type::RightParenthesis, iterator, end);
-
-                    ++iterator;
-                }
-                else if (isToken(Token::Type::Assignment, iterator, end))
-                {
-                    ++iterator;
-
-                    auto initialization = parseMultiplicationAssignmentExpression(iterator, end, declarationScopes);
-                    initialization->parent = result;
-
-                    if (initialization->qualifiedType.type->getTypeKind() == Type::Kind::Void)
-                        throw ParseError("Initialization with a void type");
-
-                    result->initialization = initialization;
-                }
-
-                declarationScopes.back().push_back(result);
-
-                return result;
-            }
+            result->initialization = initialization;
         }
+
+        declarationScopes.back().push_back(result);
+
+        return result;
     }
 
     TypeDeclaration* ASTContext::parseStructTypeDeclaration(std::vector<Token>::const_iterator& iterator,
@@ -808,11 +798,15 @@ namespace ouzel
         FieldDeclaration* result;
         constructs.push_back(std::unique_ptr<Construct>(result = new FieldDeclaration()));
 
-        ASTContext::Specifiers specifiers = parseSpecifiers(iterator, end);
+        expectToken(Token::Type::Var, iterator, end);
+        ++iterator;
 
-        result->qualifiedType.qualifiers |= specifiers.qualifiers;
+        expectToken(Token::Type::Identifier, iterator, end);
+        result->name = iterator->value;
+        ++iterator;
 
-        bool isInline = specifiers.isInline;
+        expectToken(Token::Type::Colon, iterator, end);
+        ++iterator;
 
         result->qualifiedType.type = parseType(iterator, end, declarationScopes);
 
@@ -826,41 +820,6 @@ namespace ouzel
                 throw ParseError("Incomplete type " + result->qualifiedType.type->name);
         }
 
-        specifiers = parseSpecifiers(iterator, end);
-
-        result->qualifiedType.qualifiers |= specifiers.qualifiers;
-
-        if (specifiers.isInline) isInline = true;
-
-        if (isInline)
-            throw ParseError("Members can not be inline");
-
-        expectToken(Token::Type::Identifier, iterator, end);
-
-        result->name = iterator->value;
-
-        ++iterator;
-
-        while (isToken(Token::Type::LeftBracket, iterator, end))
-        {
-            ++iterator;
-
-            expectToken(Token::Type::IntLiteral, iterator, end);
-
-            const int size = std::stoi(iterator->value);
-
-            ++iterator;
-
-            if (size <= 0)
-                throw ParseError("Array size must be greater than zero");
-
-            result->qualifiedType.type = getArrayType(result->qualifiedType, static_cast<uint32_t>(size));
-
-            expectToken(Token::Type::RightBracket, iterator, end);
-
-            ++iterator;
-        }
-
         return result;
     }
 
@@ -871,59 +830,17 @@ namespace ouzel
         ParameterDeclaration* result;
         constructs.push_back(std::unique_ptr<Construct>(result = new ParameterDeclaration()));
 
-        ASTContext::Specifiers specifiers = parseSpecifiers(iterator, end);
+        expectToken(Token::Type::Identifier, iterator, end);
+        result->name = iterator->value;
+        ++iterator;
 
-        result->qualifiedType.qualifiers |= specifiers.qualifiers;
-
-        bool isInline = specifiers.isInline;
+        expectToken(Token::Type::Colon, iterator, end);
+        ++iterator;
 
         result->qualifiedType.type = parseType(iterator, end, declarationScopes);
 
         if (result->qualifiedType.type->getTypeKind() == Type::Kind::Void)
             throw ParseError("Parameter can not have a void type");
-
-        if (result->qualifiedType.type->getTypeKind() == Type::Kind::Struct)
-        {
-            auto structType = static_cast<const StructType*>(result->qualifiedType.type);
-            if (!structType->declaration->definition)
-                throw ParseError("Incomplete type " + result->qualifiedType.type->name);
-        }
-
-        specifiers = parseSpecifiers(iterator, end);
-
-        result->qualifiedType.qualifiers |= specifiers.qualifiers;
-
-        if (specifiers.isInline) isInline = true;
-
-        if (isInline)
-            throw ParseError("Parameters can not be inline");
-
-        if (isToken(Token::Type::Identifier, iterator, end))
-        {
-            result->name = iterator->value;
-
-            ++iterator;
-        }
-
-        while (isToken(Token::Type::LeftBracket, iterator, end))
-        {
-            ++iterator;
-
-            expectToken(Token::Type::IntLiteral, iterator, end);
-
-            const int size = std::stoi(iterator->value);
-
-            ++iterator;
-
-            if (size <= 0)
-                throw ParseError("Array size must be greater than zero");
-
-            result->qualifiedType.type = getArrayType(result->qualifiedType, static_cast<uint32_t>(size));
-
-            expectToken(Token::Type::RightBracket, iterator, end);
-
-            ++iterator;
-        }
 
         return result;
     }
