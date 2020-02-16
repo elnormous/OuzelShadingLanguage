@@ -511,16 +511,18 @@ namespace ouzel
         }
         else if (isToken(Token::Type::Struct, iterator, end))
         {
-            ++iterator;
-
             return parseStructTypeDeclaration(iterator, end, declarationScopes);
         }
-        /*else if (isToken(Token::Type::KEYWORD_TYPEDEF, iterator, end))
+        /*else if (isToken(Token::Type::Typedef, iterator, end))
+        {
+            return parseTypeDefinitionDeclaration(iterator, end, declarationScopes);
+        }*/
+        else if (isToken(Token::Type::Function, iterator, end))
         {
             ++iterator;
 
-            return parseTypeDefinitionDeclaration(iterator, end, declarationScopes);
-        }*/
+            return parseFunctionDeclaration(iterator, end, declarationScopes);
+        }
         else
         {
             ASTContext::Specifiers specifiers = parseSpecifiers(iterator, end);
@@ -714,6 +716,9 @@ namespace ouzel
                                                             std::vector<Token>::const_iterator end,
                                                             std::vector<std::vector<Declaration*>>& declarationScopes)
     {
+        expectToken(Token::Type::Struct, iterator, end);
+        ++iterator;
+
         TypeDeclaration* result;
         constructs.push_back(std::unique_ptr<Construct>(result = new TypeDeclaration()));
 
@@ -940,6 +945,9 @@ namespace ouzel
     {
         throw ParseError("Typedef is not supported");
 
+        expectToken(Token::Type::Typedef, iterator, end);
+        ++iterator;
+
         TypeDefinitionDeclaration* result;
         constructs.push_back(std::unique_ptr<Construct>(result = new TypeDefinitionDeclaration()));
         result->kind = Construct::Kind::Declaration;
@@ -949,21 +957,21 @@ namespace ouzel
 
         result->qualifiedType.type = parseType(iterator, end, declarationScopes);
 
-        if (result->qualifiedType.type->getTypeKind() == Type::Kind::STRUCT)
+        if (result->qualifiedType.type->getTypeKind() == Type::Kind::Struct)
         {
             auto structType = static_cast<const StructType*>(result->qualifiedType.type);
             if (!structType->hasDefinition)
                 throw ParseError("Incomplete type " + result->qualifiedType.type->name);
         }
 
-        expectToken(Token::Type::IDENTIFIER, iterator, end);
+        expectToken(Token::Type::Identifier, iterator, end);
 
         result->name = iterator->value;
         // TODO: forbid declaring type with an existing name
 
         ++iterator;
 
-        expectToken(Token::Type::SEMICOLON, iterator, end);
+        expectToken(Token::Type::Semicolon, iterator, end);
 
         ++iterator;
 
