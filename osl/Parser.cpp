@@ -1057,7 +1057,7 @@ namespace ouzel
         else if (isToken({Token::Type::Try, Token::Type::Catch, Token::Type::Throw}, iterator, end))
             throw ParseError("Exceptions are not supported");
         else if (iterator == end || isToken(Token::Type::RightBrace, iterator, end))
-            throw ParseError("Exceptions a statement");
+            throw ParseError("Expected a statement");
         else if (isDeclaration(iterator, end, declarationScopes))
         {
             DeclarationStatement* result;
