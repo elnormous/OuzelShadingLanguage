@@ -1145,7 +1145,6 @@ namespace ouzel
 
         if (isDeclaration(iterator, end, declarationScopes))
         {
-            // TODO: add implicit cast to bool
             auto declaration = parseDeclaration(iterator, end, declarationScopes);
             declaration->parent = result;
 
@@ -1414,7 +1413,6 @@ namespace ouzel
 
         if (isDeclaration(iterator, end, declarationScopes))
         {
-            // TODO: add implicit cast to bool
             auto declaration = parseDeclaration(iterator, end, declarationScopes);
             declaration->parent = result;
 
