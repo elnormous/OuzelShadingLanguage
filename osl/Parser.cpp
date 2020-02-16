@@ -724,6 +724,7 @@ namespace ouzel
 
         expectToken(Token::Type::Identifier, iterator, end);
         result->name = iterator->value;
+        ++iterator;
 
         auto previousDeclaration = findDeclaration(result->name, declarationScopes);
 
@@ -749,13 +750,11 @@ namespace ouzel
         else
         {
             types.push_back(std::unique_ptr<Type>(structType = new StructType()));
-            structType->name = iterator->value;
+            structType->name = result->name;
             structType->declaration = result;
             result->firstDeclaration = result;
             result->type = structType;
         }
-
-        ++iterator;
 
         declarationScopes.back().push_back(result);
 
