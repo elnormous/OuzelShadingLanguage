@@ -206,6 +206,17 @@ namespace ouzel
             }
         }
 
+        std::string toString(InputModifier inputModifier)
+        {
+            switch (inputModifier)
+            {
+                case InputModifier::In: return "In";
+                case InputModifier::Inout: return "Inout";
+                case InputModifier::Out: return "Out";
+                default: return "Unknown";
+            }
+        }
+
         std::string getPrintableTypeName(const QualifiedType& qualifiedType)
         {
             std::string result;
@@ -379,7 +390,9 @@ namespace ouzel
                 case Declaration::Kind::Parameter:
                 {
                     auto parameterDeclaration = static_cast<const ParameterDeclaration*>(declaration);
-                    std::cout << ", name: " << parameterDeclaration->name << ", type: " << getPrintableTypeName(parameterDeclaration->qualifiedType) << '\n';
+                    std::cout << ", name: " << parameterDeclaration->name <<
+                        ", type: " << getPrintableTypeName(parameterDeclaration->qualifiedType) <<
+                        ", input modifier: " << toString(parameterDeclaration->inputModifier) << '\n';
 
                     for (const auto attribute : parameterDeclaration->attributes)
                         dumpConstruct(attribute, level + 1);

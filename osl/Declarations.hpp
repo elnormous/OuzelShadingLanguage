@@ -119,6 +119,13 @@ namespace ouzel
         QualifiedType qualifiedType;
     };
 
+    enum class InputModifier
+    {
+        In,
+        Inout,
+        Out
+    };
+
     class ParameterDeclaration: public Declaration
     {
     public:
@@ -128,6 +135,7 @@ namespace ouzel
         }
 
         QualifiedType qualifiedType;
+        InputModifier inputModifier = InputModifier::In;
     };
 
     /*class TypeDefinitionDeclaration: public TypeDeclaration

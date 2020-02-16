@@ -830,6 +830,24 @@ namespace ouzel
         ParameterDeclaration* result;
         constructs.push_back(std::unique_ptr<Construct>(result = new ParameterDeclaration()));
 
+        switch (iterator->type)
+        {
+            case Token::Type::In:
+                result->inputModifier = InputModifier::In;
+                ++iterator;
+                break;
+            case Token::Type::Out:
+                result->inputModifier = InputModifier::Out;
+                ++iterator;
+                break;
+            case Token::Type::Inout:
+                result->inputModifier = InputModifier::Inout;
+                ++iterator;
+                break;
+            default:
+                break;
+        }
+
         expectToken(Token::Type::Identifier, iterator, end);
         result->name = iterator->value;
         ++iterator;

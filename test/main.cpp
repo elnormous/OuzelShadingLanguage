@@ -694,13 +694,12 @@ namespace
 
     void testPrograms()
     {
-        // TODO: add in/out specifiers
         std::string code = R"OSL(
-        function fragmentMain(param:float4):float
+        function fragmentMain(in param:float4, out o:float4):float
         {
             return 0.0f;
         }
-        function vertexMain(param:float4):float
+        function vertexMain(in param:float4):float
         {
             return 0.0f;
         }
@@ -724,6 +723,8 @@ namespace
 
         if (fragmentMainCallableDeclaration->getCallableDeclarationKind() != ouzel::CallableDeclaration::Kind::Function)
             throw TestError("Expected a function declaration");
+
+        // TODO: check parameter input modifiers
 
         auto fragmentMainFunctionDeclaration = static_cast<const ouzel::FunctionDeclaration*>(fragmentMainCallableDeclaration);
 

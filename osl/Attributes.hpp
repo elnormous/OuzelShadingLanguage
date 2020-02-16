@@ -25,10 +25,7 @@ namespace ouzel
             PointSize,
             Tangent,
             TesselationFactor,
-            TextureCoordinates,
-            In,
-            Inout,
-            Out
+            TextureCoordinates
         };
 
         Attribute(Kind initAttributeKind): Construct(Construct::Kind::Attribute), attributeKind(initAttributeKind) {}
@@ -130,25 +127,6 @@ namespace ouzel
 
         size_t n = 0;
     };
-
-    class InAttribute: public Attribute
-    {
-    public:
-        InAttribute(): Attribute(Attribute::Kind::In) {}
-    };
-
-    class InoutAttribute: public Attribute
-    {
-    public:
-        InoutAttribute(): Attribute(Attribute::Kind::Inout) {}
-    };
-
-    class OutAttribute: public Attribute
-    {
-    public:
-        OutAttribute(): Attribute(Attribute::Kind::Out) {}
-    };
-
 }
 
 #endif // ATTRIBUTES_HPP
