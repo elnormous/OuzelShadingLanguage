@@ -695,11 +695,11 @@ namespace
     void testPrograms()
     {
         std::string code = R"OSL(
-        function fragmentMain(in param:float4, out o:float4):float
+        function fragmentMain(in i:float4, out o:float4):float
         {
             return 0.0f;
         }
-        function vertexMain(in param:float4):float
+        function vertexMain(inout io:float4):float
         {
             return 0.0f;
         }
@@ -728,6 +728,33 @@ namespace
 
         auto fragmentMainFunctionDeclaration = static_cast<const ouzel::FunctionDeclaration*>(fragmentMainCallableDeclaration);
 
+        {
+            auto parameterIterator = fragmentMainFunctionDeclaration->parameterDeclarations.begin();
+
+            if (parameterIterator == fragmentMainFunctionDeclaration->parameterDeclarations.end())
+                throw TestError("Expected an i parameter");
+
+            auto iParameterDeclaration = *parameterIterator;
+            ++parameterIterator;
+
+            if (iParameterDeclaration->name != "i")
+                throw TestError("Expected an i parameter");
+
+            if (iParameterDeclaration->inputModifier != ouzel::InputModifier::In)
+                throw TestError("Expected i to be in");
+
+            if (parameterIterator == fragmentMainFunctionDeclaration->parameterDeclarations.end())
+                throw TestError("Expected an o parameter");
+
+            auto oParameterDeclaration = *parameterIterator;
+
+            if (oParameterDeclaration->name != "o")
+                throw TestError("Expected an o parameter");
+
+            if (oParameterDeclaration->inputModifier != ouzel::InputModifier::Out)
+                throw TestError("Expected o to be out");
+        }
+
         // TODO: restore
         //if (fragmentMainFunctionDeclaration->program != ouzel::Program::Fragment)
         //    throw TestError("Expected a fragment specifier");
@@ -751,6 +778,21 @@ namespace
 
         auto vertexMainFunctionDeclaration = static_cast<const ouzel::FunctionDeclaration*>(vertexMainCallableDeclaration);
 
+        {
+            auto parameterIterator = vertexMainFunctionDeclaration->parameterDeclarations.begin();
+
+            if (parameterIterator == vertexMainFunctionDeclaration->parameterDeclarations.end())
+                throw TestError("Expected an i parameter");
+
+            auto ioParameterDeclaration = *parameterIterator;
+            ++parameterIterator;
+
+            if (ioParameterDeclaration->name != "io")
+                throw TestError("Expected an io parameter");
+
+            if (ioParameterDeclaration->inputModifier != ouzel::InputModifier::Inout)
+                throw TestError("Expected io to be in");
+        }
         // TODO: restore
         //if (vertexMainFunctionDeclaration->program != ouzel::Program::Vertex)
         //    throw TestError("Expected a vertex specifier");
