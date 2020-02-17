@@ -815,6 +815,18 @@ namespace
 
         ouzel::ASTContext context(ouzel::tokenize(code));
     }
+
+    void testExtern()
+    {
+        std::string code = R"OSL(
+        extern color:float4;
+        function main():void
+        {
+        }
+        )OSL";
+
+        ouzel::ASTContext context(ouzel::tokenize(code));
+    }
 }
 
 int main(int argc, const char * argv[])
@@ -838,6 +850,7 @@ int main(int argc, const char * argv[])
     testRunner.run(testSemantics);
     testRunner.run(testPrograms);
     testRunner.run(testOperators);
+    testRunner.run(testExtern);
 
     if (testRunner.getResult())
         std::cout << "Success\n";

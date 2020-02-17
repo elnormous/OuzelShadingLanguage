@@ -85,7 +85,6 @@ namespace ouzel
             Typedef, // typedef
             Typeid, // typeid
             Typename, // typename
-            Uniform, // uniform
             Union, // union
             Unsigned, // unsigned
             Using, // using
@@ -223,7 +222,6 @@ namespace ouzel
             case Token::Type::Typedef: return "Typedef";
             case Token::Type::Typeid: return "Typeid";
             case Token::Type::Typename: return "Typename";
-            case Token::Type::Uniform: return "Uniform";
             case Token::Type::Union: return "Union";
             case Token::Type::Unsigned: return "Unsigned";
             case Token::Type::Using: return "Using";

@@ -342,6 +342,7 @@ namespace ouzel
             throw ParseError("Unexpected end of file");
 
         return iterator->type == Token::Type::Const ||
+            iterator->type == Token::Type::Extern ||
             iterator->type == Token::Type::Var;
     }
 
@@ -416,11 +417,6 @@ namespace ouzel
                     ++iterator;
                     result.qualifiers |= Qualifiers::Volatile;
                     break;
-                }
-                case Token::Type::Uniform:
-                {
-                    ++iterator;
-                    result.qualifiers |= Qualifiers::Uniform;
                 }
                 case Token::Type::LeftBracket:
                 {
@@ -563,7 +559,7 @@ namespace ouzel
             return parseTypeDefinitionDeclaration(iterator, end, declarationScopes);*/
         else if (isToken(Token::Type::Function, iterator, end))
             return parseFunctionDeclaration(iterator, end, declarationScopes);
-        else if (isToken({Token::Type::Var, Token::Type::Const}, iterator, end))
+        else if (isToken({Token::Type::Const, Token::Type::Extern, Token::Type::Var}, iterator, end))
             return parseVariableDeclaration(iterator, end, declarationScopes);
         else
             throw ParseError("Unknown declaration type");
@@ -663,10 +659,12 @@ namespace ouzel
         VariableDeclaration* result;
         constructs.push_back(std::unique_ptr<Construct>(result = new VariableDeclaration()));
 
-        if (isToken(Token::Type::Var, iterator, end))
-            result->qualifiedType.qualifiers = Qualifiers::None;
-        else if (isToken(Token::Type::Const, iterator, end))
+        if (isToken(Token::Type::Const, iterator, end))
             result->qualifiedType.qualifiers = Qualifiers::Const;
+        else if (isToken(Token::Type::Extern, iterator, end))
+            result->storageClass = StorageClass::Extern;
+        else if (isToken(Token::Type::Var, iterator, end))
+            result->qualifiedType.qualifiers = Qualifiers::None;
         else
             throw ParseError("Expected a variable declaration");
 

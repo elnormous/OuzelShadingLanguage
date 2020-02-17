@@ -80,7 +80,6 @@ namespace ouzel
             {"typedef", Token::Type::Typedef},
             {"typeid", Token::Type::Typeid},
             {"typename", Token::Type::Typename},
-            {"uniform", Token::Type::Uniform},
             {"union", Token::Type::Union},
             {"unsigned", Token::Type::Unsigned},
             {"using", Token::Type::Using},
