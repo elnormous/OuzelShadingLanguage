@@ -796,13 +796,13 @@ namespace
         std::string code = R"OSL(
         function main():void
         {
-            var a:float = 1.0f;
+            var a = 1.0f;
             var b:float = a * 1.0f;
             var v1:float4;
             var v2:float4 = v1;
             var v3:float4 = v1 + v2;
             var mat1:float4x4;
-            var v4:float4 = mat1 * v1;
+            var v4:float4 = v1 * mat1;
         }
         )OSL";
 

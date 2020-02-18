@@ -643,13 +643,15 @@ namespace ouzel
         result->name = iterator->value;
         ++iterator;
 
-        expectToken(Token::Type::Colon, iterator, end);
-        ++iterator;
+        if (isToken(Token::Type::Colon, iterator, end))
+        {
+            ++iterator;
 
-        result->qualifiedType.type = parseType(iterator, end, declarationScopes);
+            result->qualifiedType.type = parseType(iterator, end, declarationScopes);
 
-        if (result->qualifiedType.type->getTypeKind() == Type::Kind::Void)
-            throw ParseError("Variable can not have a void type");
+            if (result->qualifiedType.type->getTypeKind() == Type::Kind::Void)
+                throw ParseError("Variable can not have a void type");
+        }
 
         if (isToken(Token::Type::Assignment, iterator, end))
         {
@@ -662,7 +664,15 @@ namespace ouzel
                 throw ParseError("Initialization with a void type");
 
             result->initialization = initialization;
+
+            if (!result->qualifiedType.type)
+                result->qualifiedType.type = initialization->qualifiedType.type;
+            else if (result->qualifiedType.type != initialization->qualifiedType.type)
+                throw ParseError("Initializer type does not match the variable type");
         }
+
+        if (!result->qualifiedType.type)
+            throw ParseError("Missing type for the variable");
 
         declarationScopes.back().push_back(result);
 
