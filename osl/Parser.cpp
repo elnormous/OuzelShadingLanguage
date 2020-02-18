@@ -214,18 +214,14 @@ namespace ouzel
         }
     }
 
-    const ArrayType* ASTContext::getArrayType(const Type* type, uint32_t size)
+    const ArrayType* ASTContext::getArrayType(const Type* type, size_t size)
     {
         QualifiedType qualifiedType;
         qualifiedType.type = type;
 
         auto i = arrayTypes.find(std::make_pair(qualifiedType, size));
 
-        if (i != arrayTypes.end())
-        {
-            return i->second;
-        }
-        else
+        if (i == arrayTypes.end())
         {
             ArrayType* result;
             types.push_back(std::unique_ptr<Type>(result = new ArrayType()));
@@ -235,17 +231,15 @@ namespace ouzel
             arrayTypes[std::make_pair(qualifiedType, size)] = result;
             return result;
         }
+        else
+            return i->second;
     }
 
-    const ArrayType* ASTContext::getArrayType(QualifiedType qualifiedType, uint32_t size)
+    const ArrayType* ASTContext::getArrayType(QualifiedType qualifiedType, size_t size)
     {
         auto i = arrayTypes.find(std::make_pair(qualifiedType, size));
 
-        if (i != arrayTypes.end())
-        {
-            return i->second;
-        }
-        else
+        if (i == arrayTypes.end())
         {
             ArrayType* result;
             types.push_back(std::unique_ptr<Type>(result = new ArrayType()));
@@ -255,6 +249,8 @@ namespace ouzel
             arrayTypes[std::make_pair(qualifiedType, size)] = result;
             return result;
         }
+        else
+            return i->second;
     }
 
     bool ASTContext::isType(std::vector<Token>::const_iterator iterator,

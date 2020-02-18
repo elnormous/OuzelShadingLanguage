@@ -83,7 +83,7 @@ namespace ouzel
         }
 
         QualifiedType elementType;
-        uint32_t size = 0;
+        size_t size = 0;
     };
 
     class ScalarType final: public Type

@@ -132,8 +132,8 @@ namespace ouzel
                                                                const std::vector<std::vector<Declaration*>>& declarationScopes,
                                                                const std::vector<QualifiedType>& arguments);
 
-        const ArrayType* getArrayType(const Type* type, uint32_t size);
-        const ArrayType* getArrayType(QualifiedType qualifiedType, uint32_t size);
+        const ArrayType* getArrayType(const Type* type, size_t size);
+        const ArrayType* getArrayType(QualifiedType qualifiedType, size_t size);
 
         bool isType(std::vector<Token>::const_iterator iterator,
                     std::vector<Token>::const_iterator end,
@@ -433,7 +433,7 @@ namespace ouzel
         std::vector<std::unique_ptr<Construct>> constructs;
 
         std::map<std::pair<const Type*, uint8_t>, const VectorType*> vectorTypes;
-        std::map<std::pair<QualifiedType, uint32_t>, const ArrayType*> arrayTypes;
+        std::map<std::pair<QualifiedType, size_t>, const ArrayType*> arrayTypes;
 
         const Type* voidType = nullptr;
         const ScalarType* boolType = nullptr;
