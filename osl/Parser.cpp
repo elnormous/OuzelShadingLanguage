@@ -102,21 +102,12 @@ namespace ouzel
         floatType = addScalarType("float", ScalarType::Kind::FloatingPoint, 4, false, declarationScopes);
 
         for (size_t components = 2; components <= 4; ++components)
-        {
-            std::string name = "float";
-            name.push_back('0' + components);
-            addVectorType(name, floatType, components, declarationScopes);
-        }
+            addVectorType("float" + std::to_string(components),
+                          floatType, components, declarationScopes);
 
         for (size_t components = 2; components <= 4; ++components)
-        {
-            std::string name = "float";
-            name.push_back('0' + components);
-            name.push_back('x');
-            name.push_back('0' + components);
-
-            addMatrixType(name, floatType, components, components, declarationScopes);
-        }
+            addMatrixType("float" + std::to_string(components) + ' ' + std::to_string(components),
+                          floatType, components, components, declarationScopes);
 
         stringType = addStructType("string", 8, declarationScopes);
         StructType* texture2DType = addStructType("Texture2D", 0, declarationScopes);
