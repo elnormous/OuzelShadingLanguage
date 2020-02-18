@@ -584,10 +584,12 @@ namespace ouzel
         else
             result->firstDeclaration = result;
 
-        expectToken(Token::Type::Colon, iterator, end);
-        ++iterator;
+        if (isToken(Token::Type::Colon, iterator, end))
+        {
+            ++iterator;
 
-        result->qualifiedType.type = parseType(iterator, end, declarationScopes);
+            result->qualifiedType.type = parseType(iterator, end, declarationScopes);
+        }
 
         declarationScopes.back().push_back(result);
 
@@ -617,6 +619,9 @@ namespace ouzel
 
             declarationScopes.pop_back();
         }
+
+        if (!result->qualifiedType.type)
+            result->qualifiedType.type = voidType;
 
         return result;
     }
@@ -939,6 +944,8 @@ namespace ouzel
             expectToken(Token::Type::Semicolon, iterator, end);
 
             ++iterator;
+
+            // TODO: search for closest function definition
 
             return result;
         }

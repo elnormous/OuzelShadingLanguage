@@ -813,7 +813,7 @@ namespace
     {
         std::string code = R"OSL(
         extern color:float4;
-        function main():void
+        function main()
         {
         }
         )OSL";
