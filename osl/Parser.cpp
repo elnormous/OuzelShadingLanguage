@@ -106,7 +106,7 @@ namespace ouzel
                           floatType, components, declarationScopes);
 
         for (size_t components = 2; components <= 4; ++components)
-            addMatrixType("float" + std::to_string(components) + ' ' + std::to_string(components),
+            addMatrixType("float" + std::to_string(components) + 'x' + std::to_string(components),
                           floatType, components, components, declarationScopes);
 
         stringType = addStructType("string", 8, declarationScopes);
