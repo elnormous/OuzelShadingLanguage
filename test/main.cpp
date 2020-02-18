@@ -692,7 +692,7 @@ namespace
         ouzel::ASTContext context(ouzel::tokenize(code));
 }
 
-    void testPrograms()
+    void testInputModifiers()
     {
         std::string code = R"OSL(
         function fragmentMain(in i:float4, out o:float4):float
@@ -755,10 +755,6 @@ namespace
                 throw TestError("Expected o to be out");
         }
 
-        // TODO: restore
-        //if (fragmentMainFunctionDeclaration->program != ouzel::Program::Fragment)
-        //    throw TestError("Expected a fragment specifier");
-
         ++i;
         if (i == context.getDeclarations().end())
             throw TestError("Expected a function declaration");
@@ -793,9 +789,6 @@ namespace
             if (ioParameterDeclaration->inputModifier != ouzel::InputModifier::Inout)
                 throw TestError("Expected io to be in");
         }
-        // TODO: restore
-        //if (vertexMainFunctionDeclaration->program != ouzel::Program::Vertex)
-        //    throw TestError("Expected a vertex specifier");
     }
 
     void testOperators()
@@ -848,7 +841,7 @@ int main(int argc, const char * argv[])
     testRunner.run(testVector);
     testRunner.run(testMatrix);
     testRunner.run(testSemantics);
-    testRunner.run(testPrograms);
+    testRunner.run(testInputModifiers);
     testRunner.run(testOperators);
     testRunner.run(testExtern);
 
