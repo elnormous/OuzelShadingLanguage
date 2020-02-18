@@ -133,7 +133,6 @@ namespace ouzel
                                                                const std::vector<QualifiedType>& arguments);
 
         const ArrayType* getArrayType(const Type* type, size_t size);
-        const ArrayType* getArrayType(QualifiedType qualifiedType, size_t size);
 
         bool isType(std::vector<Token>::const_iterator iterator,
                     std::vector<Token>::const_iterator end,

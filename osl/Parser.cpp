@@ -235,24 +235,6 @@ namespace ouzel
             return i->second;
     }
 
-    const ArrayType* ASTContext::getArrayType(QualifiedType qualifiedType, size_t size)
-    {
-        auto i = arrayTypes.find(std::make_pair(qualifiedType, size));
-
-        if (i == arrayTypes.end())
-        {
-            ArrayType* result;
-            types.push_back(std::unique_ptr<Type>(result = new ArrayType()));
-            result->elementType = qualifiedType;
-            result->size = size;
-
-            arrayTypes[std::make_pair(qualifiedType, size)] = result;
-            return result;
-        }
-        else
-            return i->second;
-    }
-
     bool ASTContext::isType(std::vector<Token>::const_iterator iterator,
                             std::vector<Token>::const_iterator end,
                             std::vector<std::vector<Declaration*>>& declarationScopes)
@@ -1488,23 +1470,17 @@ namespace ouzel
             InitializerListExpression* result;
             constructs.push_back(std::unique_ptr<Construct>(result = new InitializerListExpression()));
 
-            QualifiedType qualifiedType;
+            const Type* type = nullptr;
 
             for (;;)
             {
                 auto expression = parseMultiplicationAssignmentExpression(iterator, end, declarationScopes);
                 expression->parent = result;
 
-                if (!qualifiedType.type)
-                    qualifiedType.type = expression->qualifiedType.type;
-                else
-                {
-                    if (qualifiedType.type != expression->qualifiedType.type)
-                    {
-                        // TODO: implement type narrowing
-                        throw ParseError("Expression type does not match previous expressions in initializer list");
-                    }
-                }
+                if (!type)
+                    type = expression->qualifiedType.type;
+                else if (type != expression->qualifiedType.type)
+                    throw ParseError("Expression type does not match previous expressions in initializer list");
 
                 result->expressions.push_back(expression);
 
@@ -1516,7 +1492,7 @@ namespace ouzel
 
             expectToken(Token::Type::RightBrace, iterator, end);
 
-            result->qualifiedType.type = getArrayType(qualifiedType, static_cast<uint32_t>(result->expressions.size()));
+            result->qualifiedType.type = getArrayType(type, static_cast<uint32_t>(result->expressions.size()));
 
             ++iterator;
 
