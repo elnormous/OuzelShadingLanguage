@@ -819,6 +819,23 @@ namespace
         )OSL";
 
         ouzel::ASTContext context(ouzel::tokenize(code));
+
+        auto i = context.getDeclarations().begin();
+        if (i == context.getDeclarations().end())
+            throw TestError("Expected a variable declaration");
+
+        const auto colorDeclaration = *i;
+
+        if (colorDeclaration->getDeclarationKind() != ouzel::Declaration::Kind::Variable)
+            throw TestError("Expected a variable declaration");
+
+        auto colorVariableDeclaration = static_cast<const ouzel::VariableDeclaration*>(colorDeclaration);
+
+        if (colorVariableDeclaration->name != "color")
+            throw TestError("Expected a declaration of color");
+
+        if (colorVariableDeclaration->storageClass != ouzel::StorageClass::Extern)
+            throw TestError("Expected an extern storage class");
     }
 }
 
