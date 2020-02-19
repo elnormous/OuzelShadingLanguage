@@ -679,7 +679,6 @@ namespace
 
     void testSemantics()
     {
-        // TODO: add position, normal, texture_coordinates(0) semantics
         std::string code = R"OSL(
             struct Vertex
             {
@@ -723,8 +722,6 @@ namespace
 
         if (fragmentMainCallableDeclaration->getCallableDeclarationKind() != ouzel::CallableDeclaration::Kind::Function)
             throw TestError("Expected a function declaration");
-
-        // TODO: check parameter input modifiers
 
         auto fragmentMainFunctionDeclaration = static_cast<const ouzel::FunctionDeclaration*>(fragmentMainCallableDeclaration);
 

@@ -1171,15 +1171,18 @@ namespace ouzel
 
         ++iterator;
 
-        // TODO: add implicit cast to int
         if (isDeclaration(iterator, end, declarationScopes))
         {
             auto declaration = parseDeclaration(iterator, end, declarationScopes);
             declaration->parent = result;
 
-            if (declaration->getDeclarationKind() != Declaration::Kind::Variable &&
-                declaration->getDeclarationKind() != Declaration::Kind::Parameter)
+            if (declaration->getDeclarationKind() != Declaration::Kind::Variable)
                 throw ParseError("Expected a variable declaration");
+
+            auto variableDeclaration = static_cast<const VariableDeclaration*>(declaration);
+
+            if (!isIntegerType(variableDeclaration->qualifiedType.type))
+                throw ParseError("Statement requires expression of integer type");
 
             result->condition = declaration;
         }
@@ -1793,10 +1796,7 @@ namespace ouzel
             return result;
         }
         else if (isToken(Token::Type::This, iterator, end))
-        {
-            // TODO: implement
             throw ParseError("Expression \"this\" is not supported");
-        }
         else
             throw ParseError("Expected an expression");
     }
