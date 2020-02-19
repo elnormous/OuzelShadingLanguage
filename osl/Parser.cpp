@@ -2411,9 +2411,6 @@ namespace ouzel
 
             expression->condition = result;
 
-            if (expression->condition->qualifiedType.type->getTypeKind() == Type::Kind::Void)
-                throw ParseError("Ternary expression with a void condition");
-
             auto leftExpression = parseTernaryExpression(iterator, end, declarationScopes);
             leftExpression->parent = expression;
 
