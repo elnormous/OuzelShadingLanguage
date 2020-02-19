@@ -293,7 +293,7 @@ namespace ouzel
             if (size <= 0)
                 throw ParseError("Array size must be greater than zero");
 
-            result = getArrayType(result, static_cast<uint32_t>(size));
+            result = getArrayType(result, static_cast<size_t>(size));
 
             expectToken(Token::Type::RightBracket, iterator, end);
 
@@ -1509,7 +1509,7 @@ namespace ouzel
 
             expectToken(Token::Type::RightBrace, iterator, end);
 
-            result->qualifiedType.type = getArrayType(type, static_cast<uint32_t>(result->expressions.size()));
+            result->qualifiedType.type = getArrayType(type, result->expressions.size());
 
             ++iterator;
 
