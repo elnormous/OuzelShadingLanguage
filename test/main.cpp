@@ -683,9 +683,9 @@ namespace
         std::string code = R"OSL(
             struct Vertex
             {
-                var position:float3;
-                var normal: float3;
-                var texCoord:float2;
+                var position:float3 -> Position;
+                var normal:float3 -> Normal;
+                var texCoord:float2 -> TextureCoordinates(0);
             }
         )OSL";
 

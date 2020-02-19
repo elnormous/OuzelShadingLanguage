@@ -21,6 +21,22 @@ namespace ouzel
         Static
     };
 
+    enum class Semantic
+    {
+        Binormal,
+        BlendIndices,
+        BlendWeight,
+        Color,
+        Fog,
+        Normal,
+        Position,
+        PositionTransformed,
+        PointSize,
+        Tangent,
+        TesselationFactor,
+        TextureCoordinates
+    };
+
     class Declaration: public Construct
     {
     public:
@@ -43,6 +59,8 @@ namespace ouzel
         Declaration* previousDeclaration = nullptr;
         Declaration* definition = nullptr;
         std::vector<Attribute*> attributes;
+
+        std::pair<Semantic, size_t> semantic;
 
     protected:
         const Kind declarationKind;

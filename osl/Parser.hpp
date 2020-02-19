@@ -142,6 +142,9 @@ namespace ouzel
                               std::vector<Token>::const_iterator end,
                               std::vector<std::vector<Declaration*>>& declarationScopes);
 
+        std::pair<Semantic, size_t> parseSemantic(std::vector<Token>::const_iterator& iterator,
+                                                  std::vector<Token>::const_iterator end);
+
         bool isDeclaration(std::vector<Token>::const_iterator iterator,
                            std::vector<Token>::const_iterator end,
                            std::vector<std::vector<Declaration*>>& declarationScopes);

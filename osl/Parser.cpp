@@ -303,6 +303,61 @@ namespace ouzel
         return result;
     }
 
+    namespace
+    {
+        std::map<std::string, Semantic> semantics = {
+            {"Binormal", Semantic::Binormal},
+            {"BlendIndices", Semantic::BlendIndices},
+            {"BlendWeight", Semantic::BlendWeight},
+            {"Color", Semantic::Color},
+            {"Fog", Semantic::Fog},
+            {"Normal", Semantic::Normal},
+            {"Position", Semantic::Position},
+            {"PositionTransformed", Semantic::PositionTransformed},
+            {"PointSize", Semantic::PointSize},
+            {"Tangent", Semantic::Tangent},
+            {"TesselationFactor", Semantic::TesselationFactor},
+            {"TextureCoordinates", Semantic::TextureCoordinates}
+        };
+    }
+
+    std::pair<Semantic, size_t> ASTContext::parseSemantic(std::vector<Token>::const_iterator& iterator,
+                                                          std::vector<Token>::const_iterator end)
+    {
+        if (iterator == end)
+            throw ParseError("Unexpected end of file");
+
+        Semantic semantic;
+        int index = 0;
+
+        auto i = semantics.find(iterator->value);
+
+        if (i == semantics.end())
+            throw ParseError("Unknown semantic " + iterator->value);
+
+        semantic = i->second;
+
+        ++iterator;
+
+        if (isToken(Token::Type::LeftParenthesis, iterator, end))
+        {
+            ++iterator;
+
+            expectToken(Token::Type::IntLiteral, iterator, end);
+
+            index = std::stoi(iterator->value);
+            if (index < 0)
+                throw ParseError("Index must be positibe");
+
+            ++iterator;
+
+            expectToken(Token::Type::RightParenthesis, iterator, end);
+            ++iterator;
+        }
+
+        return std::make_pair(semantic, static_cast<size_t>(index));
+    }
+
     bool ASTContext::isDeclaration(std::vector<Token>::const_iterator iterator,
                                    std::vector<Token>::const_iterator end,
                                    std::vector<std::vector<Declaration*>>& declarationScopes)
@@ -386,123 +441,6 @@ namespace ouzel
                     ++iterator;
                     result.qualifiers |= Qualifiers::Volatile;
                     break;
-                }
-                case Token::Type::LeftBracket:
-                {
-                    if (!isToken(Token::Type::LeftBracket, iterator + 1, end))
-                        return result;
-
-                    ++iterator;
-                    ++iterator;
-                    if (iterator == end)
-                        throw ParseError("Unexpected end of file");
-
-                    /*if (iterator->value == "fragment")
-                    {
-                        if (result.program != Program::None)
-                            throw ParseError("Single function can not have multiple program attributes");
-
-                        result.program = Program::Fragment;
-                    }
-                    else if (iterator->value == "vertex")
-                    {
-                        if (result.program != Program::None)
-                            throw ParseError("Single function can not have multiple program attributes");
-
-                        result.program = Program::Vertex;
-                    }
-                    else if (iterator->value == "binormal")
-                    {
-                        if (result.semantic != Semantic::None)
-                            throw ParseError("Single variable can not have multiple semantic attributes");
-
-                        result.semantic = Semantic::Binormal;
-                    }
-                    else if (iterator->value == "blend_indices")
-                    {
-                        if (result.semantic != Semantic::None)
-                            throw ParseError("Single variable can not have multiple semantic attributes");
-
-                        result.semantic = Semantic::BlendIndices;
-                    }
-                    else if (iterator->value == "blend_weight")
-                    {
-                        if (result.semantic != Semantic::None)
-                            throw ParseError("Single variable can not have multiple semantic attributes");
-
-                        result.semantic = Semantic::BlendWeight;
-                    }
-                    else if (iterator->value == "color")
-                    {
-                        if (result.semantic != Semantic::None)
-                            throw ParseError("Single variable can not have multiple semantic attributes");
-
-                        result.semantic = Semantic::Color;
-                    }
-                    else if (iterator->value == "normal")
-                    {
-                        if (result.semantic != Semantic::None)
-                            throw ParseError("Single variable can not have multiple semantic attributes");
-
-                        result.semantic = Semantic::Normal;
-                    }
-                    else if (iterator->value == "position")
-                    {
-                        if (result.semantic != Semantic::None)
-                            throw ParseError("Single variable can not have multiple semantic attributes");
-
-                        result.semantic = Semantic::Position;
-                    }
-                    else if (iterator->value == "position_transformed")
-                    {
-                        if (result.semantic != Semantic::None)
-                            throw ParseError("Single variable can not have multiple semantic attributes");
-
-                        result.semantic = Semantic::PositionTransformed;
-                    }
-                    else if (iterator->value == "point_size")
-                    {
-                        if (result.semantic != Semantic::None)
-                            throw ParseError("Single variable can not have multiple semantic attributes");
-
-                        result.semantic = Semantic::PointSize;
-                    }
-                    else if (iterator->value == "tangent")
-                    {
-                        if (result.semantic != Semantic::None)
-                            throw ParseError("Single variable can not have multiple semantic attributes");
-
-                        result.semantic = Semantic::Tangent;
-                    }
-                    else if (iterator->value == "texture_coordinates")
-                    {
-                        if (result.semantic != Semantic::None)
-                            throw ParseError("Single variable can not have multiple semantic attributes");
-
-                        result.semantic = Semantic::TextureCoordinates;
-                    }
-                    else
-                        throw ParseError("Invalid attribute " + iterator->value);*/
-
-                    ++iterator;
-
-                    if (isToken(Token::Type::LeftParenthesis, iterator, end))
-                    {
-                        ++iterator;
-
-                        // TODO: check if attribute contains semantic
-                        expectToken(Token::Type::IntLiteral, iterator, end);
-                        ++iterator;
-
-                        expectToken(Token::Type::RightParenthesis, iterator, end);
-                        ++iterator;
-                    }
-
-                    expectToken(Token::Type::RightBracket, iterator, end);
-                    ++iterator;
-
-                    expectToken(Token::Type::RightBracket, iterator, end);
-                    ++iterator;
                 }
                 default:
                     return result;
@@ -589,6 +527,12 @@ namespace ouzel
             ++iterator;
 
             result->qualifiedType.type = parseType(iterator, end, declarationScopes);
+        }
+
+        if (isToken(Token::Type::Arrow, iterator, end))
+        {
+            ++iterator;
+            result->semantic = parseSemantic(iterator, end);
         }
 
         declarationScopes.back().push_back(result);
@@ -802,6 +746,12 @@ namespace ouzel
                 throw ParseError("Incomplete type " + result->qualifiedType.type->name);
         }
 
+        if (isToken(Token::Type::Arrow, iterator, end))
+        {
+            ++iterator;
+            result->semantic = parseSemantic(iterator, end);
+        }
+
         return result;
     }
 
@@ -841,6 +791,12 @@ namespace ouzel
 
         if (result->qualifiedType.type->getTypeKind() == Type::Kind::Void)
             throw ParseError("Parameter can not have a void type");
+
+        if (isToken(Token::Type::Arrow, iterator, end))
+        {
+            ++iterator;
+            result->semantic = parseSemantic(iterator, end);
+        }
 
         return result;
     }
@@ -1456,7 +1412,6 @@ namespace ouzel
         }
         else if (isToken({Token::Type::Bool, Token::Type::Int, Token::Type::Float}, iterator, end))
         {
-            // TODO: parse unsigned
             CastExpression* result;
             constructs.push_back(std::unique_ptr<Construct>(result = new CastExpression(CastExpression::Kind::Functional)));
 
@@ -1766,7 +1721,6 @@ namespace ouzel
                 CastExpression* result = new CastExpression(CastExpression::Kind::CStyle);
                 constructs.push_back(std::unique_ptr<Construct>(result));
 
-                // TODO: parse qualifiers
                 result->qualifiedType.type = parseType(iterator, end, declarationScopes);
 
                 expectToken(Token::Type::RightParenthesis, iterator, end);
@@ -1818,7 +1772,6 @@ namespace ouzel
             expectToken(Token::Type::LessThan, iterator, end);
             ++iterator;
 
-            // TODO: parse qualifiers
             result->qualifiedType.type = parseType(iterator, end, declarationScopes);
 
             expectToken(Token::Type::GreaterThan, iterator, end);
