@@ -437,7 +437,7 @@ namespace ouzel
         const Type* voidType = nullptr;
         const ScalarType* boolType = nullptr;
         const ScalarType* intType = nullptr;
-        const ScalarType* unsignedIntType = nullptr;
+        const ScalarType* uintType = nullptr;
         const ScalarType* floatType = nullptr;
         const StructType* stringType = nullptr;
     };

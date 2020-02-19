@@ -98,7 +98,7 @@ namespace ouzel
         boolType = addScalarType("bool", ScalarType::Kind::Boolean, 1, false, declarationScopes);
 
         intType = addScalarType("int", ScalarType::Kind::Integer, 4, false, declarationScopes);
-        unsignedIntType = addScalarType("unsigned int", ScalarType::Kind::Integer, 4, true, declarationScopes);
+        uintType = addScalarType("uint", ScalarType::Kind::Integer, 4, true, declarationScopes);
         floatType = addScalarType("float", ScalarType::Kind::FloatingPoint, 4, false, declarationScopes);
 
         for (size_t components = 2; components <= 4; ++components)
@@ -2204,7 +2204,7 @@ namespace ouzel
             expectToken(Token::Type::RightParenthesis, iterator, end);
             ++iterator;
 
-            result->qualifiedType.type = unsignedIntType;
+            result->qualifiedType.type = uintType;
             result->category = Expression::Category::Rvalue;
 
             return result;
