@@ -36,7 +36,8 @@ namespace ouzel
         inline const std::vector<Declaration*>& getDeclarations() const { return declarations; }
 
     private:
-        static Declaration* findDeclaration(const std::string& name, const std::vector<Declaration*>& declarationScope)
+        static Declaration* findDeclaration(const std::string& name,
+                                            const std::vector<Declaration*>& declarationScope)
         {
             for (auto declarationIterator = declarationScope.crbegin(); declarationIterator != declarationScope.crend(); ++declarationIterator)
                 if ((*declarationIterator)->name == name) return *declarationIterator;
@@ -44,7 +45,8 @@ namespace ouzel
             return nullptr;
         }
 
-        static Declaration* findDeclaration(const std::string& name, const std::vector<std::vector<Declaration*>>& declarationScopes)
+        static Declaration* findDeclaration(const std::string& name,
+                                            const std::vector<std::vector<Declaration*>>& declarationScopes)
         {
             for (auto scopeIterator = declarationScopes.crbegin(); scopeIterator != declarationScopes.crend(); ++scopeIterator)
                 for (auto declarationIterator = scopeIterator->crbegin(); declarationIterator != scopeIterator->crend(); ++declarationIterator)
@@ -53,7 +55,8 @@ namespace ouzel
             return nullptr;
         }
 
-        Type* findType(const std::string& name, const std::vector<std::vector<Declaration*>>& declarationScopes)
+        Type* findType(const std::string& name,
+                       const std::vector<std::vector<Declaration*>>& declarationScopes)
         {
             Declaration* declaration = findDeclaration(name, declarationScopes);
 
@@ -67,7 +70,8 @@ namespace ouzel
             return nullptr;
         }
 
-        StructType* findStructType(const std::string& name, const std::vector<std::vector<Declaration*>>& declarationScopes)
+        StructType* findStructType(const std::string& name,
+                                   const std::vector<std::vector<Declaration*>>& declarationScopes)
         {
             Type* type = findType(name, declarationScopes);
 
@@ -159,9 +163,6 @@ namespace ouzel
             bool isInline = false;
             StorageClass storageClass = StorageClass::Auto;
         };
-
-        static Specifiers parseSpecifiers(std::vector<Token>::const_iterator& iterator,
-                                          std::vector<Token>::const_iterator end);
 
         Declaration* parseDeclaration(std::vector<Token>::const_iterator& iterator,
                                       std::vector<Token>::const_iterator end,

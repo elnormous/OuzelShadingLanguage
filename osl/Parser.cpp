@@ -407,47 +407,6 @@ namespace ouzel
         return declaration;
     }
 
-    ASTContext::Specifiers ASTContext::parseSpecifiers(std::vector<Token>::const_iterator& iterator,
-                                                       std::vector<Token>::const_iterator end)
-    {
-        ASTContext::Specifiers result;
-
-        for (;;)
-        {
-            if (iterator == end) return result;
-
-            switch(iterator->type)
-            {
-                case Token::Type::Const:
-                {
-                    ++iterator;
-                    result.qualifiers |= Qualifiers::Const;
-                    break;
-                }
-                case Token::Type::Extern:
-                {
-                    ++iterator;
-                    result.storageClass = StorageClass::Extern;
-                    break;
-                }
-                case Token::Type::Inline:
-                {
-                    ++iterator;
-                    result.isInline = true;
-                    break;
-                }
-                case Token::Type::Volatile:
-                {
-                    ++iterator;
-                    result.qualifiers |= Qualifiers::Volatile;
-                    break;
-                }
-                default:
-                    return result;
-            }
-        }
-    }
-
     Declaration* ASTContext::parseDeclaration(std::vector<Token>::const_iterator& iterator,
                                               std::vector<Token>::const_iterator end,
                                               std::vector<std::vector<Declaration*>>& declarationScopes)
