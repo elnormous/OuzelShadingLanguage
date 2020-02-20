@@ -219,7 +219,7 @@ namespace ouzel
         const Expression* rightExpression = nullptr;
     };
 
-    class TemporaryObjectExpression: public Expression
+    class TemporaryObjectExpression final: public Expression
     {
     public:
         TemporaryObjectExpression(): Expression(Expression::Kind::TemporaryObject) {}
