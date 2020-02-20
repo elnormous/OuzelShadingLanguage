@@ -55,6 +55,7 @@ namespace ouzel
         inline Kind getDeclarationKind() const noexcept { return declarationKind; }
 
         std::string name;
+        QualifiedType qualifiedType;
         Declaration* firstDeclaration = nullptr;
         Declaration* previousDeclaration = nullptr;
         Declaration* definition = nullptr;
@@ -133,8 +134,6 @@ namespace ouzel
         {
             definition = this;
         }
-
-        QualifiedType qualifiedType;
     };
 
     enum class InputModifier
@@ -152,14 +151,12 @@ namespace ouzel
             definition = this;
         }
 
-        QualifiedType qualifiedType;
         InputModifier inputModifier = InputModifier::In;
     };
 
     /*class TypeDefinitionDeclaration: public TypeDeclaration
     {
     public:
-        QualifiedType qualifiedType;
     };*/
 
     class CallableDeclaration: public Declaration
@@ -177,7 +174,6 @@ namespace ouzel
         inline Kind getCallableDeclarationKind() const { return callableDeclarationKind; }
 
         StorageClass storageClass = StorageClass::Auto;
-        QualifiedType qualifiedType;
         std::vector<ParameterDeclaration*> parameterDeclarations;
         const Statement* body = nullptr;
 
@@ -284,7 +280,6 @@ namespace ouzel
         }
 
         StorageClass storageClass = StorageClass::Auto;
-        QualifiedType qualifiedType;
         const Expression* initialization = nullptr;
     };
 

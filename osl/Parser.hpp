@@ -192,41 +192,55 @@ namespace ouzel
                                                                     std::vector<Token>::const_iterator& iterator,
                                                                     std::vector<std::vector<Declaration*>>& declarationScopes);*/
 
+        struct FunctionScope final
+        {
+            std::vector<ReturnStatement*> returnStatements;
+        };
+
         Statement* parseStatement(std::vector<Token>::const_iterator& iterator,
                                   std::vector<Token>::const_iterator end,
-                                  std::vector<std::vector<Declaration*>>& declarationScopes);
+                                  std::vector<std::vector<Declaration*>>& declarationScopes,
+                                  FunctionScope& functionScope);
 
         CompoundStatement* parseCompoundStatement(std::vector<Token>::const_iterator& iterator,
                                                   std::vector<Token>::const_iterator end,
-                                                  std::vector<std::vector<Declaration*>>& declarationScopes);
+                                                  std::vector<std::vector<Declaration*>>& declarationScopes,
+                                                  FunctionScope& functionScope);
 
         IfStatement* parseIfStatement(std::vector<Token>::const_iterator& iterator,
                                       std::vector<Token>::const_iterator end,
-                                      std::vector<std::vector<Declaration*>>& declarationScopes);
+                                      std::vector<std::vector<Declaration*>>& declarationScopes,
+                                      FunctionScope& functionScope);
 
         ForStatement* parseForStatement(std::vector<Token>::const_iterator& iterator,
                                         std::vector<Token>::const_iterator end,
-                                        std::vector<std::vector<Declaration*>>& declarationScopes);
+                                        std::vector<std::vector<Declaration*>>& declarationScopes,
+                                        FunctionScope& functionScope);
 
         SwitchStatement* parseSwitchStatement(std::vector<Token>::const_iterator& iterator,
                                               std::vector<Token>::const_iterator end,
-                                              std::vector<std::vector<Declaration*>>& declarationScopes);
+                                              std::vector<std::vector<Declaration*>>& declarationScopes,
+                                              FunctionScope& functionScope);
 
         CaseStatement* parseCaseStatement(std::vector<Token>::const_iterator& iterator,
                                           std::vector<Token>::const_iterator end,
-                                          std::vector<std::vector<Declaration*>>& declarationScopes);
+                                          std::vector<std::vector<Declaration*>>& declarationScopes,
+                                          FunctionScope& functionScope);
 
         DefaultStatement* parseDefaultStatement(std::vector<Token>::const_iterator& iterator,
                                                 std::vector<Token>::const_iterator end,
-                                                std::vector<std::vector<Declaration*>>& declarationScopes);
+                                                std::vector<std::vector<Declaration*>>& declarationScopes,
+                                                FunctionScope& functionScope);
 
         WhileStatement* parseWhileStatement(std::vector<Token>::const_iterator& iterator,
                                             std::vector<Token>::const_iterator end,
-                                            std::vector<std::vector<Declaration*>>& declarationScopes);
+                                            std::vector<std::vector<Declaration*>>& declarationScopes,
+                                            FunctionScope& functionScope);
 
         DoStatement* parseDoStatement(std::vector<Token>::const_iterator& iterator,
                                       std::vector<Token>::const_iterator end,
-                                      std::vector<std::vector<Declaration*>>& declarationScopes);
+                                      std::vector<std::vector<Declaration*>>& declarationScopes,
+                                      FunctionScope& functionScope);
 
         Expression* parsePrimaryExpression(std::vector<Token>::const_iterator& iterator,
                                            std::vector<Token>::const_iterator end,

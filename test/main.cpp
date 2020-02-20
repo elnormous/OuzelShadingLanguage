@@ -663,7 +663,8 @@ namespace
     void testMatrix()
     {
         std::string code = R"OSL(
-        function main():void
+        function main();
+        function main()
         {
             var m1:float4x4;
             var v1:float4 = m1[0];
@@ -671,6 +672,7 @@ namespace
             m1[0][0] = f1;
             var m2:float2x2 = float2x2(v1.xy, v1.zw);
             var m3:float4x4 = float4x4(m1);
+            return m1;
         }
         )OSL";
 
