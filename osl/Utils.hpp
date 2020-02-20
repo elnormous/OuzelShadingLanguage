@@ -12,7 +12,7 @@
 
 namespace ouzel
 {
-    namespace
+    inline namespace detail
     {
         std::string toString(Construct::Kind kind)
         {

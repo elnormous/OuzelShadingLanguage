@@ -41,7 +41,7 @@ namespace ouzel
         const Kind statementKind;
     };
 
-    class ExpressionStatement: public Statement
+    class ExpressionStatement final: public Statement
     {
     public:
         ExpressionStatement() noexcept: Statement(Statement::Kind::Expression) {}
@@ -49,7 +49,7 @@ namespace ouzel
         const Expression* expression = nullptr;
     };
 
-    class DeclarationStatement: public Statement
+    class DeclarationStatement final: public Statement
     {
     public:
         DeclarationStatement() noexcept: Statement(Statement::Kind::Declaration) {}
@@ -57,7 +57,7 @@ namespace ouzel
         const Declaration* declaration = nullptr;
     };
 
-    class CompoundStatement: public Statement
+    class CompoundStatement final: public Statement
     {
     public:
         CompoundStatement() noexcept: Statement(Statement::Kind::Compound) {}
@@ -65,7 +65,7 @@ namespace ouzel
         std::vector<const Statement*> statements;
     };
 
-    class IfStatement: public Statement
+    class IfStatement final: public Statement
     {
     public:
         IfStatement() noexcept: Statement(Statement::Kind::If) {}
@@ -75,7 +75,7 @@ namespace ouzel
         const Statement* elseBody = nullptr;
     };
 
-    class ForStatement: public Statement
+    class ForStatement final: public Statement
     {
     public:
         ForStatement() noexcept: Statement(Statement::Kind::For) {}
@@ -86,7 +86,7 @@ namespace ouzel
         const Statement* body = nullptr;
     };
 
-    class SwitchStatement: public Statement
+    class SwitchStatement final: public Statement
     {
     public:
         SwitchStatement() noexcept: Statement(Statement::Kind::Switch) {}
@@ -95,7 +95,7 @@ namespace ouzel
         const Statement* body = nullptr;
     };
 
-    class CaseStatement: public Statement
+    class CaseStatement final: public Statement
     {
     public:
         CaseStatement() noexcept: Statement(Statement::Kind::Case) {}
@@ -104,7 +104,7 @@ namespace ouzel
         const Statement* body = nullptr;
     };
 
-    class DefaultStatement: public Statement
+    class DefaultStatement final: public Statement
     {
     public:
         DefaultStatement() noexcept: Statement(Statement::Kind::Default) {}
@@ -112,7 +112,7 @@ namespace ouzel
         const Statement* body = nullptr;
     };
 
-    class WhileStatement: public Statement
+    class WhileStatement final: public Statement
     {
     public:
         WhileStatement() noexcept: Statement(Statement::Kind::While) {}
@@ -121,7 +121,7 @@ namespace ouzel
         const Statement* body = nullptr;
     };
 
-    class DoStatement: public Statement
+    class DoStatement final: public Statement
     {
     public:
         DoStatement() noexcept: Statement(Statement::Kind::Do) {}
@@ -130,19 +130,19 @@ namespace ouzel
         const Statement* body = nullptr;
     };
 
-    class BreakStatement: public Statement
+    class BreakStatement final: public Statement
     {
     public:
         BreakStatement() noexcept: Statement(Statement::Kind::Break) {}
     };
 
-    class ContinueStatement: public Statement
+    class ContinueStatement final: public Statement
     {
     public:
         ContinueStatement() noexcept: Statement(Statement::Kind::Continue) {}
     };
 
-    class ReturnStatement: public Statement
+    class ReturnStatement final: public Statement
     {
     public:
         ReturnStatement() noexcept: Statement(Statement::Kind::Return) {}

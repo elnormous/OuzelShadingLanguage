@@ -126,7 +126,7 @@ namespace ouzel
         const Kind scalarTypeKind;
     };
 
-    class FieldDeclaration: public Declaration
+    class FieldDeclaration final: public Declaration
     {
     public:
         FieldDeclaration() noexcept: Declaration(Declaration::Kind::Field)
@@ -144,7 +144,7 @@ namespace ouzel
         Out
     };
 
-    class ParameterDeclaration: public Declaration
+    class ParameterDeclaration final: public Declaration
     {
     public:
         ParameterDeclaration() noexcept: Declaration(Declaration::Kind::Parameter)
@@ -185,7 +185,7 @@ namespace ouzel
         const Kind callableDeclarationKind;
     };
 
-    class FunctionDeclaration: public CallableDeclaration
+    class FunctionDeclaration final: public CallableDeclaration
     {
     public:
         FunctionDeclaration(): CallableDeclaration(CallableDeclaration::Kind::Function) {}
@@ -194,13 +194,13 @@ namespace ouzel
         bool isBuiltin = false;
     };
 
-    class ConstructorDeclaration: public CallableDeclaration
+    class ConstructorDeclaration final: public CallableDeclaration
     {
     public:
         ConstructorDeclaration(): CallableDeclaration(CallableDeclaration::Kind::Constructor) {}
     };
 
-    class MethodDeclaration: public CallableDeclaration
+    class MethodDeclaration final: public CallableDeclaration
     {
     public:
         MethodDeclaration(): CallableDeclaration(CallableDeclaration::Kind::Method) {}
@@ -275,7 +275,7 @@ namespace ouzel
         uint8_t columnCount = 1;
     };
 
-    class VariableDeclaration: public Declaration
+    class VariableDeclaration final: public Declaration
     {
     public:
         VariableDeclaration() noexcept: Declaration(Declaration::Kind::Variable)
@@ -288,7 +288,7 @@ namespace ouzel
         const Expression* initialization = nullptr;
     };
 
-    class TypeDeclaration: public Declaration
+    class TypeDeclaration final: public Declaration
     {
     public:
 

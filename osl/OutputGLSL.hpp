@@ -12,7 +12,7 @@
 
 namespace ouzel
 {
-    class OutputGLSL: public Output
+    class OutputGLSL final: public Output
     {
     public:
         OutputGLSL(Program initProgram,

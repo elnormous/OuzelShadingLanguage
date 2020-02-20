@@ -69,14 +69,14 @@ namespace ouzel
         const Kind literalKind;
     };
 
-    class BooleanLiteralExpression: public LiteralExpression
+    class BooleanLiteralExpression final: public LiteralExpression
     {
     public:
         BooleanLiteralExpression() noexcept: LiteralExpression(LiteralExpression::Kind::Boolean) {}
         bool value;
     };
 
-    class IntegerLiteralExpression: public LiteralExpression
+    class IntegerLiteralExpression final: public LiteralExpression
     {
     public:
         IntegerLiteralExpression() noexcept: LiteralExpression(LiteralExpression::Kind::Integer) {}
@@ -84,7 +84,7 @@ namespace ouzel
         int64_t value;
     };
 
-    class FloatingPointLiteralExpression: public LiteralExpression
+    class FloatingPointLiteralExpression final: public LiteralExpression
     {
     public:
         FloatingPointLiteralExpression() noexcept: LiteralExpression(LiteralExpression::Kind::FloatingPoint) {}
@@ -92,7 +92,7 @@ namespace ouzel
         double value;
     };
 
-    class StringLiteralExpression: public LiteralExpression
+    class StringLiteralExpression final: public LiteralExpression
     {
     public:
         StringLiteralExpression(): LiteralExpression(LiteralExpression::Kind::String) {}
@@ -100,7 +100,7 @@ namespace ouzel
         std::string value;
     };
 
-    class DeclarationReferenceExpression: public Expression
+    class DeclarationReferenceExpression final: public Expression
     {
     public:
         DeclarationReferenceExpression(): Expression(Expression::Kind::DeclarationReference) {}
@@ -108,7 +108,7 @@ namespace ouzel
         const Declaration* declaration = nullptr;
     };
 
-    class CallExpression: public Expression
+    class CallExpression final: public Expression
     {
     public:
         CallExpression(): Expression(Expression::Kind::Call) {}
@@ -117,7 +117,7 @@ namespace ouzel
         std::vector<const Expression*> arguments;
     };
 
-    class ParenExpression: public Expression
+    class ParenExpression final: public Expression
     {
     public:
         ParenExpression() noexcept: Expression(Expression::Kind::Paren) {}
@@ -125,7 +125,7 @@ namespace ouzel
         const Expression* expression = nullptr;
     };
 
-    class MemberExpression: public Expression
+    class MemberExpression final: public Expression
     {
     public:
         MemberExpression() noexcept: Expression(Expression::Kind::Member) {}
@@ -134,7 +134,7 @@ namespace ouzel
         const FieldDeclaration* fieldDeclaration = nullptr;
     };
 
-    class ArraySubscriptExpression: public Expression
+    class ArraySubscriptExpression final: public Expression
     {
     public:
         ArraySubscriptExpression() noexcept: Expression(Expression::Kind::ArraySubscript) {}
@@ -143,7 +143,7 @@ namespace ouzel
         const Expression* subscript = nullptr;
     };
 
-    class UnaryOperatorExpression: public Expression
+    class UnaryOperatorExpression final: public Expression
     {
     public:
         enum class Kind
@@ -170,7 +170,7 @@ namespace ouzel
         Kind operatorKind;
     };
 
-    class BinaryOperatorExpression: public Expression
+    class BinaryOperatorExpression final: public Expression
     {
     public:
         enum class Kind
@@ -209,7 +209,7 @@ namespace ouzel
         Kind operatorKind;
     };
 
-    class TernaryOperatorExpression: public Expression
+    class TernaryOperatorExpression final: public Expression
     {
     public:
         TernaryOperatorExpression() noexcept: Expression(Expression::Kind::TernaryOperator) {}
@@ -228,7 +228,7 @@ namespace ouzel
         std::vector<const Expression*> parameters;
     };
 
-    class InitializerListExpression: public Expression
+    class InitializerListExpression final: public Expression
     {
     public:
         InitializerListExpression(): Expression(Expression::Kind::InitializerList) {}
@@ -236,7 +236,7 @@ namespace ouzel
         std::vector<const Expression*> expressions;
     };
 
-    class CastExpression: public Expression
+    class CastExpression final: public Expression
     {
     public:
         enum class Kind
@@ -256,7 +256,7 @@ namespace ouzel
         const Kind castKind;
     };
 
-    class SizeofExpression: public Expression
+    class SizeofExpression final: public Expression
     {
     public:
         SizeofExpression() noexcept: Expression(Expression::Kind::Sizeof) {}
@@ -265,7 +265,7 @@ namespace ouzel
         const Type* type;
     };
 
-    class VectorInitializeExpression: public Expression
+    class VectorInitializeExpression final: public Expression
     {
     public:
         VectorInitializeExpression() noexcept: Expression(Expression::Kind::VectorInitialize) {}
@@ -273,7 +273,7 @@ namespace ouzel
         std::vector<const Expression*> parameters;
     };
 
-    class VectorElementExpression: public Expression
+    class VectorElementExpression final: public Expression
     {
     public:
         VectorElementExpression() noexcept: Expression(Expression::Kind::VectorElement) {}
@@ -282,7 +282,7 @@ namespace ouzel
         uint8_t positions[4]{};
     };
 
-    class MatrixInitializeExpression: public Expression
+    class MatrixInitializeExpression final: public Expression
     {
     public:
         MatrixInitializeExpression() noexcept: Expression(Expression::Kind::MatrixInitialize) {}

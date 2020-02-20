@@ -9,7 +9,7 @@
 
 namespace ouzel
 {
-    class OutputHLSL: public Output
+    class OutputHLSL final: public Output
     {
     public:
         OutputHLSL(Program initProgram, const std::string& mainFunction);

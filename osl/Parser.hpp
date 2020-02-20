@@ -25,7 +25,7 @@ namespace ouzel
         explicit ParseError(const char* str): std::logic_error(str) {}
     };
 
-    class ASTContext
+    class ASTContext final
     {
     public:
         ASTContext() = default;

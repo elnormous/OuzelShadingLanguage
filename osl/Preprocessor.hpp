@@ -9,7 +9,7 @@
 
 namespace ouzel
 {
-    class Preprocessor
+    class Preprocessor final
     {
     public:
         std::string preprocess(const std::string& code);

@@ -78,7 +78,7 @@ namespace ouzel
         return !static_cast<std::underlying_type_t<Qualifiers>>(a);
     }
 
-    class QualifiedType
+    class QualifiedType final
     {
     public:
         bool operator<(const QualifiedType& other) const noexcept

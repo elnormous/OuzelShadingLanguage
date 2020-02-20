@@ -10,7 +10,7 @@
 
 namespace ouzel
 {
-    struct Token
+    struct Token final
     {
         enum class Type
         {
