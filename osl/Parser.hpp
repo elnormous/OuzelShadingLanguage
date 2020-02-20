@@ -157,7 +157,7 @@ namespace ouzel
                                               std::vector<Token>::const_iterator end,
                                               std::vector<std::vector<Declaration*>>& declarationScopes);
 
-        struct Specifiers
+        struct Specifiers final
         {
             Qualifiers qualifiers = Qualifiers::None;
             bool isInline = false;

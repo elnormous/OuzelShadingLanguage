@@ -8,7 +8,7 @@ namespace ouzel
 {
     namespace
     {
-        struct BuiltinFunction
+        struct BuiltinFunction final
         {
             BuiltinFunction(const std::string& initName): name(initName) {}
             std::string name;

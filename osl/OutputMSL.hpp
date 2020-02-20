@@ -18,7 +18,7 @@ namespace ouzel
         virtual std::string output(const ASTContext& context, bool whitespaces);
 
     private:
-        struct Options
+        struct Options final
         {
             Options(uint32_t initIndentation, bool initWhitespaces):
                 indentation(initIndentation), whitespaces(initWhitespaces) {}
