@@ -434,7 +434,6 @@ namespace ouzel
                 ParameterDeclaration* parameterDeclaration;
                 constructs.push_back(std::unique_ptr<Construct>(parameterDeclaration = new ParameterDeclaration()));
 
-                parameterDeclaration->parent = functionDeclaration;
                 parameterDeclaration->qualifiedType.type = parameter;
                 functionDeclaration->parameterDeclarations.push_back(parameterDeclaration);
             }

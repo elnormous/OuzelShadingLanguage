@@ -702,9 +702,7 @@ namespace ouzel
                 {
                     auto temporaryObjectExpression = static_cast<const TemporaryObjectExpression*>(expression);
 
-                    auto typeDeclaration = static_cast<const TypeDeclaration*>(temporaryObjectExpression->constructorDeclaration->parent);
-
-                    std::cout << " " << typeDeclaration->name << '\n';
+                    std::cout << " " << temporaryObjectExpression->qualifiedType.type->name << '\n';
 
                     for (const auto parameter : temporaryObjectExpression->parameters)
                         dumpConstruct(parameter, level + 1);
@@ -798,7 +796,6 @@ namespace ouzel
 
             std::cout << construct;
 
-            if (construct->parent) std::cout << ", parent: " << construct->parent;
             std::cout << " " << toString(construct->getKind());
 
             switch (construct->getKind())

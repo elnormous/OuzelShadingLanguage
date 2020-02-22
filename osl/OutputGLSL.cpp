@@ -711,8 +711,7 @@ namespace ouzel
 
                 auto temporaryObjectExpression = static_cast<const TemporaryObjectExpression*>(expression);
 
-                auto typeDeclaration = static_cast<const TypeDeclaration*>(temporaryObjectExpression->constructorDeclaration->parent);
-                auto type = typeDeclaration->type;
+                auto type = temporaryObjectExpression->qualifiedType.type;
 
                 if (type->getTypeKind() != Type::Kind::Struct)
                     throw std::runtime_error("Temporary object must be a struct");

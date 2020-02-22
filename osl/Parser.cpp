@@ -455,7 +455,6 @@ namespace ouzel
             for (;;)
             {
                 auto parameterDeclaration = parseParameterDeclaration(iterator, end, declarationScopes);
-                parameterDeclaration->parent = result;
                 result->parameterDeclarations.push_back(parameterDeclaration);
                 parameters.push_back(parameterDeclaration->qualifiedType);
 
@@ -510,7 +509,6 @@ namespace ouzel
             FunctionScope functionScope;
             // parse body
             auto body = parseCompoundStatement(iterator, end, declarationScopes, functionScope);
-            body->parent = result;
             result->body = body;
 
             if (!functionScope.returnStatements.empty())
@@ -582,7 +580,6 @@ namespace ouzel
             ++iterator;
 
             auto initialization = parseMultiplicationAssignmentExpression(iterator, end, declarationScopes);
-            initialization->parent = result;
 
             if (initialization->qualifiedType.type->getTypeKind() == Type::Kind::Void)
                 throw ParseError("Initialization with a void type");
@@ -675,7 +672,6 @@ namespace ouzel
                 else
                 {
                     auto memberDeclaration = parseMemberDeclaration(iterator, end, declarationScopes);
-                    memberDeclaration->parent = result;
 
                     expectToken(Token::Type::Semicolon, iterator, end);
 
@@ -870,7 +866,6 @@ namespace ouzel
             constructs.push_back(std::unique_ptr<Construct>(result = new ReturnStatement()));
 
             auto resultExpression = parseExpression(iterator, end, declarationScopes);
-            resultExpression->parent = result;
             result->result = resultExpression;
 
             expectToken(Token::Type::Semicolon, iterator, end);
@@ -904,7 +899,6 @@ namespace ouzel
             constructs.push_back(std::unique_ptr<Construct>(result = new DeclarationStatement()));
 
             auto declaration = parseDeclaration(iterator, end, declarationScopes);
-            declaration->parent = result;
 
             if (declaration->getDeclarationKind() != Declaration::Kind::Variable)
                 throw ParseError("Expected a variable declaration");
@@ -923,7 +917,6 @@ namespace ouzel
             constructs.push_back(std::unique_ptr<Construct>(result = new ExpressionStatement()));
 
             auto expression = parseExpression(iterator, end, declarationScopes);
-            expression->parent = result;
             result->expression = expression;
 
             expectToken(Token::Type::Semicolon, iterator, end);
@@ -958,7 +951,6 @@ namespace ouzel
             else
             {
                 auto statement = parseStatement(iterator, end, declarationScopes, functionScope);
-                statement->parent = result;
 
                 result->statements.push_back(statement);
             }
@@ -988,7 +980,6 @@ namespace ouzel
         if (isDeclaration(iterator, end, declarationScopes))
         {
             auto declaration = parseDeclaration(iterator, end, declarationScopes);
-            declaration->parent = result;
 
             if (declaration->getDeclarationKind() != Declaration::Kind::Variable &&
                 declaration->getDeclarationKind() != Declaration::Kind::Parameter)
@@ -999,7 +990,6 @@ namespace ouzel
         else
         {
             auto condition = parseExpression(iterator, end, declarationScopes);
-            condition->parent = result;
 
             if (!isBooleanType(condition->qualifiedType.type))
                 throw ParseError("Condition is not a boolean");
@@ -1012,7 +1002,6 @@ namespace ouzel
         ++iterator;
 
         auto statement = parseStatement(iterator, end, declarationScopes, functionScope);
-        statement->parent = result;
         result->body = statement;
 
         if (isToken(Token::Type::Else, iterator, end))
@@ -1020,7 +1009,6 @@ namespace ouzel
             ++iterator;
 
             statement = parseStatement(iterator, end, declarationScopes, functionScope);
-            statement->parent = result;
             result->elseBody = statement;
         }
 
@@ -1046,7 +1034,6 @@ namespace ouzel
         if (isDeclaration(iterator, end, declarationScopes))
         {
             auto declaration = parseDeclaration(iterator, end, declarationScopes);
-            declaration->parent = result;
 
             if (declaration->getDeclarationKind() != Declaration::Kind::Variable &&
                 declaration->getDeclarationKind() != Declaration::Kind::Parameter)
@@ -1067,7 +1054,6 @@ namespace ouzel
         else
         {
             auto initialization = parseExpression(iterator, end, declarationScopes);
-            initialization->parent = result;
             result->initialization = initialization;
 
             expectToken(Token::Type::Semicolon, iterator, end);
@@ -1078,7 +1064,6 @@ namespace ouzel
         if (isDeclaration(iterator, end, declarationScopes))
         {
             auto declaration = parseDeclaration(iterator, end, declarationScopes);
-            declaration->parent = result;
 
             if (declaration->getDeclarationKind() != Declaration::Kind::Variable &&
                 declaration->getDeclarationKind() != Declaration::Kind::Parameter)
@@ -1099,7 +1084,6 @@ namespace ouzel
         else
         {
             auto condition = parseExpression(iterator, end, declarationScopes);
-            condition->parent = result;
 
             if (!isBooleanType(condition->qualifiedType.type))
                 throw ParseError("Condition is not a boolean");
@@ -1120,7 +1104,6 @@ namespace ouzel
         else
         {
             auto increment = parseExpression(iterator, end, declarationScopes);
-            increment->parent = result;
             result->increment = increment;
 
             expectToken(Token::Type::RightParenthesis, iterator, end);
@@ -1129,7 +1112,6 @@ namespace ouzel
         }
 
         auto body = parseStatement(iterator, end, declarationScopes, functionScope);
-        body->parent = result;
         result->body = body;
 
         return result;
@@ -1154,7 +1136,6 @@ namespace ouzel
         if (isDeclaration(iterator, end, declarationScopes))
         {
             auto declaration = parseDeclaration(iterator, end, declarationScopes);
-            declaration->parent = result;
 
             if (declaration->getDeclarationKind() != Declaration::Kind::Variable)
                 throw ParseError("Expected a variable declaration");
@@ -1169,7 +1150,6 @@ namespace ouzel
         else
         {
             auto condition = parseExpression(iterator, end, declarationScopes);
-            condition->parent = result;
 
             if (!isIntegerType(condition->qualifiedType.type))
                 throw ParseError("Statement requires expression of integer type");
@@ -1182,7 +1162,6 @@ namespace ouzel
         ++iterator;
 
         auto body = parseStatement(iterator, end, declarationScopes, functionScope);
-        body->parent = result;
         result->body = body;
 
         return result;
@@ -1201,7 +1180,6 @@ namespace ouzel
         constructs.push_back(std::unique_ptr<Construct>(result = new CaseStatement()));
 
         auto condition = parseExpression(iterator, end, declarationScopes);
-        condition->parent = result;
 
         if (!isIntegerType(condition->qualifiedType.type))
             throw ParseError("Statement requires expression of integer type");
@@ -1216,7 +1194,6 @@ namespace ouzel
         ++iterator;
 
         auto body = parseStatement(iterator, end, declarationScopes, functionScope);
-        body->parent = result;
         result->body = body;
 
         return result;
@@ -1239,7 +1216,6 @@ namespace ouzel
         ++iterator;
 
         auto body = parseStatement(iterator, end, declarationScopes, functionScope);
-        body->parent = result;
         result->body = body;
 
         return result;
@@ -1264,7 +1240,6 @@ namespace ouzel
         if (isDeclaration(iterator, end, declarationScopes))
         {
             auto declaration = parseDeclaration(iterator, end, declarationScopes);
-            declaration->parent = result;
 
             if (declaration->getDeclarationKind() != Declaration::Kind::Variable &&
                 declaration->getDeclarationKind() != Declaration::Kind::Parameter)
@@ -1275,7 +1250,6 @@ namespace ouzel
         else
         {
             auto condition = parseExpression(iterator, end, declarationScopes);
-            condition->parent = result;
 
             if (!isBooleanType(condition->qualifiedType.type))
                 throw ParseError("Condition is not a boolean");
@@ -1288,7 +1262,6 @@ namespace ouzel
         ++iterator;
 
         auto body = parseStatement(iterator, end, declarationScopes, functionScope);
-        body->parent = result;
         result->body = body;
 
         return result;
@@ -1307,7 +1280,6 @@ namespace ouzel
         constructs.push_back(std::unique_ptr<Construct>(result = new DoStatement()));
 
         auto body = parseStatement(iterator, end, declarationScopes, functionScope);
-        body->parent = result;
         result->body = body;
 
         expectToken(Token::Type::While, iterator, end);
@@ -1319,7 +1291,6 @@ namespace ouzel
         ++iterator;
 
         auto condition = parseExpression(iterator, end, declarationScopes);
-        condition->parent = result;
 
         if (!isBooleanType(condition->qualifiedType.type))
             throw ParseError("Condition is not a boolean");
@@ -1413,7 +1384,6 @@ namespace ouzel
             ++iterator;
 
             auto expression = parseMultiplicationAssignmentExpression(iterator, end, declarationScopes);
-            expression->parent = result;
             result->expression = expression;
 
             expectToken(Token::Type::RightParenthesis, iterator, end);
@@ -1434,7 +1404,6 @@ namespace ouzel
             for (;;)
             {
                 auto expression = parseMultiplicationAssignmentExpression(iterator, end, declarationScopes);
-                expression->parent = result;
 
                 if (!type)
                     type = expression->qualifiedType.type;
@@ -1507,10 +1476,7 @@ namespace ouzel
                             result->category = Expression::Category::Rvalue;
 
                             for (auto parameter : parameters)
-                            {
-                                parameter->parent = result;
                                 result->parameters.push_back(parameter);
-                            }
 
                             if (!(result->constructorDeclaration = structType->findConstructorDeclaration(parameterTypes)))
                                 throw ParseError("No matching constructor found");
@@ -1548,7 +1514,6 @@ namespace ouzel
                                     componentCount += vectorParameterType->componentCount;
                                 }
 
-                                parameter->parent = result;
                                 result->parameters.push_back(parameter);
                             }
 
@@ -1597,7 +1562,6 @@ namespace ouzel
                                     rowCount += matrixParameterType->rowCount;
                                 }
 
-                                parameter->parent = result;
                                 result->parameters.push_back(parameter);
                             }
 
@@ -1627,7 +1591,6 @@ namespace ouzel
                         for (;;)
                         {
                             auto argument = parseMultiplicationAssignmentExpression(iterator, end, declarationScopes);
-                            argument->parent = result;
 
                             result->arguments.push_back(argument);
                             arguments.push_back(argument->qualifiedType);
@@ -1645,7 +1608,6 @@ namespace ouzel
 
                     DeclarationReferenceExpression* declRefExpression;
                     constructs.push_back(std::unique_ptr<Construct>(declRefExpression = new DeclarationReferenceExpression()));
-                    declRefExpression->parent = result;
 
                     auto functionDeclaration = resolveFunctionDeclaration(name, declarationScopes, arguments);
                     if (!functionDeclaration)
@@ -1714,7 +1676,6 @@ namespace ouzel
                 ++iterator;
 
                 auto expression = parseExpression(iterator, end, declarationScopes);
-                expression->parent = result;
 
                 result->expression = expression;
                 result->category = Expression::Category::Rvalue;
@@ -1727,7 +1688,6 @@ namespace ouzel
                 constructs.push_back(std::unique_ptr<Construct>(result = new ParenExpression()));
 
                 auto expression = parseExpression(iterator, end, declarationScopes);
-                expression->parent = result;
 
                 result->expression = expression;
 
@@ -1768,7 +1728,6 @@ namespace ouzel
             ++iterator;
 
             auto expression = parseExpression(iterator, end, declarationScopes);
-            expression->parent = result;
 
             result->expression = expression;
 
@@ -1816,7 +1775,6 @@ namespace ouzel
             expression->qualifiedType.type = result->qualifiedType.type;
             expression->category = Expression::Category::Lvalue;
 
-            result->parent = expression;
             result = expression;
         }
 
@@ -1840,7 +1798,6 @@ namespace ouzel
                 expression->expression = result;
 
                 auto subscript = parseExpression(iterator, end, declarationScopes);
-                subscript->parent = expression;
                 if (!isIntegerType(subscript->qualifiedType.type))
                     throw ParseError("Subscript is not an integer");
 
@@ -1855,7 +1812,6 @@ namespace ouzel
                 expression->qualifiedType = arrayType->elementType;
                 expression->category = result->category;
 
-                result->parent = expression;
                 result = expression;
             }
             else if (result->qualifiedType.type->getTypeKind() == Type::Kind::Vector ||
@@ -1868,7 +1824,6 @@ namespace ouzel
                 expression->leftExpression = result;
 
                 auto rightExpression = parseExpression(iterator, end, declarationScopes);
-                rightExpression->parent = expression;
                 if (!isIntegerType(rightExpression->qualifiedType.type))
                     throw ParseError("Subscript is not an integer");
 
@@ -1896,7 +1851,6 @@ namespace ouzel
 
                 expression->category = expression->leftExpression->category;
 
-                result->parent = expression;
                 result = expression;
             }
             else
@@ -1960,7 +1914,6 @@ namespace ouzel
                     expression->qualifiedType.qualifiers |= Qualifiers::Const;
                 expression->category = result->category;
 
-                result->parent = expression;
                 result = expression;
             }
             else if (result->qualifiedType.type->getTypeKind() == Type::Kind::Vector)
@@ -2001,7 +1954,6 @@ namespace ouzel
                     if (component >= vectorType->componentCount)
                         throw ParseError("Invalid swizzle");
 
-                result->parent = expression;
                 result = expression;
             }
             else
@@ -2028,7 +1980,6 @@ namespace ouzel
             constructs.push_back(std::unique_ptr<Construct>(result = new UnaryOperatorExpression(operatorKind)));
 
             auto expression = parseMemberExpression(iterator, end, declarationScopes);
-            expression->parent = result;
 
             if (expression->category != Expression::Category::Lvalue)
                 throw ParseError("Expression is not assignable");
@@ -2066,7 +2017,6 @@ namespace ouzel
             constructs.push_back(std::unique_ptr<Construct>(result = new UnaryOperatorExpression(operatorKind)));
 
             auto expression = parsePrefixExpression(iterator, end, declarationScopes);
-            expression->parent = result;
 
             if (expression->qualifiedType.type->getTypeKind() != Type::Kind::Scalar)
                 throw ParseError("Parameter of the sign operator must be a number");
@@ -2095,7 +2045,6 @@ namespace ouzel
             constructs.push_back(std::unique_ptr<Construct>(result = new UnaryOperatorExpression(operatorKind)));
 
             auto expression = parseExpression(iterator, end, declarationScopes);
-            expression->parent = result;
             if (!isBooleanType(expression->qualifiedType.type))
                 throw ParseError("Expression is not a boolean");
 
@@ -2133,7 +2082,6 @@ namespace ouzel
             else
             {
                 auto expression = parseExpression(iterator, end, declarationScopes);
-                expression->parent = result;
 
                 result->expression = expression;
             }
@@ -2170,13 +2118,11 @@ namespace ouzel
             expression->leftExpression = result;
 
             auto rightExpression = parseSizeofExpression(iterator, end, declarationScopes);
-            rightExpression->parent = expression;
 
             expression->rightExpression = rightExpression;
             expression->qualifiedType.type = expression->leftExpression->qualifiedType.type;
             expression->category = Expression::Category::Rvalue;
 
-            result->parent = expression;
             result = expression;
         }
 
@@ -2203,13 +2149,11 @@ namespace ouzel
             expression->leftExpression = result;
 
             auto rightExpression = parseMultiplicationExpression(iterator, end, declarationScopes);
-            rightExpression->parent = expression;
 
             expression->rightExpression = rightExpression;
             expression->qualifiedType.type = expression->leftExpression->qualifiedType.type;
             expression->category = Expression::Category::Rvalue;
 
-            result->parent = expression;
             result = expression;
         }
 
@@ -2236,13 +2180,11 @@ namespace ouzel
             expression->leftExpression = result;
 
             auto rightExpression = parseAdditionExpression(iterator, end, declarationScopes);
-            rightExpression->parent = expression;
 
             expression->rightExpression = rightExpression;
             expression->qualifiedType.type = boolType;
             expression->category = Expression::Category::Rvalue;
 
-            result->parent = expression;
             result = expression;
         }
 
@@ -2269,13 +2211,11 @@ namespace ouzel
             expression->leftExpression = result;
 
             auto rightExpression = parseLessThanExpression(iterator, end, declarationScopes);
-            rightExpression->parent = expression;
 
             expression->rightExpression = rightExpression;
             expression->qualifiedType.type = boolType;
             expression->category = Expression::Category::Rvalue;
 
-            result->parent = expression;
             result = expression;
         }
 
@@ -2302,13 +2242,11 @@ namespace ouzel
             expression->leftExpression = result;
 
             auto rightExpression = parseGreaterThanExpression(iterator, end, declarationScopes);
-            rightExpression->parent = expression;
 
             expression->rightExpression = rightExpression;
             expression->qualifiedType.type = boolType;
             expression->category = Expression::Category::Rvalue;
 
-            result->parent = expression;
             result = expression;
         }
 
@@ -2332,14 +2270,12 @@ namespace ouzel
             expression->leftExpression = result;
 
             auto rightExpression = parseEqualityExpression(iterator, end, declarationScopes);
-            rightExpression->parent = expression;
 
             expression->rightExpression = rightExpression;
             // TODO: check if both sides ar scalar
             expression->qualifiedType.type = boolType;
             expression->category = Expression::Category::Rvalue;
 
-            result->parent = expression;
             result = expression;
         }
 
@@ -2363,14 +2299,12 @@ namespace ouzel
             expression->leftExpression = result;
 
             auto rightExpression = parseLogicalAndExpression(iterator, end, declarationScopes);
-            rightExpression->parent = expression;
 
             expression->rightExpression = rightExpression;
             // TODO: check if both sides ar scalar
             expression->qualifiedType.type = boolType;
             expression->category = Expression::Category::Rvalue;
 
-            result->parent = expression;
             result = expression;
         }
 
@@ -2396,14 +2330,12 @@ namespace ouzel
             expression->condition = result;
 
             auto leftExpression = parseTernaryExpression(iterator, end, declarationScopes);
-            leftExpression->parent = expression;
 
             expectToken(Token::Type::Colon, iterator, end);
 
             ++iterator;
 
             auto rightExpression = parseTernaryExpression(iterator, end, declarationScopes);
-            rightExpression->parent = expression;
 
             expression->leftExpression = leftExpression;
             expression->rightExpression = rightExpression;
@@ -2413,7 +2345,6 @@ namespace ouzel
                                     expression->rightExpression->category == Expression::Category::Lvalue) ?
                                     Expression::Category::Lvalue : Expression::Category::Rvalue;
 
-            result->parent = expression;
             result = expression;
         }
 
@@ -2443,13 +2374,11 @@ namespace ouzel
                 throw ParseError("Cannot assign to const variable");
 
             auto rightExpression = parseTernaryExpression(iterator, end, declarationScopes);
-            rightExpression->parent = expression;
 
             expression->rightExpression = rightExpression;
             expression->qualifiedType.type = expression->leftExpression->qualifiedType.type;
             expression->category = Expression::Category::Rvalue;
 
-            result->parent = expression;
             result = expression;
         }
 
@@ -2482,13 +2411,11 @@ namespace ouzel
                 throw ParseError("Cannot assign to const variable");
 
             auto rightExpression = parseAssignmentExpression(iterator, end, declarationScopes);
-            rightExpression->parent = expression;
 
             expression->rightExpression = rightExpression;
             expression->qualifiedType.type = expression->leftExpression->qualifiedType.type;
             expression->category = Expression::Category::Lvalue;
 
-            result->parent = expression;
             result = expression;
         }
 
@@ -2521,13 +2448,11 @@ namespace ouzel
                 throw ParseError("Cannot assign to const variable");
 
             auto rightExpression = parseAdditionAssignmentExpression(iterator, end, declarationScopes);
-            rightExpression->parent = expression;
 
             expression->rightExpression = rightExpression;
             expression->qualifiedType.type = expression->leftExpression->qualifiedType.type;
             expression->category = Expression::Category::Lvalue;
 
-            result->parent = expression;
             result = expression;
         }
 
@@ -2551,7 +2476,6 @@ namespace ouzel
             expression->leftExpression = result;
 
             auto rightExpression = parseAdditionAssignmentExpression(iterator, end, declarationScopes);
-            rightExpression->parent = expression;
 
             expression->rightExpression = rightExpression;
             expression->qualifiedType.type = expression->rightExpression->qualifiedType.type;
@@ -2561,7 +2485,6 @@ namespace ouzel
                 expression->rightExpression->qualifiedType.type)
                 throw ParseError("Incompatible operand types");
 
-            result->parent = expression;
             result = expression;
         }
 

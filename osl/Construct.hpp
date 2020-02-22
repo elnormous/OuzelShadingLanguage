@@ -27,8 +27,6 @@ namespace ouzel
 
         inline Kind getKind() const noexcept { return kind; }
 
-        Construct* parent = nullptr;
-
     protected:
         const Kind kind;
     };
