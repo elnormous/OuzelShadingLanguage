@@ -327,6 +327,8 @@ namespace ouzel
         if (iterator == end)
             throw ParseError("Unexpected end of file");
 
+        expectToken(Token::Type::Identifier, iterator, end);
+
         Semantic semantic;
         int index = 0;
 
