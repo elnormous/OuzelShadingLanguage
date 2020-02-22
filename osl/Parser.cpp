@@ -305,59 +305,128 @@ namespace ouzel
 
     namespace
     {
-        std::map<std::string, Semantic> semantics = {
-            {"Binormal", Semantic::Binormal},
-            {"BlendIndices", Semantic::BlendIndices},
-            {"BlendWeight", Semantic::BlendWeight},
-            {"Color", Semantic::Color},
-            {"Fog", Semantic::Fog},
-            {"Normal", Semantic::Normal},
-            {"Position", Semantic::Position},
-            {"PositionTransformed", Semantic::PositionTransformed},
-            {"PointSize", Semantic::PointSize},
-            {"Tangent", Semantic::Tangent},
-            {"TesselationFactor", Semantic::TesselationFactor},
-            {"TextureCoordinates", Semantic::TextureCoordinates}
-        };
+        size_t parseIndex(std::vector<Token>::const_iterator& iterator,
+                          std::vector<Token>::const_iterator end)
+        {
+            size_t result = 0;
+
+            if (isToken(Token::Type::LeftParenthesis, iterator, end))
+            {
+                ++iterator;
+
+                expectToken(Token::Type::IntLiteral, iterator, end);
+
+                int index = std::stoi(iterator->value);
+                if (index < 0)
+                    throw ParseError("Index must be positibe");
+
+                result = static_cast<size_t>(index);
+
+                ++iterator;
+
+                expectToken(Token::Type::RightParenthesis, iterator, end);
+                ++iterator;
+            }
+
+            return result;
+        }
     }
 
-    std::pair<Semantic, size_t> ASTContext::parseSemantic(std::vector<Token>::const_iterator& iterator,
-                                                          std::vector<Token>::const_iterator end)
+    Attribute* ASTContext::parseAttribute(std::vector<Token>::const_iterator& iterator,
+                                          std::vector<Token>::const_iterator end)
     {
         if (iterator == end)
             throw ParseError("Unexpected end of file");
 
         expectToken(Token::Type::Identifier, iterator, end);
 
-        Semantic semantic;
-        int index = 0;
-
-        auto i = semantics.find(iterator->value);
-
-        if (i == semantics.end())
-            throw ParseError("Unknown semantic " + iterator->value);
-
-        semantic = i->second;
-
+        auto name = iterator->value;
         ++iterator;
 
-        if (isToken(Token::Type::LeftParenthesis, iterator, end))
+        if (name == "Binormal")
         {
-            ++iterator;
-
-            expectToken(Token::Type::IntLiteral, iterator, end);
-
-            index = std::stoi(iterator->value);
-            if (index < 0)
-                throw ParseError("Index must be positibe");
-
-            ++iterator;
-
-            expectToken(Token::Type::RightParenthesis, iterator, end);
-            ++iterator;
+            BinormalAttribute* binormalAttribute;
+            constructs.push_back(std::unique_ptr<Construct>(binormalAttribute = new BinormalAttribute()));
+            binormalAttribute->n = parseIndex(iterator, end);
+            return binormalAttribute;
+        }
+        else if (name == "BlendIndices")
+        {
+            BlendIndicesAttribute* blendIndicesAttributeAttribute;
+            constructs.push_back(std::unique_ptr<Construct>(blendIndicesAttributeAttribute = new BlendIndicesAttribute()));
+            blendIndicesAttributeAttribute->n = parseIndex(iterator, end);
+            return blendIndicesAttributeAttribute;
+        }
+        else if (name == "BlendWeight")
+        {
+            BlendWeightAttribute* blendWeightAttribute;
+            constructs.push_back(std::unique_ptr<Construct>(blendWeightAttribute = new BlendWeightAttribute()));
+            blendWeightAttribute->n = parseIndex(iterator, end);
+            return blendWeightAttribute;
+        }
+        else if (name == "Color")
+        {
+            ColorAttribute* colorAttribute;
+            constructs.push_back(std::unique_ptr<Construct>(colorAttribute = new ColorAttribute()));
+            colorAttribute->n = parseIndex(iterator, end);
+            return colorAttribute;
+        }
+        else if (name == "Fog")
+        {
+            FogAttribute* fogAttribute;
+            constructs.push_back(std::unique_ptr<Construct>(fogAttribute = new FogAttribute()));
+            return fogAttribute;
+        }
+        else if (name == "Normal")
+        {
+            NormalAttribute* normalAttribute;
+            constructs.push_back(std::unique_ptr<Construct>(normalAttribute = new NormalAttribute()));
+            normalAttribute->n = parseIndex(iterator, end);
+            return normalAttribute;
+        }
+        else if (name == "Position")
+        {
+            PositionAttribute* positionAttribute;
+            constructs.push_back(std::unique_ptr<Construct>(positionAttribute = new PositionAttribute()));
+            positionAttribute->n = parseIndex(iterator, end);
+            return positionAttribute;
+        }
+        else if (name == "PositionTransformed")
+        {
+            PositionTransformedAttribute* positionTransformedAttribute;
+            constructs.push_back(std::unique_ptr<Construct>(positionTransformedAttribute = new PositionTransformedAttribute()));
+            return positionTransformedAttribute;
+        }
+        else if (name == "PointSize")
+        {
+            PointSizeAttribute* pointSizeAttribute;
+            constructs.push_back(std::unique_ptr<Construct>(pointSizeAttribute = new PointSizeAttribute()));
+            pointSizeAttribute->n = parseIndex(iterator, end);
+            return pointSizeAttribute;
+        }
+        else if (name == "Tangent")
+        {
+            TangentAttribute* tangentAttribute;
+            constructs.push_back(std::unique_ptr<Construct>(tangentAttribute = new TangentAttribute()));
+            tangentAttribute->n = parseIndex(iterator, end);
+            return tangentAttribute;
+        }
+        else if (name == "TesselationFactor")
+        {
+            TesselationFactorAttribute* tesselationFactorAttribute;
+            constructs.push_back(std::unique_ptr<Construct>(tesselationFactorAttribute = new TesselationFactorAttribute()));
+            tesselationFactorAttribute->n = parseIndex(iterator, end);
+            return tesselationFactorAttribute;
+        }
+        else if (name == "TextureCoordinates")
+        {
+            TextureCoordinatesAttribute* textureCoordinatesAttribute;
+            constructs.push_back(std::unique_ptr<Construct>(textureCoordinatesAttribute = new TextureCoordinatesAttribute()));
+            textureCoordinatesAttribute->n = parseIndex(iterator, end);
+            return textureCoordinatesAttribute;
         }
 
-        return std::make_pair(semantic, static_cast<size_t>(index));
+        return nullptr;
     }
 
     bool ASTContext::isDeclaration(std::vector<Token>::const_iterator iterator,
@@ -492,7 +561,8 @@ namespace ouzel
         if (isToken(Token::Type::Arrow, iterator, end))
         {
             ++iterator;
-            result->semantic = parseSemantic(iterator, end);
+            while (isToken(Token::Type::Identifier, iterator, end))
+                result->attributes.push_back(parseAttribute(iterator, end));
         }
 
         declarationScopes.back().push_back(result);
@@ -722,7 +792,8 @@ namespace ouzel
         if (isToken(Token::Type::Arrow, iterator, end))
         {
             ++iterator;
-            result->semantic = parseSemantic(iterator, end);
+            while (isToken(Token::Type::Identifier, iterator, end))
+                result->attributes.push_back(parseAttribute(iterator, end));
         }
 
         return result;
@@ -768,7 +839,8 @@ namespace ouzel
         if (isToken(Token::Type::Arrow, iterator, end))
         {
             ++iterator;
-            result->semantic = parseSemantic(iterator, end);
+            while (isToken(Token::Type::Identifier, iterator, end))
+                result->attributes.push_back(parseAttribute(iterator, end));
         }
 
         return result;

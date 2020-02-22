@@ -21,6 +21,7 @@ namespace ouzel
                 case Construct::Kind::Declaration: return "Declaration";
                 case Construct::Kind::Statement: return "Statement";
                 case Construct::Kind::Expression: return "Expression";
+                case Construct::Kind::Attribute: return "Attribute";
                 default: return "Unknown";
             }
         }
@@ -787,6 +788,80 @@ namespace ouzel
         void dumpAttribute(const Attribute* attribute, const uint32_t level = 0)
         {
             std::cout << " " << toString(attribute->getAttributeKind());
+
+            switch (attribute->getAttributeKind())
+            {
+                case Attribute::Kind::Binormal:
+                {
+                    auto binormalAttribute = static_cast<const BinormalAttribute*>(attribute);
+                    std::cout << ", n: " << binormalAttribute->n;
+                    break;
+                }
+                case Attribute::Kind::BlendIndices:
+                {
+                    auto blendIndicesAttribute = static_cast<const BlendIndicesAttribute*>(attribute);
+                    std::cout << ", n: " << blendIndicesAttribute->n;
+                    break;
+                }
+                case Attribute::Kind::BlendWeight:
+                {
+                    auto blendWeightAttribute = static_cast<const BlendWeightAttribute*>(attribute);
+                    std::cout << ", n: " << blendWeightAttribute->n;
+                    break;
+                }
+                case Attribute::Kind::Color:
+                {
+                    auto colorAttribute = static_cast<const ColorAttribute*>(attribute);
+                    std::cout << ", n: " << colorAttribute->n;
+                    break;
+                }
+                case Attribute::Kind::Fog:
+                {
+                    break;
+                }
+                case Attribute::Kind::Normal:
+                {
+                    auto normalAttribute = static_cast<const NormalAttribute*>(attribute);
+                    std::cout << ", n: " << normalAttribute->n;
+                    break;
+                }
+                case Attribute::Kind::Position:
+                {
+                    auto positionAttribute = static_cast<const PositionAttribute*>(attribute);
+                    std::cout << ", n: " << positionAttribute->n;
+                    break;
+                }
+                case Attribute::Kind::PositionTransformed:
+                {
+                    break;
+                }
+                case Attribute::Kind::PointSize:
+                {
+                    auto pointSizeAttribute = static_cast<const PointSizeAttribute*>(attribute);
+                    std::cout << ", n: " << pointSizeAttribute->n;
+                    break;
+                }
+                case Attribute::Kind::Tangent:
+                {
+                    auto tangentAttribute = static_cast<const TangentAttribute*>(attribute);
+                    std::cout << ", n: " << tangentAttribute->n;
+                    break;
+                }
+                case Attribute::Kind::TesselationFactor:
+                {
+                    auto tesselationFactorAttribute = static_cast<const TesselationFactorAttribute*>(attribute);
+                    std::cout << ", n: " << tesselationFactorAttribute->n;
+                    break;
+                }
+                case Attribute::Kind::TextureCoordinates:
+                {
+                    auto textureCoordinatesAttribute = static_cast<const TextureCoordinatesAttribute*>(attribute);
+                    std::cout << ", n: " << textureCoordinatesAttribute->n;
+                    break;
+                }
+            };
+
+            std::cout << '\n';
         }
 
         void dumpConstruct(const Construct* construct, const uint32_t level)

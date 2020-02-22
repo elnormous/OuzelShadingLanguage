@@ -686,11 +686,13 @@ namespace
             {
                 var position:float3 -> Position;
                 var normal:float3 -> Normal;
-                var texCoord:float2 -> TextureCoordinates(0);
+                var texCoord0:float2 -> TextureCoordinates(0);
+                var texCoord1:float2 -> TextureCoordinates(1);
             }
         )OSL";
 
         ouzel::ASTContext context(ouzel::tokenize(code));
+        context.dump();
 }
 
     void testInputModifiers()
