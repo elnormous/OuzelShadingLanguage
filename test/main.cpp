@@ -689,10 +689,13 @@ namespace
                 var texCoord0:float2 -> TextureCoordinates(0);
                 var texCoord1:float2 -> TextureCoordinates(1);
             }
+            struct Fragment
+            {
+                var depth:float3 -> Depth(0);
+            }
         )OSL";
 
         ouzel::ASTContext context(ouzel::tokenize(code));
-        context.dump();
 }
 
     void testInputModifiers()

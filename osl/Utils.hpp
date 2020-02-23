@@ -195,6 +195,7 @@ namespace ouzel
                 case Attribute::Kind::BlendIndices: return "BlendIndices";
                 case Attribute::Kind::BlendWeight: return "BlendWeight";
                 case Attribute::Kind::Color: return "Color";
+                case Attribute::Kind::Depth: return "Depth";
                 case Attribute::Kind::Fog: return "Fog";
                 case Attribute::Kind::Normal: return "Normal";
                 case Attribute::Kind::Position: return "Position";
@@ -813,6 +814,12 @@ namespace ouzel
                 {
                     auto colorAttribute = static_cast<const ColorAttribute*>(attribute);
                     std::cout << ", n: " << colorAttribute->n;
+                    break;
+                }
+                case Attribute::Kind::Depth:
+                {
+                    auto depthAttribute = static_cast<const DepthAttribute*>(attribute);
+                    std::cout << ", n: " << depthAttribute->n;
                     break;
                 }
                 case Attribute::Kind::Fog:

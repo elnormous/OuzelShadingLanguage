@@ -371,6 +371,13 @@ namespace ouzel
             colorAttribute->n = parseIndex(iterator, end);
             return colorAttribute;
         }
+        else if (name == "Depth")
+        {
+            DepthAttribute* depthAttribute;
+            constructs.push_back(std::unique_ptr<Construct>(depthAttribute = new DepthAttribute()));
+            depthAttribute->n = parseIndex(iterator, end);
+            return depthAttribute;
+        }
         else if (name == "Fog")
         {
             FogAttribute* fogAttribute;

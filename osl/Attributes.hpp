@@ -18,6 +18,7 @@ namespace ouzel
             BlendIndices,
             BlendWeight,
             Color,
+            Depth,
             Fog,
             Normal,
             Position,
@@ -64,6 +65,14 @@ namespace ouzel
     {
     public:
         ColorAttribute(): Attribute(Attribute::Kind::Color) {}
+
+        size_t n = 0;
+    };
+
+    class DepthAttribute final: public Attribute
+    {
+    public:
+        DepthAttribute(): Attribute(Attribute::Kind::Depth) {}
 
         size_t n = 0;
     };
