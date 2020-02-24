@@ -34,7 +34,7 @@ namespace ouzel
         {
             if (iterator == end) return false;
 
-            for (Token::Type tokenType : tokenTypes)
+            for (auto tokenType : tokenTypes)
                 if (iterator->type == tokenType) return true;
 
             return false;
@@ -48,11 +48,11 @@ namespace ouzel
             if (iterator == end)
                 throw ParseError("Unexpected end of file");
 
-            for (Token::Type tokenType : tokenTypes)
+            for (auto tokenType : tokenTypes)
                 if (iterator->type == tokenType) return;
 
             std::string str;
-            for (Token::Type tokenType : tokenTypes)
+            for (auto tokenType : tokenTypes)
             {
                 if (!str.empty()) str += "or ";
                 str += toString(tokenType);
@@ -110,17 +110,17 @@ namespace ouzel
                           floatType, components, components, declarationScopes);
 
         stringType = addStructType("string", 8, declarationScopes);
-        StructType* texture2DType = addStructType("Texture2D", 0, declarationScopes);
+        auto texture2DType = addStructType("Texture2D", 0, declarationScopes);
 
         //addBuiltinFunctionDeclaration("sample", float4Type, {texture2DType, float2Type}, declarationScopes);
 
-        StructType* texture2DMSType = addStructType("Texture2DMS", 0, declarationScopes);
+        auto texture2DMSType = addStructType("Texture2DMS", 0, declarationScopes);
 
         //addBuiltinFunctionDeclaration("load", float4Type, {texture2DMSType, float2Type}, declarationScopes);
 
         for (auto iterator = tokens.begin(); iterator != tokens.end();)
         {
-            Declaration* declaration = parseTopLevelDeclaration(iterator, tokens.end(), declarationScopes);
+            auto declaration = parseTopLevelDeclaration(iterator, tokens.end(), declarationScopes);
             declarations.push_back(declaration);
         }
     }
@@ -582,7 +582,7 @@ namespace ouzel
 
             declarationScopes.push_back(std::vector<Declaration*>()); // add scope for parameters
 
-            for (ParameterDeclaration* parameterDeclaration : result->parameterDeclarations)
+            for (auto parameterDeclaration : result->parameterDeclarations)
                 declarationScopes.back().push_back(parameterDeclaration);
 
             FunctionScope functionScope;
@@ -961,7 +961,7 @@ namespace ouzel
         {
             ++iterator;
 
-            Statement* statement = new Statement(Statement::Kind::Empty);
+            auto statement = new Statement(Statement::Kind::Empty);
             constructs.push_back(std::unique_ptr<Construct>(statement));
 
             return statement;
@@ -1748,7 +1748,7 @@ namespace ouzel
 
             if (isType(iterator, end, declarationScopes))
             {
-                CastExpression* result = new CastExpression(CastExpression::Kind::CStyle);
+                auto result = new CastExpression(CastExpression::Kind::CStyle);
                 constructs.push_back(std::unique_ptr<Construct>(result));
 
                 result->qualifiedType.type = parseType(iterator, end, declarationScopes);
@@ -1979,7 +1979,7 @@ namespace ouzel
 
                 expectToken(Token::Type::Identifier, iterator, end);
 
-                Declaration* memberDeclaration = structType->findMemberDeclaration(iterator->value);
+                auto memberDeclaration = structType->findMemberDeclaration(iterator->value);
                 if (!memberDeclaration)
                     throw ParseError("Structure " + structType->name +  " has no member " + iterator->value);
 
@@ -2007,7 +2007,7 @@ namespace ouzel
 
                 expression->category = result->category;
 
-                for (const char c : iterator->value)
+                for (const auto c : iterator->value)
                 {
                     uint8_t component = charToComponent(c);
                     if (!componentSet.insert(component).second) // has component repeated
@@ -2574,7 +2574,7 @@ namespace ouzel
 
     void ASTContext::dump() const
     {
-        for (Declaration* declaration : declarations)
+        for (auto declaration : declarations)
             dumpConstruct(declaration);
     }
 }

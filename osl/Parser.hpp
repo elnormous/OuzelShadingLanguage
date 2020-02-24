@@ -58,7 +58,7 @@ namespace ouzel
         Type* findType(const std::string& name,
                        const std::vector<std::vector<Declaration*>>& declarationScopes)
         {
-            Declaration* declaration = findDeclaration(name, declarationScopes);
+            auto declaration = findDeclaration(name, declarationScopes);
 
             if (declaration && declaration->getDeclarationKind() == Declaration::Kind::Type)
                 return static_cast<TypeDeclaration*>(declaration)->type;
@@ -73,7 +73,7 @@ namespace ouzel
         StructType* findStructType(const std::string& name,
                                    const std::vector<std::vector<Declaration*>>& declarationScopes)
         {
-            Type* type = findType(name, declarationScopes);
+            auto type = findType(name, declarationScopes);
 
             if (type && type->getTypeKind() == Type::Kind::Struct)
                 return static_cast<StructType*>(type);
