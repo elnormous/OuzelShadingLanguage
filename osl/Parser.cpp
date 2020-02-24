@@ -125,11 +125,11 @@ namespace ouzel
         }
     }
 
-    FunctionDeclaration* ASTContext::resolveFunctionDeclaration(const std::string& name,
-                                                                const std::vector<std::vector<Declaration*>>& declarationScopes,
-                                                                const std::vector<QualifiedType>& arguments)
+    const FunctionDeclaration* ASTContext::resolveFunctionDeclaration(const std::string& name,
+                                                                      const std::vector<std::vector<Declaration*>>& declarationScopes,
+                                                                      const std::vector<QualifiedType>& arguments)
     {
-        std::vector<FunctionDeclaration*> candidateFunctionDeclarations;
+        std::vector<const FunctionDeclaration*> candidateFunctionDeclarations;
 
         for (auto scopeIterator = declarationScopes.crbegin(); scopeIterator != declarationScopes.crend(); ++scopeIterator)
         {
@@ -143,7 +143,7 @@ namespace ouzel
 
                     if (callableDeclaration->getCallableDeclarationKind() != CallableDeclaration::Kind::Function) return nullptr;
 
-                    auto functionDeclaration = static_cast<FunctionDeclaration*>(callableDeclaration->firstDeclaration);
+                    auto functionDeclaration = static_cast<const FunctionDeclaration*>(callableDeclaration->firstDeclaration);
 
                     if (std::find(candidateFunctionDeclarations.begin(), candidateFunctionDeclarations.end(), functionDeclaration) == candidateFunctionDeclarations.end())
                         candidateFunctionDeclarations.push_back(functionDeclaration);
@@ -151,9 +151,9 @@ namespace ouzel
             }
         }
 
-        std::vector<FunctionDeclaration*> viableFunctionDeclarations;
+        std::vector<const FunctionDeclaration*> viableFunctionDeclarations;
 
-        for (FunctionDeclaration* functionDeclaration : candidateFunctionDeclarations)
+        for (auto functionDeclaration : candidateFunctionDeclarations)
         {
             if (functionDeclaration->parameterDeclarations.size() == arguments.size())
             {
@@ -181,7 +181,7 @@ namespace ouzel
             if (arguments.empty()) // two or more functions with zero parameters
                 throw ParseError("Ambiguous call to " + name);
 
-            FunctionDeclaration* result = nullptr;
+            const FunctionDeclaration* result = nullptr;
 
             for (auto viableFunctionDeclaration : viableFunctionDeclarations)
             {

@@ -132,9 +132,9 @@ namespace ouzel
                                                                       const CallableDeclaration* callableDeclaration2,
                                                                       const std::vector<QualifiedType>& arguments);
 
-        static FunctionDeclaration* resolveFunctionDeclaration(const std::string& name,
-                                                               const std::vector<std::vector<Declaration*>>& declarationScopes,
-                                                               const std::vector<QualifiedType>& arguments);
+        static const FunctionDeclaration* resolveFunctionDeclaration(const std::string& name,
+                                                                     const std::vector<std::vector<Declaration*>>& declarationScopes,
+                                                                     const std::vector<QualifiedType>& arguments);
 
         const ArrayType* getArrayType(const Type* type, size_t size);
 
