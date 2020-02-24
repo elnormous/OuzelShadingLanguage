@@ -23,7 +23,6 @@
     <ClCompile Include="osl\OutputHLSL.cpp" />
     <ClCompile Include="osl\OutputMSL.cpp" />
     <ClCompile Include="osl\Parser.cpp" />
-    <ClCompile Include="osl\Preprocessor.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="osl\Attributes.hpp" />

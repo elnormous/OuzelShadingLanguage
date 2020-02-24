@@ -27,9 +27,6 @@
     <ClCompile Include="osl\Parser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="osl\Preprocessor.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="osl\Attributes.hpp">
