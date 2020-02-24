@@ -13,7 +13,6 @@
 		30CD930B232316F800720C9F /* OutputMSL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 308340DE1F923900000AE853 /* OutputMSL.cpp */; };
 		30CD930C232316F800720C9F /* Parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 30DD174A1EAF96CE004CAD77 /* Parser.cpp */; };
 		30CD930D232316F800720C9F /* Preprocessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C6C9104621C2635200B5FCB7 /* Preprocessor.cpp */; };
-		30CD930E232316F800720C9F /* Tokenizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 30DD17471EAF967B004CAD77 /* Tokenizer.cpp */; };
 		30CD93102323170A00720C9F /* liblibosl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 30CD9304232316DE00720C9F /* liblibosl.a */; };
 		30CD93112323171000720C9F /* liblibosl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 30CD9304232316DE00720C9F /* liblibosl.a */; };
 		30DD17411EAE944F004CAD77 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 30DD17401EAE944F004CAD77 /* main.cpp */; };
@@ -59,7 +58,6 @@
 		30D57FA8210AA47600377C5E /* Declarations.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Declarations.hpp; sourceTree = "<group>"; };
 		30DD173D1EAE944F004CAD77 /* OSL */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = OSL; sourceTree = BUILT_PRODUCTS_DIR; };
 		30DD17401EAE944F004CAD77 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
-		30DD17471EAF967B004CAD77 /* Tokenizer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Tokenizer.cpp; sourceTree = "<group>"; };
 		30DD17481EAF967B004CAD77 /* Tokenizer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Tokenizer.hpp; sourceTree = "<group>"; };
 		30DD174A1EAF96CE004CAD77 /* Parser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Parser.cpp; sourceTree = "<group>"; };
 		30DD174B1EAF96CE004CAD77 /* Parser.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Parser.hpp; sourceTree = "<group>"; };
@@ -159,7 +157,6 @@
 				C6C9104721C2635200B5FCB7 /* Preprocessor.hpp */,
 				30D57FA5210AA3F100377C5E /* QualifiedType.hpp */,
 				30D57FA6210AA42D00377C5E /* Statements.hpp */,
-				30DD17471EAF967B004CAD77 /* Tokenizer.cpp */,
 				30DD17481EAF967B004CAD77 /* Tokenizer.hpp */,
 				303917C6231C9E1D00D8BA56 /* Utils.hpp */,
 			);
@@ -285,7 +282,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				30CD930E232316F800720C9F /* Tokenizer.cpp in Sources */,
 				30CD930D232316F800720C9F /* Preprocessor.cpp in Sources */,
 				30CD9309232316F800720C9F /* OutputGLSL.cpp in Sources */,
 				30CD930A232316F800720C9F /* OutputHLSL.cpp in Sources */,

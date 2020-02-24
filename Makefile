@@ -4,8 +4,7 @@ SOURCES=osl/OutputGLSL.cpp \
 	osl/OutputHLSL.cpp \
 	osl/OutputMSL.cpp \
 	osl/Parser.cpp \
-	osl/Preprocessor.cpp \
-	osl/Tokenizer.cpp
+	osl/Preprocessor.cpp
 BASE_NAMES=$(basename $(SOURCES))
 OBJECTS=$(BASE_NAMES:=.o)
 OUTDIR=bin

@@ -24,7 +24,6 @@
     <ClCompile Include="osl\OutputMSL.cpp" />
     <ClCompile Include="osl\Parser.cpp" />
     <ClCompile Include="osl\Preprocessor.cpp" />
-    <ClCompile Include="osl\Tokenizer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="osl\Attributes.hpp" />

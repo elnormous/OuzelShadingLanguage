@@ -30,9 +30,6 @@
     <ClCompile Include="osl\Preprocessor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="osl\Tokenizer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="osl\Attributes.hpp">
