@@ -139,7 +139,7 @@ namespace ouzel
                 {
                     if ((*declarationIterator)->getDeclarationKind() != Declaration::Kind::Callable) return nullptr;
 
-                    auto callableDeclaration = static_cast<CallableDeclaration*>(*declarationIterator);
+                    auto callableDeclaration = static_cast<const CallableDeclaration*>(*declarationIterator);
 
                     if (callableDeclaration->getCallableDeclarationKind() != CallableDeclaration::Kind::Function) return nullptr;
 
@@ -456,7 +456,7 @@ namespace ouzel
 
         if (declaration->getDeclarationKind() == Declaration::Kind::Callable)
         {
-            auto callableDeclaration = static_cast<CallableDeclaration*>(declaration);
+            auto callableDeclaration = static_cast<const CallableDeclaration*>(declaration);
 
             // semicolon is not needed after a function definition
             if (!callableDeclaration->body)
@@ -467,7 +467,7 @@ namespace ouzel
         }
         else if (declaration->getDeclarationKind() == Declaration::Kind::Type)
         {
-            auto typeDeclaration = static_cast<TypeDeclaration*>(declaration);
+            auto typeDeclaration = static_cast<const TypeDeclaration*>(declaration);
 
             // semicolon is not needed after a struct definition
             if (typeDeclaration->definition != typeDeclaration)
@@ -1548,7 +1548,7 @@ namespace ouzel
                     {
                         case Type::Kind::Struct:
                         {
-                            auto structType = static_cast<StructType*>(type);
+                            auto structType = static_cast<const StructType*>(type);
 
                             TemporaryObjectExpression* result;
                             constructs.push_back(std::unique_ptr<Construct>(result = new TemporaryObjectExpression()));
@@ -1566,7 +1566,7 @@ namespace ouzel
                         }
                         case Type::Kind::Vector:
                         {
-                            auto vectorType = static_cast<VectorType*>(type);
+                            auto vectorType = static_cast<const VectorType*>(type);
 
                             VectorInitializeExpression* result;
                             constructs.push_back(std::unique_ptr<Construct>(result = new VectorInitializeExpression()));
@@ -1608,7 +1608,7 @@ namespace ouzel
                         }
                         case Type::Kind::Matrix:
                         {
-                            auto matrixType = static_cast<MatrixType*>(type);
+                            auto matrixType = static_cast<const MatrixType*>(type);
 
                             MatrixInitializeExpression* result;
                             constructs.push_back(std::unique_ptr<Construct>(result = new MatrixInitializeExpression()));
@@ -1986,7 +1986,7 @@ namespace ouzel
                 if (memberDeclaration->getDeclarationKind() != Declaration::Kind::Field)
                     throw ParseError(iterator->value + " is not a field");
 
-                expression->fieldDeclaration = static_cast<FieldDeclaration*>(memberDeclaration);
+                expression->fieldDeclaration = static_cast<const FieldDeclaration*>(memberDeclaration);
 
                 ++iterator;
 
