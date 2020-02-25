@@ -5,6 +5,7 @@
 #ifndef STATEMENTS_HPP
 #define STATEMENTS_HPP
 
+#include <type_traits>
 #include "Construct.hpp"
 
 namespace ouzel
@@ -65,12 +66,95 @@ namespace ouzel
         std::vector<const Statement*> statements;
     };
 
+    class BadAccessError final: public std::runtime_error
+    {
+    public:
+        explicit BadAccessError(const std::string& str): std::runtime_error(str) {}
+        explicit BadAccessError(const char* str): std::runtime_error(str) {}
+    };
+
+    class DeclarationOrExpression final
+    {
+    public:
+        DeclarationOrExpression() noexcept = default;
+        DeclarationOrExpression(std::nullptr_t) noexcept:
+            type(Type::None) {}
+        DeclarationOrExpression(Declaration* declaration) noexcept:
+            type(Type::Declaration), pointer(declaration) {}
+        DeclarationOrExpression(Expression* expression) noexcept:
+            type(Type::Expression), pointer(expression) {}
+
+        DeclarationOrExpression& operator=(std::nullptr_t) noexcept
+        {
+            type = Type::None;
+            pointer = nullptr;
+            return *this;
+        }
+
+        DeclarationOrExpression& operator=(Declaration* declaration) noexcept
+        {
+            type = Type::Declaration;
+            pointer = declaration;
+            return *this;
+        }
+
+        DeclarationOrExpression& operator=(Expression* expression) noexcept
+        {
+            type = Type::Expression;
+            pointer = expression;
+            return *this;
+        }
+
+        template <class T, typename std::enable_if<std::is_same<T, Declaration>::value>::type* = nullptr>
+        bool is() const noexcept { return type == Type::Declaration; }
+        template <class T, typename std::enable_if<std::is_same<T, Expression>::value>::type* = nullptr>
+        bool is() const noexcept { return type == Type::Expression; }
+
+        template <class T, typename std::enable_if<std::is_same<T, Declaration>::value>::type* = nullptr>
+        const Declaration* get() const
+        {
+            if (type != Type::Declaration) throw BadAccessError("Not a Declaration");
+            return static_cast<const Declaration*>(pointer);
+        }
+
+        template <class T, typename std::enable_if<std::is_same<T, Expression>::value>::type* = nullptr>
+        const Expression* get() const
+        {
+            if (type != Type::Expression) throw BadAccessError("Not a Statement");
+            return static_cast<const Expression*>(pointer);
+        }
+
+        template <class T, typename std::enable_if<std::is_same<T, Declaration>::value>::type* = nullptr>
+        Declaration* get()
+        {
+            if (type != Type::Declaration) throw BadAccessError("Not a Declaration");
+            return static_cast<Declaration*>(pointer);
+        }
+
+        template <class T, typename std::enable_if<std::is_same<T, Expression>::value>::type* = nullptr>
+        Expression* get()
+        {
+            if (type != Type::Expression) throw BadAccessError("Not a Statement");
+            return static_cast<Expression*>(pointer);
+        }
+
+    private:
+        enum class Type
+        {
+            None,
+            Declaration,
+            Expression
+        };
+        Type type = Type::None;
+        void* pointer = nullptr;
+    };
+
     class IfStatement final: public Statement
     {
     public:
         IfStatement() noexcept: Statement(Statement::Kind::If) {}
 
-        const Construct* condition = nullptr;
+        DeclarationOrExpression condition;
         const Statement* body = nullptr;
         const Statement* elseBody = nullptr;
     };
@@ -80,8 +164,8 @@ namespace ouzel
     public:
         ForStatement() noexcept: Statement(Statement::Kind::For) {}
 
-        const Construct* initialization = nullptr;
-        const Construct* condition = nullptr;
+        DeclarationOrExpression initialization;
+        DeclarationOrExpression condition;
         const Expression* increment = nullptr;
         const Statement* body = nullptr;
     };
@@ -91,7 +175,7 @@ namespace ouzel
     public:
         SwitchStatement() noexcept: Statement(Statement::Kind::Switch) {}
 
-        const Construct* condition = nullptr;
+        DeclarationOrExpression condition;
         const Statement* body = nullptr;
     };
 
@@ -117,7 +201,7 @@ namespace ouzel
     public:
         WhileStatement() noexcept: Statement(Statement::Kind::While) {}
 
-        const Construct* condition = nullptr;
+        DeclarationOrExpression condition;
         const Statement* body = nullptr;
     };
 

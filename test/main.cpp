@@ -236,11 +236,10 @@ namespace
 
         auto ifStatement = static_cast<const ouzel::IfStatement*>(statement);
 
-        if (!ifStatement->condition ||
-            ifStatement->condition->getKind() != ouzel::Construct::Kind::Expression)
+        if (!ifStatement->condition.is<ouzel::Expression>())
             throw TestError("Expected an expression condition");
 
-        auto condition = static_cast<const ouzel::Expression*>(ifStatement->condition);
+        auto condition = ifStatement->condition.get<ouzel::Expression>();
 
         expectLiteral(condition, true);
 
@@ -254,11 +253,10 @@ namespace
 
         auto elseIfStatement = static_cast<const ouzel::IfStatement*>(ifStatement->elseBody);
 
-        if (!elseIfStatement->condition ||
-            elseIfStatement->condition->getKind() != ouzel::Construct::Kind::Expression)
+        if (!elseIfStatement->condition.is<ouzel::Expression>())
             throw TestError("Expected an expression condition");
 
-        auto elseIfCondition = static_cast<const ouzel::Expression*>(elseIfStatement->condition);
+        auto elseIfCondition = elseIfStatement->condition.get<ouzel::Expression>();
 
         expectLiteral(elseIfCondition, false);
 
@@ -293,11 +291,10 @@ namespace
 
         auto whileStatement = static_cast<const ouzel::WhileStatement*>(statement);
 
-        if (!whileStatement->condition ||
-            whileStatement->condition->getKind() != ouzel::Construct::Kind::Expression)
+        if (!whileStatement->condition.is<ouzel::Expression>())
             throw TestError("Expected an expression condition");
 
-        auto condition = static_cast<const ouzel::Expression*>(whileStatement->condition);
+        auto condition = whileStatement->condition.get<ouzel::Expression>();
 
         expectLiteral(condition, true);
 
@@ -372,11 +369,10 @@ namespace
 
         auto forStatement = static_cast<const ouzel::ForStatement*>(statement);
 
-        if (!forStatement->condition ||
-            forStatement->condition->getKind() != ouzel::Construct::Kind::Expression)
+        if (!forStatement->condition.is<ouzel::Expression>())
             throw TestError("Expected an expression condition");
 
-        auto condition = static_cast<const ouzel::Expression*>(forStatement->condition);
+        auto condition = forStatement->condition.get<ouzel::Expression>();
 
         expectLiteral(condition, true);
 
@@ -414,11 +410,10 @@ namespace
 
         auto switchStatement = static_cast<const ouzel::SwitchStatement*>(statement);
 
-        if (!switchStatement->condition ||
-            switchStatement->condition->getKind() != ouzel::Construct::Kind::Expression)
+        if (!switchStatement->condition.is<ouzel::Expression>())
             throw TestError("Expected an expression condition");
 
-        auto condition = static_cast<const ouzel::Expression*>(switchStatement->condition);
+        auto condition = switchStatement->condition.get<ouzel::Expression>();
 
         expectLiteral(condition, 1);
 
