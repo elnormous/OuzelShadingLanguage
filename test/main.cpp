@@ -667,6 +667,7 @@ namespace
             m1[0][0] = f1;
             var m2:float2x2 = float2x2(v1.xy, v1.zw);
             var m3:float4x4 = float4x4(m1);
+            var v2:float4 = m1 * v1;
             return m1;
         }
         )OSL";
