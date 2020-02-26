@@ -6,17 +6,6 @@
 
 namespace ouzel
 {
-    namespace
-    {
-        struct BuiltinFunction final
-        {
-            BuiltinFunction(const std::string& initName): name(initName) {}
-            std::string name;
-        };
-
-        std::map<std::string, BuiltinFunction> builtinFunctions;
-    }
-
     OutputHLSL::OutputHLSL(Program initProgram, const std::string& initMainFunction):
         Output(initProgram, initMainFunction)
     {
