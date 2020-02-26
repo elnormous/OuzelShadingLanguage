@@ -1,45 +1,30 @@
 CFLAGS=-c -Wpedantic -O2 -Iosl
-CXXFLAGS=-c -std=c++11 -Wpedantic -O2 -Iosl
-SOURCES=osl/Parser.cpp
-BASE_NAMES=$(basename $(SOURCES))
-OBJECTS=$(BASE_NAMES:=.o)
+CXXFLAGS=-c -std=c++14 -Wpedantic -O2 -Iosl
 OUTDIR=bin
 EXECUTABLE=$(OUTDIR)/osl
 TEST_EXECUTABLE=$(OUTDIR)/test
-LIBRARY=$(OUTDIR)/libosl.a
-DEPENDENCIES=$(OBJECTS:.o=.d)
 
 .PHONY: all
 ifeq ($(debug),1)
 all: CXXFLAGS+=-DDEBUG -g
 all: CFLAGS+=-DDEBUG -g
 endif
-all: libosl
 all: osl
 all: test
-
-.PHONY: libosl
-libosl: $(LIBRARY)
-
-$(LIBRARY): $(OBJECTS)
-	mkdir -p $(OUTDIR)
-	$(AR) rs $@ $^
 
 .PHONY: osl
 osl: $(EXECUTABLE)
 
-$(EXECUTABLE): src/main.o $(LIBRARY)
+$(EXECUTABLE): src/main.o
 	mkdir -p $(OUTDIR)
 	$(CXX) $^ $(LDFLAGS) -o $@
 
 .PHONY: test
 test: $(TEST_EXECUTABLE)
 
-$(TEST_EXECUTABLE): test/main.o $(LIBRARY)
+$(TEST_EXECUTABLE): test/main.o
 	mkdir -p $(OUTDIR)
 	$(CXX) $^ $(LDFLAGS) -o $@
-
--include $(DEPENDENCIES)
 
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -MMD -MP $< -o $@

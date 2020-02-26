@@ -160,11 +160,6 @@
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="libosl.vcxproj">
-      <Project>{76eab0c1-da46-401d-9c5a-cbc6860e6b30}</Project>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

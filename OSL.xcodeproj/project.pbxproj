@@ -8,9 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		30CD92FC2321E52A00720C9F /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 30CD92FB2321E52A00720C9F /* main.cpp */; };
-		30CD930C232316F800720C9F /* Parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 30DD174A1EAF96CE004CAD77 /* Parser.cpp */; };
-		30CD93102323170A00720C9F /* liblibosl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 30CD9304232316DE00720C9F /* liblibosl.a */; };
-		30CD93112323171000720C9F /* liblibosl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 30CD9304232316DE00720C9F /* liblibosl.a */; };
 		30DD17411EAE944F004CAD77 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 30DD17401EAE944F004CAD77 /* main.cpp */; };
 /* End PBXBuildFile section */
 
@@ -43,7 +40,6 @@
 		308340DF1F923900000AE853 /* OutputMSL.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = OutputMSL.hpp; sourceTree = "<group>"; };
 		30CD92F92321E52A00720C9F /* test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = test; sourceTree = BUILT_PRODUCTS_DIR; };
 		30CD92FB2321E52A00720C9F /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
-		30CD9304232316DE00720C9F /* liblibosl.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = liblibosl.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		30D57FA4210AA3B800377C5E /* Construct.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Construct.hpp; sourceTree = "<group>"; };
 		30D57FA5210AA3F100377C5E /* QualifiedType.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = QualifiedType.hpp; sourceTree = "<group>"; };
 		30D57FA6210AA42D00377C5E /* Statements.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Statements.hpp; sourceTree = "<group>"; };
@@ -52,7 +48,6 @@
 		30DD173D1EAE944F004CAD77 /* OSL */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = OSL; sourceTree = BUILT_PRODUCTS_DIR; };
 		30DD17401EAE944F004CAD77 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		30DD17481EAF967B004CAD77 /* Tokenizer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Tokenizer.hpp; sourceTree = "<group>"; };
-		30DD174A1EAF96CE004CAD77 /* Parser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Parser.cpp; sourceTree = "<group>"; };
 		30DD174B1EAF96CE004CAD77 /* Parser.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Parser.hpp; sourceTree = "<group>"; };
 		C67DD88923F1946C00733D81 /* Attributes.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Attributes.hpp; sourceTree = "<group>"; };
 		C6C9104721C2635200B5FCB7 /* Preprocessor.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Preprocessor.hpp; sourceTree = "<group>"; };
@@ -63,14 +58,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				30CD93102323170A00720C9F /* liblibosl.a in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		30CD9302232316DE00720C9F /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,7 +65,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				30CD93112323171000720C9F /* liblibosl.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -124,7 +110,6 @@
 			children = (
 				30DD173D1EAE944F004CAD77 /* OSL */,
 				30CD92F92321E52A00720C9F /* test */,
-				30CD9304232316DE00720C9F /* liblibosl.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -140,7 +125,6 @@
 				308340DC1F9238F2000AE853 /* OutputGLSL.hpp */,
 				308340D91F9238D7000AE853 /* OutputHLSL.hpp */,
 				308340DF1F923900000AE853 /* OutputMSL.hpp */,
-				30DD174A1EAF96CE004CAD77 /* Parser.cpp */,
 				30DD174B1EAF96CE004CAD77 /* Parser.hpp */,
 				C6C9104721C2635200B5FCB7 /* Preprocessor.hpp */,
 				30D57FA5210AA3F100377C5E /* QualifiedType.hpp */,
@@ -152,16 +136,6 @@
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
-
-/* Begin PBXHeadersBuildPhase section */
-		30CD9300232316DE00720C9F /* Headers */ = {
-			isa = PBXHeadersBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
 		30CD92F82321E52A00720C9F /* test */ = {
@@ -180,23 +154,6 @@
 			productName = test;
 			productReference = 30CD92F92321E52A00720C9F /* test */;
 			productType = "com.apple.product-type.tool";
-		};
-		30CD9303232316DE00720C9F /* libosl */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 30CD9305232316DE00720C9F /* Build configuration list for PBXNativeTarget "libosl" */;
-			buildPhases = (
-				30CD9300232316DE00720C9F /* Headers */,
-				30CD9301232316DE00720C9F /* Sources */,
-				30CD9302232316DE00720C9F /* Frameworks */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = libosl;
-			productName = libosl;
-			productReference = 30CD9304232316DE00720C9F /* liblibosl.a */;
-			productType = "com.apple.product-type.library.static";
 		};
 		30DD173C1EAE944F004CAD77 /* OSL */ = {
 			isa = PBXNativeTarget;
@@ -228,10 +185,6 @@
 						CreatedOnToolsVersion = 10.3;
 						ProvisioningStyle = Automatic;
 					};
-					30CD9303232316DE00720C9F = {
-						CreatedOnToolsVersion = 10.3;
-						ProvisioningStyle = Automatic;
-					};
 					30DD173C1EAE944F004CAD77 = {
 						CreatedOnToolsVersion = 8.3.2;
 						ProvisioningStyle = Automatic;
@@ -252,7 +205,6 @@
 			targets = (
 				30DD173C1EAE944F004CAD77 /* OSL */,
 				30CD92F82321E52A00720C9F /* test */,
-				30CD9303232316DE00720C9F /* libosl */,
 			);
 		};
 /* End PBXProject section */
@@ -263,14 +215,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				30CD92FC2321E52A00720C9F /* main.cpp in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		30CD9301232316DE00720C9F /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				30CD930C232316F800720C9F /* Parser.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -323,53 +267,6 @@
 				HEADER_SEARCH_PATHS = osl;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Release;
-		};
-		30CD9306232316DE00720C9F /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
-				CLANG_WARN_COMMA = YES;
-				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
-				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
-				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
-				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
-				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
-				CLANG_WARN_STRICT_PROTOTYPES = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_STYLE = Automatic;
-				EXECUTABLE_PREFIX = lib;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
-				MTL_FAST_MATH = YES;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-			};
-			name = Debug;
-		};
-		30CD9307232316DE00720C9F /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
-				CLANG_WARN_COMMA = YES;
-				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
-				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
-				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
-				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
-				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
-				CLANG_WARN_STRICT_PROTOTYPES = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_STYLE = Automatic;
-				EXECUTABLE_PREFIX = lib;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				MTL_FAST_MATH = YES;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
 			};
 			name = Release;
 		};
@@ -512,15 +409,6 @@
 			buildConfigurations = (
 				30CD92FD2321E52A00720C9F /* Debug */,
 				30CD92FE2321E52A00720C9F /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		30CD9305232316DE00720C9F /* Build configuration list for PBXNativeTarget "libosl" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				30CD9306232316DE00720C9F /* Debug */,
-				30CD9307232316DE00720C9F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

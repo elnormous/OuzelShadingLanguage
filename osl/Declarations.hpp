@@ -136,11 +136,6 @@ namespace ouzel
         InputModifier inputModifier = InputModifier::In;
     };
 
-    /*class TypeDefinitionDeclaration: public TypeDeclaration
-    {
-    public:
-    };*/
-
     class CallableDeclaration: public Declaration
     {
     public:
