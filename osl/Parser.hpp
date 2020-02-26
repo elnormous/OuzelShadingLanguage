@@ -603,7 +603,6 @@ namespace ouzel
         struct Specifiers final
         {
             Qualifiers qualifiers = Qualifiers::None;
-            bool isInline = false;
             StorageClass storageClass = StorageClass::Auto;
         };
 

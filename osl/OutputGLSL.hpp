@@ -144,8 +144,6 @@ namespace ouzel
                     {
                         auto functionDeclaration = static_cast<const FunctionDeclaration*>(callableDeclaration);
 
-                        if (functionDeclaration->isInline) code += "inline ";
-
                         std::pair<std::string, std::string> printableTypeName = getPrintableTypeName(functionDeclaration->qualifiedType);
 
                         code += printableTypeName.first + " " + functionDeclaration->name + "(";

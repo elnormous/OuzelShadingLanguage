@@ -163,7 +163,6 @@ namespace ouzel
     public:
         FunctionDeclaration(): CallableDeclaration(CallableDeclaration::Kind::Function) {}
 
-        bool isInline = false;
         bool isBuiltin = false;
     };
 
@@ -178,7 +177,6 @@ namespace ouzel
     public:
         MethodDeclaration(): CallableDeclaration(CallableDeclaration::Kind::Method) {}
 
-        bool isInline = false;
         bool isBuiltin = false;
     };
 

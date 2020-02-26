@@ -351,7 +351,7 @@ namespace ouzel
                 {
                     auto functionDeclaration = static_cast<const FunctionDeclaration*>(callableDeclaration);
 
-                    if (functionDeclaration->isInline) std::cout << " inline";
+                    if (functionDeclaration->isBuiltin) std::cout << " builtin";
                 }
 
                 if (callableDeclaration->previousDeclaration)
