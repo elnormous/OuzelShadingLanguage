@@ -1,5 +1,5 @@
 CFLAGS=-c -Wpedantic -O2 -Iosl
-CXXFLAGS=-c -std=c++14 -Wpedantic -O2 -Iosl
+CXXFLAGS=-c -std=c++11 -Wpedantic -O2 -Iosl
 OUTDIR=bin
 EXECUTABLE=$(OUTDIR)/osl
 TEST_EXECUTABLE=$(OUTDIR)/test

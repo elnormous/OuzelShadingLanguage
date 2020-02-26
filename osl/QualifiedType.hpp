@@ -20,62 +20,59 @@ namespace ouzel
 
     inline constexpr Qualifiers operator&(const Qualifiers a, const Qualifiers b) noexcept
     {
-        return static_cast<Qualifiers>(static_cast<std::underlying_type_t<Qualifiers>>(a) & static_cast<std::underlying_type_t<Qualifiers>>(b));
+        return static_cast<Qualifiers>(static_cast<std::underlying_type<Qualifiers>::type>(a) & static_cast<std::underlying_type<Qualifiers>::type>(b));
     }
     inline constexpr Qualifiers operator|(const Qualifiers a, const Qualifiers b) noexcept
     {
-        return static_cast<Qualifiers>(static_cast<std::underlying_type_t<Qualifiers>>(a) | static_cast<std::underlying_type_t<Qualifiers>>(b));
+        return static_cast<Qualifiers>(static_cast<std::underlying_type<Qualifiers>::type>(a) | static_cast<std::underlying_type<Qualifiers>::type>(b));
     }
     inline constexpr Qualifiers operator^(const Qualifiers a, const Qualifiers b) noexcept
     {
-        return static_cast<Qualifiers>(static_cast<std::underlying_type_t<Qualifiers>>(a) ^ static_cast<std::underlying_type_t<Qualifiers>>(b));
+        return static_cast<Qualifiers>(static_cast<std::underlying_type<Qualifiers>::type>(a) ^ static_cast<std::underlying_type<Qualifiers>::type>(b));
     }
     inline constexpr Qualifiers operator~(const Qualifiers a) noexcept
     {
-        return static_cast<Qualifiers>(~static_cast<std::underlying_type_t<Qualifiers>>(a));
+        return static_cast<Qualifiers>(~static_cast<std::underlying_type<Qualifiers>::type>(a));
     }
     inline constexpr Qualifiers& operator|=(Qualifiers& a, const Qualifiers b) noexcept
     {
-        a = static_cast<Qualifiers>(static_cast<std::underlying_type_t<Qualifiers>>(a) | static_cast<std::underlying_type_t<Qualifiers>>(b));
-        return a;
+        return a = static_cast<Qualifiers>(static_cast<std::underlying_type<Qualifiers>::type>(a) | static_cast<std::underlying_type<Qualifiers>::type>(b));
     }
     inline constexpr Qualifiers& operator&=(Qualifiers& a, const Qualifiers b) noexcept
     {
-        a = static_cast<Qualifiers>(static_cast<std::underlying_type_t<Qualifiers>>(a) & static_cast<std::underlying_type_t<Qualifiers>>(b));
-        return a;
+        return a = static_cast<Qualifiers>(static_cast<std::underlying_type<Qualifiers>::type>(a) & static_cast<std::underlying_type<Qualifiers>::type>(b));
     }
     inline constexpr Qualifiers& operator^=(Qualifiers& a, const Qualifiers b) noexcept
     {
-        a = static_cast<Qualifiers>(static_cast<std::underlying_type_t<Qualifiers>>(a) ^ static_cast<std::underlying_type_t<Qualifiers>>(b));
-        return a;
+        return a = static_cast<Qualifiers>(static_cast<std::underlying_type<Qualifiers>::type>(a) ^ static_cast<std::underlying_type<Qualifiers>::type>(b));
     }
     inline constexpr bool operator==(const Qualifiers a, const Qualifiers b) noexcept
     {
-        return static_cast<std::underlying_type_t<Qualifiers>>(a) == static_cast<std::underlying_type_t<Qualifiers>>(b);
+        return static_cast<std::underlying_type<Qualifiers>::type>(a) == static_cast<std::underlying_type<Qualifiers>::type>(b);
     }
     inline constexpr bool operator!=(const Qualifiers a, const Qualifiers b) noexcept
     {
-        return static_cast<std::underlying_type_t<Qualifiers>>(a) != static_cast<std::underlying_type_t<Qualifiers>>(b);
+        return static_cast<std::underlying_type<Qualifiers>::type>(a) != static_cast<std::underlying_type<Qualifiers>::type>(b);
     }
     inline constexpr bool operator>(const Qualifiers a, const Qualifiers b) noexcept
     {
-        return static_cast<std::underlying_type_t<Qualifiers>>(a) > static_cast<std::underlying_type_t<Qualifiers>>(b);
+        return static_cast<std::underlying_type<Qualifiers>::type>(a) > static_cast<std::underlying_type<Qualifiers>::type>(b);
     }
     inline constexpr bool operator<(const Qualifiers a, const Qualifiers b) noexcept
     {
-        return static_cast<std::underlying_type_t<Qualifiers>>(a) < static_cast<std::underlying_type_t<Qualifiers>>(b);
+        return static_cast<std::underlying_type<Qualifiers>::type>(a) < static_cast<std::underlying_type<Qualifiers>::type>(b);
     }
     inline constexpr bool operator>=(const Qualifiers a, const Qualifiers b) noexcept
     {
-        return static_cast<std::underlying_type_t<Qualifiers>>(a) >= static_cast<std::underlying_type_t<Qualifiers>>(b);
+        return static_cast<std::underlying_type<Qualifiers>::type>(a) >= static_cast<std::underlying_type<Qualifiers>::type>(b);
     }
     inline constexpr bool operator<=(const Qualifiers a, const Qualifiers b) noexcept
     {
-        return static_cast<std::underlying_type_t<Qualifiers>>(a) <= static_cast<std::underlying_type_t<Qualifiers>>(b);
+        return static_cast<std::underlying_type<Qualifiers>::type>(a) <= static_cast<std::underlying_type<Qualifiers>::type>(b);
     }
     inline constexpr bool operator!(const Qualifiers a) noexcept
     {
-        return !static_cast<std::underlying_type_t<Qualifiers>>(a);
+        return !static_cast<std::underlying_type<Qualifiers>::type>(a);
     }
 
     class QualifiedType final
