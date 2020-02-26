@@ -8,9 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		30CD92FC2321E52A00720C9F /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 30CD92FB2321E52A00720C9F /* main.cpp */; };
-		30CD9309232316F800720C9F /* OutputGLSL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 308340DB1F9238F2000AE853 /* OutputGLSL.cpp */; };
-		30CD930A232316F800720C9F /* OutputHLSL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 308340D81F9238D7000AE853 /* OutputHLSL.cpp */; };
-		30CD930B232316F800720C9F /* OutputMSL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 308340DE1F923900000AE853 /* OutputMSL.cpp */; };
 		30CD930C232316F800720C9F /* Parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 30DD174A1EAF96CE004CAD77 /* Parser.cpp */; };
 		30CD93102323170A00720C9F /* liblibosl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 30CD9304232316DE00720C9F /* liblibosl.a */; };
 		30CD93112323171000720C9F /* liblibosl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 30CD9304232316DE00720C9F /* liblibosl.a */; };
@@ -41,11 +38,8 @@
 /* Begin PBXFileReference section */
 		303917C6231C9E1D00D8BA56 /* Utils.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Utils.hpp; sourceTree = "<group>"; };
 		308340D61F9238B6000AE853 /* Output.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Output.hpp; sourceTree = "<group>"; };
-		308340D81F9238D7000AE853 /* OutputHLSL.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OutputHLSL.cpp; sourceTree = "<group>"; };
 		308340D91F9238D7000AE853 /* OutputHLSL.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = OutputHLSL.hpp; sourceTree = "<group>"; };
-		308340DB1F9238F2000AE853 /* OutputGLSL.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OutputGLSL.cpp; sourceTree = "<group>"; };
 		308340DC1F9238F2000AE853 /* OutputGLSL.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = OutputGLSL.hpp; sourceTree = "<group>"; };
-		308340DE1F923900000AE853 /* OutputMSL.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OutputMSL.cpp; sourceTree = "<group>"; };
 		308340DF1F923900000AE853 /* OutputMSL.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = OutputMSL.hpp; sourceTree = "<group>"; };
 		30CD92F92321E52A00720C9F /* test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = test; sourceTree = BUILT_PRODUCTS_DIR; };
 		30CD92FB2321E52A00720C9F /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
@@ -143,11 +137,8 @@
 				30D57FA8210AA47600377C5E /* Declarations.hpp */,
 				30D57FA7210AA46A00377C5E /* Expressions.hpp */,
 				308340D61F9238B6000AE853 /* Output.hpp */,
-				308340DB1F9238F2000AE853 /* OutputGLSL.cpp */,
 				308340DC1F9238F2000AE853 /* OutputGLSL.hpp */,
-				308340D81F9238D7000AE853 /* OutputHLSL.cpp */,
 				308340D91F9238D7000AE853 /* OutputHLSL.hpp */,
-				308340DE1F923900000AE853 /* OutputMSL.cpp */,
 				308340DF1F923900000AE853 /* OutputMSL.hpp */,
 				30DD174A1EAF96CE004CAD77 /* Parser.cpp */,
 				30DD174B1EAF96CE004CAD77 /* Parser.hpp */,
@@ -279,10 +270,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				30CD9309232316F800720C9F /* OutputGLSL.cpp in Sources */,
-				30CD930A232316F800720C9F /* OutputHLSL.cpp in Sources */,
 				30CD930C232316F800720C9F /* Parser.cpp in Sources */,
-				30CD930B232316F800720C9F /* OutputMSL.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

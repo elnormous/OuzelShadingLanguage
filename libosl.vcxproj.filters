@@ -15,15 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="osl\OutputGLSL.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="osl\OutputHLSL.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="osl\OutputMSL.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="osl\Parser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

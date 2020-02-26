@@ -19,9 +19,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="osl\OutputGLSL.cpp" />
-    <ClCompile Include="osl\OutputHLSL.cpp" />
-    <ClCompile Include="osl\OutputMSL.cpp" />
     <ClCompile Include="osl\Parser.cpp" />
   </ItemGroup>
   <ItemGroup>

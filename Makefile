@@ -1,9 +1,6 @@
 CFLAGS=-c -Wpedantic -O2 -Iosl
 CXXFLAGS=-c -std=c++11 -Wpedantic -O2 -Iosl
-SOURCES=osl/OutputGLSL.cpp \
-	osl/OutputHLSL.cpp \
-	osl/OutputMSL.cpp \
-	osl/Parser.cpp
+SOURCES=osl/Parser.cpp
 BASE_NAMES=$(basename $(SOURCES))
 OBJECTS=$(BASE_NAMES:=.o)
 OUTDIR=bin
