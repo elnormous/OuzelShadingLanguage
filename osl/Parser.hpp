@@ -42,10 +42,33 @@ namespace ouzel
             voidType = voidTypePtr;
 
             boolType = addScalarType("bool", ScalarType::Kind::Boolean, 1, false, declarationScopes);
+            unaryOperators.emplace_back(UnaryOperatorExpression::Kind::Negation, boolType, boolType);
+            binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Or, boolType, boolType, boolType);
+            binaryOperators.emplace_back(BinaryOperatorExpression::Kind::And, boolType, boolType, boolType);
 
             intType = addScalarType("int", ScalarType::Kind::Integer, 4, false, declarationScopes);
+            unaryOperators.emplace_back(UnaryOperatorExpression::Kind::Positive, intType, intType);
+            unaryOperators.emplace_back(UnaryOperatorExpression::Kind::Negative, intType, intType);
+            unaryOperators.emplace_back(UnaryOperatorExpression::Kind::PrefixIncrement, intType, intType);
+            unaryOperators.emplace_back(UnaryOperatorExpression::Kind::PrefixDecrement, intType, intType);
+            unaryOperators.emplace_back(UnaryOperatorExpression::Kind::PostfixIncrement, intType, intType);
+            unaryOperators.emplace_back(UnaryOperatorExpression::Kind::PostfixDecrement, intType, intType);
+            
             uintType = addScalarType("uint", ScalarType::Kind::Integer, 4, true, declarationScopes);
+            unaryOperators.emplace_back(UnaryOperatorExpression::Kind::Positive, uintType, uintType);
+            unaryOperators.emplace_back(UnaryOperatorExpression::Kind::Negative, uintType, uintType);
+            unaryOperators.emplace_back(UnaryOperatorExpression::Kind::PrefixIncrement, uintType, uintType);
+            unaryOperators.emplace_back(UnaryOperatorExpression::Kind::PrefixDecrement, uintType, uintType);
+            unaryOperators.emplace_back(UnaryOperatorExpression::Kind::PostfixIncrement, uintType, uintType);
+            unaryOperators.emplace_back(UnaryOperatorExpression::Kind::PostfixDecrement, uintType, uintType);
+
             floatType = addScalarType("float", ScalarType::Kind::FloatingPoint, 4, false, declarationScopes);
+            unaryOperators.emplace_back(UnaryOperatorExpression::Kind::Positive, floatType, floatType);
+            unaryOperators.emplace_back(UnaryOperatorExpression::Kind::Negative, floatType, floatType);
+            unaryOperators.emplace_back(UnaryOperatorExpression::Kind::PrefixIncrement, floatType, floatType);
+            unaryOperators.emplace_back(UnaryOperatorExpression::Kind::PrefixDecrement, floatType, floatType);
+            unaryOperators.emplace_back(UnaryOperatorExpression::Kind::PostfixIncrement, floatType, floatType);
+            unaryOperators.emplace_back(UnaryOperatorExpression::Kind::PostfixDecrement, floatType, floatType);
 
             for (size_t components = 2; components <= 4; ++components)
                 addVectorType("float" + std::to_string(components),
@@ -1934,11 +1957,14 @@ namespace ouzel
 
                 ++iterator;
 
+                const auto& unaryOperator = getUnaryOperator(operatorKind,
+                                                             result->qualifiedType.type);
+
                 UnaryOperatorExpression* expression;
                 constructs.push_back(std::unique_ptr<Construct>(expression = new UnaryOperatorExpression(operatorKind)));
                 expression->expression = result;
 
-                expression->qualifiedType.type = result->qualifiedType.type;
+                expression->qualifiedType.type = unaryOperator.resultType;
                 expression->category = Expression::Category::Lvalue;
 
                 result = expression;
@@ -2150,11 +2176,11 @@ namespace ouzel
                 if ((expression->qualifiedType.qualifiers & Qualifiers::Const) == Qualifiers::Const)
                     throw ParseError("Cannot assign to const variable");
 
-                if (expression->qualifiedType.type->getTypeKind() != Type::Kind::Scalar)
-                    throw ParseError("Parameter of the prefix operator must be a number");
+                const auto& unaryOperator = getUnaryOperator(operatorKind,
+                                                             expression->qualifiedType.type);
 
                 result->expression = expression;
-                result->qualifiedType.type = result->expression->qualifiedType.type;
+                result->qualifiedType.type = unaryOperator.resultType;
                 result->category = Expression::Category::Rvalue;
 
                 return result;
@@ -2181,11 +2207,11 @@ namespace ouzel
 
                 auto expression = parsePrefixExpression(iterator, end, declarationScopes);
 
-                if (expression->qualifiedType.type->getTypeKind() != Type::Kind::Scalar)
-                    throw ParseError("Parameter of the sign operator must be a number");
+                const auto& unaryOperator = getUnaryOperator(operatorKind,
+                                                             expression->qualifiedType.type);
 
                 result->expression = expression;
-                result->qualifiedType.type = result->expression->qualifiedType.type;
+                result->qualifiedType.type = unaryOperator.resultType;
                 result->category = Expression::Category::Rvalue;
 
                 return result;
@@ -2208,11 +2234,12 @@ namespace ouzel
                 constructs.push_back(std::unique_ptr<Construct>(result = new UnaryOperatorExpression(operatorKind)));
 
                 auto expression = parseExpression(iterator, end, declarationScopes);
-                if (!isBooleanType(expression->qualifiedType.type))
-                    throw ParseError("Expression is not a boolean");
+
+                const auto& unaryOperator = getUnaryOperator(operatorKind,
+                                                             expression->qualifiedType.type);
 
                 result->expression = expression;
-                result->qualifiedType.type = boolType;
+                result->qualifiedType.type = unaryOperator.resultType;
                 result->category = Expression::Category::Rvalue;
 
                 return result;
@@ -2751,7 +2778,7 @@ namespace ouzel
         }
 
         FunctionDeclaration* addBuiltinFunctionDeclaration(const std::string& name,
-                                                           Type* resultType,
+                                                           const Type* resultType,
                                                            const std::vector<Type*>& parameters,
                                                            std::vector<std::vector<Declaration*>>& declarationScopes)
         {
@@ -2776,6 +2803,65 @@ namespace ouzel
             return functionDeclaration;
         }
 
+        struct UnaryOperator final
+        {
+            UnaryOperator(UnaryOperatorExpression::Kind initUnaryOperatorKind,
+                          const Type* initResultType,
+                          const Type* initParameterType) noexcept:
+                unaryOperatorKind(initUnaryOperatorKind),
+                resultType(initResultType),
+                parameterType(initParameterType)
+            {
+            }
+
+            UnaryOperatorExpression::Kind unaryOperatorKind;
+            const Type* resultType;
+            const Type* parameterType;
+        };
+
+        const UnaryOperator& getUnaryOperator(UnaryOperatorExpression::Kind unaryOperatorKind,
+                                              const Type* parameterType) const
+        {
+            for (const auto& unaryOperator : unaryOperators)
+                if (unaryOperator.unaryOperatorKind == unaryOperatorKind &&
+                    unaryOperator.parameterType == parameterType)
+                    return unaryOperator;
+
+            throw ParseError("No unary operator defined for this type");
+        }
+
+        struct BinaryOperator final
+        {
+            BinaryOperator(BinaryOperatorExpression::Kind initBinaryOperatorKind,
+                           const Type* initResultType,
+                           const Type* initFirstParameterType,
+                           const Type* initSecondParameterType) noexcept:
+                binaryOperatorKind(initBinaryOperatorKind),
+                resultType(initResultType),
+                firstParameterType(initFirstParameterType),
+                secondParameterType(initSecondParameterType)
+            {
+            }
+
+            BinaryOperatorExpression::Kind binaryOperatorKind;
+            const Type* resultType;
+            const Type* firstParameterType;
+            const Type* secondParameterType;
+        };
+
+        const BinaryOperator& getBinaryOperator(BinaryOperatorExpression::Kind binaryOperatorKind,
+                                                const Type* firstParameterType,
+                                                const Type* secondParameterType) const
+        {
+            for (const auto& binaryOperator : binaryOperators)
+                if (binaryOperator.binaryOperatorKind == binaryOperatorKind &&
+                    binaryOperator.firstParameterType == firstParameterType &&
+                    binaryOperator.secondParameterType == secondParameterType)
+                    return binaryOperator;
+
+            throw ParseError("No binary operator defined for this type");
+        }
+
         std::vector<std::unique_ptr<Type>> types;
         std::vector<Declaration*> declarations;
         std::vector<std::unique_ptr<Construct>> constructs;
@@ -2789,6 +2875,9 @@ namespace ouzel
         const ScalarType* uintType = nullptr;
         const ScalarType* floatType = nullptr;
         const StructType* stringType = nullptr;
+
+        std::vector<UnaryOperator> unaryOperators;
+        std::vector<BinaryOperator> binaryOperators;
     };
 }
 
