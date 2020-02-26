@@ -43,6 +43,9 @@ namespace ouzel
 
             boolType = addScalarType("bool", ScalarType::Kind::Boolean, 1, false, declarationScopes);
             unaryOperators.emplace_back(UnaryOperatorExpression::Kind::Negation, boolType, boolType);
+            binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Equality, boolType, boolType, boolType);
+            binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Inequality, boolType, boolType, boolType);
+            binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Assignment, boolType, boolType, boolType);
             binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Or, boolType, boolType, boolType);
             binaryOperators.emplace_back(BinaryOperatorExpression::Kind::And, boolType, boolType, boolType);
 
@@ -53,7 +56,22 @@ namespace ouzel
             unaryOperators.emplace_back(UnaryOperatorExpression::Kind::PrefixDecrement, intType, intType);
             unaryOperators.emplace_back(UnaryOperatorExpression::Kind::PostfixIncrement, intType, intType);
             unaryOperators.emplace_back(UnaryOperatorExpression::Kind::PostfixDecrement, intType, intType);
-            
+            binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Addition, intType, intType, intType);
+            binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Subtraction, intType, intType, intType);
+            binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Multiplication, intType, intType, intType);
+            binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Division, intType, intType, intType);
+            binaryOperators.emplace_back(BinaryOperatorExpression::Kind::AdditionAssignment, intType, intType, intType);
+            binaryOperators.emplace_back(BinaryOperatorExpression::Kind::SubtractAssignment, intType, intType, intType);
+            binaryOperators.emplace_back(BinaryOperatorExpression::Kind::MultiplicationAssignment, intType, intType, intType);
+            binaryOperators.emplace_back(BinaryOperatorExpression::Kind::DivisionAssignment, intType, intType, intType);
+            binaryOperators.emplace_back(BinaryOperatorExpression::Kind::LessThan, boolType, intType, intType);
+            binaryOperators.emplace_back(BinaryOperatorExpression::Kind::LessThanEqual, boolType, intType, intType);
+            binaryOperators.emplace_back(BinaryOperatorExpression::Kind::GreaterThan, boolType, intType, intType);
+            binaryOperators.emplace_back(BinaryOperatorExpression::Kind::GraterThanEqual, boolType, intType, intType);
+            binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Equality, boolType, intType, intType);
+            binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Inequality, boolType, intType, intType);
+            binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Assignment, intType, intType, intType);
+
             uintType = addScalarType("uint", ScalarType::Kind::Integer, 4, true, declarationScopes);
             unaryOperators.emplace_back(UnaryOperatorExpression::Kind::Positive, uintType, uintType);
             unaryOperators.emplace_back(UnaryOperatorExpression::Kind::Negative, uintType, uintType);
@@ -61,6 +79,21 @@ namespace ouzel
             unaryOperators.emplace_back(UnaryOperatorExpression::Kind::PrefixDecrement, uintType, uintType);
             unaryOperators.emplace_back(UnaryOperatorExpression::Kind::PostfixIncrement, uintType, uintType);
             unaryOperators.emplace_back(UnaryOperatorExpression::Kind::PostfixDecrement, uintType, uintType);
+            binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Addition, uintType, uintType, uintType);
+            binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Subtraction, uintType, uintType, uintType);
+            binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Multiplication, uintType, uintType, uintType);
+            binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Division, uintType, uintType, uintType);
+            binaryOperators.emplace_back(BinaryOperatorExpression::Kind::AdditionAssignment, uintType, uintType, uintType);
+            binaryOperators.emplace_back(BinaryOperatorExpression::Kind::SubtractAssignment, uintType, uintType, uintType);
+            binaryOperators.emplace_back(BinaryOperatorExpression::Kind::MultiplicationAssignment, uintType, uintType, uintType);
+            binaryOperators.emplace_back(BinaryOperatorExpression::Kind::DivisionAssignment, uintType, uintType, uintType);
+            binaryOperators.emplace_back(BinaryOperatorExpression::Kind::LessThan, boolType, uintType, uintType);
+            binaryOperators.emplace_back(BinaryOperatorExpression::Kind::LessThanEqual, boolType, uintType, uintType);
+            binaryOperators.emplace_back(BinaryOperatorExpression::Kind::GreaterThan, boolType, uintType, uintType);
+            binaryOperators.emplace_back(BinaryOperatorExpression::Kind::GraterThanEqual, boolType, uintType, uintType);
+            binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Equality, boolType, uintType, uintType);
+            binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Inequality, boolType, uintType, uintType);
+            binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Assignment, uintType, uintType, uintType);
 
             floatType = addScalarType("float", ScalarType::Kind::FloatingPoint, 4, false, declarationScopes);
             unaryOperators.emplace_back(UnaryOperatorExpression::Kind::Positive, floatType, floatType);
@@ -69,14 +102,66 @@ namespace ouzel
             unaryOperators.emplace_back(UnaryOperatorExpression::Kind::PrefixDecrement, floatType, floatType);
             unaryOperators.emplace_back(UnaryOperatorExpression::Kind::PostfixIncrement, floatType, floatType);
             unaryOperators.emplace_back(UnaryOperatorExpression::Kind::PostfixDecrement, floatType, floatType);
+            binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Addition, floatType, floatType, floatType);
+            binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Subtraction, floatType, floatType, floatType);
+            binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Multiplication, floatType, floatType, floatType);
+            binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Division, floatType, floatType, floatType);
+            binaryOperators.emplace_back(BinaryOperatorExpression::Kind::AdditionAssignment, floatType, floatType, floatType);
+            binaryOperators.emplace_back(BinaryOperatorExpression::Kind::SubtractAssignment, floatType, floatType, floatType);
+            binaryOperators.emplace_back(BinaryOperatorExpression::Kind::MultiplicationAssignment, floatType, floatType, floatType);
+            binaryOperators.emplace_back(BinaryOperatorExpression::Kind::DivisionAssignment, floatType, floatType, floatType);
+            binaryOperators.emplace_back(BinaryOperatorExpression::Kind::LessThan, boolType, floatType, floatType);
+            binaryOperators.emplace_back(BinaryOperatorExpression::Kind::LessThanEqual, boolType, floatType, floatType);
+            binaryOperators.emplace_back(BinaryOperatorExpression::Kind::GreaterThan, boolType, floatType, floatType);
+            binaryOperators.emplace_back(BinaryOperatorExpression::Kind::GraterThanEqual, boolType, floatType, floatType);
+            binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Equality, boolType, floatType, floatType);
+            binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Inequality, boolType, floatType, floatType);
+            binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Assignment, floatType, floatType, floatType);
 
             for (size_t components = 2; components <= 4; ++components)
-                addVectorType("float" + std::to_string(components),
-                              floatType, components, declarationScopes);
+            {
+                auto vectorType = addVectorType("float" + std::to_string(components),
+                                                floatType, components, declarationScopes);
 
-            for (size_t components = 2; components <= 4; ++components)
-                addMatrixType("float" + std::to_string(components) + 'x' + std::to_string(components),
-                              floatType, components, components, declarationScopes);
+                unaryOperators.emplace_back(UnaryOperatorExpression::Kind::Positive, vectorType, vectorType);
+                unaryOperators.emplace_back(UnaryOperatorExpression::Kind::Negative, vectorType, vectorType);
+                binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Addition, vectorType, vectorType, vectorType);
+                binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Subtraction, vectorType, vectorType, vectorType);
+                binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Multiplication, vectorType, vectorType, vectorType);
+                binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Division, vectorType, vectorType, vectorType);
+                binaryOperators.emplace_back(BinaryOperatorExpression::Kind::AdditionAssignment, vectorType, vectorType, vectorType);
+                binaryOperators.emplace_back(BinaryOperatorExpression::Kind::SubtractAssignment, vectorType, vectorType, vectorType);
+                binaryOperators.emplace_back(BinaryOperatorExpression::Kind::MultiplicationAssignment, vectorType, vectorType, vectorType);
+                binaryOperators.emplace_back(BinaryOperatorExpression::Kind::DivisionAssignment, vectorType, vectorType, vectorType);
+                binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Equality, boolType, vectorType, vectorType);
+                binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Inequality, boolType, vectorType, vectorType);
+                binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Assignment, vectorType, vectorType, vectorType);
+
+                binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Multiplication, vectorType, vectorType, floatType);
+                binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Division, vectorType, vectorType, floatType);
+
+                auto matrixType = addMatrixType("float" + std::to_string(components) + 'x' + std::to_string(components),
+                                                floatType, components, components, declarationScopes);
+
+                unaryOperators.emplace_back(UnaryOperatorExpression::Kind::Positive, matrixType, matrixType);
+                unaryOperators.emplace_back(UnaryOperatorExpression::Kind::Negative, matrixType, matrixType);
+                binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Addition, matrixType, matrixType, matrixType);
+                binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Subtraction, matrixType, matrixType, matrixType);
+                binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Multiplication, matrixType, matrixType, matrixType);
+                binaryOperators.emplace_back(BinaryOperatorExpression::Kind::AdditionAssignment, matrixType, matrixType, matrixType);
+                binaryOperators.emplace_back(BinaryOperatorExpression::Kind::SubtractAssignment, matrixType, matrixType, matrixType);
+                binaryOperators.emplace_back(BinaryOperatorExpression::Kind::MultiplicationAssignment, matrixType, matrixType, matrixType);
+                binaryOperators.emplace_back(BinaryOperatorExpression::Kind::DivisionAssignment, matrixType, matrixType, matrixType);
+                binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Equality, boolType, matrixType, matrixType);
+                binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Inequality, boolType, matrixType, matrixType);
+                binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Assignment, matrixType, matrixType, matrixType);
+
+                binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Multiplication, matrixType, matrixType, floatType);
+                binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Division, matrixType, matrixType, floatType);
+
+                binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Multiplication, vectorType, matrixType, vectorType);
+                binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Multiplication, vectorType, vectorType, matrixType);
+            }
 
             stringType = addStructType("string", 8, declarationScopes);
             auto texture2DType = addStructType("Texture2D", 0, declarationScopes);
@@ -2303,14 +2388,17 @@ namespace ouzel
 
                 ++iterator;
 
+                auto rightExpression = parseSizeofExpression(iterator, end, declarationScopes);
+
+                const auto& binaryOperator = getBinaryOperator(operatorKind,
+                                                               result->qualifiedType.type,
+                                                               rightExpression->qualifiedType.type);
+
                 BinaryOperatorExpression* expression;
                 constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression(operatorKind)));
                 expression->leftExpression = result;
-
-                auto rightExpression = parseSizeofExpression(iterator, end, declarationScopes);
-
                 expression->rightExpression = rightExpression;
-                expression->qualifiedType.type = expression->leftExpression->qualifiedType.type;
+                expression->qualifiedType.type = binaryOperator.resultType;
                 expression->category = Expression::Category::Rvalue;
 
                 result = expression;
@@ -2334,14 +2422,17 @@ namespace ouzel
 
                 ++iterator;
 
+                auto rightExpression = parseMultiplicationExpression(iterator, end, declarationScopes);
+
+                const auto& binaryOperator = getBinaryOperator(operatorKind,
+                                                               result->qualifiedType.type,
+                                                               rightExpression->qualifiedType.type);
+
                 BinaryOperatorExpression* expression;
                 constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression(operatorKind)));
                 expression->leftExpression = result;
-
-                auto rightExpression = parseMultiplicationExpression(iterator, end, declarationScopes);
-
                 expression->rightExpression = rightExpression;
-                expression->qualifiedType.type = expression->leftExpression->qualifiedType.type;
+                expression->qualifiedType.type = binaryOperator.resultType;
                 expression->category = Expression::Category::Rvalue;
 
                 result = expression;
@@ -2365,14 +2456,17 @@ namespace ouzel
 
                 ++iterator;
 
+                auto rightExpression = parseAdditionExpression(iterator, end, declarationScopes);
+
+                const auto& binaryOperator = getBinaryOperator(operatorKind,
+                                                               result->qualifiedType.type,
+                                                               rightExpression->qualifiedType.type);
+
                 BinaryOperatorExpression* expression;
                 constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression(operatorKind)));
                 expression->leftExpression = result;
-
-                auto rightExpression = parseAdditionExpression(iterator, end, declarationScopes);
-
                 expression->rightExpression = rightExpression;
-                expression->qualifiedType.type = boolType;
+                expression->qualifiedType.type = binaryOperator.resultType;
                 expression->category = Expression::Category::Rvalue;
 
                 result = expression;
@@ -2396,14 +2490,17 @@ namespace ouzel
 
                 ++iterator;
 
+                auto rightExpression = parseLessThanExpression(iterator, end, declarationScopes);
+
+                const auto& binaryOperator = getBinaryOperator(operatorKind,
+                                                               result->qualifiedType.type,
+                                                               rightExpression->qualifiedType.type);
+
                 BinaryOperatorExpression* expression;
                 constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression(operatorKind)));
                 expression->leftExpression = result;
-
-                auto rightExpression = parseLessThanExpression(iterator, end, declarationScopes);
-
                 expression->rightExpression = rightExpression;
-                expression->qualifiedType.type = boolType;
+                expression->qualifiedType.type = binaryOperator.resultType;
                 expression->category = Expression::Category::Rvalue;
 
                 result = expression;
@@ -2427,14 +2524,17 @@ namespace ouzel
 
                 ++iterator;
 
+                auto rightExpression = parseGreaterThanExpression(iterator, end, declarationScopes);
+
+                const auto& binaryOperator = getBinaryOperator(operatorKind,
+                                                               result->qualifiedType.type,
+                                                               rightExpression->qualifiedType.type);
+
                 BinaryOperatorExpression* expression;
                 constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression(operatorKind)));
                 expression->leftExpression = result;
-
-                auto rightExpression = parseGreaterThanExpression(iterator, end, declarationScopes);
-
                 expression->rightExpression = rightExpression;
-                expression->qualifiedType.type = boolType;
+                expression->qualifiedType.type = binaryOperator.resultType;
                 expression->category = Expression::Category::Rvalue;
 
                 result = expression;
@@ -2455,15 +2555,17 @@ namespace ouzel
 
                 const auto operatorKind = BinaryOperatorExpression::Kind::And;
 
+                auto rightExpression = parseEqualityExpression(iterator, end, declarationScopes);
+
+                const auto& binaryOperator = getBinaryOperator(operatorKind,
+                                                               result->qualifiedType.type,
+                                                               rightExpression->qualifiedType.type);
+
                 BinaryOperatorExpression* expression;
                 constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression(operatorKind)));
                 expression->leftExpression = result;
-
-                auto rightExpression = parseEqualityExpression(iterator, end, declarationScopes);
-
                 expression->rightExpression = rightExpression;
-                // TODO: check if both sides ar scalar
-                expression->qualifiedType.type = boolType;
+                expression->qualifiedType.type = binaryOperator.resultType;
                 expression->category = Expression::Category::Rvalue;
 
                 result = expression;
@@ -2484,15 +2586,17 @@ namespace ouzel
 
                 const auto operatorKind = BinaryOperatorExpression::Kind::Or;
 
+                auto rightExpression = parseLogicalAndExpression(iterator, end, declarationScopes);
+
+                const auto& binaryOperator = getBinaryOperator(operatorKind,
+                                                               result->qualifiedType.type,
+                                                               rightExpression->qualifiedType.type);
+
                 BinaryOperatorExpression* expression;
                 constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression(operatorKind)));
                 expression->leftExpression = result;
-
-                auto rightExpression = parseLogicalAndExpression(iterator, end, declarationScopes);
-
                 expression->rightExpression = rightExpression;
-                // TODO: check if both sides ar scalar
-                expression->qualifiedType.type = boolType;
+                expression->qualifiedType.type = binaryOperator.resultType;
                 expression->category = Expression::Category::Rvalue;
 
                 result = expression;
@@ -2553,20 +2657,23 @@ namespace ouzel
 
                 const auto operatorKind = BinaryOperatorExpression::Kind::Assignment;
 
-                BinaryOperatorExpression* expression;
-                constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression(operatorKind)));
-                expression->leftExpression = result;
-
-                if (expression->leftExpression->category != Expression::Category::Lvalue)
+                if (result->category != Expression::Category::Lvalue)
                     throw ParseError("Expression is not assignable");
 
-                if ((expression->leftExpression->qualifiedType.qualifiers & Qualifiers::Const) == Qualifiers::Const)
+                if ((result->qualifiedType.qualifiers & Qualifiers::Const) == Qualifiers::Const)
                     throw ParseError("Cannot assign to const variable");
 
                 auto rightExpression = parseTernaryExpression(iterator, end, declarationScopes);
 
+                const auto& binaryOperator = getBinaryOperator(operatorKind,
+                                                               result->qualifiedType.type,
+                                                               rightExpression->qualifiedType.type);
+
+                BinaryOperatorExpression* expression;
+                constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression(operatorKind)));
+                expression->leftExpression = result;
                 expression->rightExpression = rightExpression;
-                expression->qualifiedType.type = expression->leftExpression->qualifiedType.type;
+                expression->qualifiedType.type = binaryOperator.resultType;
                 expression->category = Expression::Category::Rvalue;
 
                 result = expression;
@@ -2590,20 +2697,23 @@ namespace ouzel
 
                 ++iterator;
 
-                BinaryOperatorExpression* expression;
-                constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression(operatorKind)));
-                expression->leftExpression = result;
-
-                if (expression->leftExpression->category != Expression::Category::Lvalue)
+                if (result->category != Expression::Category::Lvalue)
                     throw ParseError("Expression is not assignable");
 
-                if ((expression->leftExpression->qualifiedType.qualifiers & Qualifiers::Const) == Qualifiers::Const)
+                if ((result->qualifiedType.qualifiers & Qualifiers::Const) == Qualifiers::Const)
                     throw ParseError("Cannot assign to const variable");
 
                 auto rightExpression = parseAssignmentExpression(iterator, end, declarationScopes);
 
+                const auto& binaryOperator = getBinaryOperator(operatorKind,
+                                                               result->qualifiedType.type,
+                                                               rightExpression->qualifiedType.type);
+
+                BinaryOperatorExpression* expression;
+                constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression(operatorKind)));
+                expression->leftExpression = result;
                 expression->rightExpression = rightExpression;
-                expression->qualifiedType.type = expression->leftExpression->qualifiedType.type;
+                expression->qualifiedType.type = binaryOperator.resultType;
                 expression->category = Expression::Category::Lvalue;
 
                 result = expression;
@@ -2627,20 +2737,23 @@ namespace ouzel
 
                 ++iterator;
 
-                BinaryOperatorExpression* expression;
-                constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression(operatorKind)));
-                expression->leftExpression = result;
-
-                if (expression->leftExpression->category != Expression::Category::Lvalue)
+                if (result->category != Expression::Category::Lvalue)
                     throw ParseError("Expression is not assignable");
 
-                if ((expression->leftExpression->qualifiedType.qualifiers & Qualifiers::Const) == Qualifiers::Const)
+                if ((result->qualifiedType.qualifiers & Qualifiers::Const) == Qualifiers::Const)
                     throw ParseError("Cannot assign to const variable");
 
                 auto rightExpression = parseAdditionAssignmentExpression(iterator, end, declarationScopes);
 
+                const auto& binaryOperator = getBinaryOperator(operatorKind,
+                                                               result->qualifiedType.type,
+                                                               rightExpression->qualifiedType.type);
+
+                BinaryOperatorExpression* expression;
+                constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression(operatorKind)));
+                expression->leftExpression = result;
                 expression->rightExpression = rightExpression;
-                expression->qualifiedType.type = expression->leftExpression->qualifiedType.type;
+                expression->qualifiedType.type = binaryOperator.resultType;
                 expression->category = Expression::Category::Lvalue;
 
                 result = expression;
@@ -2661,14 +2774,17 @@ namespace ouzel
 
                 const auto operatorKind = BinaryOperatorExpression::Kind::Comma;
 
+                auto rightExpression = parseAdditionAssignmentExpression(iterator, end, declarationScopes);
+
+                const auto& binaryOperator = getBinaryOperator(operatorKind,
+                                                               result->qualifiedType.type,
+                                                               rightExpression->qualifiedType.type);
+
                 BinaryOperatorExpression* expression;
                 constructs.push_back(std::unique_ptr<Construct>(expression = new BinaryOperatorExpression(operatorKind)));
                 expression->leftExpression = result;
-
-                auto rightExpression = parseAdditionAssignmentExpression(iterator, end, declarationScopes);
-
                 expression->rightExpression = rightExpression;
-                expression->qualifiedType.type = expression->rightExpression->qualifiedType.type;
+                expression->qualifiedType.type = binaryOperator.resultType;
                 expression->category = expression->rightExpression->category;
 
                 if (expression->leftExpression->qualifiedType.type !=
