@@ -6,6 +6,7 @@
 #define UTILS_HPP
 
 #include <iostream>
+#include <stdexcept>
 #include "Declarations.hpp"
 #include "Expressions.hpp"
 #include "Statements.hpp"
@@ -22,6 +23,8 @@ namespace ouzel
             case Construct::Kind::Expression: return "Expression";
             case Construct::Kind::Attribute: return "Attribute";
         }
+
+        throw std::runtime_error("Unknown construct kind");
     }
 
     inline std::string toString(Statement::Kind kind)
@@ -43,6 +46,8 @@ namespace ouzel
             case Statement::Kind::Continue: return "Continue";
             case Statement::Kind::Return: return "Return";
         }
+
+        throw std::runtime_error("Unknown statement kind");
     }
 
     inline std::string toString(Expression::Kind kind)
@@ -66,6 +71,8 @@ namespace ouzel
             case Expression::Kind::VectorElement: return "VectorElement";
             case Expression::Kind::MatrixInitialize: return "MatrixInitialize";
         }
+
+        throw std::runtime_error("Unknown expression kind");
     }
 
     inline std::string toString(Declaration::Kind kind)
@@ -79,6 +86,8 @@ namespace ouzel
             case Declaration::Kind::Variable: return "Variable";
             case Declaration::Kind::Parameter: return "Parameter";
         }
+
+        throw std::runtime_error("Unknown declaration kind");
     }
 
     inline std::string toString(Type::Kind kind)
@@ -92,6 +101,8 @@ namespace ouzel
             case Type::Kind::Vector: return "Vector";
             case Type::Kind::Matrix: return "Matrix";
         }
+
+        throw std::runtime_error("Unknown type kind");
     }
 
     inline std::string toString(ScalarType::Kind kind)
@@ -102,6 +113,8 @@ namespace ouzel
             case ScalarType::Kind::Integer: return "Integer";
             case ScalarType::Kind::FloatingPoint: return "FloatingPoint";
         }
+
+        throw std::runtime_error("Unknown scalar type kind");
     }
 
     inline std::string toString(CallableDeclaration::Kind kind)
@@ -112,6 +125,8 @@ namespace ouzel
             case CallableDeclaration::Kind::Constructor: return "Constructor";
             case CallableDeclaration::Kind::Method: return "Method";
         }
+
+        throw std::runtime_error("Unknown callable declaration kind");
     }
 
     inline std::string toString(LiteralExpression::Kind kind)
@@ -123,6 +138,8 @@ namespace ouzel
             case LiteralExpression::Kind::FloatingPoint: return "FloatingPoint";
             case LiteralExpression::Kind::String: return "String";
         }
+
+        throw std::runtime_error("Unknown literal expression kind");
     }
 
     inline std::string toString(CastExpression::Kind kind)
@@ -133,6 +150,8 @@ namespace ouzel
             case CastExpression::Kind::Functional: return "Functional";
             case CastExpression::Kind::Static: return "Static";
         }
+
+        throw std::runtime_error("Unknown cast expression kind");
     }
 
     inline std::string toString(UnaryOperatorExpression::Kind operatorKind)
@@ -147,6 +166,8 @@ namespace ouzel
             case UnaryOperatorExpression::Kind::PostfixIncrement: return "PostfixIncrement";
             case UnaryOperatorExpression::Kind::PostfixDecrement: return "PostfixDecrement";
         }
+
+        throw std::runtime_error("Unknown unary operator expression kind");
     }
 
     inline std::string toString(BinaryOperatorExpression::Kind operatorKind)
@@ -173,6 +194,8 @@ namespace ouzel
             case BinaryOperatorExpression::Kind::Comma: return "Comma";
             case BinaryOperatorExpression::Kind::Subscript: return "Subscript";
         }
+
+        throw std::runtime_error("Unknown binary operator expression kind");
     }
 
     inline std::string toString(Attribute::Kind attributeKind)
@@ -193,6 +216,8 @@ namespace ouzel
             case Attribute::Kind::TesselationFactor: return "TesselationFactor";
             case Attribute::Kind::TextureCoordinates: return "TextureCoordinates";
         }
+
+        throw std::runtime_error("Unknown attribute kind");
     }
 
     inline std::string toString(InputModifier inputModifier)
@@ -203,6 +228,8 @@ namespace ouzel
             case InputModifier::Inout: return "Inout";
             case InputModifier::Out: return "Out";
         }
+
+        throw std::runtime_error("Unknown input modifier");
     }
 
     inline std::string getPrintableTypeName(const QualifiedType& qualifiedType)
@@ -1041,6 +1068,8 @@ namespace ouzel
             case Token::Type::Ellipsis: return "Ellipsis";
             case Token::Type::Identifier: return "Identifier";
         }
+
+        throw std::runtime_error("Unknown token type");
     }
 
     inline void dump(const std::vector<Token>& tokens)
