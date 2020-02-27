@@ -702,15 +702,15 @@ namespace ouzel
                     result->qualifiedType.type = voidType;
 
                 // set the definition pointer and type of all previous declarations
-                Declaration* previousDeclaration = result;
-                while (previousDeclaration)
+                Declaration* declaration = result;
+                while (declaration)
                 {
-                    previousDeclaration->definition = result;
-                    if (!previousDeclaration->qualifiedType.type)
-                        previousDeclaration->qualifiedType.type = result->qualifiedType.type;
-                    else if (previousDeclaration->qualifiedType.type != result->qualifiedType.type)
+                    declaration->definition = result;
+                    if (!declaration->qualifiedType.type)
+                        declaration->qualifiedType.type = result->qualifiedType.type;
+                    else if (declaration->qualifiedType.type != result->qualifiedType.type)
                         throw ParseError("Redeclaring function with a different return type");
-                    previousDeclaration = previousDeclaration->previousDeclaration;
+                    declaration = declaration->previousDeclaration;
                 }
 
                 declarationScopes.pop_back();
@@ -831,11 +831,11 @@ namespace ouzel
                     throw ParseError("Redefinition of " + result->name);
 
                 // set the definition pointer of all previous declarations
-                Declaration* previousDeclaration = result;
+                Declaration* declaration = result;
                 while (previousDeclaration)
                 {
-                    previousDeclaration->definition = result;
-                    previousDeclaration = previousDeclaration->previousDeclaration;
+                    declaration->definition = result;
+                    declaration = declaration->previousDeclaration;
                 }
 
                 for (;;)

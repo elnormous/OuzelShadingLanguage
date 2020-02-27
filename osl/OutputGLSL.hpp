@@ -131,6 +131,8 @@ namespace ouzel
 
                     auto fieldDeclaration = static_cast<const FieldDeclaration*>(declaration);
 
+                    printConstruct(fieldDeclaration, Options(options.indentation + 4, options.whitespaces), code);
+
                     break;
                 }
 
@@ -809,6 +811,21 @@ namespace ouzel
                     // TODO: implement
                     break;
                 }
+                case Expression::Kind::VectorInitialize:
+                {
+                    // TODO: implement
+                    break;
+                }
+                case Expression::Kind::VectorElement:
+                {
+                    // TODO: implement
+                    break;
+                }
+                case Expression::Kind::MatrixInitialize:
+                {
+                    // TODO: implement
+                    break;
+                }
             }
         }
 
@@ -836,6 +853,9 @@ namespace ouzel
                     printExpression(expression, options, code);
                     break;
                 }
+
+                case Construct::Kind::Attribute:
+                    break;
             }
         }
 
