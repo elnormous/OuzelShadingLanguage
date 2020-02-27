@@ -346,9 +346,7 @@ namespace ouzel
                                                             const std::vector<QualifiedType>& parameters)
         {
             for (auto scopeIterator = declarationScopes.crbegin(); scopeIterator != declarationScopes.crend(); ++scopeIterator)
-            {
                 for (auto declarationIterator = scopeIterator->crbegin(); declarationIterator != scopeIterator->crend(); ++declarationIterator)
-                {
                     if ((*declarationIterator)->name == name)
                     {
                         if ((*declarationIterator)->getDeclarationKind() != Declaration::Kind::Callable) return nullptr;
@@ -359,21 +357,15 @@ namespace ouzel
 
                         auto functionDeclaration = static_cast<FunctionDeclaration*>(callableDeclaration);
 
-                        if (functionDeclaration->parameterDeclarations.size() == parameters.size())
-                        {
-                            if (std::equal(parameters.begin(), parameters.end(),
-                                           functionDeclaration->parameterDeclarations.begin(),
-                                           [](const QualifiedType& qualifiedType,
-                                              const ParameterDeclaration* parameterDeclaration) {
-                                               return qualifiedType.type == parameterDeclaration->qualifiedType.type;
-                                           }))
-                            {
-                                return functionDeclaration;
-                            }
-                        }
+                        if (functionDeclaration->parameterDeclarations.size() == parameters.size() &&
+                            std::equal(parameters.begin(), parameters.end(),
+                            functionDeclaration->parameterDeclarations.begin(),
+                            [](const QualifiedType& qualifiedType,
+                               const ParameterDeclaration* parameterDeclaration) {
+                                return qualifiedType.type == parameterDeclaration->qualifiedType.type;
+                            }))
+                            return functionDeclaration;
                     }
-                }
-            }
 
             return nullptr;
         }
@@ -385,9 +377,7 @@ namespace ouzel
             std::vector<const FunctionDeclaration*> candidateFunctionDeclarations;
 
             for (auto scopeIterator = declarationScopes.crbegin(); scopeIterator != declarationScopes.crend(); ++scopeIterator)
-            {
                 for (auto declarationIterator = scopeIterator->crbegin(); declarationIterator != scopeIterator->crend(); ++declarationIterator)
-                {
                     if ((*declarationIterator)->name == name)
                     {
                         if ((*declarationIterator)->getDeclarationKind() != Declaration::Kind::Callable) return nullptr;
@@ -398,32 +388,25 @@ namespace ouzel
 
                         auto functionDeclaration = static_cast<const FunctionDeclaration*>(callableDeclaration->firstDeclaration);
 
-                        if (std::find(candidateFunctionDeclarations.begin(), candidateFunctionDeclarations.end(), functionDeclaration) == candidateFunctionDeclarations.end())
+                        if (std::find(candidateFunctionDeclarations.begin(),
+                                      candidateFunctionDeclarations.end(),
+                                      functionDeclaration) == candidateFunctionDeclarations.end())
                             candidateFunctionDeclarations.push_back(functionDeclaration);
                     }
-                }
-            }
 
             std::vector<const FunctionDeclaration*> viableFunctionDeclarations;
 
             for (auto functionDeclaration : candidateFunctionDeclarations)
-            {
-                if (functionDeclaration->parameterDeclarations.size() == arguments.size())
-                {
-                    if (std::equal(arguments.begin(), arguments.end(),
-                                   functionDeclaration->parameterDeclarations.begin(),
-                                   [](const QualifiedType& qualifiedType,
-                                      const ParameterDeclaration* parameterDeclaration) {
-                                       bool scalar = qualifiedType.type->getTypeKind() == Type::Kind::Scalar &&
+                if (functionDeclaration->parameterDeclarations.size() == arguments.size() &&
+                    std::equal(arguments.begin(), arguments.end(),
+                               functionDeclaration->parameterDeclarations.begin(),
+                               [](const QualifiedType& qualifiedType, const ParameterDeclaration* parameterDeclaration) {
+                                   bool scalar = qualifiedType.type->getTypeKind() == Type::Kind::Scalar &&
                                        qualifiedType.type->getTypeKind() == Type::Kind::Scalar;
 
-                                       return (scalar || qualifiedType.type == parameterDeclaration->qualifiedType.type);
-                                   }))
-                    {
-                        viableFunctionDeclarations.push_back(functionDeclaration);
-                    }
-                }
-            }
+                                   return (scalar || qualifiedType.type == parameterDeclaration->qualifiedType.type);
+                               }))
+                    viableFunctionDeclarations.push_back(functionDeclaration);
 
             if (viableFunctionDeclarations.empty())
                 throw ParseError("No matching function to call " + name + " found");
@@ -437,7 +420,6 @@ namespace ouzel
                 const FunctionDeclaration* result = nullptr;
 
                 for (auto viableFunctionDeclaration : viableFunctionDeclarations)
-                {
                     if (arguments.size() == viableFunctionDeclaration->parameterDeclarations.size())
                     {
                         bool valid = true;
@@ -461,7 +443,6 @@ namespace ouzel
                                 result = viableFunctionDeclaration;
                         }
                     }
-                }
 
                 return result;
             }
@@ -656,8 +637,8 @@ namespace ouzel
                 textureCoordinatesAttribute->n = parseIndex(iterator, end);
                 return textureCoordinatesAttribute;
             }
-
-            return nullptr;
+            else
+                throw ParseError("Invalid attribute");
         }
 
         static bool isDeclaration(std::vector<Token>::const_iterator iterator,
