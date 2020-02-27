@@ -75,81 +75,75 @@ namespace ouzel
         explicit BadAccessError(const char* str): std::runtime_error(str) {}
     };
 
-    class DeclarationOrExpression final
+    template <typename First, typename Second>
+    class Variant final
     {
     public:
-        DeclarationOrExpression() noexcept = default;
-        DeclarationOrExpression(std::nullptr_t) noexcept:
-            type(Type::None) {}
-        DeclarationOrExpression(Declaration* declaration) noexcept:
-            type(Type::Declaration), pointer(declaration) {}
-        DeclarationOrExpression(Expression* expression) noexcept:
-            type(Type::Expression), pointer(expression) {}
+        Variant() noexcept = default;
+        Variant(std::nullptr_t) noexcept: type(0) {}
+        Variant(First* value) noexcept: type(1), pointer(value) {}
+        Variant(Second* value) noexcept: type(2), pointer(value) {}
 
-        DeclarationOrExpression& operator=(std::nullptr_t) noexcept
+        Variant& operator=(std::nullptr_t) noexcept
         {
-            type = Type::None;
+            type = 0;
             pointer = nullptr;
             return *this;
         }
 
-        DeclarationOrExpression& operator=(Declaration* declaration) noexcept
+        Variant& operator=(First* value) noexcept
         {
-            type = Type::Declaration;
-            pointer = declaration;
+            type = 1;
+            pointer = value;
             return *this;
         }
 
-        DeclarationOrExpression& operator=(Expression* expression) noexcept
+        Variant& operator=(Second* value) noexcept
         {
-            type = Type::Expression;
-            pointer = expression;
+            type = 2;
+            pointer = value;
             return *this;
         }
 
-        template <class T, typename std::enable_if<std::is_same<T, Declaration>::value>::type* = nullptr>
-        bool is() const noexcept { return type == Type::Declaration; }
-        template <class T, typename std::enable_if<std::is_same<T, Expression>::value>::type* = nullptr>
-        bool is() const noexcept { return type == Type::Expression; }
+        template <class T, typename std::enable_if<std::is_same<T, First>::value>::type* = nullptr>
+        bool is() const noexcept { return type == 1; }
+        template <class T, typename std::enable_if<std::is_same<T, Second>::value>::type* = nullptr>
+        bool is() const noexcept { return type == 2; }
 
-        template <class T, typename std::enable_if<std::is_same<T, Declaration>::value>::type* = nullptr>
-        const Declaration* get() const
+        template <class T, typename std::enable_if<std::is_same<T, First>::value>::type* = nullptr>
+        const First* get() const
         {
-            if (type != Type::Declaration) throw BadAccessError("Not a Declaration");
-            return static_cast<const Declaration*>(pointer);
+            if (type != 1) throw BadAccessError("Wrong type");
+            return static_cast<const First*>(pointer);
         }
 
-        template <class T, typename std::enable_if<std::is_same<T, Expression>::value>::type* = nullptr>
-        const Expression* get() const
+        template <class T, typename std::enable_if<std::is_same<T, Second>::value>::type* = nullptr>
+        const Second* get() const
         {
-            if (type != Type::Expression) throw BadAccessError("Not a Statement");
-            return static_cast<const Expression*>(pointer);
+            if (type != 2) throw BadAccessError("Wrong type");
+            return static_cast<const Second*>(pointer);
         }
 
-        template <class T, typename std::enable_if<std::is_same<T, Declaration>::value>::type* = nullptr>
-        Declaration* get()
+        template <class T, typename std::enable_if<std::is_same<T, First>::value>::type* = nullptr>
+        First* get()
         {
-            if (type != Type::Declaration) throw BadAccessError("Not a Declaration");
-            return static_cast<Declaration*>(pointer);
+            if (type != 1) throw BadAccessError("Wrong type");
+            return static_cast<First*>(pointer);
         }
 
-        template <class T, typename std::enable_if<std::is_same<T, Expression>::value>::type* = nullptr>
-        Expression* get()
+        template <class T, typename std::enable_if<std::is_same<T, Second>::value>::type* = nullptr>
+        Second* get()
         {
-            if (type != Type::Expression) throw BadAccessError("Not a Statement");
-            return static_cast<Expression*>(pointer);
+            if (type != 2) throw BadAccessError("Wrong type");
+            return static_cast<Second*>(pointer);
         }
 
     private:
-        enum class Type
-        {
-            None,
-            Declaration,
-            Expression
-        };
-        Type type = Type::None;
+        size_t type = 0;
         void* pointer = nullptr;
     };
+
+    using DeclarationOrExpression = Variant<Declaration, Expression>;
 
     class IfStatement final: public Statement
     {
