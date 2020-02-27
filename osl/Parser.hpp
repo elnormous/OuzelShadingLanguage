@@ -787,14 +787,14 @@ namespace ouzel
                 for (auto parameterDeclaration : result->parameterDeclarations)
                     declarationScopes.back().push_back(parameterDeclaration);
 
-                FunctionScope functionScope;
+                std::vector<ReturnStatement*> returnStatements;
                 // parse body
-                auto body = parseCompoundStatement(iterator, end, declarationScopes, functionScope);
+                auto body = parseCompoundStatement(iterator, end, declarationScopes, returnStatements);
                 result->body = body;
 
-                if (!functionScope.returnStatements.empty())
+                if (!returnStatements.empty())
                 {
-                    for (const auto returnStatement : functionScope.returnStatements)
+                    for (const auto returnStatement : returnStatements)
                     {
                         const auto returnType = returnStatement->result->qualifiedType.type;
                         if (!result->qualifiedType.type)
@@ -1055,32 +1055,27 @@ namespace ouzel
             return result;
         }
 
-        struct FunctionScope final
-        {
-            std::vector<ReturnStatement*> returnStatements;
-        };
-
         Statement* parseStatement(std::vector<Token>::const_iterator& iterator,
                                   std::vector<Token>::const_iterator end,
                                   std::vector<std::vector<Declaration*>>& declarationScopes,
-                                  FunctionScope& functionScope)
+                                  std::vector<ReturnStatement*>& returnStatements)
         {
             if (isToken(Token::Type::LeftBrace, iterator, end))
-                return parseCompoundStatement(iterator, end, declarationScopes, functionScope);
+                return parseCompoundStatement(iterator, end, declarationScopes, returnStatements);
             else if (isToken(Token::Type::If, iterator, end))
-                return parseIfStatement(iterator, end, declarationScopes, functionScope);
+                return parseIfStatement(iterator, end, declarationScopes, returnStatements);
             else if (isToken(Token::Type::For, iterator, end))
-                return parseForStatement(iterator, end, declarationScopes, functionScope);
+                return parseForStatement(iterator, end, declarationScopes, returnStatements);
             else if (isToken(Token::Type::Switch, iterator, end))
-                return parseSwitchStatement(iterator, end, declarationScopes,functionScope);
+                return parseSwitchStatement(iterator, end, declarationScopes, returnStatements);
             else if (isToken(Token::Type::Case, iterator, end))
-                return parseCaseStatement(iterator, end, declarationScopes,functionScope);
+                return parseCaseStatement(iterator, end, declarationScopes, returnStatements);
             else if (isToken(Token::Type::Default, iterator, end))
-                return parseDefaultStatement(iterator, end, declarationScopes, functionScope);
+                return parseDefaultStatement(iterator, end, declarationScopes, returnStatements);
             else if (isToken(Token::Type::While, iterator, end))
-                return parseWhileStatement(iterator, end, declarationScopes, functionScope);
+                return parseWhileStatement(iterator, end, declarationScopes, returnStatements);
             else if (isToken(Token::Type::Do, iterator, end))
-                return parseDoStatement(iterator, end, declarationScopes, functionScope);
+                return parseDoStatement(iterator, end, declarationScopes, returnStatements);
             else if (isToken(Token::Type::Break, iterator, end))
             {
                 ++iterator;
@@ -1121,7 +1116,7 @@ namespace ouzel
 
                 ++iterator;
 
-                functionScope.returnStatements.push_back(result);
+                returnStatements.push_back(result);
 
                 return result;
             }
@@ -1179,7 +1174,7 @@ namespace ouzel
         CompoundStatement* parseCompoundStatement(std::vector<Token>::const_iterator& iterator,
                                                   std::vector<Token>::const_iterator end,
                                                   std::vector<std::vector<Declaration*>>& declarationScopes,
-                                                  FunctionScope& functionScope)
+                                                  std::vector<ReturnStatement*>& returnStatements)
         {
             expectToken(Token::Type::LeftBrace, iterator, end);
 
@@ -1199,7 +1194,7 @@ namespace ouzel
                 }
                 else
                 {
-                    auto statement = parseStatement(iterator, end, declarationScopes, functionScope);
+                    auto statement = parseStatement(iterator, end, declarationScopes, returnStatements);
 
                     result->statements.push_back(statement);
                 }
@@ -1213,7 +1208,7 @@ namespace ouzel
         IfStatement* parseIfStatement(std::vector<Token>::const_iterator& iterator,
                                       std::vector<Token>::const_iterator end,
                                       std::vector<std::vector<Declaration*>>& declarationScopes,
-                                      FunctionScope& functionScope)
+                                      std::vector<ReturnStatement*>& returnStatements)
         {
             expectToken(Token::Type::If, iterator, end);
 
@@ -1250,14 +1245,14 @@ namespace ouzel
 
             ++iterator;
 
-            auto statement = parseStatement(iterator, end, declarationScopes, functionScope);
+            auto statement = parseStatement(iterator, end, declarationScopes, returnStatements);
             result->body = statement;
 
             if (isToken(Token::Type::Else, iterator, end))
             {
                 ++iterator;
 
-                statement = parseStatement(iterator, end, declarationScopes, functionScope);
+                statement = parseStatement(iterator, end, declarationScopes, returnStatements);
                 result->elseBody = statement;
             }
 
@@ -1267,7 +1262,7 @@ namespace ouzel
         ForStatement* parseForStatement(std::vector<Token>::const_iterator& iterator,
                                         std::vector<Token>::const_iterator end,
                                         std::vector<std::vector<Declaration*>>& declarationScopes,
-                                        FunctionScope& functionScope)
+                                        std::vector<ReturnStatement*>& returnStatements)
         {
             expectToken(Token::Type::For, iterator, end);
 
@@ -1360,7 +1355,7 @@ namespace ouzel
                 ++iterator;
             }
 
-            auto body = parseStatement(iterator, end, declarationScopes, functionScope);
+            auto body = parseStatement(iterator, end, declarationScopes, returnStatements);
             result->body = body;
 
             return result;
@@ -1369,7 +1364,7 @@ namespace ouzel
         SwitchStatement* parseSwitchStatement(std::vector<Token>::const_iterator& iterator,
                                               std::vector<Token>::const_iterator end,
                                               std::vector<std::vector<Declaration*>>& declarationScopes,
-                                              FunctionScope& functionScope)
+                                              std::vector<ReturnStatement*>& returnStatements)
         {
             expectToken(Token::Type::Switch, iterator, end);
 
@@ -1410,7 +1405,7 @@ namespace ouzel
 
             ++iterator;
 
-            auto body = parseStatement(iterator, end, declarationScopes, functionScope);
+            auto body = parseStatement(iterator, end, declarationScopes, returnStatements);
             result->body = body;
 
             return result;
@@ -1419,7 +1414,7 @@ namespace ouzel
         CaseStatement* parseCaseStatement(std::vector<Token>::const_iterator& iterator,
                                           std::vector<Token>::const_iterator end,
                                           std::vector<std::vector<Declaration*>>& declarationScopes,
-                                          FunctionScope& functionScope)
+                                          std::vector<ReturnStatement*>& returnStatements)
         {
             expectToken(Token::Type::Case, iterator, end);
 
@@ -1442,7 +1437,7 @@ namespace ouzel
 
             ++iterator;
 
-            auto body = parseStatement(iterator, end, declarationScopes, functionScope);
+            auto body = parseStatement(iterator, end, declarationScopes, returnStatements);
             result->body = body;
 
             return result;
@@ -1451,7 +1446,7 @@ namespace ouzel
         DefaultStatement* parseDefaultStatement(std::vector<Token>::const_iterator& iterator,
                                                 std::vector<Token>::const_iterator end,
                                                 std::vector<std::vector<Declaration*>>& declarationScopes,
-                                                FunctionScope& functionScope)
+                                                std::vector<ReturnStatement*>& returnStatements)
         {
             expectToken(Token::Type::Default, iterator, end);
 
@@ -1464,7 +1459,7 @@ namespace ouzel
 
             ++iterator;
 
-            auto body = parseStatement(iterator, end, declarationScopes, functionScope);
+            auto body = parseStatement(iterator, end, declarationScopes, returnStatements);
             result->body = body;
 
             return result;
@@ -1473,7 +1468,7 @@ namespace ouzel
         WhileStatement* parseWhileStatement(std::vector<Token>::const_iterator& iterator,
                                             std::vector<Token>::const_iterator end,
                                             std::vector<std::vector<Declaration*>>& declarationScopes,
-                                            FunctionScope& functionScope)
+                                            std::vector<ReturnStatement*>& returnStatements)
         {
             expectToken(Token::Type::While, iterator, end);
 
@@ -1510,7 +1505,7 @@ namespace ouzel
 
             ++iterator;
 
-            auto body = parseStatement(iterator, end, declarationScopes, functionScope);
+            auto body = parseStatement(iterator, end, declarationScopes, returnStatements);
             result->body = body;
 
             return result;
@@ -1519,7 +1514,7 @@ namespace ouzel
         DoStatement* parseDoStatement(std::vector<Token>::const_iterator& iterator,
                                       std::vector<Token>::const_iterator end,
                                       std::vector<std::vector<Declaration*>>& declarationScopes,
-                                      FunctionScope& functionScope)
+                                      std::vector<ReturnStatement*>& returnStatements)
         {
             expectToken(Token::Type::Do, iterator, end);
 
@@ -1528,7 +1523,7 @@ namespace ouzel
             DoStatement* result;
             constructs.push_back(std::unique_ptr<Construct>(result = new DoStatement()));
 
-            auto body = parseStatement(iterator, end, declarationScopes, functionScope);
+            auto body = parseStatement(iterator, end, declarationScopes, returnStatements);
             result->body = body;
 
             expectToken(Token::Type::While, iterator, end);
