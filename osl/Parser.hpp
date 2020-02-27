@@ -689,12 +689,6 @@ namespace ouzel
             return declaration;
         }
 
-        struct Specifiers final
-        {
-            Qualifiers qualifiers = Qualifiers::None;
-            StorageClass storageClass = StorageClass::Auto;
-        };
-
         Declaration* parseDeclaration(std::vector<Token>::const_iterator& iterator,
                                       std::vector<Token>::const_iterator end,
                                       std::vector<std::vector<Declaration*>>& declarationScopes)
