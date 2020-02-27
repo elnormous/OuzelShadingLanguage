@@ -11,7 +11,7 @@ namespace ouzel
 {
     class Type;
 
-    enum class Qualifiers
+    enum class Qualifiers: uint8_t
     {
         None = 0x00,
         Const = 0x01,
@@ -45,30 +45,6 @@ namespace ouzel
     inline constexpr Qualifiers& operator^=(Qualifiers& a, const Qualifiers b) noexcept
     {
         return a = static_cast<Qualifiers>(static_cast<std::underlying_type<Qualifiers>::type>(a) ^ static_cast<std::underlying_type<Qualifiers>::type>(b));
-    }
-    inline constexpr bool operator==(const Qualifiers a, const Qualifiers b) noexcept
-    {
-        return static_cast<std::underlying_type<Qualifiers>::type>(a) == static_cast<std::underlying_type<Qualifiers>::type>(b);
-    }
-    inline constexpr bool operator!=(const Qualifiers a, const Qualifiers b) noexcept
-    {
-        return static_cast<std::underlying_type<Qualifiers>::type>(a) != static_cast<std::underlying_type<Qualifiers>::type>(b);
-    }
-    inline constexpr bool operator>(const Qualifiers a, const Qualifiers b) noexcept
-    {
-        return static_cast<std::underlying_type<Qualifiers>::type>(a) > static_cast<std::underlying_type<Qualifiers>::type>(b);
-    }
-    inline constexpr bool operator<(const Qualifiers a, const Qualifiers b) noexcept
-    {
-        return static_cast<std::underlying_type<Qualifiers>::type>(a) < static_cast<std::underlying_type<Qualifiers>::type>(b);
-    }
-    inline constexpr bool operator>=(const Qualifiers a, const Qualifiers b) noexcept
-    {
-        return static_cast<std::underlying_type<Qualifiers>::type>(a) >= static_cast<std::underlying_type<Qualifiers>::type>(b);
-    }
-    inline constexpr bool operator<=(const Qualifiers a, const Qualifiers b) noexcept
-    {
-        return static_cast<std::underlying_type<Qualifiers>::type>(a) <= static_cast<std::underlying_type<Qualifiers>::type>(b);
     }
     inline constexpr bool operator!(const Qualifiers a) noexcept
     {
