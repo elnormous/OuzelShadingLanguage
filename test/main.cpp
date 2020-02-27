@@ -545,6 +545,12 @@ namespace
         {
             var f:float;
         }
+
+        function main()
+        {
+            var f:Foo;
+            f.f = 1.0f;
+        }
         )OSL";
 
         ouzel::ASTContext context(ouzel::tokenize(code));
