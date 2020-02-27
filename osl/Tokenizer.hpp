@@ -277,7 +277,6 @@ namespace ouzel
             case Token::Type::Arrow: return "Arrow";
             case Token::Type::Ellipsis: return "Ellipsis";
             case Token::Type::Identifier: return "Identifier";
-            default: return "Unknown";
         }
     }
 

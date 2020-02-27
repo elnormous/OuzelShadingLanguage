@@ -21,7 +21,6 @@ namespace ouzel
             case Construct::Kind::Statement: return "Statement";
             case Construct::Kind::Expression: return "Expression";
             case Construct::Kind::Attribute: return "Attribute";
-            default: return "Unknown";
         }
     }
 
@@ -43,7 +42,6 @@ namespace ouzel
             case Statement::Kind::Break: return "Break";
             case Statement::Kind::Continue: return "Continue";
             case Statement::Kind::Return: return "Return";
-            default: return "Unknown";
         }
     }
 
@@ -67,7 +65,6 @@ namespace ouzel
             case Expression::Kind::VectorInitialize: return "VectorInitialize";
             case Expression::Kind::VectorElement: return "VectorElement";
             case Expression::Kind::MatrixInitialize: return "MatrixInitialize";
-            default: return "Unknown";
         }
     }
 
@@ -81,7 +78,6 @@ namespace ouzel
             case Declaration::Kind::Callable: return "Callable";
             case Declaration::Kind::Variable: return "Variable";
             case Declaration::Kind::Parameter: return "Parameter";
-            default: return "Unknown";
         }
     }
 
@@ -94,8 +90,7 @@ namespace ouzel
             case Type::Kind::Scalar: return "Scalar";
             case Type::Kind::Struct: return "Struct";
             case Type::Kind::Vector: return "Vector";
-            //case TypeDeclaration::Kind::TypeDefinition: return "TypeDefinition";
-            default: return "Unknown";
+            case Type::Kind::Matrix: return "Matrix";
         }
     }
 
@@ -106,7 +101,6 @@ namespace ouzel
             case ScalarType::Kind::Boolean: return "Boolean";
             case ScalarType::Kind::Integer: return "Integer";
             case ScalarType::Kind::FloatingPoint: return "FloatingPoint";
-            default: return "Unknown";
         }
     }
 
@@ -117,7 +111,6 @@ namespace ouzel
             case CallableDeclaration::Kind::Function: return "Function";
             case CallableDeclaration::Kind::Constructor: return "Constructor";
             case CallableDeclaration::Kind::Method: return "Method";
-            default: return "Unknown";
         }
     }
 
@@ -129,7 +122,6 @@ namespace ouzel
             case LiteralExpression::Kind::Integer: return "Integer";
             case LiteralExpression::Kind::FloatingPoint: return "FloatingPoint";
             case LiteralExpression::Kind::String: return "String";
-            default: return "Unknown";
         }
     }
 
@@ -140,7 +132,6 @@ namespace ouzel
             case CastExpression::Kind::CStyle: return "CStyle";
             case CastExpression::Kind::Functional: return "Functional";
             case CastExpression::Kind::Static: return "Static";
-            default: return "Unknown";
         }
     }
 
@@ -155,7 +146,6 @@ namespace ouzel
             case UnaryOperatorExpression::Kind::PrefixDecrement: return "PrefixDecrement";
             case UnaryOperatorExpression::Kind::PostfixIncrement: return "PostfixIncrement";
             case UnaryOperatorExpression::Kind::PostfixDecrement: return "PostfixDecrement";
-            default: return "Unknown";
         }
     }
 
@@ -182,7 +172,6 @@ namespace ouzel
             case BinaryOperatorExpression::Kind::And: return "And";
             case BinaryOperatorExpression::Kind::Comma: return "Comma";
             case BinaryOperatorExpression::Kind::Subscript: return "Subscript";
-            default: return "Unknown";
         }
     }
 
@@ -203,7 +192,6 @@ namespace ouzel
             case Attribute::Kind::Tangent: return "Tangent";
             case Attribute::Kind::TesselationFactor: return "TesselationFactor";
             case Attribute::Kind::TextureCoordinates: return "TextureCoordinates";
-            default: return "Unknown";
         }
     }
 
@@ -214,7 +202,6 @@ namespace ouzel
             case InputModifier::In: return "In";
             case InputModifier::Inout: return "Inout";
             case InputModifier::Out: return "Out";
-            default: return "Unknown";
         }
     }
 
@@ -578,7 +565,6 @@ namespace ouzel
         {
             case Expression::Category::Lvalue: return "Lvalue";
             case Expression::Category::Rvalue: return "Rvalue";
-            default: return "Unknown";
         }
     }
 
