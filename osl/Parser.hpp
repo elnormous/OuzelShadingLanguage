@@ -2438,8 +2438,8 @@ namespace ouzel
                 binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Equality, scalarType, scalarType, scalarType);
                 binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Inequality, scalarType, scalarType, scalarType);
                 binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Assignment, scalarType, scalarType, scalarType);
-                binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Or, boolType, scalarType, scalarType);
-                binaryOperators.emplace_back(BinaryOperatorExpression::Kind::And, boolType, scalarType, scalarType);
+                binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Or, scalarType, scalarType, scalarType);
+                binaryOperators.emplace_back(BinaryOperatorExpression::Kind::And, scalarType, scalarType, scalarType);
             }
             else
             {
