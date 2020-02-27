@@ -93,14 +93,16 @@ namespace ouzel
             return (iterator != end && iterator->type == tokenType);
         }
 
-        static void expectToken(Token::Type tokenType,
-                                std::vector<Token>::const_iterator iterator,
-                                std::vector<Token>::const_iterator end)
+        static const Token& expectToken(Token::Type tokenType,
+                                        std::vector<Token>::const_iterator& iterator,
+                                        std::vector<Token>::const_iterator end)
         {
             if (iterator == end)
                 throw ParseError("Unexpected end of file");
             if (iterator->type != tokenType)
                 throw ParseError("Expected " + toString(tokenType));
+
+            return *iterator++;
         }
 
         template <size_t N>
@@ -117,18 +119,18 @@ namespace ouzel
         }
 
         template <size_t N>
-        static void expectToken(const Token::Type (&tokenTypes)[N],
-                                std::vector<Token>::const_iterator iterator,
-                                std::vector<Token>::const_iterator end)
+        static const Token& expectToken(const Token::Type (&tokenTypes)[N],
+                                        std::vector<Token>::const_iterator iterator,
+                                        std::vector<Token>::const_iterator end)
         {
             if (iterator == end)
                 throw ParseError("Unexpected end of file");
 
             for (auto tokenType : tokenTypes)
-                if (iterator->type == tokenType) return;
+                if (iterator->type == tokenType) return *iterator++;
 
             std::string str;
-            for (auto tokenType : tokenTypes)
+            for (const auto tokenType : tokenTypes)
             {
                 if (!str.empty()) str += "or ";
                 str += toString(tokenType);
@@ -176,18 +178,13 @@ namespace ouzel
             {
                 ++iterator;
 
-                expectToken(Token::Type::IntLiteral, iterator, end);
-
-                int index = std::stoi(iterator->value);
+                int index = std::stoi(expectToken(Token::Type::IntLiteral, iterator, end).value);
                 if (index < 0)
                     throw ParseError("Index must be positibe");
 
                 result = static_cast<size_t>(index);
 
-                ++iterator;
-
                 expectToken(Token::Type::RightParenthesis, iterator, end);
-                ++iterator;
             }
 
             return result;
@@ -416,11 +413,7 @@ namespace ouzel
             {
                 ++iterator;
 
-                expectToken(Token::Type::IntLiteral, iterator, end);
-
-                const int size = std::stoi(iterator->value);
-
-                ++iterator;
+                const int size = std::stoi(expectToken(Token::Type::IntLiteral, iterator, end).value);
 
                 if (size <= 0)
                     throw ParseError("Array size must be greater than zero");
@@ -428,8 +421,6 @@ namespace ouzel
                 result = getArrayType(result, static_cast<size_t>(size));
 
                 expectToken(Token::Type::RightBracket, iterator, end);
-
-                ++iterator;
             }
 
             return result;
@@ -441,10 +432,7 @@ namespace ouzel
             if (iterator == end)
                 throw ParseError("Unexpected end of file");
 
-            expectToken(Token::Type::Identifier, iterator, end);
-
-            auto name = iterator->value;
-            ++iterator;
+            auto name = expectToken(Token::Type::Identifier, iterator, end).value;
 
             if (name == "Binormal")
             {
@@ -562,10 +550,7 @@ namespace ouzel
 
                 // semicolon is not needed after a function definition
                 if (!callableDeclaration->body)
-                {
                     expectToken(Token::Type::Semicolon, iterator, end);
-                    ++iterator;
-                }
             }
             else if (declaration->getDeclarationKind() == Declaration::Kind::Type)
             {
@@ -573,16 +558,10 @@ namespace ouzel
 
                 // semicolon is not needed after a struct definition
                 if (typeDeclaration->definition != typeDeclaration)
-                {
                     expectToken(Token::Type::Semicolon, iterator, end);
-                    ++iterator;
-                }
             }
             else
-            {
                 expectToken(Token::Type::Semicolon, iterator, end);
-                ++iterator;
-            }
 
             return declaration;
         }
@@ -614,17 +593,13 @@ namespace ouzel
                                               std::vector<std::vector<Declaration*>>& declarationScopes)
         {
             expectToken(Token::Type::Function, iterator, end);
-            ++iterator;
 
             FunctionDeclaration* result;
             constructs.push_back(std::unique_ptr<Construct>(result = new FunctionDeclaration()));
 
-            expectToken(Token::Type::Identifier, iterator, end);
-            result->name = iterator->value;
-            ++iterator;
+            result->name = expectToken(Token::Type::Identifier, iterator, end).value;
 
             expectToken(Token::Type::LeftParenthesis, iterator, end);
-            ++iterator;
 
             std::vector<QualifiedType> parameters;
 
@@ -644,7 +619,6 @@ namespace ouzel
             }
 
             expectToken(Token::Type::RightParenthesis, iterator, end);
-            ++iterator;
 
             // TODO: forbid declaring a function with the same name as a declared type (not supported by GLSL)
             auto previousDeclaration = findFunctionDeclaration(result->name, declarationScopes, parameters);
@@ -737,9 +711,7 @@ namespace ouzel
 
             ++iterator;
 
-            expectToken(Token::Type::Identifier, iterator, end);
-            result->name = iterator->value;
-            ++iterator;
+            result->name = expectToken(Token::Type::Identifier, iterator, end).value;
 
             if (isToken(Token::Type::Colon, iterator, end))
             {
@@ -781,14 +753,10 @@ namespace ouzel
                                                     std::vector<std::vector<Declaration*>>& declarationScopes)
         {
             expectToken(Token::Type::Struct, iterator, end);
-            ++iterator;
 
             TypeDeclaration* result;
             constructs.push_back(std::unique_ptr<Construct>(result = new TypeDeclaration()));
-
-            expectToken(Token::Type::Identifier, iterator, end);
-            result->name = iterator->value;
-            ++iterator;
+            result->name = expectToken(Token::Type::Identifier, iterator, end).value;
 
             auto previousDeclaration = findDeclaration(result->name, declarationScopes);
 
@@ -832,7 +800,7 @@ namespace ouzel
 
                 // set the definition pointer of all previous declarations
                 Declaration* declaration = result;
-                while (previousDeclaration)
+                while (declaration)
                 {
                     declaration->definition = result;
                     declaration = declaration->previousDeclaration;
@@ -854,8 +822,6 @@ namespace ouzel
                         if (structType->findMemberDeclaration(memberDeclaration->name))
                             throw ParseError("Redefinition of member " + memberDeclaration->name);
 
-                        ++iterator;
-
                         structType->memberDeclarations.push_back(memberDeclaration);
                     }
                 }
@@ -868,18 +834,13 @@ namespace ouzel
                                             std::vector<Token>::const_iterator end,
                                             std::vector<std::vector<Declaration*>>& declarationScopes)
         {
+            expectToken(Token::Type::Var, iterator, end);
+
             FieldDeclaration* result;
             constructs.push_back(std::unique_ptr<Construct>(result = new FieldDeclaration()));
-
-            expectToken(Token::Type::Var, iterator, end);
-            ++iterator;
-
-            expectToken(Token::Type::Identifier, iterator, end);
-            result->name = iterator->value;
-            ++iterator;
+            result->name = expectToken(Token::Type::Identifier, iterator, end).value;
 
             expectToken(Token::Type::Colon, iterator, end);
-            ++iterator;
 
             result->qualifiedType.type = parseType(iterator, end, declarationScopes);
 
@@ -928,12 +889,9 @@ namespace ouzel
                     break;
             }
 
-            expectToken(Token::Type::Identifier, iterator, end);
-            result->name = iterator->value;
-            ++iterator;
+            result->name = expectToken(Token::Type::Identifier, iterator, end).value;
 
             expectToken(Token::Type::Colon, iterator, end);
-            ++iterator;
 
             result->qualifiedType.type = parseType(iterator, end, declarationScopes);
 
@@ -980,8 +938,6 @@ namespace ouzel
 
                 expectToken(Token::Type::Semicolon, iterator, end);
 
-                ++iterator;
-
                 return result;
             }
             else if (isToken(Token::Type::Continue, iterator, end))
@@ -993,23 +949,19 @@ namespace ouzel
 
                 expectToken(Token::Type::Semicolon, iterator, end);
 
-                ++iterator;
-
                 return result;
             }
             else if (isToken(Token::Type::Return, iterator, end))
             {
                 ++iterator;
 
+                auto resultExpression = parseExpression(iterator, end, declarationScopes);
+
                 ReturnStatement* result;
                 constructs.push_back(std::unique_ptr<Construct>(result = new ReturnStatement()));
-
-                auto resultExpression = parseExpression(iterator, end, declarationScopes);
                 result->result = resultExpression;
 
                 expectToken(Token::Type::Semicolon, iterator, end);
-
-                ++iterator;
 
                 returnStatements.push_back(result);
 
@@ -1034,33 +986,28 @@ namespace ouzel
                 throw ParseError("Expected a statement");
             else if (isDeclaration(iterator, end))
             {
-                DeclarationStatement* result;
-                constructs.push_back(std::unique_ptr<Construct>(result = new DeclarationStatement()));
-
                 auto declaration = parseDeclaration(iterator, end, declarationScopes);
 
                 if (declaration->getDeclarationKind() != Declaration::Kind::Variable)
                     throw ParseError("Expected a variable declaration");
 
+                DeclarationStatement* result;
+                constructs.push_back(std::unique_ptr<Construct>(result = new DeclarationStatement()));
                 result->declaration = declaration;
 
                 expectToken(Token::Type::Semicolon, iterator, end);
-
-                ++iterator;
 
                 return result;
             }
             else
             {
+                auto expression = parseExpression(iterator, end, declarationScopes);
+
                 ExpressionStatement* result;
                 constructs.push_back(std::unique_ptr<Construct>(result = new ExpressionStatement()));
-
-                auto expression = parseExpression(iterator, end, declarationScopes);
                 result->expression = expression;
 
                 expectToken(Token::Type::Semicolon, iterator, end);
-
-                ++iterator;
 
                 return result;
             }
@@ -1072,8 +1019,6 @@ namespace ouzel
                                                   std::vector<ReturnStatement*>& returnStatements)
         {
             expectToken(Token::Type::LeftBrace, iterator, end);
-
-            ++iterator;
 
             declarationScopes.push_back(std::vector<Declaration*>());
 
@@ -1105,15 +1050,10 @@ namespace ouzel
                                       std::vector<ReturnStatement*>& returnStatements)
         {
             expectToken(Token::Type::If, iterator, end);
-
-            ++iterator;
+            expectToken(Token::Type::LeftParenthesis, iterator, end);
 
             IfStatement* result;
             constructs.push_back(std::unique_ptr<Construct>(result = new IfStatement()));
-
-            expectToken(Token::Type::LeftParenthesis, iterator, end);
-
-            ++iterator;
 
             if (isDeclaration(iterator, end))
             {
@@ -1137,8 +1077,6 @@ namespace ouzel
 
             expectToken(Token::Type::RightParenthesis, iterator, end);
 
-            ++iterator;
-
             auto statement = parseStatement(iterator, end, declarationScopes, returnStatements);
             result->body = statement;
 
@@ -1160,14 +1098,10 @@ namespace ouzel
         {
             expectToken(Token::Type::For, iterator, end);
 
-            ++iterator;
-
             ForStatement* result;
             constructs.push_back(std::unique_ptr<Construct>(result = new ForStatement()));
 
             expectToken(Token::Type::LeftParenthesis, iterator, end);
-
-            ++iterator;
 
             if (isDeclaration(iterator, end))
             {
@@ -1180,8 +1114,6 @@ namespace ouzel
                 result->initialization = declaration;
 
                 expectToken(Token::Type::Semicolon, iterator, end);
-
-                ++iterator;
             }
             else if (isToken(Token::Type::Semicolon, iterator, end))
             {
@@ -1195,8 +1127,6 @@ namespace ouzel
                 result->initialization = initialization;
 
                 expectToken(Token::Type::Semicolon, iterator, end);
-
-                ++iterator;
             }
 
             if (isDeclaration(iterator, end))
@@ -1210,8 +1140,6 @@ namespace ouzel
                 result->condition = declaration;
 
                 expectToken(Token::Type::Semicolon, iterator, end);
-
-                ++iterator;
             }
             else if (isToken(Token::Type::Semicolon, iterator, end))
             {
@@ -1229,8 +1157,6 @@ namespace ouzel
                 result->condition = condition;
 
                 expectToken(Token::Type::Semicolon, iterator, end);
-
-                ++iterator;
             }
 
             if (isToken(Token::Type::RightParenthesis, iterator, end))
@@ -1245,8 +1171,6 @@ namespace ouzel
                 result->increment = increment;
 
                 expectToken(Token::Type::RightParenthesis, iterator, end);
-
-                ++iterator;
             }
 
             auto body = parseStatement(iterator, end, declarationScopes, returnStatements);
@@ -1262,14 +1186,10 @@ namespace ouzel
         {
             expectToken(Token::Type::Switch, iterator, end);
 
-            ++iterator;
-
             SwitchStatement* result;
             constructs.push_back(std::unique_ptr<Construct>(result = new SwitchStatement()));
 
             expectToken(Token::Type::LeftParenthesis, iterator, end);
-
-            ++iterator;
 
             if (isDeclaration(iterator, end))
             {
@@ -1297,8 +1217,6 @@ namespace ouzel
 
             expectToken(Token::Type::RightParenthesis, iterator, end);
 
-            ++iterator;
-
             auto body = parseStatement(iterator, end, declarationScopes, returnStatements);
             result->body = body;
 
@@ -1312,11 +1230,6 @@ namespace ouzel
         {
             expectToken(Token::Type::Case, iterator, end);
 
-            ++iterator;
-
-            CaseStatement* result;
-            constructs.push_back(std::unique_ptr<Construct>(result = new CaseStatement()));
-
             auto condition = parseExpression(iterator, end, declarationScopes);
 
             if (!isIntegerType(condition->qualifiedType.type))
@@ -1325,11 +1238,11 @@ namespace ouzel
             if ((condition->qualifiedType.qualifiers & Qualifiers::Const) != Qualifiers::Const)
                 throw ParseError("Expression must be constant");
 
+            CaseStatement* result;
+            constructs.push_back(std::unique_ptr<Construct>(result = new CaseStatement()));
             result->condition = condition;
 
             expectToken(Token::Type::Colon, iterator, end);
-
-            ++iterator;
 
             auto body = parseStatement(iterator, end, declarationScopes, returnStatements);
             result->body = body;
@@ -1343,15 +1256,10 @@ namespace ouzel
                                                 std::vector<ReturnStatement*>& returnStatements)
         {
             expectToken(Token::Type::Default, iterator, end);
-
-            ++iterator;
+            expectToken(Token::Type::Colon, iterator, end);
 
             DefaultStatement* result;
             constructs.push_back(std::unique_ptr<Construct>(result = new DefaultStatement()));
-
-            expectToken(Token::Type::Colon, iterator, end);
-
-            ++iterator;
 
             auto body = parseStatement(iterator, end, declarationScopes, returnStatements);
             result->body = body;
@@ -1366,14 +1274,10 @@ namespace ouzel
         {
             expectToken(Token::Type::While, iterator, end);
 
-            ++iterator;
-
             WhileStatement* result;
             constructs.push_back(std::unique_ptr<Construct>(result = new WhileStatement()));
 
             expectToken(Token::Type::LeftParenthesis, iterator, end);
-
-            ++iterator;
 
             if (isDeclaration(iterator, end))
             {
@@ -1397,8 +1301,6 @@ namespace ouzel
 
             expectToken(Token::Type::RightParenthesis, iterator, end);
 
-            ++iterator;
-
             auto body = parseStatement(iterator, end, declarationScopes, returnStatements);
             result->body = body;
 
@@ -1412,8 +1314,6 @@ namespace ouzel
         {
             expectToken(Token::Type::Do, iterator, end);
 
-            ++iterator;
-
             DoStatement* result;
             constructs.push_back(std::unique_ptr<Construct>(result = new DoStatement()));
 
@@ -1421,12 +1321,7 @@ namespace ouzel
             result->body = body;
 
             expectToken(Token::Type::While, iterator, end);
-
-            ++iterator;
-
             expectToken(Token::Type::LeftParenthesis, iterator, end);
-
-            ++iterator;
 
             auto condition = parseExpression(iterator, end, declarationScopes);
 
@@ -1436,12 +1331,7 @@ namespace ouzel
             result->condition = condition;
 
             expectToken(Token::Type::RightParenthesis, iterator, end);
-
-            ++iterator;
-
             expectToken(Token::Type::Semicolon, iterator, end);
-
-            ++iterator;
 
             return result;
         }
@@ -1517,14 +1407,10 @@ namespace ouzel
 
                 expectToken(Token::Type::LeftParenthesis, iterator, end);
 
-                ++iterator;
-
                 auto expression = parseMultiplicationAssignmentExpression(iterator, end, declarationScopes);
                 result->expression = expression;
 
                 expectToken(Token::Type::RightParenthesis, iterator, end);
-
-                ++iterator;
 
                 return result;
             }
@@ -1557,8 +1443,6 @@ namespace ouzel
                 expectToken(Token::Type::RightBrace, iterator, end);
 
                 result->qualifiedType.type = getArrayType(type, result->expressions.size());
-
-                ++iterator;
 
                 return result;
             }
@@ -1594,8 +1478,6 @@ namespace ouzel
                             }
 
                             expectToken(Token::Type::RightParenthesis, iterator, end);
-
-                            ++iterator;
                         }
 
                         switch (type->getTypeKind())
@@ -1737,8 +1619,6 @@ namespace ouzel
                             }
 
                             expectToken(Token::Type::RightParenthesis, iterator, end);
-
-                            ++iterator;
                         }
 
                         DeclarationReferenceExpression* declRefExpression;
@@ -1808,7 +1688,6 @@ namespace ouzel
                     result->qualifiedType.type = parseType(iterator, end, declarationScopes);
 
                     expectToken(Token::Type::RightParenthesis, iterator, end);
-                    ++iterator;
 
                     auto expression = parseExpression(iterator, end, declarationScopes);
 
@@ -1827,8 +1706,6 @@ namespace ouzel
                     result->expression = expression;
 
                     expectToken(Token::Type::RightParenthesis, iterator, end);
-
-                    ++iterator;
 
                     result->qualifiedType = result->expression->qualifiedType;
                     result->category = result->expression->category;
@@ -1852,22 +1729,17 @@ namespace ouzel
                 ++iterator;
 
                 expectToken(Token::Type::LessThan, iterator, end);
-                ++iterator;
 
                 result->qualifiedType.type = parseType(iterator, end, declarationScopes);
 
                 expectToken(Token::Type::GreaterThan, iterator, end);
-                ++iterator;
-
                 expectToken(Token::Type::LeftParenthesis, iterator, end);
-                ++iterator;
 
                 auto expression = parseExpression(iterator, end, declarationScopes);
 
                 result->expression = expression;
 
                 expectToken(Token::Type::RightParenthesis, iterator, end);
-                ++iterator;
 
                 result->category = Expression::Category::Rvalue;
 
@@ -1936,8 +1808,6 @@ namespace ouzel
 
                     expectToken(Token::Type::RightBracket, iterator, end);
 
-                    ++iterator;
-
                     auto arrayType = static_cast<const ArrayType*>(result->qualifiedType.type);
 
                     ArraySubscriptExpression* expression;
@@ -1964,8 +1834,6 @@ namespace ouzel
                     expression->rightExpression = rightExpression;
 
                     expectToken(Token::Type::RightBracket, iterator, end);
-
-                    ++iterator;
 
                     if (result->qualifiedType.type->getTypeKind() == Type::Kind::Vector)
                     {
@@ -2023,11 +1891,11 @@ namespace ouzel
                 {
                     auto structType = static_cast<const StructType*>(result->qualifiedType.type);
 
-                    expectToken(Token::Type::Identifier, iterator, end);
+                    auto& name = expectToken(Token::Type::Identifier, iterator, end).value;
 
-                    auto memberDeclaration = structType->findMemberDeclaration(iterator->value);
+                    auto memberDeclaration = structType->findMemberDeclaration(name);
                     if (!memberDeclaration)
-                        throw ParseError("Structure " + structType->name +  " has no member " + iterator->value);
+                        throw ParseError("Structure " + structType->name +  " has no member " + name);
 
                     if (memberDeclaration->getDeclarationKind() != Declaration::Kind::Field)
                         throw ParseError(iterator->value + " is not a field");
@@ -2193,7 +2061,6 @@ namespace ouzel
             {
                 ++iterator;
                 expectToken(Token::Type::LeftParenthesis, iterator, end);
-                ++iterator;
 
                 if (iterator == end)
                     throw ParseError("Unexpected end of file");
@@ -2214,7 +2081,6 @@ namespace ouzel
                 }
 
                 expectToken(Token::Type::RightParenthesis, iterator, end);
-                ++iterator;
 
                 result->qualifiedType.type = uintType;
                 result->category = Expression::Category::Rvalue;
@@ -2473,8 +2339,6 @@ namespace ouzel
                 auto leftExpression = parseTernaryExpression(iterator, end, declarationScopes);
 
                 expectToken(Token::Type::Colon, iterator, end);
-
-                ++iterator;
 
                 auto rightExpression = parseTernaryExpression(iterator, end, declarationScopes);
 
