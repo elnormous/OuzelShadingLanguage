@@ -80,70 +80,45 @@ namespace ouzel
     {
     public:
         Variant() noexcept = default;
-        Variant(std::nullptr_t) noexcept: type(0) {}
-        Variant(First* value) noexcept: type(1), pointer(value) {}
-        Variant(Second* value) noexcept: type(2), pointer(value) {}
+        template <class T>
+        Variant(T value) noexcept: type(TypeId<T>::id), pointer(value) {}
 
-        Variant& operator=(std::nullptr_t) noexcept
+        template <class T>
+        Variant& operator=(T value) noexcept
         {
-            type = 0;
-            pointer = nullptr;
-            return *this;
-        }
-
-        Variant& operator=(First* value) noexcept
-        {
-            type = 1;
+            type = TypeId<T>::id;
             pointer = value;
             return *this;
         }
 
-        Variant& operator=(Second* value) noexcept
+        template <class T>
+        bool is() const noexcept { return type == TypeId<T>::id; }
+
+        template <class T>
+        const T get() const
         {
-            type = 2;
-            pointer = value;
-            return *this;
+            if (type != TypeId<T>::id) throw BadAccessError("Wrong type");
+            return static_cast<const T>(pointer);
         }
 
-        template <class T, typename std::enable_if<std::is_same<T, First>::value>::type* = nullptr>
-        bool is() const noexcept { return type == 1; }
-        template <class T, typename std::enable_if<std::is_same<T, Second>::value>::type* = nullptr>
-        bool is() const noexcept { return type == 2; }
-
-        template <class T, typename std::enable_if<std::is_same<T, First>::value>::type* = nullptr>
-        const First* get() const
+        template <class T>
+        T get()
         {
-            if (type != 1) throw BadAccessError("Wrong type");
-            return static_cast<const First*>(pointer);
-        }
-
-        template <class T, typename std::enable_if<std::is_same<T, Second>::value>::type* = nullptr>
-        const Second* get() const
-        {
-            if (type != 2) throw BadAccessError("Wrong type");
-            return static_cast<const Second*>(pointer);
-        }
-
-        template <class T, typename std::enable_if<std::is_same<T, First>::value>::type* = nullptr>
-        First* get()
-        {
-            if (type != 1) throw BadAccessError("Wrong type");
-            return static_cast<First*>(pointer);
-        }
-
-        template <class T, typename std::enable_if<std::is_same<T, Second>::value>::type* = nullptr>
-        Second* get()
-        {
-            if (type != 2) throw BadAccessError("Wrong type");
-            return static_cast<Second*>(pointer);
+            if (type != TypeId<T>::id) throw BadAccessError("Wrong type");
+            return static_cast<T>(pointer);
         }
 
     private:
+        template<typename T> struct TypeId;
+        template<> struct TypeId<std::nullptr_t> { static const size_t id = 0; };
+        template<> struct TypeId<First> { static const size_t id = 1; };
+        template<> struct TypeId<Second> { static const size_t id = 2; };
+
         size_t type = 0;
         void* pointer = nullptr;
     };
 
-    using DeclarationOrExpression = Variant<Declaration, Expression>;
+    using DeclarationOrExpression = Variant<Declaration*, Expression*>;
 
     class IfStatement final: public Statement
     {
