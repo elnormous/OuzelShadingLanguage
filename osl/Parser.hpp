@@ -118,7 +118,7 @@ namespace ouzel
             binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Inequality, boolType, floatType, floatType);
             binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Assignment, floatType, floatType, floatType);
 
-            for (size_t components = 2; components <= 4; ++components)
+            for (uint8_t components = 2; components <= 4; ++components)
             {
                 auto vectorType = addVectorType("float" + std::to_string(components),
                                                 floatType, components, declarationScopes);
