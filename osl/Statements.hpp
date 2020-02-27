@@ -45,7 +45,8 @@ namespace ouzel
     class ExpressionStatement final: public Statement
     {
     public:
-        ExpressionStatement() noexcept: Statement(Statement::Kind::Expression) {}
+        ExpressionStatement(const Expression* initExpression) noexcept:
+            Statement(Statement::Kind::Expression), expression(initExpression) {}
 
         const Expression* expression = nullptr;
     };
@@ -53,7 +54,8 @@ namespace ouzel
     class DeclarationStatement final: public Statement
     {
     public:
-        DeclarationStatement() noexcept: Statement(Statement::Kind::Declaration) {}
+        DeclarationStatement(const Declaration* initDeclaration) noexcept:
+            Statement(Statement::Kind::Declaration), declaration(initDeclaration) {}
 
         const Declaration* declaration = nullptr;
     };
@@ -191,7 +193,9 @@ namespace ouzel
     class DefaultStatement final: public Statement
     {
     public:
-        DefaultStatement() noexcept: Statement(Statement::Kind::Default) {}
+        DefaultStatement(const Statement* initBody) noexcept:
+            Statement(Statement::Kind::Default),
+            body(initBody) {}
 
         const Statement* body = nullptr;
     };
@@ -208,7 +212,11 @@ namespace ouzel
     class DoStatement final: public Statement
     {
     public:
-        DoStatement() noexcept: Statement(Statement::Kind::Do) {}
+        DoStatement(const Expression* initCondition,
+                    const Statement* initBody) noexcept:
+            Statement(Statement::Kind::Do),
+            condition(initCondition),
+            body(initBody) {}
 
         const Expression* condition = nullptr;
         const Statement* body = nullptr;
@@ -229,7 +237,9 @@ namespace ouzel
     class ReturnStatement final: public Statement
     {
     public:
-        ReturnStatement() noexcept: Statement(Statement::Kind::Return) {}
+        ReturnStatement(const Expression* initResult) noexcept:
+            Statement(Statement::Kind::Return),
+            result(initResult) {}
 
         const Expression* result = nullptr;
     };

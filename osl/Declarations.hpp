@@ -34,7 +34,9 @@ namespace ouzel
             Parameter
         };
 
-        Declaration(Kind initDeclarationKind): Construct(Construct::Kind::Declaration), declarationKind(initDeclarationKind) {}
+        Declaration(Kind initDeclarationKind):
+            Construct(Construct::Kind::Declaration),
+            declarationKind(initDeclarationKind) {}
 
         inline Kind getDeclarationKind() const noexcept { return declarationKind; }
 
@@ -97,7 +99,10 @@ namespace ouzel
             FloatingPoint
         };
 
-        ScalarType(Kind initScalarTypeKind): Type(Type::Kind::Scalar), scalarTypeKind(initScalarTypeKind)
+        ScalarType(Kind initScalarTypeKind, bool initIsUnsigned):
+            Type(Type::Kind::Scalar),
+            isUnsigned(initIsUnsigned),
+            scalarTypeKind(initScalarTypeKind)
         {
         }
 
@@ -261,7 +266,6 @@ namespace ouzel
     class TypeDeclaration final: public Declaration
     {
     public:
-
         TypeDeclaration() noexcept: Declaration(Declaration::Kind::Type) {}
 
         Type* type = nullptr;

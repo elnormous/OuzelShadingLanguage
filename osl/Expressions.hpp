@@ -72,14 +72,18 @@ namespace ouzel
     class BooleanLiteralExpression final: public LiteralExpression
     {
     public:
-        BooleanLiteralExpression() noexcept: LiteralExpression(LiteralExpression::Kind::Boolean) {}
+        BooleanLiteralExpression(bool initValue) noexcept:
+            LiteralExpression(LiteralExpression::Kind::Boolean),
+            value(initValue) {}
         bool value;
     };
 
     class IntegerLiteralExpression final: public LiteralExpression
     {
     public:
-        IntegerLiteralExpression() noexcept: LiteralExpression(LiteralExpression::Kind::Integer) {}
+        IntegerLiteralExpression(int64_t initValue) noexcept:
+            LiteralExpression(LiteralExpression::Kind::Integer),
+            value(initValue) {}
 
         int64_t value;
     };
@@ -87,7 +91,9 @@ namespace ouzel
     class FloatingPointLiteralExpression final: public LiteralExpression
     {
     public:
-        FloatingPointLiteralExpression() noexcept: LiteralExpression(LiteralExpression::Kind::FloatingPoint) {}
+        FloatingPointLiteralExpression(double initValue) noexcept:
+            LiteralExpression(LiteralExpression::Kind::FloatingPoint),
+            value(initValue) {}
 
         double value;
     };
@@ -95,7 +101,9 @@ namespace ouzel
     class StringLiteralExpression final: public LiteralExpression
     {
     public:
-        StringLiteralExpression(): LiteralExpression(LiteralExpression::Kind::String) {}
+        StringLiteralExpression(const std::string& initValue):
+            LiteralExpression(LiteralExpression::Kind::String),
+            value(initValue) {}
 
         std::string value;
     };
@@ -103,7 +111,9 @@ namespace ouzel
     class DeclarationReferenceExpression final: public Expression
     {
     public:
-        DeclarationReferenceExpression(): Expression(Expression::Kind::DeclarationReference) {}
+        DeclarationReferenceExpression(const Declaration* initDeclaration):
+            Expression(Expression::Kind::DeclarationReference),
+            declaration(initDeclaration) {}
 
         const Declaration* declaration = nullptr;
     };
@@ -120,7 +130,9 @@ namespace ouzel
     class ParenExpression final: public Expression
     {
     public:
-        ParenExpression() noexcept: Expression(Expression::Kind::Paren) {}
+        ParenExpression(const Expression* initExpression) noexcept:
+            Expression(Expression::Kind::Paren),
+            expression(initExpression) {}
 
         const Expression* expression = nullptr;
     };
@@ -128,7 +140,11 @@ namespace ouzel
     class MemberExpression final: public Expression
     {
     public:
-        MemberExpression() noexcept: Expression(Expression::Kind::Member) {}
+        MemberExpression(const Expression* initExpression,
+                         const FieldDeclaration* initFieldDeclaration) noexcept:
+            Expression(Expression::Kind::Member),
+            expression(initExpression),
+            fieldDeclaration(initFieldDeclaration) {}
 
         const Expression* expression = nullptr;
         const FieldDeclaration* fieldDeclaration = nullptr;
@@ -137,7 +153,11 @@ namespace ouzel
     class ArraySubscriptExpression final: public Expression
     {
     public:
-        ArraySubscriptExpression() noexcept: Expression(Expression::Kind::ArraySubscript) {}
+        ArraySubscriptExpression(const Expression* initExpression,
+                                 const Expression* initSubscript) noexcept:
+            Expression(Expression::Kind::ArraySubscript),
+            expression(initExpression),
+            subscript(initSubscript) {}
 
         const Expression* expression = nullptr;
         const Expression* subscript = nullptr;
@@ -157,8 +177,10 @@ namespace ouzel
             PostfixDecrement, // --
         };
 
-        UnaryOperatorExpression(Kind initOperatorKind) noexcept:
+        UnaryOperatorExpression(Kind initOperatorKind,
+                                const Expression* initExpression) noexcept:
             Expression(Expression::Kind::UnaryOperator),
+            expression(initExpression),
             operatorKind(initOperatorKind)
         {}
 
@@ -196,7 +218,12 @@ namespace ouzel
             Subscript // []
         };
 
-        BinaryOperatorExpression(Kind initOperatorKind) noexcept: Expression(Expression::Kind::BinaryOperator),
+        BinaryOperatorExpression(Kind initOperatorKind,
+                                 const Expression* initLeftExpression,
+                                 const Expression* initRightExpression) noexcept:
+            Expression(Expression::Kind::BinaryOperator),
+            leftExpression(initLeftExpression),
+            rightExpression(initRightExpression),
             operatorKind(initOperatorKind)
         {}
 
@@ -212,7 +239,13 @@ namespace ouzel
     class TernaryOperatorExpression final: public Expression
     {
     public:
-        TernaryOperatorExpression() noexcept: Expression(Expression::Kind::TernaryOperator) {}
+        TernaryOperatorExpression(const Expression* initCondition,
+                                  const Expression* initLeftExpression,
+                                  const Expression* initRightExpression) noexcept:
+            Expression(Expression::Kind::TernaryOperator),
+            condition(initCondition),
+            leftExpression(initLeftExpression),
+            rightExpression(initRightExpression) {}
 
         const Expression* condition;
         const Expression* leftExpression = nullptr;
@@ -246,7 +279,11 @@ namespace ouzel
             Static
         };
 
-        CastExpression(Kind initCastKind) noexcept: Expression(Expression::Kind::Cast), castKind(initCastKind) {}
+        CastExpression(Kind initCastKind,
+                       const Expression* initExpression) noexcept:
+            Expression(Expression::Kind::Cast),
+            expression(initExpression),
+            castKind(initCastKind) {}
 
         inline Kind getCastKind() const noexcept { return castKind; }
 
@@ -259,7 +296,13 @@ namespace ouzel
     class SizeofExpression final: public Expression
     {
     public:
-        SizeofExpression() noexcept: Expression(Expression::Kind::Sizeof) {}
+        SizeofExpression(const Expression* initExpression) noexcept:
+            Expression(Expression::Kind::Sizeof),
+            expression(initExpression) {}
+
+        SizeofExpression(const Type* initType) noexcept:
+            Expression(Expression::Kind::Sizeof),
+            type(initType) {}
 
         const Expression* expression;
         const Type* type;

@@ -40,7 +40,8 @@ namespace ouzel
     class BinormalAttribute final: public Attribute
     {
     public:
-        BinormalAttribute(): Attribute(Attribute::Kind::Binormal) {}
+        BinormalAttribute(size_t i) noexcept:
+            Attribute(Attribute::Kind::Binormal), n(i) {}
 
         size_t n = 0;
     };
@@ -48,7 +49,8 @@ namespace ouzel
     class BlendIndicesAttribute final: public Attribute
     {
     public:
-        BlendIndicesAttribute(): Attribute(Attribute::Kind::BlendIndices) {}
+        BlendIndicesAttribute(size_t i) noexcept:
+            Attribute(Attribute::Kind::BlendIndices), n(i) {}
 
         size_t n = 0;
     };
@@ -56,7 +58,8 @@ namespace ouzel
     class BlendWeightAttribute final: public Attribute
     {
     public:
-        BlendWeightAttribute(): Attribute(Attribute::Kind::BlendWeight) {}
+        BlendWeightAttribute(size_t i) noexcept:
+            Attribute(Attribute::Kind::BlendWeight), n(i) {}
 
         size_t n = 0;
     };
@@ -64,7 +67,8 @@ namespace ouzel
     class ColorAttribute final: public Attribute
     {
     public:
-        ColorAttribute(): Attribute(Attribute::Kind::Color) {}
+        ColorAttribute(size_t i) noexcept:
+            Attribute(Attribute::Kind::Color), n(i) {}
 
         size_t n = 0;
     };
@@ -72,7 +76,8 @@ namespace ouzel
     class DepthAttribute final: public Attribute
     {
     public:
-        DepthAttribute(): Attribute(Attribute::Kind::Depth) {}
+        DepthAttribute(size_t i) noexcept:
+            Attribute(Attribute::Kind::Depth), n(i) {}
 
         size_t n = 0;
     };
@@ -80,13 +85,14 @@ namespace ouzel
     class FogAttribute final: public Attribute
     {
     public:
-        FogAttribute(): Attribute(Attribute::Kind::Fog) {}
+        FogAttribute() noexcept: Attribute(Attribute::Kind::Fog) {}
     };
 
     class NormalAttribute final: public Attribute
     {
     public:
-        NormalAttribute(): Attribute(Attribute::Kind::Normal) {}
+        NormalAttribute(size_t i) noexcept:
+            Attribute(Attribute::Kind::Normal), n(i) {}
 
         size_t n = 0;
     };
@@ -94,7 +100,8 @@ namespace ouzel
     class PositionAttribute final: public Attribute
     {
     public:
-        PositionAttribute(): Attribute(Attribute::Kind::Position) {}
+        PositionAttribute(size_t i) noexcept:
+            Attribute(Attribute::Kind::Position), n(i) {}
 
         size_t n = 0;
     };
@@ -102,13 +109,14 @@ namespace ouzel
     class PositionTransformedAttribute final: public Attribute
     {
     public:
-        PositionTransformedAttribute(): Attribute(Attribute::Kind::PositionTransformed) {}
+        PositionTransformedAttribute() noexcept: Attribute(Attribute::Kind::PositionTransformed) {}
     };
 
     class PointSizeAttribute final: public Attribute
     {
     public:
-        PointSizeAttribute(): Attribute(Attribute::Kind::PointSize) {}
+        PointSizeAttribute(size_t i) noexcept:
+            Attribute(Attribute::Kind::PointSize), n(i) {}
 
         size_t n = 0;
     };
@@ -116,7 +124,8 @@ namespace ouzel
     class TangentAttribute final: public Attribute
     {
     public:
-        TangentAttribute(): Attribute(Attribute::Kind::Tangent) {}
+        TangentAttribute(size_t i) noexcept:
+            Attribute(Attribute::Kind::Tangent), n(i) {}
 
         size_t n = 0;
     };
@@ -124,7 +133,8 @@ namespace ouzel
     class TesselationFactorAttribute final: public Attribute
     {
     public:
-        TesselationFactorAttribute(): Attribute(Attribute::Kind::TesselationFactor) {}
+        TesselationFactorAttribute(size_t i) noexcept:
+            Attribute(Attribute::Kind::TesselationFactor), n(i) {}
 
         size_t n = 0;
     };
@@ -132,7 +142,8 @@ namespace ouzel
     class TextureCoordinatesAttribute final: public Attribute
     {
     public:
-        TextureCoordinatesAttribute(): Attribute(Attribute::Kind::TextureCoordinates) {}
+        TextureCoordinatesAttribute(size_t i) noexcept:
+            Attribute(Attribute::Kind::TextureCoordinates), n(i) {}
 
         size_t n = 0;
     };
