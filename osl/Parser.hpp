@@ -37,16 +37,16 @@ namespace ouzel
 
             addBuiltinFunctionDeclaration("discard", nullptr, {}, declarationScopes);
 
-            auto voidTypePtr = create<Type>(Type::Kind::Void, 0);
+            auto voidTypePtr = create<Type>(Type::Kind::Void);
             voidTypePtr->name = "void";
             voidType = voidTypePtr;
 
-            boolType = addScalarType("bool", ScalarType::Kind::Boolean, 1, false, declarationScopes);
-            intType = addScalarType("int", ScalarType::Kind::Integer, 4, false, declarationScopes);
-            uintType = addScalarType("uint", ScalarType::Kind::Integer, 4, true, declarationScopes);
-            floatType = addScalarType("float", ScalarType::Kind::FloatingPoint, 4, false, declarationScopes);
+            boolType = addScalarType("bool", ScalarType::Kind::Boolean, false, declarationScopes);
+            intType = addScalarType("int", ScalarType::Kind::Integer, false, declarationScopes);
+            uintType = addScalarType("uint", ScalarType::Kind::Integer, true, declarationScopes);
+            floatType = addScalarType("float", ScalarType::Kind::FloatingPoint, false, declarationScopes);
 
-            for (uint8_t components = 2; components <= 4; ++components)
+            for (size_t components = 2; components <= 4; ++components)
             {
                 auto vectorType = addVectorType("float" + std::to_string(components),
                                                 floatType, components, declarationScopes);
@@ -58,12 +58,12 @@ namespace ouzel
                 binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Multiplication, vectorType, vectorType, matrixType);
             }
 
-            stringType = addStructType("string", 8, declarationScopes);
-            auto texture2DType = addStructType("Texture2D", 0, declarationScopes);
+            stringType = addStructType("string", declarationScopes);
+            auto texture2DType = addStructType("Texture2D", declarationScopes);
 
             //addBuiltinFunctionDeclaration("sample", float4Type, {texture2DType, float2Type}, declarationScopes);
 
-            auto texture2DMSType = addStructType("Texture2DMS", 0, declarationScopes);
+            auto texture2DMSType = addStructType("Texture2DMS", declarationScopes);
 
             //addBuiltinFunctionDeclaration("load", float4Type, {texture2DMSType, float2Type}, declarationScopes);
 
@@ -681,7 +681,7 @@ namespace ouzel
             }
             else
             {
-                structType = create<StructType>(0);
+                structType = create<StructType>();
                 structType->name = result->name;
                 structType->declaration = result;
                 result->firstDeclaration = result;
@@ -718,8 +718,6 @@ namespace ouzel
                             throw ParseError("Redefinition of member " + memberDeclaration->name);
 
                         structType->memberDeclarations.push_back(memberDeclaration);
-
-                        structType->size += memberDeclaration->qualifiedType.type->size;
                     }
                 }
             }
@@ -1799,42 +1797,11 @@ namespace ouzel
                 return parseSignExpression(iterator, end, declarationScopes);
         }
 
-        Expression* parseSizeofExpression(std::vector<Token>::const_iterator& iterator,
-                                          std::vector<Token>::const_iterator end,
-                                          std::vector<std::vector<Declaration*>>& declarationScopes)
-        {
-            if (skipToken(Token::Type::Sizeof, iterator, end))
-            {
-                expectToken(Token::Type::LeftParenthesis, iterator, end);
-
-                if (iterator == end)
-                    throw ParseError("Unexpected end of file");
-
-                if (iterator->type == Token::Type::Void)
-                    throw ParseError("Parameter of sizeof can not be void");
-
-                SizeofExpression* result = nullptr;
-                if (isType(iterator, end, declarationScopes))
-                    result = create<SizeofExpression>(parseType(iterator, end, declarationScopes));
-                else
-                    result = create<SizeofExpression>(parseExpression(iterator, end, declarationScopes));
-
-                expectToken(Token::Type::RightParenthesis, iterator, end);
-
-                result->qualifiedType.type = uintType;
-                result->category = Expression::Category::Rvalue;
-
-                return result;
-            }
-            else
-                return parseNotExpression(iterator, end, declarationScopes);
-        }
-
         Expression* parseMultiplicationExpression(std::vector<Token>::const_iterator& iterator,
                                                   std::vector<Token>::const_iterator end,
                                                   std::vector<std::vector<Declaration*>>& declarationScopes)
         {
-            auto result = parseSizeofExpression(iterator, end, declarationScopes);
+            auto result = parseNotExpression(iterator, end, declarationScopes);
 
             while (isToken({Token::Type::Multiply, Token::Type::Divide}, iterator, end))
             {
@@ -1845,7 +1812,7 @@ namespace ouzel
 
                 ++iterator;
 
-                auto rightExpression = parseSizeofExpression(iterator, end, declarationScopes);
+                auto rightExpression = parseNotExpression(iterator, end, declarationScopes);
 
                 const auto& binaryOperator = getBinaryOperator(operatorKind,
                                                                result->qualifiedType.type,
@@ -2214,11 +2181,10 @@ namespace ouzel
 
         ScalarType* addScalarType(const std::string& name,
                                   ScalarType::Kind kind,
-                                  uint32_t size,
                                   bool isUnsigned,
                                   std::vector<std::vector<Declaration*>>& declarationScopes)
         {
-            auto scalarType = create<ScalarType>(kind, size, isUnsigned);
+            auto scalarType = create<ScalarType>(kind, isUnsigned);
             scalarType->name = name;
 
             if (kind == ScalarType::Kind::Boolean)
@@ -2259,10 +2225,9 @@ namespace ouzel
         }
 
         StructType* addStructType(const std::string& name,
-                                  uint32_t size,
                                   std::vector<std::vector<Declaration*>>& declarationScopes)
         {
-            StructType* structType = create<StructType>(size);
+            StructType* structType = create<StructType>();
             structType->name = name;
 
             binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Equality, boolType, structType, structType);

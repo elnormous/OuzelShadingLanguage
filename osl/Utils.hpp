@@ -66,7 +66,6 @@ namespace ouzel
             case Expression::Kind::TemporaryObject: return "TemporaryObject";
             case Expression::Kind::InitializerList: return "InitializerList";
             case Expression::Kind::Cast: return "Cast";
-            case Expression::Kind::Sizeof: return "Sizeof";
             case Expression::Kind::VectorInitialize: return "VectorInitialize";
             case Expression::Kind::VectorElement: return "VectorElement";
             case Expression::Kind::MatrixInitialize: return "MatrixInitialize";
@@ -762,19 +761,6 @@ namespace ouzel
 
                 dumpConstruct(castExpression->expression, level + 1);
 
-                break;
-            }
-            case Expression::Kind::Sizeof:
-            {
-                auto sizeofExpression = static_cast<const SizeofExpression*>(expression);
-
-                if (sizeofExpression->expression)
-                {
-                    std::cout << '\n';
-                    dumpConstruct(sizeofExpression->expression, level + 1);
-                }
-                else if (sizeofExpression->type)
-                    std::cout << ", type: " << sizeofExpression->type->name << '\n';
                 break;
             }
             case Expression::Kind::VectorInitialize:

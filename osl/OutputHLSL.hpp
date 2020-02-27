@@ -805,11 +805,6 @@ namespace ouzel
 
                     break;
                 }
-                case Expression::Kind::Sizeof:
-                {
-                    // TODO: implement
-                    break;
-                }
                 case Expression::Kind::VectorInitialize:
                 {
                     // TODO: implement

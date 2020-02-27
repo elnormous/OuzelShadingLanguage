@@ -66,14 +66,12 @@ namespace ouzel
             Matrix
         };
 
-        Type(Kind initTypeKind, size_t initSize):
-            typeKind(initTypeKind),
-            size(initSize) {}
+        Type(Kind initTypeKind):
+            typeKind(initTypeKind) {}
 
         inline Kind getTypeKind() const noexcept { return typeKind; }
 
         std::string name;
-        size_t size = 0;
         TypeDeclaration* declaration = nullptr;
 
     private:
@@ -83,13 +81,13 @@ namespace ouzel
     class ArrayType final: public Type
     {
     public:
-        ArrayType(QualifiedType initElementType, size_t initCount):
-            Type(Type::Kind::Array, initElementType.type->size * initCount),
+        ArrayType(QualifiedType initElementType, size_t initSize):
+            Type(Type::Kind::Array),
             elementType(initElementType),
-            count(initCount) {}
+            size(initSize) {}
 
         QualifiedType elementType;
-        size_t count = 0;
+        size_t size = 0;
     };
 
     class ScalarType final: public Type
@@ -102,8 +100,8 @@ namespace ouzel
             FloatingPoint
         };
 
-        ScalarType(Kind initScalarTypeKind, size_t initSize, bool initIsUnsigned):
-            Type(Type::Kind::Scalar, initSize),
+        ScalarType(Kind initScalarTypeKind, bool initIsUnsigned):
+            Type(Type::Kind::Scalar),
             isUnsigned(initIsUnsigned),
             scalarTypeKind(initScalarTypeKind)
         {
@@ -191,7 +189,7 @@ namespace ouzel
     class StructType final: public Type
     {
     public:
-        StructType(size_t initSize): Type(Type::Kind::Struct, initSize) {}
+        StructType(): Type(Type::Kind::Struct) {}
 
         ConstructorDeclaration* findConstructorDeclaration(const std::vector<QualifiedType>& parameters) const noexcept
         {
@@ -236,7 +234,7 @@ namespace ouzel
     public:
         VectorType(const ScalarType* initComponentType,
                    size_t initComponentCount):
-            Type(Type::Kind::Vector, initComponentType->size * initComponentCount),
+            Type(Type::Kind::Vector),
             componentType(initComponentType),
             componentCount(initComponentCount) {}
 
@@ -250,7 +248,7 @@ namespace ouzel
         MatrixType(const ScalarType* initComponentType,
                    size_t initRowCount,
                    size_t initColumnCount):
-            Type(Type::Kind::Matrix, initComponentType->size * initRowCount * initColumnCount),
+            Type(Type::Kind::Matrix),
             componentType(initComponentType),
             rowCount(initRowCount),
             columnCount(initColumnCount) {}

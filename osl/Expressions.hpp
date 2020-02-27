@@ -27,7 +27,6 @@ namespace ouzel
             TemporaryObject,
             InitializerList,
             Cast,
-            Sizeof,
             VectorInitialize,
             VectorElement,
             MatrixInitialize
@@ -291,23 +290,6 @@ namespace ouzel
 
     private:
         const Kind castKind;
-    };
-
-    using TypeOrExpression = Variant<Type*, Expression*>;
-
-    class SizeofExpression final: public Expression
-    {
-    public:
-        SizeofExpression(const Expression* initExpression) noexcept:
-            Expression(Expression::Kind::Sizeof),
-            expression(initExpression) {}
-
-        SizeofExpression(const Type* initType) noexcept:
-            Expression(Expression::Kind::Sizeof),
-            type(initType) {}
-
-        const Expression* expression;
-        const Type* type;
     };
 
     class VectorInitializeExpression final: public Expression
