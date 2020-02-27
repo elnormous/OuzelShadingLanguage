@@ -27,7 +27,7 @@ namespace ouzel
 
         inline Kind getKind() const noexcept { return kind; }
 
-    protected:
+    private:
         const Kind kind;
     };
 }

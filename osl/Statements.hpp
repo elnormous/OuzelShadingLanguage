@@ -38,7 +38,7 @@ namespace ouzel
 
         inline Kind getStatementKind() const noexcept { return statementKind; }
 
-    protected:
+    private:
         const Kind statementKind;
     };
 

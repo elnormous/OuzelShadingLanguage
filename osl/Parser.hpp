@@ -37,7 +37,7 @@ namespace ouzel
 
             addBuiltinFunctionDeclaration("discard", nullptr, {}, declarationScopes);
 
-            auto voidTypePtr = create<Type>(Type::Kind::Void);
+            auto voidTypePtr = create<Type>(Type::Kind::Void, 0);
             voidTypePtr->name = "void";
             voidType = voidTypePtr;
 
@@ -329,20 +329,19 @@ namespace ouzel
             }
         }
 
-        const ArrayType* getArrayType(const Type* type, size_t size)
+        const ArrayType* getArrayType(const Type* type, size_t count)
         {
             QualifiedType qualifiedType;
             qualifiedType.type = type;
 
-            auto i = arrayTypes.find(std::make_pair(qualifiedType, size));
+            auto i = arrayTypes.find(std::make_pair(qualifiedType, count));
 
             if (i == arrayTypes.end())
             {
-                auto result = create<ArrayType>();
+                auto result = create<ArrayType>(qualifiedType, count);
                 result->elementType = qualifiedType;
-                result->size = size;
 
-                arrayTypes[std::make_pair(qualifiedType, size)] = result;
+                arrayTypes[std::make_pair(qualifiedType, count)] = result;
                 return result;
             }
             else
@@ -682,7 +681,7 @@ namespace ouzel
             }
             else
             {
-                structType = create<StructType>();
+                structType = create<StructType>(0);
                 structType->name = result->name;
                 structType->declaration = result;
                 result->firstDeclaration = result;
@@ -719,6 +718,8 @@ namespace ouzel
                             throw ParseError("Redefinition of member " + memberDeclaration->name);
 
                         structType->memberDeclarations.push_back(memberDeclaration);
+
+                        structType->size += memberDeclaration->qualifiedType.type->size;
                     }
                 }
             }
@@ -2217,9 +2218,8 @@ namespace ouzel
                                   bool isUnsigned,
                                   std::vector<std::vector<Declaration*>>& declarationScopes)
         {
-            auto scalarType = create<ScalarType>(kind, isUnsigned);
+            auto scalarType = create<ScalarType>(kind, size, isUnsigned);
             scalarType->name = name;
-            scalarType->size = size;
 
             if (kind == ScalarType::Kind::Boolean)
             {
@@ -2262,9 +2262,8 @@ namespace ouzel
                                   uint32_t size,
                                   std::vector<std::vector<Declaration*>>& declarationScopes)
         {
-            StructType* structType = create<StructType>();
+            StructType* structType = create<StructType>(size);
             structType->name = name;
-            structType->size = size;
 
             binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Equality, boolType, structType, structType);
             binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Inequality, boolType, structType, structType);
@@ -2278,11 +2277,8 @@ namespace ouzel
                                   uint8_t componentCount,
                                   std::vector<std::vector<Declaration*>>& declarationScopes)
         {
-            VectorType* vectorType = create<VectorType>();
+            VectorType* vectorType = create<VectorType>(componentType, componentCount);
             vectorType->name = name;
-            vectorType->size = componentType->size * componentCount;
-            vectorType->componentType = componentType;
-            vectorType->componentCount = componentCount;
 
             vectorTypes[std::make_pair(componentType, componentCount)] = vectorType;
 
@@ -2312,12 +2308,8 @@ namespace ouzel
                                   uint8_t columnCount,
                                   std::vector<std::vector<Declaration*>>& declarationScopes)
         {
-            MatrixType* matrixType = create<MatrixType>();
+            MatrixType* matrixType = create<MatrixType>(componentType, rowCount, columnCount);
             matrixType->name = name;
-            matrixType->size = componentType->size * rowCount * columnCount;
-            matrixType->componentType = componentType;
-            matrixType->rowCount = rowCount;
-            matrixType->columnCount = columnCount;
 
             unaryOperators.emplace_back(UnaryOperatorExpression::Kind::Positive, matrixType, matrixType);
             unaryOperators.emplace_back(UnaryOperatorExpression::Kind::Negative, matrixType, matrixType);

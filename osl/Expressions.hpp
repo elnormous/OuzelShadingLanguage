@@ -46,7 +46,7 @@ namespace ouzel
         QualifiedType qualifiedType;
         Category category = Category::Rvalue;
 
-    protected:
+    private:
         const Kind expressionKind;
     };
 
@@ -65,7 +65,7 @@ namespace ouzel
 
         inline Kind getLiteralKind() const noexcept { return literalKind; }
 
-    protected:
+    private:
         const Kind literalKind;
     };
 
@@ -289,7 +289,7 @@ namespace ouzel
 
         const Expression* expression;
 
-    protected:
+    private:
         const Kind castKind;
     };
 

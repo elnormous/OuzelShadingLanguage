@@ -47,7 +47,7 @@ namespace ouzel
         Declaration* definition = nullptr;
         std::vector<Attribute*> attributes;
 
-    protected:
+    private:
         const Kind declarationKind;
     };
 
@@ -66,27 +66,30 @@ namespace ouzel
             Matrix
         };
 
-        Type(Kind initTypeKind): typeKind(initTypeKind) {}
+        Type(Kind initTypeKind, size_t initSize):
+            typeKind(initTypeKind),
+            size(initSize) {}
 
         inline Kind getTypeKind() const noexcept { return typeKind; }
 
         std::string name;
-        uint32_t size = 0;
+        size_t size = 0;
         TypeDeclaration* declaration = nullptr;
 
-    protected:
+    private:
         Kind typeKind;
     };
 
     class ArrayType final: public Type
     {
     public:
-        ArrayType(): Type(Type::Kind::Array)
-        {
-        }
+        ArrayType(QualifiedType initElementType, size_t initCount):
+            Type(Type::Kind::Array, initElementType.type->size * initCount),
+            elementType(initElementType),
+            count(initCount) {}
 
         QualifiedType elementType;
-        size_t size = 0;
+        size_t count = 0;
     };
 
     class ScalarType final: public Type
@@ -99,8 +102,8 @@ namespace ouzel
             FloatingPoint
         };
 
-        ScalarType(Kind initScalarTypeKind, bool initIsUnsigned):
-            Type(Type::Kind::Scalar),
+        ScalarType(Kind initScalarTypeKind, size_t initSize, bool initIsUnsigned):
+            Type(Type::Kind::Scalar, initSize),
             isUnsigned(initIsUnsigned),
             scalarTypeKind(initScalarTypeKind)
         {
@@ -110,7 +113,7 @@ namespace ouzel
 
         bool isUnsigned = false;
 
-    protected:
+    private:
         const Kind scalarTypeKind;
     };
 
@@ -159,7 +162,7 @@ namespace ouzel
         std::vector<ParameterDeclaration*> parameterDeclarations;
         const Statement* body = nullptr;
 
-    protected:
+    private:
         const Kind callableDeclarationKind;
     };
 
@@ -188,7 +191,7 @@ namespace ouzel
     class StructType final: public Type
     {
     public:
-        StructType(): Type(Type::Kind::Struct) {}
+        StructType(size_t initSize): Type(Type::Kind::Struct, initSize) {}
 
         ConstructorDeclaration* findConstructorDeclaration(const std::vector<QualifiedType>& parameters) const noexcept
         {
@@ -202,18 +205,14 @@ namespace ouzel
                     {
                         ConstructorDeclaration* constructorDeclaration = static_cast<ConstructorDeclaration*>(callableDeclaration);
 
-                        if (constructorDeclaration->parameterDeclarations.size() == parameters.size())
-                        {
-                            if (std::equal(parameters.begin(), parameters.end(),
-                                           constructorDeclaration->parameterDeclarations.begin(),
-                                           [](const QualifiedType& qualifiedType,
-                                              const ParameterDeclaration* parameterDeclaration) {
-                                               return qualifiedType.type == parameterDeclaration->qualifiedType.type; // TODO: overload resolution
-                                           }))
-                            {
-                                return constructorDeclaration;
-                            }
-                        }
+                        if (constructorDeclaration->parameterDeclarations.size() == parameters.size() &&
+                            std::equal(parameters.begin(), parameters.end(),
+                                       constructorDeclaration->parameterDeclarations.begin(),
+                                       [](const QualifiedType& qualifiedType,
+                                          const ParameterDeclaration* parameterDeclaration) {
+                                           return qualifiedType.type == parameterDeclaration->qualifiedType.type; // TODO: overload resolution
+                                       }))
+                            return constructorDeclaration;
                     }
                 }
             }
@@ -235,16 +234,26 @@ namespace ouzel
     class VectorType final: public Type
     {
     public:
-        VectorType(): Type(Type::Kind::Vector) {}
+        VectorType(const ScalarType* initComponentType,
+                   size_t initComponentCount):
+            Type(Type::Kind::Vector, initComponentType->size * initComponentCount),
+            componentType(initComponentType),
+            componentCount(initComponentCount) {}
 
         const ScalarType* componentType = nullptr;
-        uint8_t componentCount = 1;
+        size_t componentCount = 1;
     };
 
     class MatrixType final: public Type
     {
     public:
-        MatrixType(): Type(Type::Kind::Matrix) {}
+        MatrixType(const ScalarType* initComponentType,
+                   size_t initRowCount,
+                   size_t initColumnCount):
+            Type(Type::Kind::Matrix, initComponentType->size * initRowCount * initColumnCount),
+            componentType(initComponentType),
+            rowCount(initRowCount),
+            columnCount(initColumnCount) {}
 
         const ScalarType* componentType = nullptr;
         uint8_t rowCount = 1;

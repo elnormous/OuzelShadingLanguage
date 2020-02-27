@@ -33,7 +33,7 @@ namespace ouzel
 
         inline Kind getAttributeKind() const noexcept { return attributeKind; }
 
-    protected:
+    private:
         const Kind attributeKind;
     };
 

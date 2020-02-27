@@ -28,7 +28,7 @@ namespace ouzel
 
         virtual std::string output(const ASTContext& context, bool whitespaces) = 0;
 
-    protected:
+    private:
         Program program;
         std::string mainFunction;
     };
