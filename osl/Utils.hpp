@@ -232,6 +232,17 @@ namespace ouzel
         throw std::runtime_error("Unknown input modifier");
     }
 
+	inline std::string toString(Expression::Category category)
+	{
+		switch (category)
+		{
+			case Expression::Category::Lvalue: return "Lvalue";
+			case Expression::Category::Rvalue: return "Rvalue";
+		}
+
+		throw std::runtime_error("Unknown category");
+	}
+
     inline std::string getPrintableTypeName(const QualifiedType& qualifiedType)
     {
         std::string result;
@@ -583,15 +594,6 @@ namespace ouzel
 
             default:
                 break;
-        }
-    }
-
-    inline std::string toString(Expression::Category category)
-    {
-        switch (category)
-        {
-            case Expression::Category::Lvalue: return "Lvalue";
-            case Expression::Category::Rvalue: return "Rvalue";
         }
     }
 
