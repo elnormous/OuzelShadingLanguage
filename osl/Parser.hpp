@@ -2601,9 +2601,11 @@ namespace ouzel
 
                 auto rightExpression = parseTernaryExpression(iterator, end, declarationScopes);
 
+                if (leftExpression->qualifiedType.type != rightExpression->qualifiedType.type)
+                    throw ParseError("Incompatible operand types");
+
                 expression->leftExpression = leftExpression;
                 expression->rightExpression = rightExpression;
-                // TODO: fix this
                 expression->qualifiedType = expression->leftExpression->qualifiedType;
                 expression->category = (expression->leftExpression->category == Expression::Category::Lvalue &&
                                         expression->rightExpression->category == Expression::Category::Lvalue) ?
