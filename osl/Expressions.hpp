@@ -293,6 +293,8 @@ namespace ouzel
         const Kind castKind;
     };
 
+    using TypeOrExpression = Variant<Type*, Expression*>;
+
     class SizeofExpression final: public Expression
     {
     public:
