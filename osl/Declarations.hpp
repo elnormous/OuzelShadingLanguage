@@ -35,18 +35,22 @@ namespace ouzel
         };
 
         Declaration(Kind initDeclarationKind,
-                    const QualifiedType& initQualifiedType):
+                    const QualifiedType& initQualifiedType,
+                    std::vector<const Attribute*> initAttributes = {}):
             Construct(Construct::Kind::Declaration),
             qualifiedType(initQualifiedType),
-            declarationKind(initDeclarationKind) {}
+            declarationKind(initDeclarationKind),
+            attributes(std::move(initAttributes)) {}
 
         Declaration(Kind initDeclarationKind,
                     const std::string& initName,
-                    const QualifiedType& initQualifiedType):
+                    const QualifiedType& initQualifiedType,
+                    std::vector<const Attribute*> initAttributes = {}):
             Construct(Construct::Kind::Declaration),
             name(initName),
             qualifiedType(initQualifiedType),
-            declarationKind(initDeclarationKind) {}
+            declarationKind(initDeclarationKind),
+            attributes(std::move(initAttributes)) {}
 
         inline Kind getDeclarationKind() const noexcept { return declarationKind; }
 
@@ -55,7 +59,7 @@ namespace ouzel
         Declaration* firstDeclaration = nullptr;
         Declaration* previousDeclaration = nullptr;
         Declaration* definition = nullptr;
-        std::vector<Attribute*> attributes;
+        std::vector<const Attribute*> attributes;
 
     private:
         const Kind declarationKind;
@@ -137,7 +141,7 @@ namespace ouzel
     public:
         FieldDeclaration(const std::string& initName,
                          const QualifiedType& initQualifiedType) noexcept:
-            Declaration(Declaration::Kind::Field, initName, initQualifiedType)
+            Declaration(Declaration::Kind::Field, initName, initQualifiedType, {})
         {
             definition = this;
         }
@@ -155,7 +159,7 @@ namespace ouzel
     public:
         ParameterDeclaration(const QualifiedType& initQualifiedType,
                              InputModifier initInputModifier) noexcept:
-            Declaration(Declaration::Kind::Parameter, initQualifiedType),
+            Declaration(Declaration::Kind::Parameter, initQualifiedType, {}),
             inputModifier(initInputModifier)
         {
             definition = this;
@@ -164,7 +168,7 @@ namespace ouzel
         ParameterDeclaration(const std::string& initName,
                              const QualifiedType& initQualifiedType,
                              InputModifier initInputModifier) noexcept:
-            Declaration(Declaration::Kind::Parameter, initName, initQualifiedType),
+            Declaration(Declaration::Kind::Parameter, initName, initQualifiedType, {}),
             inputModifier(initInputModifier)
         {
             definition = this;
@@ -186,8 +190,9 @@ namespace ouzel
         CallableDeclaration(Kind initCallableDeclarationKind,
                             const QualifiedType& initQualifiedType,
                             StorageClass initStorageClass,
+                            std::vector<const Attribute*> initAttributes,
                             std::vector<ParameterDeclaration*> initParameterDeclarations):
-            Declaration(Declaration::Kind::Callable, initQualifiedType),
+            Declaration(Declaration::Kind::Callable, initQualifiedType, std::move(initAttributes)),
             callableDeclarationKind(initCallableDeclarationKind),
             storageClass(initStorageClass),
             parameterDeclarations(std::move(initParameterDeclarations)) {}
@@ -196,8 +201,9 @@ namespace ouzel
                             const std::string& initName,
                             const QualifiedType& initQualifiedType,
                             StorageClass initStorageClass,
+                            std::vector<const Attribute*> initAttributes,
                             std::vector<ParameterDeclaration*> initParameterDeclarations):
-            Declaration(Declaration::Kind::Callable, initName, initQualifiedType),
+            Declaration(Declaration::Kind::Callable, initName, initQualifiedType, std::move(initAttributes)),
             callableDeclarationKind(initCallableDeclarationKind),
             storageClass(initStorageClass),
             parameterDeclarations(std::move(initParameterDeclarations)) {}
@@ -218,11 +224,13 @@ namespace ouzel
         FunctionDeclaration(const std::string& initName,
                             const QualifiedType& initQualifiedType,
                             StorageClass initStorageClass,
+                            std::vector<const Attribute*> initAttributes,
                             std::vector<ParameterDeclaration*> initParameterDeclarations,
                             bool initIsBuiltin = false):
             CallableDeclaration(CallableDeclaration::Kind::Function, initName,
                                 initQualifiedType,
                                 initStorageClass,
+                                std::move(initAttributes),
                                 std::move(initParameterDeclarations)),
             isBuiltin(initIsBuiltin) {}
 
@@ -233,10 +241,12 @@ namespace ouzel
     {
     public:
         ConstructorDeclaration(StorageClass initStorageClass,
+                               std::vector<const Attribute*> initAttributes,
                                std::vector<ParameterDeclaration*> initParameterDeclarations):
             CallableDeclaration(CallableDeclaration::Kind::Constructor,
                                 QualifiedType{nullptr},
                                 initStorageClass,
+                                std::move(initAttributes),
                                 std::move(initParameterDeclarations)) {}
     };
 
@@ -246,11 +256,13 @@ namespace ouzel
         MethodDeclaration(const std::string& initName,
                           const QualifiedType& initQualifiedType,
                           StorageClass initStorageClass,
+                          std::vector<const Attribute*> initAttributes,
                           std::vector<ParameterDeclaration*> initParameterDeclarations,
                           bool initIsBuiltin = false):
             CallableDeclaration(CallableDeclaration::Kind::Method, initName,
                                 initQualifiedType,
                                 initStorageClass,
+                                std::move(initAttributes),
                                 std::move(initParameterDeclarations)),
             isBuiltin(initIsBuiltin) {}
 
@@ -339,7 +351,7 @@ namespace ouzel
                             const QualifiedType& initQualifiedType,
                             StorageClass initStorageClass,
                             const Expression* initInitialization = nullptr) noexcept:
-            Declaration(Declaration::Kind::Variable, initName, initQualifiedType),
+            Declaration(Declaration::Kind::Variable, initName, initQualifiedType, {}),
             storageClass(initStorageClass),
             initialization(initInitialization)
         {
@@ -354,7 +366,7 @@ namespace ouzel
     {
     public:
         TypeDeclaration(const std::string& initName, Type* initType) noexcept:
-            Declaration(Declaration::Kind::Type, initName, QualifiedType{initType}),
+        Declaration(Declaration::Kind::Type, initName, QualifiedType{initType}, {}),
             type(initType) {}
 
         Type* type = nullptr;

@@ -533,8 +533,19 @@ namespace ouzel
             // TODO: forbid declaring a function with the same name as a declared type (not supported by GLSL)
             auto previousDeclaration = findFunctionDeclaration(name, declarationScopes, parameterTypes);
 
-            auto result = create<FunctionDeclaration>(name, QualifiedType{nullptr}, StorageClass::Auto, std::move(parameterDeclarations)); // TODO: fix
-            
+            const Type* type = nullptr;
+
+            if (skipToken(Token::Type::Colon, iterator, end))
+                type = parseType(iterator, end, declarationScopes);
+
+            std::vector<const Attribute*> attributes;
+
+            if (skipToken(Token::Type::Arrow, iterator, end))
+                while (isToken(Token::Type::Identifier, iterator, end))
+                    attributes.push_back(parseAttribute(iterator, end));
+
+            auto result = create<FunctionDeclaration>(name, QualifiedType{type}, StorageClass::Auto, std::move(attributes), std::move(parameterDeclarations));
+
             if (previousDeclaration)
             {
                 result->previousDeclaration = previousDeclaration;
@@ -543,13 +554,6 @@ namespace ouzel
             }
             else
                 result->firstDeclaration = result;
-
-            if (skipToken(Token::Type::Colon, iterator, end))
-                result->qualifiedType.type = parseType(iterator, end, declarationScopes);
-
-            if (skipToken(Token::Type::Arrow, iterator, end))
-                while (isToken(Token::Type::Identifier, iterator, end))
-                    result->attributes.push_back(parseAttribute(iterator, end));
 
             declarationScopes.back().push_back(result);
 
@@ -2163,7 +2167,7 @@ namespace ouzel
                 parameterDeclarations.push_back(parameterDeclaration);
             }
 
-            auto functionDeclaration = create<FunctionDeclaration>(name, QualifiedType{resultType}, StorageClass::Auto, std::move(parameterDeclarations), true);
+            auto functionDeclaration = create<FunctionDeclaration>(name, QualifiedType{resultType}, StorageClass::Auto, std::vector<const Attribute*>{}, std::move(parameterDeclarations), true);
 
             declarationScopes.back().push_back(functionDeclaration);
 
