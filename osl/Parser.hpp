@@ -512,16 +512,15 @@ namespace ouzel
 
             expectToken(Token::Type::LeftParenthesis, iterator, end);
 
-            auto result = create<FunctionDeclaration>(name, QualifiedType{nullptr}, StorageClass::Auto); // TODO: fix
-
             std::vector<QualifiedType> parameterTypes;
+            std::vector<ParameterDeclaration*> parameterDeclarations;
 
             if (!isToken(Token::Type::RightParenthesis, iterator, end))
             {
                 for (;;)
                 {
                     auto parameterDeclaration = parseParameterDeclaration(iterator, end, declarationScopes);
-                    result->parameterDeclarations.push_back(parameterDeclaration);
+                    parameterDeclarations.push_back(parameterDeclaration);
                     parameterTypes.push_back(parameterDeclaration->qualifiedType);
 
                     if (!skipToken(Token::Type::Comma, iterator, end))
@@ -532,8 +531,10 @@ namespace ouzel
             expectToken(Token::Type::RightParenthesis, iterator, end);
 
             // TODO: forbid declaring a function with the same name as a declared type (not supported by GLSL)
-            auto previousDeclaration = findFunctionDeclaration(result->name, declarationScopes, parameterTypes);
+            auto previousDeclaration = findFunctionDeclaration(name, declarationScopes, parameterTypes);
 
+            auto result = create<FunctionDeclaration>(name, QualifiedType{nullptr}, StorageClass::Auto, std::move(parameterDeclarations)); // TODO: fix
+            
             if (previousDeclaration)
             {
                 result->previousDeclaration = previousDeclaration;
@@ -2154,13 +2155,15 @@ namespace ouzel
                                                            const std::vector<Type*>& parameters,
                                                            std::vector<std::vector<Declaration*>>& declarationScopes)
         {
-            auto functionDeclaration = create<FunctionDeclaration>(name, QualifiedType{resultType}, StorageClass::Auto, true);
+            std::vector<ParameterDeclaration*> parameterDeclarations;
 
             for (auto parameter : parameters)
             {
                 auto parameterDeclaration = create<ParameterDeclaration>(QualifiedType{parameter}, InputModifier::In);
-                functionDeclaration->parameterDeclarations.push_back(parameterDeclaration);
+                parameterDeclarations.push_back(parameterDeclaration);
             }
+
+            auto functionDeclaration = create<FunctionDeclaration>(name, QualifiedType{resultType}, StorageClass::Auto, std::move(parameterDeclarations), true);
 
             declarationScopes.back().push_back(functionDeclaration);
 

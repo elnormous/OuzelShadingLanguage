@@ -185,18 +185,22 @@ namespace ouzel
 
         CallableDeclaration(Kind initCallableDeclarationKind,
                             const QualifiedType& initQualifiedType,
-                            StorageClass initStorageClass):
+                            StorageClass initStorageClass,
+                            std::vector<ParameterDeclaration*> initParameterDeclarations):
             Declaration(Declaration::Kind::Callable, initQualifiedType),
             callableDeclarationKind(initCallableDeclarationKind),
-            storageClass(initStorageClass) {}
+            storageClass(initStorageClass),
+            parameterDeclarations(std::move(initParameterDeclarations)) {}
 
         CallableDeclaration(Kind initCallableDeclarationKind,
                             const std::string& initName,
                             const QualifiedType& initQualifiedType,
-                            StorageClass initStorageClass):
+                            StorageClass initStorageClass,
+                            std::vector<ParameterDeclaration*> initParameterDeclarations):
             Declaration(Declaration::Kind::Callable, initName, initQualifiedType),
             callableDeclarationKind(initCallableDeclarationKind),
-            storageClass(initStorageClass) {}
+            storageClass(initStorageClass),
+            parameterDeclarations(std::move(initParameterDeclarations)) {}
 
         inline Kind getCallableDeclarationKind() const { return callableDeclarationKind; }
 
@@ -214,10 +218,12 @@ namespace ouzel
         FunctionDeclaration(const std::string& initName,
                             const QualifiedType& initQualifiedType,
                             StorageClass initStorageClass,
+                            std::vector<ParameterDeclaration*> initParameterDeclarations,
                             bool initIsBuiltin = false):
             CallableDeclaration(CallableDeclaration::Kind::Function, initName,
                                 initQualifiedType,
-                                initStorageClass),
+                                initStorageClass,
+                                std::move(initParameterDeclarations)),
             isBuiltin(initIsBuiltin) {}
 
         bool isBuiltin = false;
@@ -226,10 +232,12 @@ namespace ouzel
     class ConstructorDeclaration final: public CallableDeclaration
     {
     public:
-        ConstructorDeclaration(StorageClass initStorageClass):
+        ConstructorDeclaration(StorageClass initStorageClass,
+                               std::vector<ParameterDeclaration*> initParameterDeclarations):
             CallableDeclaration(CallableDeclaration::Kind::Constructor,
                                 QualifiedType{nullptr},
-                                initStorageClass) {}
+                                initStorageClass,
+                                std::move(initParameterDeclarations)) {}
     };
 
     class MethodDeclaration final: public CallableDeclaration
@@ -238,10 +246,12 @@ namespace ouzel
         MethodDeclaration(const std::string& initName,
                           const QualifiedType& initQualifiedType,
                           StorageClass initStorageClass,
+                          std::vector<ParameterDeclaration*> initParameterDeclarations,
                           bool initIsBuiltin = false):
             CallableDeclaration(CallableDeclaration::Kind::Method, initName,
                                 initQualifiedType,
-                                initStorageClass),
+                                initStorageClass,
+                                std::move(initParameterDeclarations)),
             isBuiltin(initIsBuiltin) {}
 
         bool isBuiltin = false;
