@@ -478,15 +478,6 @@ namespace ouzel
                     code += ";";
                     break;
                 }
-
-                case Statement::Kind::Value:
-                {
-                    if (options.whitespaces) code.append(options.indentation, ' ');
-
-                    auto valueStatement = static_cast<const ValueStatement*>(statement);
-                    printConstruct(valueStatement->expression, Options(0, options.whitespaces), code);
-                    break;
-                }
             }
         }
 

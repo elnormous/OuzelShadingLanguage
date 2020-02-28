@@ -31,8 +31,7 @@ namespace ouzel
             Do,
             Break,
             Continue,
-            Return,
-            Value
+            Return
         };
 
         Statement(Kind initStatementKind) noexcept: Construct(Construct::Kind::Statement), statementKind(initStatementKind) {}
@@ -64,7 +63,9 @@ namespace ouzel
     class CompoundStatement final: public Statement
     {
     public:
-        CompoundStatement() noexcept: Statement(Statement::Kind::Compound) {}
+        CompoundStatement(std::vector<const Statement*> initStatements):
+            Statement(Statement::Kind::Compound),
+            statements(std::move(initStatements)) {}
 
         std::vector<const Statement*> statements;
     };
@@ -72,9 +73,15 @@ namespace ouzel
     class IfStatement final: public Statement
     {
     public:
-        IfStatement() noexcept: Statement(Statement::Kind::If) {}
+        IfStatement(const Construct* initCondition,
+                    const Statement* initBody,
+                    const Statement* initElseBody) noexcept:
+            Statement(Statement::Kind::If),
+            condition(initCondition),
+            body(initBody),
+            elseBody(initElseBody) {}
 
-        const Statement* condition;
+        const Construct* condition = nullptr;
         const Statement* body = nullptr;
         const Statement* elseBody = nullptr;
     };
@@ -82,10 +89,18 @@ namespace ouzel
     class ForStatement final: public Statement
     {
     public:
-        ForStatement() noexcept: Statement(Statement::Kind::For) {}
+        ForStatement(const Construct* initInitialization,
+                     const Construct* initCondition,
+                     const Expression* initIncrement,
+                     const Statement* initBody) noexcept:
+            Statement(Statement::Kind::For),
+            initialization(initInitialization),
+            condition(initCondition),
+            increment(initIncrement),
+            body(initBody) {}
 
-        const Statement* initialization;
-        const Statement* condition;
+        const Construct* initialization = nullptr;
+        const Construct* condition = nullptr;
         const Expression* increment = nullptr;
         const Statement* body = nullptr;
     };
@@ -93,16 +108,24 @@ namespace ouzel
     class SwitchStatement final: public Statement
     {
     public:
-        SwitchStatement() noexcept: Statement(Statement::Kind::Switch) {}
+        SwitchStatement(const Construct* initCondition,
+                        const Statement* initBody) noexcept:
+            Statement(Statement::Kind::Switch),
+            condition(initCondition),
+            body(initBody) {}
 
-        const Statement* condition;
+        const Construct* condition = nullptr;
         const Statement* body = nullptr;
     };
 
     class CaseStatement final: public Statement
     {
     public:
-        CaseStatement() noexcept: Statement(Statement::Kind::Case) {}
+        CaseStatement(const Expression* initCondition,
+                      const Statement* initBody) noexcept:
+            Statement(Statement::Kind::Case),
+            condition(initCondition),
+            body(initBody) {}
 
         const Expression* condition = nullptr;
         const Statement* body = nullptr;
@@ -121,9 +144,13 @@ namespace ouzel
     class WhileStatement final: public Statement
     {
     public:
-        WhileStatement() noexcept: Statement(Statement::Kind::While) {}
+        WhileStatement(const Construct* initCondition,
+                       const Statement* initBody) noexcept:
+            Statement(Statement::Kind::While),
+            condition(initCondition),
+            body(initBody) {}
 
-        const Statement* condition;
+        const Construct* condition = nullptr;
         const Statement* body = nullptr;
     };
 
@@ -160,15 +187,6 @@ namespace ouzel
             result(initResult) {}
 
         const Expression* result = nullptr;
-    };
-
-    class ValueStatement final: public Statement
-    {
-    public:
-        ValueStatement(const Expression* initExpression) noexcept:
-            Statement(Statement::Kind::Value), expression(initExpression) {}
-
-        const Expression* expression = nullptr;
     };
 }
 

@@ -705,7 +705,6 @@ namespace ouzel
                 }
 
                 for (;;)
-                {
                     if (skipToken(Token::Type::RightBrace, iterator, end))
                         break;
                     else
@@ -719,7 +718,6 @@ namespace ouzel
 
                         structType->memberDeclarations.push_back(memberDeclaration);
                     }
-                }
             }
 
             return result;
@@ -876,22 +874,17 @@ namespace ouzel
 
             declarationScopes.push_back(std::vector<Declaration*>());
 
-            auto result = create<CompoundStatement>();
+            std::vector<const Statement*> statements;
 
             for (;;)
-            {
                 if (skipToken(Token::Type::RightBrace, iterator, end))
                     break;
                 else
-                {
-                    auto statement = parseStatement(iterator, end, declarationScopes, returnStatements);
-                    result->statements.push_back(statement);
-                }
-            }
+                    statements.push_back(parseStatement(iterator, end, declarationScopes, returnStatements));
 
             declarationScopes.pop_back();
 
-            return result;
+            return create<CompoundStatement>(std::move(statements));
         }
 
         IfStatement* parseIfStatement(std::vector<Token>::const_iterator& iterator,
@@ -902,7 +895,7 @@ namespace ouzel
             expectToken(Token::Type::If, iterator, end);
             expectToken(Token::Type::LeftParenthesis, iterator, end);
 
-            auto result = create<IfStatement>();
+            const Construct* condition = nullptr;
 
             if (isDeclaration(iterator, end))
             {
@@ -912,26 +905,26 @@ namespace ouzel
                     declaration->getDeclarationKind() != Declaration::Kind::Parameter)
                     throw ParseError("Expected a variable declaration");
 
-                result->condition = create<DeclarationStatement>(declaration);
+                condition = declaration;
             }
             else
             {
-                auto condition = parseExpression(iterator, end, declarationScopes);
+                auto expression = parseExpression(iterator, end, declarationScopes);
 
-                if (!isBooleanType(condition->qualifiedType.type))
+                if (!isBooleanType(expression->qualifiedType.type))
                     throw ParseError("Condition is not a boolean");
 
-                result->condition = create<ValueStatement>(condition);
+                condition = expression;
             }
 
             expectToken(Token::Type::RightParenthesis, iterator, end);
 
-            result->body = parseStatement(iterator, end, declarationScopes, returnStatements);
+            auto body = parseStatement(iterator, end, declarationScopes, returnStatements);
 
-            if (skipToken(Token::Type::Else, iterator, end))
-                result->elseBody = parseStatement(iterator, end, declarationScopes, returnStatements);
+            const Statement* elseBody = (skipToken(Token::Type::Else, iterator, end)) ?
+                parseStatement(iterator, end, declarationScopes, returnStatements) : nullptr;
 
-            return result;
+            return create<IfStatement>(condition, body, elseBody);
         }
 
         ForStatement* parseForStatement(std::vector<Token>::const_iterator& iterator,
@@ -942,7 +935,7 @@ namespace ouzel
             expectToken(Token::Type::For, iterator, end);
             expectToken(Token::Type::LeftParenthesis, iterator, end);
 
-            auto result = create<ForStatement>();
+            const Construct* initialization = nullptr;
 
             if (isDeclaration(iterator, end))
             {
@@ -952,19 +945,20 @@ namespace ouzel
                     declaration->getDeclarationKind() != Declaration::Kind::Parameter)
                     throw ParseError("Expected a variable declaration");
 
-                result->initialization = create<DeclarationStatement>(declaration);
+                initialization = declaration;
 
                 expectToken(Token::Type::Semicolon, iterator, end);
             }
             else if (skipToken(Token::Type::Semicolon, iterator, end))
-                result->initialization = nullptr;
+                initialization = nullptr;
             else
             {
-                auto initialization = parseExpression(iterator, end, declarationScopes);
-                result->initialization = create<ValueStatement>(initialization);
+                initialization = parseExpression(iterator, end, declarationScopes);
 
                 expectToken(Token::Type::Semicolon, iterator, end);
             }
+
+            const Construct* condition = nullptr;
 
             if (isDeclaration(iterator, end))
             {
@@ -974,38 +968,37 @@ namespace ouzel
                     declaration->getDeclarationKind() != Declaration::Kind::Parameter)
                     throw ParseError("Expected a variable declaration");
 
-                result->condition = create<DeclarationStatement>(declaration);
+                condition = declaration;
 
                 expectToken(Token::Type::Semicolon, iterator, end);
             }
             else if (skipToken(Token::Type::Semicolon, iterator, end))
-                result->condition = nullptr;
+                condition = nullptr;
             else
             {
-                auto condition = parseExpression(iterator, end, declarationScopes);
+                auto expression = parseExpression(iterator, end, declarationScopes);
 
-                if (!isBooleanType(condition->qualifiedType.type))
+                if (!isBooleanType(expression->qualifiedType.type))
                     throw ParseError("Condition is not a boolean");
 
-                result->condition = create<ValueStatement>(condition);
+                condition = expression;
 
                 expectToken(Token::Type::Semicolon, iterator, end);
             }
 
+            const Expression* increment = nullptr;
+
             if (skipToken(Token::Type::RightParenthesis, iterator, end))
-                result->increment = nullptr;
+                increment = nullptr;
             else
             {
-                auto increment = parseExpression(iterator, end, declarationScopes);
-                result->increment = increment;
-
+                increment = parseExpression(iterator, end, declarationScopes);
                 expectToken(Token::Type::RightParenthesis, iterator, end);
             }
 
             auto body = parseStatement(iterator, end, declarationScopes, returnStatements);
-            result->body = body;
 
-            return result;
+            return create<ForStatement>(initialization, condition, increment, body);
         }
 
         SwitchStatement* parseSwitchStatement(std::vector<Token>::const_iterator& iterator,
@@ -1016,7 +1009,7 @@ namespace ouzel
             expectToken(Token::Type::Switch, iterator, end);
             expectToken(Token::Type::LeftParenthesis, iterator, end);
 
-            auto result = create<SwitchStatement>();
+            const Construct* condition = nullptr;
 
             if (isDeclaration(iterator, end))
             {
@@ -1030,24 +1023,23 @@ namespace ouzel
                 if (!isIntegerType(variableDeclaration->qualifiedType.type))
                     throw ParseError("Statement requires expression of integer type");
 
-                result->condition = create<DeclarationStatement>(declaration);
+                condition = declaration;
             }
             else
             {
-                auto condition = parseExpression(iterator, end, declarationScopes);
+                auto expression = parseExpression(iterator, end, declarationScopes);
 
-                if (!isIntegerType(condition->qualifiedType.type))
+                if (!isIntegerType(expression->qualifiedType.type))
                     throw ParseError("Statement requires expression of integer type");
 
-                result->condition = create<ValueStatement>(condition);
+                condition = expression;
             }
 
             expectToken(Token::Type::RightParenthesis, iterator, end);
 
             auto body = parseStatement(iterator, end, declarationScopes, returnStatements);
-            result->body = body;
 
-            return result;
+            return create<SwitchStatement>(condition, body);
         }
 
         CaseStatement* parseCaseStatement(std::vector<Token>::const_iterator& iterator,
@@ -1069,10 +1061,7 @@ namespace ouzel
 
             auto body = parseStatement(iterator, end, declarationScopes, returnStatements);
 
-            auto result = create<CaseStatement>();
-            result->condition = condition;
-            result->body = body;
-            return result;
+            return create<CaseStatement>(condition, body);
         }
 
         DefaultStatement* parseDefaultStatement(std::vector<Token>::const_iterator& iterator,
@@ -1094,7 +1083,7 @@ namespace ouzel
             expectToken(Token::Type::While, iterator, end);
             expectToken(Token::Type::LeftParenthesis, iterator, end);
 
-            auto result = create<WhileStatement>();
+            const Construct* condition = nullptr;
 
             if (isDeclaration(iterator, end))
             {
@@ -1104,24 +1093,23 @@ namespace ouzel
                     declaration->getDeclarationKind() != Declaration::Kind::Parameter)
                     throw ParseError("Expected a variable declaration");
 
-                result->condition = create<DeclarationStatement>(declaration);
+                condition = declaration;
             }
             else
             {
-                auto condition = parseExpression(iterator, end, declarationScopes);
+                auto expression = parseExpression(iterator, end, declarationScopes);
 
-                if (!isBooleanType(condition->qualifiedType.type))
+                if (!isBooleanType(expression->qualifiedType.type))
                     throw ParseError("Condition is not a boolean");
 
-                result->condition = create<ValueStatement>(condition);
+                condition = expression;
             }
 
             expectToken(Token::Type::RightParenthesis, iterator, end);
 
             auto body = parseStatement(iterator, end, declarationScopes, returnStatements);
-            result->body = body;
 
-            return result;
+            return create<WhileStatement>(condition, body);
         }
 
         DoStatement* parseDoStatement(std::vector<Token>::const_iterator& iterator,

@@ -45,7 +45,6 @@ namespace ouzel
             case Statement::Kind::Break: return "Break";
             case Statement::Kind::Continue: return "Continue";
             case Statement::Kind::Return: return "Return";
-            case Statement::Kind::Value: return "Value";
         }
 
         throw std::runtime_error("Unknown statement kind");
@@ -580,16 +579,6 @@ namespace ouzel
 
                 if (returnStatement->result)
                     dumpConstruct(returnStatement->result, level + 1);
-                break;
-            }
-
-            case Statement::Kind::Value:
-            {
-                auto valueStatement = static_cast<const ValueStatement*>(statement);
-
-                std::cout << '\n';
-
-                dumpConstruct(valueStatement->expression, level + 1);
                 break;
             }
 
