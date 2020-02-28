@@ -128,7 +128,7 @@ namespace ouzel
             return *iterator++;
         }
 
-        static bool isBooleanType(const Type* type)
+        static bool isBooleanType(const Type* type) noexcept
         {
             if (type->getTypeKind() != Type::Kind::Scalar)
                 return false;
@@ -152,7 +152,7 @@ namespace ouzel
         static Declaration* findDeclaration(const std::string& name,
                                             const DeclarationScope& declarationScope)
         {
-            for (auto declarationIterator = declarationScope.crbegin(); declarationIterator != declarationScope.crend(); ++declarationIterator)
+            for (auto declarationIterator = declarationScope.rbegin(); declarationIterator != declarationScope.rend(); ++declarationIterator)
                 if ((*declarationIterator)->name == name) return *declarationIterator;
 
             return nullptr;
@@ -179,8 +179,8 @@ namespace ouzel
         static Declaration* findDeclaration(const std::string& name,
                                             const DeclarationScopes& declarationScopes)
         {
-            for (auto scopeIterator = declarationScopes.crbegin(); scopeIterator != declarationScopes.crend(); ++scopeIterator)
-                for (auto declarationIterator = scopeIterator->crbegin(); declarationIterator != scopeIterator->crend(); ++declarationIterator)
+            for (auto scopeIterator = declarationScopes.rbegin(); scopeIterator != declarationScopes.rend(); ++scopeIterator)
+                for (auto declarationIterator = scopeIterator->rbegin(); declarationIterator != scopeIterator->rend(); ++declarationIterator)
                     if ((*declarationIterator)->name == name) return *declarationIterator;
 
             return nullptr;
@@ -226,8 +226,8 @@ namespace ouzel
                                                             const DeclarationScopes& declarationScopes,
                                                             const std::vector<QualifiedType>& parameters)
         {
-            for (auto scopeIterator = declarationScopes.crbegin(); scopeIterator != declarationScopes.crend(); ++scopeIterator)
-                for (auto declarationIterator = scopeIterator->crbegin(); declarationIterator != scopeIterator->crend(); ++declarationIterator)
+            for (auto scopeIterator = declarationScopes.rbegin(); scopeIterator != declarationScopes.rend(); ++scopeIterator)
+                for (auto declarationIterator = scopeIterator->rbegin(); declarationIterator != scopeIterator->rend(); ++declarationIterator)
                     if ((*declarationIterator)->name == name)
                     {
                         if ((*declarationIterator)->getDeclarationKind() != Declaration::Kind::Callable) return nullptr;
@@ -257,8 +257,8 @@ namespace ouzel
         {
             std::vector<const FunctionDeclaration*> candidateFunctionDeclarations;
 
-            for (auto scopeIterator = declarationScopes.crbegin(); scopeIterator != declarationScopes.crend(); ++scopeIterator)
-                for (auto declarationIterator = scopeIterator->crbegin(); declarationIterator != scopeIterator->crend(); ++declarationIterator)
+            for (auto scopeIterator = declarationScopes.rbegin(); scopeIterator != declarationScopes.rend(); ++scopeIterator)
+                for (auto declarationIterator = scopeIterator->rbegin(); declarationIterator != scopeIterator->rend(); ++declarationIterator)
                     if ((*declarationIterator)->name == name)
                     {
                         if ((*declarationIterator)->getDeclarationKind() != Declaration::Kind::Callable) return nullptr;
