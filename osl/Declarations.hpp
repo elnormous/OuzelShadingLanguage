@@ -140,8 +140,9 @@ namespace ouzel
     {
     public:
         FieldDeclaration(const std::string& initName,
-                         const QualifiedType& initQualifiedType) noexcept:
-            Declaration(Declaration::Kind::Field, initName, initQualifiedType, {})
+                         const QualifiedType& initQualifiedType,
+                         std::vector<const Attribute*> initAttributes) noexcept:
+            Declaration(Declaration::Kind::Field, initName, initQualifiedType, std::move(initAttributes))
         {
             definition = this;
         }

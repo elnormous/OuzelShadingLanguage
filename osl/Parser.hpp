@@ -483,7 +483,6 @@ namespace ouzel
             {
                 auto declaration = create<Declaration>(Declaration::Kind::Empty, QualifiedType{nullptr});
                 declarationScopes.back().push_back(declaration);
-
                 return declaration;
             }
             else if (isToken(Token::Type::Struct, iterator, end))
@@ -532,7 +531,6 @@ namespace ouzel
                 type = parseType(iterator, end, declarationScopes);
 
             std::vector<const Attribute*> attributes;
-
             if (skipToken(Token::Type::Arrow, iterator, end))
                 while (isToken(Token::Type::Identifier, iterator, end))
                     attributes.push_back(parseAttribute(iterator, end));
@@ -641,9 +639,7 @@ namespace ouzel
                 throw ParseError("Missing type for the variable");
 
             auto result = create<VariableDeclaration>(name, QualifiedType{type, qualifiers}, storageClass, initialization);
-
             declarationScopes.back().push_back(result);
-
             return result;
         }
 
@@ -741,13 +737,12 @@ namespace ouzel
                     throw ParseError("Incomplete type " + type->name);
             }
 
-            auto result = create<FieldDeclaration>(name, QualifiedType{type});
-
+            std::vector<const Attribute*> attributes;
             if (skipToken(Token::Type::Arrow, iterator, end))
                 while (isToken(Token::Type::Identifier, iterator, end))
-                    result->attributes.push_back(parseAttribute(iterator, end));
+                    attributes.push_back(parseAttribute(iterator, end));
 
-            return result;
+            return create<FieldDeclaration>(name, QualifiedType{type}, std::move(attributes));
         }
 
         ParameterDeclaration* parseParameterDeclaration(TokenIterator& iterator, TokenIterator end,
@@ -2106,7 +2101,7 @@ namespace ouzel
         {
             Qualifiers qualifiers = (isConst ? Qualifiers::Const : Qualifiers::None);
 
-            auto fieldDeclaration = create<FieldDeclaration>(name, QualifiedType{type, qualifiers});
+            auto fieldDeclaration = create<FieldDeclaration>(name, QualifiedType{type, qualifiers}, std::vector<const Attribute*>{});
             declarationScopes.back().push_back(fieldDeclaration);
 
             structType->memberDeclarations.push_back(fieldDeclaration);
