@@ -34,8 +34,18 @@ namespace ouzel
             Parameter
         };
 
-        Declaration(Kind initDeclarationKind):
+        Declaration(Kind initDeclarationKind,
+                    const QualifiedType& initQualifiedType):
             Construct(Construct::Kind::Declaration),
+            qualifiedType(initQualifiedType),
+            declarationKind(initDeclarationKind) {}
+
+        Declaration(Kind initDeclarationKind,
+                    const std::string& initName,
+                    const QualifiedType& initQualifiedType):
+            Construct(Construct::Kind::Declaration),
+            name(initName),
+            qualifiedType(initQualifiedType),
             declarationKind(initDeclarationKind) {}
 
         inline Kind getDeclarationKind() const noexcept { return declarationKind; }
@@ -69,6 +79,10 @@ namespace ouzel
         Type(Kind initTypeKind):
             typeKind(initTypeKind) {}
 
+        Type(Kind initTypeKind, const std::string& initName):
+            name(initName),
+            typeKind(initTypeKind) {}
+
         inline Kind getTypeKind() const noexcept { return typeKind; }
 
         std::string name;
@@ -81,7 +95,8 @@ namespace ouzel
     class ArrayType final: public Type
     {
     public:
-        ArrayType(QualifiedType initElementType, size_t initSize):
+        ArrayType(const QualifiedType& initElementType,
+                  size_t initSize):
             Type(Type::Kind::Array),
             elementType(initElementType),
             size(initSize) {}
@@ -100,8 +115,10 @@ namespace ouzel
             FloatingPoint
         };
 
-        ScalarType(Kind initScalarTypeKind, bool initIsUnsigned):
-            Type(Type::Kind::Scalar),
+        ScalarType(const std::string& initName,
+                   Kind initScalarTypeKind,
+                   bool initIsUnsigned):
+            Type(Type::Kind::Scalar, initName),
             isUnsigned(initIsUnsigned),
             scalarTypeKind(initScalarTypeKind)
         {
@@ -118,7 +135,9 @@ namespace ouzel
     class FieldDeclaration final: public Declaration
     {
     public:
-        FieldDeclaration() noexcept: Declaration(Declaration::Kind::Field)
+        FieldDeclaration(const std::string& initName,
+                         const QualifiedType& initQualifiedType) noexcept:
+            Declaration(Declaration::Kind::Field, initName, initQualifiedType)
         {
             definition = this;
         }
@@ -134,7 +153,19 @@ namespace ouzel
     class ParameterDeclaration final: public Declaration
     {
     public:
-        ParameterDeclaration() noexcept: Declaration(Declaration::Kind::Parameter)
+        ParameterDeclaration(const QualifiedType& initQualifiedType,
+                             InputModifier initInputModifier) noexcept:
+            Declaration(Declaration::Kind::Parameter, initQualifiedType),
+            inputModifier(initInputModifier)
+        {
+            definition = this;
+        }
+
+        ParameterDeclaration(const std::string& initName,
+                             const QualifiedType& initQualifiedType,
+                             InputModifier initInputModifier) noexcept:
+            Declaration(Declaration::Kind::Parameter, initName, initQualifiedType),
+            inputModifier(initInputModifier)
         {
             definition = this;
         }
@@ -152,7 +183,16 @@ namespace ouzel
             Method
         };
 
-        CallableDeclaration(Kind initCallableDeclarationKind): Declaration(Declaration::Kind::Callable), callableDeclarationKind(initCallableDeclarationKind) {}
+        CallableDeclaration(Kind initCallableDeclarationKind,
+                            const QualifiedType& initQualifiedType):
+            Declaration(Declaration::Kind::Callable, initQualifiedType),
+            callableDeclarationKind(initCallableDeclarationKind) {}
+
+        CallableDeclaration(Kind initCallableDeclarationKind,
+                            const std::string& initName,
+                            const QualifiedType& initQualifiedType):
+            Declaration(Declaration::Kind::Callable, initName, initQualifiedType),
+            callableDeclarationKind(initCallableDeclarationKind) {}
 
         inline Kind getCallableDeclarationKind() const { return callableDeclarationKind; }
 
@@ -167,7 +207,11 @@ namespace ouzel
     class FunctionDeclaration final: public CallableDeclaration
     {
     public:
-        FunctionDeclaration(): CallableDeclaration(CallableDeclaration::Kind::Function) {}
+        FunctionDeclaration(const std::string& initName,
+                            const QualifiedType& initQualifiedType,
+                            bool initIsBuiltin = false):
+            CallableDeclaration(CallableDeclaration::Kind::Function, initName, initQualifiedType),
+            isBuiltin(initIsBuiltin) {}
 
         bool isBuiltin = false;
     };
@@ -175,13 +219,18 @@ namespace ouzel
     class ConstructorDeclaration final: public CallableDeclaration
     {
     public:
-        ConstructorDeclaration(): CallableDeclaration(CallableDeclaration::Kind::Constructor) {}
+        ConstructorDeclaration():
+            CallableDeclaration(CallableDeclaration::Kind::Constructor, QualifiedType{nullptr}) {}
     };
 
     class MethodDeclaration final: public CallableDeclaration
     {
     public:
-        MethodDeclaration(): CallableDeclaration(CallableDeclaration::Kind::Method) {}
+        MethodDeclaration(const std::string& initName,
+                          const QualifiedType& initQualifiedType,
+                          bool initIsBuiltin = false):
+            CallableDeclaration(CallableDeclaration::Kind::Method, initName, initQualifiedType),
+            isBuiltin(initIsBuiltin) {}
 
         bool isBuiltin = false;
     };
@@ -189,7 +238,8 @@ namespace ouzel
     class StructType final: public Type
     {
     public:
-        StructType(): Type(Type::Kind::Struct) {}
+        StructType(const std::string& initName):
+            Type(Type::Kind::Struct, initName) {}
 
         ConstructorDeclaration* findConstructorDeclaration(const std::vector<QualifiedType>& parameters) const noexcept
         {
@@ -232,9 +282,10 @@ namespace ouzel
     class VectorType final: public Type
     {
     public:
-        VectorType(const ScalarType* initComponentType,
+        VectorType(const std::string& initName,
+                   const ScalarType* initComponentType,
                    size_t initComponentCount):
-            Type(Type::Kind::Vector),
+            Type(Type::Kind::Vector, initName),
             componentType(initComponentType),
             componentCount(initComponentCount) {}
 
@@ -245,10 +296,11 @@ namespace ouzel
     class MatrixType final: public Type
     {
     public:
-        MatrixType(const ScalarType* initComponentType,
+        MatrixType(const std::string& initName,
+                   const ScalarType* initComponentType,
                    size_t initRowCount,
                    size_t initColumnCount):
-            Type(Type::Kind::Matrix),
+            Type(Type::Kind::Matrix, initName),
             componentType(initComponentType),
             rowCount(initRowCount),
             columnCount(initColumnCount) {}
@@ -261,7 +313,13 @@ namespace ouzel
     class VariableDeclaration final: public Declaration
     {
     public:
-        VariableDeclaration() noexcept: Declaration(Declaration::Kind::Variable)
+        VariableDeclaration(const std::string& initName,
+                            const QualifiedType& initQualifiedType,
+                            StorageClass initStorageClass,
+                            const Expression* initInitialization = nullptr) noexcept:
+            Declaration(Declaration::Kind::Variable, initName, initQualifiedType),
+            storageClass(initStorageClass),
+            initialization(initInitialization)
         {
             definition = this;
         }
@@ -273,7 +331,9 @@ namespace ouzel
     class TypeDeclaration final: public Declaration
     {
     public:
-        TypeDeclaration() noexcept: Declaration(Declaration::Kind::Type) {}
+        TypeDeclaration(const std::string& initName, Type* initType) noexcept:
+            Declaration(Declaration::Kind::Type, initName, QualifiedType{initType}),
+            type(initType) {}
 
         Type* type = nullptr;
     };

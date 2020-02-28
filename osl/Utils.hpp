@@ -772,8 +772,8 @@ namespace ouzel
                 std::cout << ", components: ";
 
                 auto vectorElementExpression = static_cast<const VectorElementExpression*>(expression);
-                for (uint8_t i = 0; i < vectorElementExpression->count; ++i)
-                    std::cout << components[vectorElementExpression->positions[i]];
+                for (uint8_t position : vectorElementExpression->positions)
+                    std::cout << components[position];
 
                 std::cout << '\n';
                 break;

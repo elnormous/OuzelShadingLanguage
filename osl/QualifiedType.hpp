@@ -54,6 +54,9 @@ namespace ouzel
     class QualifiedType final
     {
     public:
+        QualifiedType(const Type* initType, Qualifiers initQualifiers = Qualifiers::None) noexcept:
+            type(initType), qualifiers(initQualifiers) {}
+
         bool operator<(const QualifiedType& other) const noexcept
         {
             if (type != other.type)

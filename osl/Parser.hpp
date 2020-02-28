@@ -331,16 +331,13 @@ namespace ouzel
 
         const ArrayType* getArrayType(const Type* type, size_t count)
         {
-            QualifiedType qualifiedType;
-            qualifiedType.type = type;
+            QualifiedType qualifiedType{type};
 
             auto i = arrayTypes.find(std::make_pair(qualifiedType, count));
 
             if (i == arrayTypes.end())
             {
                 auto result = create<ArrayType>(qualifiedType, count);
-                result->elementType = qualifiedType;
-
                 arrayTypes[std::make_pair(qualifiedType, count)] = result;
                 return result;
             }
@@ -491,7 +488,7 @@ namespace ouzel
         {
             if (isToken(Token::Type::Semicolon, iterator, end))
             {
-                auto declaration = create<Declaration>(Declaration::Kind::Empty);
+                auto declaration = create<Declaration>(Declaration::Kind::Empty, QualifiedType{nullptr});
                 declarationScopes.back().push_back(declaration);
 
                 return declaration;
@@ -512,8 +509,8 @@ namespace ouzel
         {
             expectToken(Token::Type::Function, iterator, end);
 
-            auto result = create<FunctionDeclaration>();
-            result->name = expectToken(Token::Type::Identifier, iterator, end).value;
+            const auto& name = expectToken(Token::Type::Identifier, iterator, end).value;
+            auto result = create<FunctionDeclaration>(name, QualifiedType{nullptr}); // TODO: fix
 
             expectToken(Token::Type::LeftParenthesis, iterator, end);
 
@@ -605,44 +602,48 @@ namespace ouzel
                                               std::vector<Token>::const_iterator end,
                                               std::vector<std::vector<Declaration*>>& declarationScopes)
         {
-            auto result = create<VariableDeclaration>();
+            Qualifiers qualifiers = Qualifiers::None;
+            StorageClass storageClass = StorageClass::Auto;
 
             if (skipToken(Token::Type::Const, iterator, end))
-                result->qualifiedType.qualifiers = Qualifiers::Const;
+                qualifiers = Qualifiers::Const;
             else if (skipToken(Token::Type::Extern, iterator, end))
-                result->storageClass = StorageClass::Extern;
+                storageClass = StorageClass::Extern;
             else if (skipToken(Token::Type::Var, iterator, end))
-                result->qualifiedType.qualifiers = Qualifiers::None;
+                qualifiers = Qualifiers::None;
             else
                 throw ParseError("Expected a variable declaration");
 
-            result->name = expectToken(Token::Type::Identifier, iterator, end).value;
+            const auto& name = expectToken(Token::Type::Identifier, iterator, end).value;
 
+            const Type* type = nullptr;
             if (skipToken(Token::Type::Colon, iterator, end))
             {
-                result->qualifiedType.type = parseType(iterator, end, declarationScopes);
+                type = parseType(iterator, end, declarationScopes);
 
-                if (result->qualifiedType.type->getTypeKind() == Type::Kind::Void)
+                if (type->getTypeKind() == Type::Kind::Void)
                     throw ParseError("Variable can not have a void type");
             }
 
+            const Expression* initialization;
+
             if (skipToken(Token::Type::Assignment, iterator, end))
             {
-                auto initialization = parseMultiplicationAssignmentExpression(iterator, end, declarationScopes);
+                initialization = parseMultiplicationAssignmentExpression(iterator, end, declarationScopes);
 
                 if (initialization->qualifiedType.type->getTypeKind() == Type::Kind::Void)
                     throw ParseError("Initialization with a void type");
 
-                result->initialization = initialization;
-
-                if (!result->qualifiedType.type)
-                    result->qualifiedType.type = initialization->qualifiedType.type;
-                else if (result->qualifiedType.type != initialization->qualifiedType.type)
+                if (!type)
+                    type = initialization->qualifiedType.type;
+                else if (type != initialization->qualifiedType.type)
                     throw ParseError("Initializer type does not match the variable type");
             }
 
-            if (!result->qualifiedType.type)
+            if (!type)
                 throw ParseError("Missing type for the variable");
+
+            auto result = create<VariableDeclaration>(name, QualifiedType{type, qualifiers}, storageClass, initialization);
 
             declarationScopes.back().push_back(result);
 
@@ -655,38 +656,38 @@ namespace ouzel
         {
             expectToken(Token::Type::Struct, iterator, end);
 
-            auto result = create<TypeDeclaration>();
-            result->name = expectToken(Token::Type::Identifier, iterator, end).value;
+            const auto& name = expectToken(Token::Type::Identifier, iterator, end).value;
 
-            auto previousDeclaration = findDeclaration(result->name, declarationScopes);
+            // TODO: check if different kind of symbol with the same name does not exist
+            auto previousDeclaration = findDeclaration(name, declarationScopes);
 
             StructType* structType = nullptr;
+            Declaration* firstDeclaration = nullptr;
+            Declaration* definition = nullptr;
 
             if (previousDeclaration)
             {
                 if (previousDeclaration->getDeclarationKind() != Declaration::Kind::Type)
-                    throw ParseError("Redeclaration of " + result->name);
+                    throw ParseError("Redeclaration of " + name);
 
                 auto typeDeclaration = static_cast<TypeDeclaration*>(previousDeclaration);
 
                 if (typeDeclaration->type->getTypeKind() != Type::Kind::Struct)
-                    throw ParseError("Redeclaration of " + result->name);
+                    throw ParseError("Redeclaration of " + name);
 
                 structType = static_cast<StructType*>(typeDeclaration->type);
 
-                result->firstDeclaration = typeDeclaration->firstDeclaration;
-                result->previousDeclaration = typeDeclaration;
-                result->definition = typeDeclaration->definition;
-                result->type = structType;
+                firstDeclaration = typeDeclaration->firstDeclaration;
+                definition = typeDeclaration->definition;
             }
             else
-            {
-                structType = create<StructType>();
-                structType->name = result->name;
-                structType->declaration = result;
-                result->firstDeclaration = result;
-                result->type = structType;
-            }
+                structType = create<StructType>(name);
+
+            auto result = create<TypeDeclaration>(name, structType);
+            result->firstDeclaration = firstDeclaration ? firstDeclaration : result;
+            result->previousDeclaration = previousDeclaration;
+            result->definition = definition;
+            if (!previousDeclaration) structType->declaration = result;
 
             declarationScopes.back().push_back(result);
 
@@ -729,22 +730,23 @@ namespace ouzel
         {
             expectToken(Token::Type::Var, iterator, end);
 
-            auto result = create<FieldDeclaration>();
-            result->name = expectToken(Token::Type::Identifier, iterator, end).value;
+            const auto& name = expectToken(Token::Type::Identifier, iterator, end).value;
 
             expectToken(Token::Type::Colon, iterator, end);
 
-            result->qualifiedType.type = parseType(iterator, end, declarationScopes);
+            const Type* type = parseType(iterator, end, declarationScopes);
 
-            if (result->qualifiedType.type->getTypeKind() == Type::Kind::Void)
+            if (type->getTypeKind() == Type::Kind::Void)
                 throw ParseError("Member can not have a void type");
 
-            if (result->qualifiedType.type->getTypeKind() == Type::Kind::Struct)
+            if (type->getTypeKind() == Type::Kind::Struct)
             {
-                auto structType = static_cast<const StructType*>(result->qualifiedType.type);
+                auto structType = static_cast<const StructType*>(type);
                 if (!structType->declaration->definition)
-                    throw ParseError("Incomplete type " + result->qualifiedType.type->name);
+                    throw ParseError("Incomplete type " + type->name);
             }
+
+            auto result = create<FieldDeclaration>(name, QualifiedType{type});
 
             if (skipToken(Token::Type::Arrow, iterator, end))
                 while (isToken(Token::Type::Identifier, iterator, end))
@@ -757,34 +759,36 @@ namespace ouzel
                                                         std::vector<Token>::const_iterator end,
                                                         std::vector<std::vector<Declaration*>>& declarationScopes)
         {
-            auto result = create<ParameterDeclaration>();
+            InputModifier inputModifier = InputModifier::In;
 
             switch (iterator->type)
             {
                 case Token::Type::In:
-                    result->inputModifier = InputModifier::In;
+                    inputModifier = InputModifier::In;
                     ++iterator;
                     break;
                 case Token::Type::Out:
-                    result->inputModifier = InputModifier::Out;
+                    inputModifier = InputModifier::Out;
                     ++iterator;
                     break;
                 case Token::Type::Inout:
-                    result->inputModifier = InputModifier::Inout;
+                    inputModifier = InputModifier::Inout;
                     ++iterator;
                     break;
                 default:
                     break;
             }
 
-            result->name = expectToken(Token::Type::Identifier, iterator, end).value;
+            const auto& name = expectToken(Token::Type::Identifier, iterator, end).value;
 
             expectToken(Token::Type::Colon, iterator, end);
 
-            result->qualifiedType.type = parseType(iterator, end, declarationScopes);
+            const Type* type = parseType(iterator, end, declarationScopes);
 
-            if (result->qualifiedType.type->getTypeKind() == Type::Kind::Void)
+            if (type->getTypeKind() == Type::Kind::Void)
                 throw ParseError("Parameter can not have a void type");
+
+            auto result = create<ParameterDeclaration>(name, QualifiedType{type}, inputModifier);
 
             if (skipToken(Token::Type::Arrow, iterator, end))
                 while (isToken(Token::Type::Identifier, iterator, end))
@@ -1141,10 +1145,7 @@ namespace ouzel
         {
             if (isToken(Token::Type::IntLiteral, iterator, end))
             {
-                auto result = create<IntegerLiteralExpression>(strtoll(iterator->value.c_str(), nullptr, 0));
-                result->qualifiedType.type = intType;
-                result->qualifiedType.qualifiers = Qualifiers::Const;
-                result->category = Expression::Category::Rvalue;
+                auto result = create<IntegerLiteralExpression>(intType, strtoll(iterator->value.c_str(), nullptr, 0));
 
                 ++iterator;
 
@@ -1152,10 +1153,7 @@ namespace ouzel
             }
             else if (isToken(Token::Type::FloatLiteral, iterator, end))
             {
-                auto result = create<FloatingPointLiteralExpression>(strtod(iterator->value.c_str(), nullptr));
-                result->qualifiedType.type = floatType;
-                result->qualifiedType.qualifiers = Qualifiers::Const;
-                result->category = Expression::Category::Rvalue;
+                auto result = create<FloatingPointLiteralExpression>(floatType, strtod(iterator->value.c_str(), nullptr));
 
                 ++iterator;
 
@@ -1165,10 +1163,7 @@ namespace ouzel
                 throw ParseError("Double precision floating point numbers are not supported");
             else if (isToken(Token::Type::StringLiteral, iterator, end))
             {
-                auto result = create<StringLiteralExpression>(iterator->value);
-                result->qualifiedType.type = stringType;
-                result->qualifiedType.qualifiers = Qualifiers::Const;
-                result->category = Expression::Category::Rvalue;
+                auto result = create<StringLiteralExpression>(stringType, iterator->value);
 
                 ++iterator;
 
@@ -1176,10 +1171,7 @@ namespace ouzel
             }
             else if (isToken({Token::Type::True, Token::Type::False}, iterator, end))
             {
-                auto result = create<BooleanLiteralExpression>(iterator->type == Token::Type::True);
-                result->qualifiedType.type = boolType;
-                result->qualifiedType.qualifiers = Qualifiers::Const;
-                result->category = Expression::Category::Rvalue;
+                auto result = create<BooleanLiteralExpression>(boolType, iterator->type == Token::Type::True);
 
                 ++iterator;
 
@@ -1198,17 +1190,13 @@ namespace ouzel
                 expectToken(Token::Type::LeftParenthesis, iterator, end);
 
                 auto expression = parseMultiplicationAssignmentExpression(iterator, end, declarationScopes);
-                auto result = create<CastExpression>(CastExpression::Kind::Functional, expression);
-                result->qualifiedType.type = type;
-
+                auto result = create<CastExpression>(CastExpression::Kind::Functional, type, expression);
                 expectToken(Token::Type::RightParenthesis, iterator, end);
-
                 return result;
             }
             else if (skipToken(Token::Type::LeftBrace, iterator, end))
             {
-                auto result = create<InitializerListExpression>();
-
+                std::vector<const Expression*> expressions;
                 const Type* type = nullptr;
 
                 for (;;)
@@ -1220,7 +1208,7 @@ namespace ouzel
                     else if (type != expression->qualifiedType.type)
                         throw ParseError("Expression type does not match previous expressions in initializer list");
 
-                    result->expressions.push_back(expression);
+                    expressions.push_back(expression);
 
                     if (!skipToken(Token::Type::Comma, iterator, end))
                         break;
@@ -1228,9 +1216,8 @@ namespace ouzel
 
                 expectToken(Token::Type::RightBrace, iterator, end);
 
-                result->qualifiedType.type = getArrayType(type, result->expressions.size());
-
-                return result;
+                auto arrayType = getArrayType(type, expressions.size());
+                return create<InitializerListExpression>(arrayType, std::move(expressions));
             }
             else if (isToken(Token::Type::Identifier, iterator, end))
             {
@@ -1266,10 +1253,7 @@ namespace ouzel
                             {
                                 auto structType = static_cast<const StructType*>(type);
 
-                                auto result = create<TemporaryObjectExpression>();
-                                result->qualifiedType.type = type;
-                                result->qualifiedType.qualifiers = Qualifiers::Const;
-                                result->category = Expression::Category::Rvalue;
+                                auto result = create<TemporaryObjectExpression>(type);
 
                                 for (auto parameter : parameters)
                                     result->parameters.push_back(parameter);
@@ -1283,11 +1267,7 @@ namespace ouzel
                             {
                                 auto vectorType = static_cast<const VectorType*>(type);
 
-                                auto result = create<VectorInitializeExpression>();
-                                result->qualifiedType.type = vectorType;
-                                result->qualifiedType.qualifiers = Qualifiers::Const;
-                                result->category = Expression::Category::Rvalue;
-
+                                std::vector<const Expression*> initializerParameters;
                                 size_t componentCount = 0;
 
                                 for (auto parameter : parameters)
@@ -1309,26 +1289,22 @@ namespace ouzel
                                         componentCount += vectorParameterType->componentCount;
                                     }
 
-                                    result->parameters.push_back(parameter);
+                                    initializerParameters.push_back(parameter);
                                 }
 
-                                if (parameters.empty())
+                                if (initializerParameters.empty())
                                     throw ParseError(vectorType->name + " cannot not have an empty initializer");
 
                                 if (componentCount != vectorType->componentCount)
                                     throw ParseError("Invalid vector initialization");
 
-                                return result;
+                                return create<VectorInitializeExpression>(vectorType, std::move(initializerParameters));
                             }
                             case Type::Kind::Matrix:
                             {
                                 auto matrixType = static_cast<const MatrixType*>(type);
 
-                                auto result = create<MatrixInitializeExpression>();
-                                result->qualifiedType.type = matrixType;
-                                result->qualifiedType.qualifiers = Qualifiers::Const;
-                                result->category = Expression::Category::Rvalue;
-
+                                std::vector<const Expression*> initializerParameters;
                                 size_t rowCount = 0;
 
                                 for (auto parameter : parameters)
@@ -1356,16 +1332,16 @@ namespace ouzel
                                         rowCount += matrixParameterType->rowCount;
                                     }
 
-                                    result->parameters.push_back(parameter);
+                                    initializerParameters.push_back(parameter);
                                 }
 
-                                if (parameters.empty())
+                                if (initializerParameters.empty())
                                     throw ParseError(matrixType->name + " cannot not have an empty initializer");
 
                                 if (rowCount != matrixType->rowCount)
                                     throw ParseError("Invalid matrix initialization");
 
-                                return result;
+                                return create<MatrixInitializeExpression>(matrixType, std::move(initializerParameters));
                             }
                             default:
                                 throw ParseError("Expected a struct type");
@@ -1397,9 +1373,8 @@ namespace ouzel
                         if (!functionDeclaration)
                             throw ParseError("Invalid function reference: " + name);
 
-                        auto declRefExpression = create<DeclarationReferenceExpression>(functionDeclaration);
-                        declRefExpression->qualifiedType = functionDeclaration->qualifiedType;
-                        declRefExpression->category = Expression::Category::Lvalue;
+                        auto declRefExpression = create<DeclarationReferenceExpression>(functionDeclaration,
+                                                                                        Expression::Category::Lvalue);
                         result->declarationReference = declRefExpression;
                         result->qualifiedType = functionDeclaration->qualifiedType;
                         result->category = Expression::Category::Rvalue;
@@ -1409,38 +1384,14 @@ namespace ouzel
                 }
                 else
                 {
-                    auto result = create<DeclarationReferenceExpression>(findDeclaration(name, declarationScopes));
-                    if (!result->declaration)
+                    auto declaration = findDeclaration(name, declarationScopes);
+                    if (!declaration)
                         throw ParseError("Invalid declaration reference: " + name);
 
-                    switch (result->declaration->getDeclarationKind())
-                    {
-                        case Declaration::Kind::Type:
-                        {
-                            auto typeDeclaration = static_cast<const TypeDeclaration*>(result->declaration);
-                            result->qualifiedType.type = typeDeclaration->type;
-                            result->category = Expression::Category::Rvalue;
-                            break;
-                        }
-                        case Declaration::Kind::Variable:
-                        {
-                            auto variableDeclaration = static_cast<const VariableDeclaration*>(result->declaration);
-                            result->qualifiedType = variableDeclaration->qualifiedType;
-                            result->category = Expression::Category::Lvalue;
-                            break;
-                        }
-                        case Declaration::Kind::Parameter:
-                        {
-                            auto parameterDeclaration = static_cast<const ParameterDeclaration*>(result->declaration);
-                            result->qualifiedType = parameterDeclaration->qualifiedType;
-                            result->category = Expression::Category::Rvalue;
-                            break;
-                        }
-                        default:
-                            throw ParseError("Invalid declaration reference " + name);
-                    }
+                    Expression::Category category = (declaration->getDeclarationKind() == Declaration::Kind::Type) ?
+                        Expression::Category::Rvalue : Expression::Category::Lvalue;
 
-                    return result;
+                    return create<DeclarationReferenceExpression>(declaration, category);
                 }
             }
             else if (skipToken(Token::Type::LeftParenthesis, iterator, end))
@@ -1452,23 +1403,13 @@ namespace ouzel
                     expectToken(Token::Type::RightParenthesis, iterator, end);
 
                     auto expression = parseExpression(iterator, end, declarationScopes);
-                    auto result = create<CastExpression>(CastExpression::Kind::CStyle, expression);
-                    result->qualifiedType.type = type;
-
-                    result->expression = expression;
-                    result->category = Expression::Category::Rvalue;
-
-                    return result;
+                    return create<CastExpression>(CastExpression::Kind::CStyle, type, expression);
                 }
                 else
                 {
                     auto expression = parseExpression(iterator, end, declarationScopes);
                     expectToken(Token::Type::RightParenthesis, iterator, end);
-
-                    auto result = create<ParenExpression>(expression);
-                    result->qualifiedType = result->expression->qualifiedType;
-                    result->category = result->expression->category;
-                    return result;
+                    return create<ParenExpression>(expression);
                 }
             }
             else if (isToken(Token::Type::StaticCast, iterator, end))
@@ -1491,14 +1432,8 @@ namespace ouzel
                 expectToken(Token::Type::LeftParenthesis, iterator, end);
 
                 auto expression = parseExpression(iterator, end, declarationScopes);
-                auto result = create<CastExpression>(castKind, expression);
-                result->qualifiedType.type = type;
-
-                result->expression = expression;
-
+                auto result = create<CastExpression>(castKind, type, expression);
                 expectToken(Token::Type::RightParenthesis, iterator, end);
-
-                result->category = Expression::Category::Rvalue;
 
                 return result;
             }
@@ -1535,11 +1470,7 @@ namespace ouzel
                 const auto& unaryOperator = getUnaryOperator(operatorKind,
                                                              result->qualifiedType.type);
 
-                auto expression = create<UnaryOperatorExpression>(operatorKind, result);
-                expression->qualifiedType.type = unaryOperator.resultType;
-                expression->category = Expression::Category::Lvalue;
-
-                result = expression;
+                result = create<UnaryOperatorExpression>(operatorKind, unaryOperator.resultType, Expression::Category::Lvalue, result);
             }
 
             return result;
@@ -1562,12 +1493,7 @@ namespace ouzel
                     expectToken(Token::Type::RightBracket, iterator, end);
 
                     auto arrayType = static_cast<const ArrayType*>(result->qualifiedType.type);
-
-                    auto expression = create<ArraySubscriptExpression>(result, subscript);
-                    expression->qualifiedType = arrayType->elementType;
-                    expression->category = result->category;
-
-                    result = expression;
+                    result = create<ArraySubscriptExpression>(arrayType->elementType, result, subscript);
                 }
                 else if (result->qualifiedType.type->getTypeKind() == Type::Kind::Vector ||
                          result->qualifiedType.type->getTypeKind() == Type::Kind::Matrix)
@@ -1580,12 +1506,13 @@ namespace ouzel
 
                     expectToken(Token::Type::RightBracket, iterator, end);
 
-                    auto expression = create<BinaryOperatorExpression>(operatorKind, result, rightExpression);
+                    //auto expression = ;
+                    const Type* type = nullptr;
 
                     if (result->qualifiedType.type->getTypeKind() == Type::Kind::Vector)
                     {
                         auto vectorType = static_cast<const VectorType*>(result->qualifiedType.type);
-                        expression->qualifiedType.type = vectorType->componentType;
+                        type = vectorType->componentType;
                     }
                     else if (result->qualifiedType.type->getTypeKind() == Type::Kind::Matrix)
                     {
@@ -1595,12 +1522,10 @@ namespace ouzel
                         if (!vectorType)
                             throw ParseError("Invalid vector type");
 
-                        expression->qualifiedType.type = vectorType;
+                        type = vectorType;
                     }
 
-                    expression->category = expression->leftExpression->category;
-
-                    result = expression;
+                    result = create<BinaryOperatorExpression>(operatorKind, type, result->category, result, rightExpression);
                 }
                 else
                     throw ParseError("Subscript value is not an array");
@@ -1648,7 +1573,6 @@ namespace ouzel
                         throw ParseError(iterator->value + " is not a field");
 
                     auto expression = create<MemberExpression>(result, static_cast<const FieldDeclaration*>(memberDeclaration));
-                    expression->qualifiedType = expression->fieldDeclaration->qualifiedType;
                     if ((result->qualifiedType.qualifiers & Qualifiers::Const) == Qualifiers::Const)
                         expression->qualifiedType.qualifiers |= Qualifiers::Const;
                     expression->category = result->category;
@@ -1660,8 +1584,8 @@ namespace ouzel
                     std::vector<uint8_t> components;
                     std::set<uint8_t> componentSet;
 
-                    auto expression = create<VectorElementExpression>();
-                    expression->category = result->category;
+                    Expression::Category category = result->category;
+                    Qualifiers qualifiers = Qualifiers::None;
 
                     const auto& token = expectToken(Token::Type::Identifier, iterator, end);
 
@@ -1670,13 +1594,11 @@ namespace ouzel
                         uint8_t component = charToComponent(c);
                         if (!componentSet.insert(component).second) // has component repeated
                         {
-                            expression->category = Expression::Category::Rvalue;
-                            expression->qualifiedType.qualifiers |= Qualifiers::Const;
+                            category = Expression::Category::Rvalue;
+                            qualifiers |= Qualifiers::Const;
                         }
 
                         components.push_back(component);
-
-                        expression->positions[expression->count++] = component;
                     }
 
                     auto vectorType = static_cast<const VectorType*>(result->qualifiedType.type);
@@ -1685,13 +1607,11 @@ namespace ouzel
                     if (!resultType)
                         throw ParseError("Invalid swizzle");
 
-                    expression->qualifiedType.type = resultType;
-
                     for (uint8_t component : components)
                         if (component >= vectorType->componentCount)
                             throw ParseError("Invalid swizzle");
 
-                    result = expression;
+                    result = create<VectorElementExpression>(resultType, qualifiers, category, std::move(components));
                 }
                 else
                     throw ParseError(result->qualifiedType.type->name + " is not a structure");
@@ -1724,11 +1644,7 @@ namespace ouzel
                 const auto& unaryOperator = getUnaryOperator(operatorKind,
                                                              expression->qualifiedType.type);
 
-                auto result = create<UnaryOperatorExpression>(operatorKind, expression);
-                result->qualifiedType.type = unaryOperator.resultType;
-                result->category = Expression::Category::Rvalue;
-
-                return result;
+                return create<UnaryOperatorExpression>(operatorKind, unaryOperator.resultType, Expression::Category::Rvalue, expression);
             }
             else
                 return parseMemberExpression(iterator, end, declarationScopes);
@@ -1752,11 +1668,7 @@ namespace ouzel
                 const auto& unaryOperator = getUnaryOperator(operatorKind,
                                                              expression->qualifiedType.type);
 
-                auto result = create<UnaryOperatorExpression>(operatorKind, expression);
-                result->qualifiedType.type = unaryOperator.resultType;
-                result->category = Expression::Category::Rvalue;
-
-                return result;
+                return create<UnaryOperatorExpression>(operatorKind, unaryOperator.resultType, Expression::Category::Rvalue, expression);
             }
             else
                 return parsePrefixExpression(iterator, end, declarationScopes);
@@ -1775,11 +1687,7 @@ namespace ouzel
                 const auto& unaryOperator = getUnaryOperator(operatorKind,
                                                              expression->qualifiedType.type);
 
-                auto result = create<UnaryOperatorExpression>(operatorKind, expression);
-                result->qualifiedType.type = unaryOperator.resultType;
-                result->category = Expression::Category::Rvalue;
-
-                return result;
+                return create<UnaryOperatorExpression>(operatorKind, unaryOperator.resultType, Expression::Category::Rvalue, expression);
             }
             else
                 return parseSignExpression(iterator, end, declarationScopes);
@@ -1806,11 +1714,7 @@ namespace ouzel
                                                                result->qualifiedType.type,
                                                                rightExpression->qualifiedType.type);
 
-                auto expression = create<BinaryOperatorExpression>(operatorKind, result, rightExpression);
-                expression->qualifiedType.type = binaryOperator.resultType;
-                expression->category = Expression::Category::Rvalue;
-
-                result = expression;
+                result = create<BinaryOperatorExpression>(operatorKind, binaryOperator.resultType, Expression::Category::Rvalue, result, rightExpression);
             }
 
             return result;
@@ -1837,11 +1741,7 @@ namespace ouzel
                                                                result->qualifiedType.type,
                                                                rightExpression->qualifiedType.type);
 
-                auto expression = create<BinaryOperatorExpression>(operatorKind, result, rightExpression);
-                expression->qualifiedType.type = binaryOperator.resultType;
-                expression->category = Expression::Category::Rvalue;
-
-                result = expression;
+                result = create<BinaryOperatorExpression>(operatorKind, binaryOperator.resultType, Expression::Category::Rvalue, result, rightExpression);
             }
 
             return result;
@@ -1868,11 +1768,7 @@ namespace ouzel
                                                                result->qualifiedType.type,
                                                                rightExpression->qualifiedType.type);
 
-                auto expression = create<BinaryOperatorExpression>(operatorKind, result, rightExpression);
-                expression->qualifiedType.type = binaryOperator.resultType;
-                expression->category = Expression::Category::Rvalue;
-
-                result = expression;
+                result = create<BinaryOperatorExpression>(operatorKind, binaryOperator.resultType, Expression::Category::Rvalue, result, rightExpression);
             }
 
             return result;
@@ -1899,11 +1795,7 @@ namespace ouzel
                                                                result->qualifiedType.type,
                                                                rightExpression->qualifiedType.type);
 
-                auto expression = create<BinaryOperatorExpression>(operatorKind, result, rightExpression);
-                expression->qualifiedType.type = binaryOperator.resultType;
-                expression->category = Expression::Category::Rvalue;
-
-                result = expression;
+                result = create<BinaryOperatorExpression>(operatorKind, binaryOperator.resultType, Expression::Category::Rvalue, result, rightExpression);
             }
 
             return result;
@@ -1930,11 +1822,7 @@ namespace ouzel
                                                                result->qualifiedType.type,
                                                                rightExpression->qualifiedType.type);
 
-                auto expression = create<BinaryOperatorExpression>(operatorKind, result, rightExpression);
-                expression->qualifiedType.type = binaryOperator.resultType;
-                expression->category = Expression::Category::Rvalue;
-
-                result = expression;
+                result = create<BinaryOperatorExpression>(operatorKind, binaryOperator.resultType, Expression::Category::Rvalue, result, rightExpression);
             }
 
             return result;
@@ -1956,11 +1844,7 @@ namespace ouzel
                                                                result->qualifiedType.type,
                                                                rightExpression->qualifiedType.type);
 
-                auto expression = create<BinaryOperatorExpression>(operatorKind, result, rightExpression);
-                expression->qualifiedType.type = binaryOperator.resultType;
-                expression->category = Expression::Category::Rvalue;
-
-                result = expression;
+                result = create<BinaryOperatorExpression>(operatorKind, binaryOperator.resultType, Expression::Category::Rvalue, result, rightExpression);
             }
 
             return result;
@@ -1982,11 +1866,7 @@ namespace ouzel
                                                                result->qualifiedType.type,
                                                                rightExpression->qualifiedType.type);
 
-                auto expression = create<BinaryOperatorExpression>(operatorKind, result, rightExpression);
-                expression->qualifiedType.type = binaryOperator.resultType;
-                expression->category = Expression::Category::Rvalue;
-
-                result = expression;
+                result = create<BinaryOperatorExpression>(operatorKind, binaryOperator.resultType, Expression::Category::Rvalue, result, rightExpression);
             }
 
             return result;
@@ -2012,13 +1892,7 @@ namespace ouzel
                 if (leftExpression->qualifiedType.type != rightExpression->qualifiedType.type)
                     throw ParseError("Incompatible operand types");
 
-                auto expression = create<TernaryOperatorExpression>(result, leftExpression, rightExpression);
-                expression->qualifiedType = expression->leftExpression->qualifiedType;
-                expression->category = (expression->leftExpression->category == Expression::Category::Lvalue &&
-                                        expression->rightExpression->category == Expression::Category::Lvalue) ?
-                                        Expression::Category::Lvalue : Expression::Category::Rvalue;
-
-                result = expression;
+                result = create<TernaryOperatorExpression>(result, leftExpression, rightExpression);
             }
 
             return result;
@@ -2046,11 +1920,7 @@ namespace ouzel
                                                                result->qualifiedType.type,
                                                                rightExpression->qualifiedType.type);
 
-                auto expression = create<BinaryOperatorExpression>(operatorKind, result, rightExpression);
-                expression->qualifiedType.type = binaryOperator.resultType;
-                expression->category = Expression::Category::Rvalue;
-
-                result = expression;
+                result = create<BinaryOperatorExpression>(operatorKind, binaryOperator.resultType, Expression::Category::Rvalue, result, rightExpression);
             }
 
             return result;
@@ -2083,11 +1953,7 @@ namespace ouzel
                                                                result->qualifiedType.type,
                                                                rightExpression->qualifiedType.type);
 
-                auto expression = create<BinaryOperatorExpression>(operatorKind, result, rightExpression);
-                expression->qualifiedType.type = binaryOperator.resultType;
-                expression->category = Expression::Category::Lvalue;
-
-                result = expression;
+                result = create<BinaryOperatorExpression>(operatorKind, binaryOperator.resultType, Expression::Category::Lvalue, result, rightExpression);
             }
 
             return result;
@@ -2120,11 +1986,7 @@ namespace ouzel
                                                                result->qualifiedType.type,
                                                                rightExpression->qualifiedType.type);
 
-                auto expression = create<BinaryOperatorExpression>(operatorKind, result, rightExpression);
-                expression->qualifiedType.type = binaryOperator.resultType;
-                expression->category = Expression::Category::Lvalue;
-
-                result = expression;
+                result = create<BinaryOperatorExpression>(operatorKind, binaryOperator.resultType, Expression::Category::Lvalue, result, rightExpression);
             }
 
             return result;
@@ -2146,15 +2008,11 @@ namespace ouzel
                                                                result->qualifiedType.type,
                                                                rightExpression->qualifiedType.type);
 
-                auto expression = create<BinaryOperatorExpression>(operatorKind, result, rightExpression);
-                expression->qualifiedType.type = binaryOperator.resultType;
-                expression->category = expression->rightExpression->category;
-
-                if (expression->leftExpression->qualifiedType.type !=
-                    expression->rightExpression->qualifiedType.type)
+                if (result->qualifiedType.type !=
+                    rightExpression->qualifiedType.type)
                     throw ParseError("Incompatible operand types");
 
-                result = expression;
+                result = create<BinaryOperatorExpression>(operatorKind, binaryOperator.resultType, rightExpression->category, result, rightExpression);
             }
 
             return result;
@@ -2172,8 +2030,7 @@ namespace ouzel
                                   bool isUnsigned,
                                   std::vector<std::vector<Declaration*>>& declarationScopes)
         {
-            auto scalarType = create<ScalarType>(kind, isUnsigned);
-            scalarType->name = name;
+            auto scalarType = create<ScalarType>(name, kind, isUnsigned);
 
             if (kind == ScalarType::Kind::Boolean)
             {
@@ -2215,8 +2072,7 @@ namespace ouzel
         StructType* addStructType(const std::string& name,
                                   std::vector<std::vector<Declaration*>>& declarationScopes)
         {
-            StructType* structType = create<StructType>();
-            structType->name = name;
+            StructType* structType = create<StructType>(name);
 
             binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Equality, boolType, structType, structType);
             binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Inequality, boolType, structType, structType);
@@ -2230,8 +2086,7 @@ namespace ouzel
                                   uint8_t componentCount,
                                   std::vector<std::vector<Declaration*>>& declarationScopes)
         {
-            VectorType* vectorType = create<VectorType>(componentType, componentCount);
-            vectorType->name = name;
+            VectorType* vectorType = create<VectorType>(name, componentType, componentCount);
 
             vectorTypes[std::make_pair(componentType, componentCount)] = vectorType;
 
@@ -2261,8 +2116,7 @@ namespace ouzel
                                   uint8_t columnCount,
                                   std::vector<std::vector<Declaration*>>& declarationScopes)
         {
-            MatrixType* matrixType = create<MatrixType>(componentType, rowCount, columnCount);
-            matrixType->name = name;
+            MatrixType* matrixType = create<MatrixType>(name, componentType, rowCount, columnCount);
 
             unaryOperators.emplace_back(UnaryOperatorExpression::Kind::Positive, matrixType, matrixType);
             unaryOperators.emplace_back(UnaryOperatorExpression::Kind::Negative, matrixType, matrixType);
@@ -2289,10 +2143,9 @@ namespace ouzel
                                               bool isConst,
                                               std::vector<std::vector<Declaration*>>& declarationScopes)
         {
-            auto fieldDeclaration = create<FieldDeclaration>();
-            fieldDeclaration->name = name;
-            fieldDeclaration->qualifiedType.type = type;
-            fieldDeclaration->qualifiedType.qualifiers = (isConst ? Qualifiers::Const : Qualifiers::None);
+            Qualifiers qualifiers = (isConst ? Qualifiers::Const : Qualifiers::None);
+
+            auto fieldDeclaration = create<FieldDeclaration>(name, QualifiedType{type, qualifiers});
             declarationScopes.back().push_back(fieldDeclaration);
 
             structType->memberDeclarations.push_back(fieldDeclaration);
@@ -2305,18 +2158,14 @@ namespace ouzel
                                                            const std::vector<Type*>& parameters,
                                                            std::vector<std::vector<Declaration*>>& declarationScopes)
         {
-            auto functionDeclaration = create<FunctionDeclaration>();
-            functionDeclaration->name = name;
-            functionDeclaration->qualifiedType.type = resultType;
+            auto functionDeclaration = create<FunctionDeclaration>(name, QualifiedType{resultType}, true);
 
             for (auto parameter : parameters)
             {
-                auto parameterDeclaration = create<ParameterDeclaration>();
-                parameterDeclaration->qualifiedType.type = parameter;
+                auto parameterDeclaration = create<ParameterDeclaration>(QualifiedType{parameter}, InputModifier::In);
                 functionDeclaration->parameterDeclarations.push_back(parameterDeclaration);
             }
 
-            functionDeclaration->isBuiltin = true;
             declarationScopes.back().push_back(functionDeclaration);
 
             return functionDeclaration;
