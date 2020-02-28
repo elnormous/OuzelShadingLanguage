@@ -921,7 +921,7 @@ namespace ouzel
                 if (!isBooleanType(condition->qualifiedType.type))
                     throw ParseError("Condition is not a boolean");
 
-                result->condition = condition;
+                result->condition = create<ValueStatement>(condition);
             }
 
             expectToken(Token::Type::RightParenthesis, iterator, end);
@@ -961,7 +961,7 @@ namespace ouzel
             else
             {
                 auto initialization = parseExpression(iterator, end, declarationScopes);
-                result->initialization = initialization;
+                result->initialization = create<ValueStatement>(initialization);
 
                 expectToken(Token::Type::Semicolon, iterator, end);
             }
@@ -987,7 +987,7 @@ namespace ouzel
                 if (!isBooleanType(condition->qualifiedType.type))
                     throw ParseError("Condition is not a boolean");
 
-                result->condition = condition;
+                result->condition = create<ValueStatement>(condition);
 
                 expectToken(Token::Type::Semicolon, iterator, end);
             }
@@ -1039,7 +1039,7 @@ namespace ouzel
                 if (!isIntegerType(condition->qualifiedType.type))
                     throw ParseError("Statement requires expression of integer type");
 
-                result->condition = condition;
+                result->condition = create<ValueStatement>(condition);
             }
 
             expectToken(Token::Type::RightParenthesis, iterator, end);
@@ -1113,7 +1113,7 @@ namespace ouzel
                 if (!isBooleanType(condition->qualifiedType.type))
                     throw ParseError("Condition is not a boolean");
 
-                result->condition = condition;
+                result->condition = create<ValueStatement>(condition);
             }
 
             expectToken(Token::Type::RightParenthesis, iterator, end);

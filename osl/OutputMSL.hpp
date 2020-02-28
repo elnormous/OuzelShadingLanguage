@@ -274,11 +274,8 @@ namespace ouzel
                     if (options.whitespaces) code += " ";
                     code += "(";
 
-                    if (ifStatement->condition.is<DeclarationStatement*>())
-                        printConstruct(ifStatement->condition.get<DeclarationStatement*>(),
-                                       Options(0, options.whitespaces), code);
-                    else if (ifStatement->condition.is<Expression*>())
-                        printConstruct(ifStatement->condition.get<Expression*>(),
+                    if (ifStatement->condition)
+                        printConstruct(ifStatement->condition,
                                        Options(0, options.whitespaces), code);
 
                     code += ")";
@@ -313,21 +310,15 @@ namespace ouzel
                     if (options.whitespaces) code += " ";
                     code += "(";
 
-                    if (forStatement->initialization.is<DeclarationStatement*>())
-                        printConstruct(forStatement->initialization.get<DeclarationStatement*>(),
-                                       Options(0, options.whitespaces), code);
-                    else if (forStatement->initialization.is<Expression*>())
-                        printConstruct(forStatement->initialization.get<Expression*>(),
+                    if (forStatement->initialization)
+                        printConstruct(forStatement->initialization,
                                        Options(0, options.whitespaces), code);
 
                     code += ";";
                     if (options.whitespaces) code += " ";
 
-                    if (forStatement->condition.is<DeclarationStatement*>())
-                        printConstruct(forStatement->condition.get<DeclarationStatement*>(),
-                                       Options(0, options.whitespaces), code);
-                    else if (forStatement->condition.is<Expression*>())
-                        printConstruct(forStatement->condition.get<Expression*>(),
+                    if (forStatement->condition)
+                        printConstruct(forStatement->condition,
                                        Options(0, options.whitespaces), code);
 
                     code += ";";
@@ -355,11 +346,8 @@ namespace ouzel
                     if (options.whitespaces) code += " ";
                     code += "(";
 
-                    if (switchStatement->condition.is<DeclarationStatement*>())
-                        printConstruct(switchStatement->condition.get<DeclarationStatement*>(),
-                                       Options(0, options.whitespaces), code);
-                    else if (switchStatement->condition.is<Expression*>())
-                        printConstruct(switchStatement->condition.get<Expression*>(),
+                    if (switchStatement->condition)
+                        printConstruct(switchStatement->condition,
                                        Options(0, options.whitespaces), code);
 
                     code += ")";
@@ -418,11 +406,8 @@ namespace ouzel
                     if (options.whitespaces) code += " ";
                     code += "(";
 
-                    if (whileStatement->condition.is<DeclarationStatement*>())
-                        printConstruct(whileStatement->condition.get<DeclarationStatement*>(),
-                                       Options(0, options.whitespaces), code);
-                    else if (whileStatement->condition.is<Expression*>())
-                        printConstruct(whileStatement->condition.get<Expression*>(),
+                    if (whileStatement->condition)
+                        printConstruct(whileStatement->condition,
                                        Options(0, options.whitespaces), code);
 
                     code += ")";
@@ -493,6 +478,15 @@ namespace ouzel
                     }
 
                     code += ";";
+                    break;
+                }
+
+                case Statement::Kind::Value:
+                {
+                    if (options.whitespaces) code.append(options.indentation, ' ');
+
+                    auto valueStatement = static_cast<const ValueStatement*>(statement);
+                    printConstruct(valueStatement->expression, Options(0, options.whitespaces), code);
                     break;
                 }
             }

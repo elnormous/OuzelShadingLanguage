@@ -45,6 +45,7 @@ namespace ouzel
             case Statement::Kind::Break: return "Break";
             case Statement::Kind::Continue: return "Continue";
             case Statement::Kind::Return: return "Return";
+            case Statement::Kind::Value: return "Value";
         }
 
         throw std::runtime_error("Unknown statement kind");
@@ -480,10 +481,8 @@ namespace ouzel
 
                 std::cout << '\n';
 
-                if (ifStatement->condition.is<DeclarationStatement*>())
-                    dumpConstruct(ifStatement->condition.get<DeclarationStatement*>(), level + 1);
-                else if (ifStatement->condition.is<Expression*>())
-                    dumpConstruct(ifStatement->condition.get<Expression*>(), level + 1);
+                if (ifStatement->condition)
+                    dumpConstruct(ifStatement->condition, level + 1);
                 dumpConstruct(ifStatement->body, level + 1);
                 if (ifStatement->elseBody) dumpConstruct(ifStatement->elseBody, level + 1);
                 break;
@@ -495,15 +494,12 @@ namespace ouzel
 
                 std::cout << '\n';
 
-                if (forStatement->initialization.is<DeclarationStatement*>())
-                    dumpConstruct(forStatement->initialization.get<DeclarationStatement*>(), level + 1);
-                else if (forStatement->initialization.is<Expression*>())
-                    dumpConstruct(forStatement->initialization.get<Expression*>(), level + 1);
-                if (forStatement->condition.is<DeclarationStatement*>())
-                    dumpConstruct(forStatement->condition.get<DeclarationStatement*>(), level + 1);
-                else if (forStatement->condition.is<Expression*>())
-                    dumpConstruct(forStatement->condition.get<Expression*>(), level + 1);
-                if (forStatement->increment) dumpConstruct(forStatement->increment, level + 1);
+                if (forStatement->initialization)
+                    dumpConstruct(forStatement->initialization, level + 1);
+                if (forStatement->condition)
+                    dumpConstruct(forStatement->condition, level + 1);
+                if (forStatement->increment)
+                    dumpConstruct(forStatement->increment, level + 1);
                 dumpConstruct(forStatement->body, level + 1);
                 break;
             }
@@ -514,10 +510,8 @@ namespace ouzel
 
                 std::cout << '\n';
 
-                if (switchStatement->condition.is<DeclarationStatement*>())
-                    dumpConstruct(switchStatement->condition.get<DeclarationStatement*>(), level + 1);
-                else if (switchStatement->condition.is<Expression*>())
-                    dumpConstruct(switchStatement->condition.get<Expression*>(), level + 1);
+                if (switchStatement->condition)
+                    dumpConstruct(switchStatement->condition, level + 1);
                 dumpConstruct(switchStatement->body, level + 1);
                 break;
             }
@@ -549,10 +543,8 @@ namespace ouzel
 
                 std::cout << '\n';
 
-                if (whileStatement->condition.is<DeclarationStatement*>())
-                    dumpConstruct(whileStatement->condition.get<DeclarationStatement*>(), level + 1);
-                else if (whileStatement->condition.is<Expression*>())
-                    dumpConstruct(whileStatement->condition.get<Expression*>(), level + 1);
+                if (whileStatement->condition)
+                    dumpConstruct(whileStatement->condition, level + 1);
                 dumpConstruct(whileStatement->body, level + 1);
                 break;
             }
@@ -588,6 +580,16 @@ namespace ouzel
 
                 if (returnStatement->result)
                     dumpConstruct(returnStatement->result, level + 1);
+                break;
+            }
+
+            case Statement::Kind::Value:
+            {
+                auto valueStatement = static_cast<const ValueStatement*>(statement);
+
+                std::cout << '\n';
+
+                dumpConstruct(valueStatement->expression, level + 1);
                 break;
             }
 
