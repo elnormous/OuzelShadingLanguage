@@ -29,11 +29,15 @@ namespace ouzel
     class ASTContext final
     {
     public:
+        using TokenIterator = std::vector<Token>::const_iterator;
+        using DeclarationScope = std::vector<Declaration*>;
+        using DeclarationScopes = std::vector<DeclarationScope>;
+
         ASTContext() = default;
         explicit ASTContext(const std::vector<Token>& tokens)
         {
-            std::vector<std::vector<Declaration*>> declarationScopes;
-            declarationScopes.push_back(std::vector<Declaration*>());
+            DeclarationScopes declarationScopes;
+            declarationScopes.push_back(DeclarationScope());
 
             addBuiltinFunctionDeclaration("discard", nullptr, {}, declarationScopes);
 
@@ -87,16 +91,15 @@ namespace ouzel
 
     private:
         static bool isToken(Token::Type tokenType,
-                            std::vector<Token>::const_iterator iterator,
-                            std::vector<Token>::const_iterator end) noexcept
+                            TokenIterator iterator,
+                            TokenIterator end) noexcept
         {
             return iterator != end && iterator->type == tokenType;
         }
 
         template <size_t N>
         static bool isToken(const Token::Type (&tokenTypes)[N],
-                            std::vector<Token>::const_iterator iterator,
-                            std::vector<Token>::const_iterator end) noexcept
+                            TokenIterator iterator, TokenIterator end) noexcept
         {
             if (iterator == end) return false;
 
@@ -107,8 +110,7 @@ namespace ouzel
         }
 
         static bool skipToken(Token::Type tokenType,
-                              std::vector<Token>::const_iterator& iterator,
-                              std::vector<Token>::const_iterator end) noexcept
+                              TokenIterator& iterator, TokenIterator end) noexcept
         {
             bool result = iterator != end && iterator->type == tokenType;
             if (result) ++iterator;
@@ -116,8 +118,7 @@ namespace ouzel
         }
 
         static const Token& expectToken(Token::Type tokenType,
-                                        std::vector<Token>::const_iterator& iterator,
-                                        std::vector<Token>::const_iterator end)
+                                        TokenIterator& iterator, TokenIterator end)
         {
             if (iterator == end)
                 throw ParseError("Unexpected end of file");
@@ -149,7 +150,7 @@ namespace ouzel
         }
 
         static Declaration* findDeclaration(const std::string& name,
-                                            const std::vector<Declaration*>& declarationScope)
+                                            const DeclarationScope& declarationScope)
         {
             for (auto declarationIterator = declarationScope.crbegin(); declarationIterator != declarationScope.crend(); ++declarationIterator)
                 if ((*declarationIterator)->name == name) return *declarationIterator;
@@ -157,8 +158,7 @@ namespace ouzel
             return nullptr;
         }
 
-        static size_t parseIndex(std::vector<Token>::const_iterator& iterator,
-                                 std::vector<Token>::const_iterator end)
+        static size_t parseIndex(TokenIterator& iterator, TokenIterator end)
         {
             size_t result = 0;
 
@@ -177,7 +177,7 @@ namespace ouzel
         }
 
         static Declaration* findDeclaration(const std::string& name,
-                                            const std::vector<std::vector<Declaration*>>& declarationScopes)
+                                            const DeclarationScopes& declarationScopes)
         {
             for (auto scopeIterator = declarationScopes.crbegin(); scopeIterator != declarationScopes.crend(); ++scopeIterator)
                 for (auto declarationIterator = scopeIterator->crbegin(); declarationIterator != scopeIterator->crend(); ++declarationIterator)
@@ -187,7 +187,7 @@ namespace ouzel
         }
 
         Type* findType(const std::string& name,
-                       const std::vector<std::vector<Declaration*>>& declarationScopes)
+                       const DeclarationScopes& declarationScopes)
         {
             auto declaration = findDeclaration(name, declarationScopes);
 
@@ -202,7 +202,7 @@ namespace ouzel
         }
 
         StructType* findStructType(const std::string& name,
-                                   const std::vector<std::vector<Declaration*>>& declarationScopes)
+                                   const DeclarationScopes& declarationScopes)
         {
             auto type = findType(name, declarationScopes);
 
@@ -223,7 +223,7 @@ namespace ouzel
         }
 
         static FunctionDeclaration* findFunctionDeclaration(const std::string& name,
-                                                            const std::vector<std::vector<Declaration*>>& declarationScopes,
+                                                            const DeclarationScopes& declarationScopes,
                                                             const std::vector<QualifiedType>& parameters)
         {
             for (auto scopeIterator = declarationScopes.crbegin(); scopeIterator != declarationScopes.crend(); ++scopeIterator)
@@ -252,7 +252,7 @@ namespace ouzel
         }
 
         static const FunctionDeclaration* resolveFunctionDeclaration(const std::string& name,
-                                                                     const std::vector<std::vector<Declaration*>>& declarationScopes,
+                                                                     const DeclarationScopes& declarationScopes,
                                                                      const std::vector<QualifiedType>& arguments)
         {
             std::vector<const FunctionDeclaration*> candidateFunctionDeclarations;
@@ -345,9 +345,8 @@ namespace ouzel
                 return i->second;
         }
 
-        bool isType(std::vector<Token>::const_iterator iterator,
-                    std::vector<Token>::const_iterator end,
-                    std::vector<std::vector<Declaration*>>& declarationScopes)
+        bool isType(TokenIterator iterator, TokenIterator end,
+                    DeclarationScopes& declarationScopes)
         {
             if (iterator == end)
                 throw ParseError("Unexpected end of file");
@@ -361,9 +360,8 @@ namespace ouzel
                  findType(iterator->value, declarationScopes));
         }
 
-        const Type* parseType(std::vector<Token>::const_iterator& iterator,
-                              std::vector<Token>::const_iterator end,
-                              std::vector<std::vector<Declaration*>>& declarationScopes)
+        const Type* parseType(TokenIterator& iterator, TokenIterator end,
+                              DeclarationScopes& declarationScopes)
         {
             if (iterator == end)
                 throw ParseError("Unexpected end of file");
@@ -404,8 +402,7 @@ namespace ouzel
             return result;
         }
 
-        Attribute* parseAttribute(std::vector<Token>::const_iterator& iterator,
-                                  std::vector<Token>::const_iterator end)
+        Attribute* parseAttribute(TokenIterator& iterator, TokenIterator end)
         {
             if (iterator == end)
                 throw ParseError("Unexpected end of file");
@@ -442,8 +439,7 @@ namespace ouzel
                 throw ParseError("Invalid attribute");
         }
 
-        static bool isDeclaration(std::vector<Token>::const_iterator iterator,
-                                  std::vector<Token>::const_iterator end)
+        static bool isDeclaration(TokenIterator iterator, TokenIterator end)
         {
             if (iterator == end)
                 throw ParseError("Unexpected end of file");
@@ -453,9 +449,8 @@ namespace ouzel
                 iterator->type == Token::Type::Var;
         }
 
-        Declaration* parseTopLevelDeclaration(std::vector<Token>::const_iterator& iterator,
-                                              std::vector<Token>::const_iterator end,
-                                              std::vector<std::vector<Declaration*>>& declarationScopes)
+        Declaration* parseTopLevelDeclaration(TokenIterator& iterator, TokenIterator end,
+                                              DeclarationScopes& declarationScopes)
         {
             auto declaration = parseDeclaration(iterator, end, declarationScopes);
 
@@ -481,9 +476,8 @@ namespace ouzel
             return declaration;
         }
 
-        Declaration* parseDeclaration(std::vector<Token>::const_iterator& iterator,
-                                      std::vector<Token>::const_iterator end,
-                                      std::vector<std::vector<Declaration*>>& declarationScopes)
+        Declaration* parseDeclaration(TokenIterator& iterator, TokenIterator end,
+                                      DeclarationScopes& declarationScopes)
         {
             if (isToken(Token::Type::Semicolon, iterator, end))
             {
@@ -502,9 +496,8 @@ namespace ouzel
                 throw ParseError("Unknown declaration type");
         }
 
-        Declaration* parseFunctionDeclaration(std::vector<Token>::const_iterator& iterator,
-                                              std::vector<Token>::const_iterator end,
-                                              std::vector<std::vector<Declaration*>>& declarationScopes)
+        Declaration* parseFunctionDeclaration(TokenIterator& iterator, TokenIterator end,
+                                              DeclarationScopes& declarationScopes)
         {
             expectToken(Token::Type::Function, iterator, end);
 
@@ -563,7 +556,7 @@ namespace ouzel
                 if (result->definition)
                     throw ParseError("Redefinition of " + result->name);
 
-                declarationScopes.push_back(std::vector<Declaration*>()); // add scope for parameters
+                declarationScopes.push_back(DeclarationScope()); // add scope for parameters
 
                 for (auto parameterDeclaration : result->parameterDeclarations)
                     declarationScopes.back().push_back(parameterDeclaration);
@@ -603,9 +596,8 @@ namespace ouzel
             return result;
         }
 
-        Declaration* parseVariableDeclaration(std::vector<Token>::const_iterator& iterator,
-                                              std::vector<Token>::const_iterator end,
-                                              std::vector<std::vector<Declaration*>>& declarationScopes)
+        Declaration* parseVariableDeclaration(TokenIterator& iterator, TokenIterator end,
+                                              DeclarationScopes& declarationScopes)
         {
             Qualifiers qualifiers = Qualifiers::None;
             StorageClass storageClass = StorageClass::Auto;
@@ -655,9 +647,8 @@ namespace ouzel
             return result;
         }
 
-        TypeDeclaration* parseStructTypeDeclaration(std::vector<Token>::const_iterator& iterator,
-                                                    std::vector<Token>::const_iterator end,
-                                                    std::vector<std::vector<Declaration*>>& declarationScopes)
+        TypeDeclaration* parseStructTypeDeclaration(TokenIterator& iterator, TokenIterator end,
+                                                    DeclarationScopes& declarationScopes)
         {
             expectToken(Token::Type::Struct, iterator, end);
 
@@ -729,9 +720,8 @@ namespace ouzel
             return result;
         }
 
-        Declaration* parseMemberDeclaration(std::vector<Token>::const_iterator& iterator,
-                                            std::vector<Token>::const_iterator end,
-                                            std::vector<std::vector<Declaration*>>& declarationScopes)
+        Declaration* parseMemberDeclaration(TokenIterator& iterator, TokenIterator end,
+                                            DeclarationScopes& declarationScopes)
         {
             expectToken(Token::Type::Var, iterator, end);
 
@@ -760,9 +750,8 @@ namespace ouzel
             return result;
         }
 
-        ParameterDeclaration* parseParameterDeclaration(std::vector<Token>::const_iterator& iterator,
-                                                        std::vector<Token>::const_iterator end,
-                                                        std::vector<std::vector<Declaration*>>& declarationScopes)
+        ParameterDeclaration* parseParameterDeclaration(TokenIterator& iterator, TokenIterator end,
+                                                        DeclarationScopes& declarationScopes)
         {
             InputModifier inputModifier = InputModifier::In;
 
@@ -802,9 +791,8 @@ namespace ouzel
             return result;
         }
 
-        Statement* parseStatement(std::vector<Token>::const_iterator& iterator,
-                                  std::vector<Token>::const_iterator end,
-                                  std::vector<std::vector<Declaration*>>& declarationScopes,
+        Statement* parseStatement(TokenIterator& iterator, TokenIterator end,
+                                  DeclarationScopes& declarationScopes,
                                   std::vector<ReturnStatement*>& returnStatements)
         {
             if (isToken(Token::Type::LeftBrace, iterator, end))
@@ -874,14 +862,13 @@ namespace ouzel
             }
         }
 
-        CompoundStatement* parseCompoundStatement(std::vector<Token>::const_iterator& iterator,
-                                                  std::vector<Token>::const_iterator end,
-                                                  std::vector<std::vector<Declaration*>>& declarationScopes,
+        CompoundStatement* parseCompoundStatement(TokenIterator& iterator, TokenIterator end,
+                                                  DeclarationScopes& declarationScopes,
                                                   std::vector<ReturnStatement*>& returnStatements)
         {
             expectToken(Token::Type::LeftBrace, iterator, end);
 
-            declarationScopes.push_back(std::vector<Declaration*>());
+            declarationScopes.push_back(DeclarationScope());
 
             std::vector<const Statement*> statements;
 
@@ -896,9 +883,8 @@ namespace ouzel
             return create<CompoundStatement>(std::move(statements));
         }
 
-        IfStatement* parseIfStatement(std::vector<Token>::const_iterator& iterator,
-                                      std::vector<Token>::const_iterator end,
-                                      std::vector<std::vector<Declaration*>>& declarationScopes,
+        IfStatement* parseIfStatement(TokenIterator& iterator, TokenIterator end,
+                                      DeclarationScopes& declarationScopes,
                                       std::vector<ReturnStatement*>& returnStatements)
         {
             expectToken(Token::Type::If, iterator, end);
@@ -936,9 +922,8 @@ namespace ouzel
             return create<IfStatement>(condition, body, elseBody);
         }
 
-        ForStatement* parseForStatement(std::vector<Token>::const_iterator& iterator,
-                                        std::vector<Token>::const_iterator end,
-                                        std::vector<std::vector<Declaration*>>& declarationScopes,
+        ForStatement* parseForStatement(TokenIterator& iterator, TokenIterator end,
+                                        DeclarationScopes& declarationScopes,
                                         std::vector<ReturnStatement*>& returnStatements)
         {
             expectToken(Token::Type::For, iterator, end);
@@ -1010,9 +995,8 @@ namespace ouzel
             return create<ForStatement>(initialization, condition, increment, body);
         }
 
-        SwitchStatement* parseSwitchStatement(std::vector<Token>::const_iterator& iterator,
-                                              std::vector<Token>::const_iterator end,
-                                              std::vector<std::vector<Declaration*>>& declarationScopes,
+        SwitchStatement* parseSwitchStatement(TokenIterator& iterator, TokenIterator end,
+                                              DeclarationScopes& declarationScopes,
                                               std::vector<ReturnStatement*>& returnStatements)
         {
             expectToken(Token::Type::Switch, iterator, end);
@@ -1051,9 +1035,8 @@ namespace ouzel
             return create<SwitchStatement>(condition, body);
         }
 
-        CaseStatement* parseCaseStatement(std::vector<Token>::const_iterator& iterator,
-                                          std::vector<Token>::const_iterator end,
-                                          std::vector<std::vector<Declaration*>>& declarationScopes,
+        CaseStatement* parseCaseStatement(TokenIterator& iterator, TokenIterator end,
+                                          DeclarationScopes& declarationScopes,
                                           std::vector<ReturnStatement*>& returnStatements)
         {
             expectToken(Token::Type::Case, iterator, end);
@@ -1073,9 +1056,8 @@ namespace ouzel
             return create<CaseStatement>(condition, body);
         }
 
-        DefaultStatement* parseDefaultStatement(std::vector<Token>::const_iterator& iterator,
-                                                std::vector<Token>::const_iterator end,
-                                                std::vector<std::vector<Declaration*>>& declarationScopes,
+        DefaultStatement* parseDefaultStatement(TokenIterator& iterator, TokenIterator end,
+                                                DeclarationScopes& declarationScopes,
                                                 std::vector<ReturnStatement*>& returnStatements)
         {
             expectToken(Token::Type::Default, iterator, end);
@@ -1084,9 +1066,8 @@ namespace ouzel
             return create<DefaultStatement>(parseStatement(iterator, end, declarationScopes, returnStatements));
         }
 
-        WhileStatement* parseWhileStatement(std::vector<Token>::const_iterator& iterator,
-                                            std::vector<Token>::const_iterator end,
-                                            std::vector<std::vector<Declaration*>>& declarationScopes,
+        WhileStatement* parseWhileStatement(TokenIterator& iterator, TokenIterator end,
+                                            DeclarationScopes& declarationScopes,
                                             std::vector<ReturnStatement*>& returnStatements)
         {
             expectToken(Token::Type::While, iterator, end);
@@ -1121,9 +1102,8 @@ namespace ouzel
             return create<WhileStatement>(condition, body);
         }
 
-        DoStatement* parseDoStatement(std::vector<Token>::const_iterator& iterator,
-                                      std::vector<Token>::const_iterator end,
-                                      std::vector<std::vector<Declaration*>>& declarationScopes,
+        DoStatement* parseDoStatement(TokenIterator& iterator, TokenIterator end,
+                                      DeclarationScopes& declarationScopes,
                                       std::vector<ReturnStatement*>& returnStatements)
         {
             expectToken(Token::Type::Do, iterator, end);
@@ -1144,9 +1124,8 @@ namespace ouzel
             return create<DoStatement>(condition, body);
         }
 
-        Expression* parsePrimaryExpression(std::vector<Token>::const_iterator& iterator,
-                                           std::vector<Token>::const_iterator end,
-                                           std::vector<std::vector<Declaration*>>& declarationScopes)
+        Expression* parsePrimaryExpression(TokenIterator& iterator, TokenIterator end,
+                                           DeclarationScopes& declarationScopes)
         {
             if (isToken(Token::Type::IntLiteral, iterator, end))
             {
@@ -1444,9 +1423,8 @@ namespace ouzel
                 throw ParseError("Expected an expression");
         }
 
-        Expression* parsePostfixExpression(std::vector<Token>::const_iterator& iterator,
-                                           std::vector<Token>::const_iterator end,
-                                           std::vector<std::vector<Declaration*>>& declarationScopes)
+        Expression* parsePostfixExpression(TokenIterator& iterator, TokenIterator end,
+                                           DeclarationScopes& declarationScopes)
         {
             auto result = parsePrimaryExpression(iterator, end, declarationScopes);
 
@@ -1477,9 +1455,8 @@ namespace ouzel
             return result;
         }
 
-        Expression* parseSubscriptExpression(std::vector<Token>::const_iterator& iterator,
-                                             std::vector<Token>::const_iterator end,
-                                             std::vector<std::vector<Declaration*>>& declarationScopes)
+        Expression* parseSubscriptExpression(TokenIterator& iterator, TokenIterator end,
+                                             DeclarationScopes& declarationScopes)
         {
             auto result = parsePostfixExpression(iterator, end, declarationScopes);
 
@@ -1544,9 +1521,8 @@ namespace ouzel
                 throw ParseError("Invalid component");
         }
 
-        Expression* parseMemberExpression(std::vector<Token>::const_iterator& iterator,
-                                          std::vector<Token>::const_iterator end,
-                                          std::vector<std::vector<Declaration*>>& declarationScopes)
+        Expression* parseMemberExpression(TokenIterator& iterator, TokenIterator end,
+                                          DeclarationScopes& declarationScopes)
         {
             auto result = parseSubscriptExpression(iterator, end, declarationScopes);
 
@@ -1621,9 +1597,8 @@ namespace ouzel
             return result;
         }
 
-        Expression* parsePrefixExpression(std::vector<Token>::const_iterator& iterator,
-                                          std::vector<Token>::const_iterator end,
-                                          std::vector<std::vector<Declaration*>>& declarationScopes)
+        Expression* parsePrefixExpression(TokenIterator& iterator, TokenIterator end,
+                                          DeclarationScopes& declarationScopes)
         {
             if (isToken({Token::Type::Increment, Token::Type::Decrement}, iterator, end))
             {
@@ -1651,9 +1626,8 @@ namespace ouzel
                 return parseMemberExpression(iterator, end, declarationScopes);
         }
 
-        Expression* parseSignExpression(std::vector<Token>::const_iterator& iterator,
-                                        std::vector<Token>::const_iterator end,
-                                        std::vector<std::vector<Declaration*>>& declarationScopes)
+        Expression* parseSignExpression(TokenIterator& iterator, TokenIterator end,
+                                        DeclarationScopes& declarationScopes)
         {
             if (isToken({Token::Type::Plus, Token::Type::Minus}, iterator, end))
             {
@@ -1675,9 +1649,8 @@ namespace ouzel
                 return parsePrefixExpression(iterator, end, declarationScopes);
         }
 
-        Expression* parseNotExpression(std::vector<Token>::const_iterator& iterator,
-                                       std::vector<Token>::const_iterator end,
-                                       std::vector<std::vector<Declaration*>>& declarationScopes)
+        Expression* parseNotExpression(TokenIterator& iterator, TokenIterator end,
+                                       DeclarationScopes& declarationScopes)
         {
             if (skipToken(Token::Type::Not, iterator, end))
             {
@@ -1694,9 +1667,8 @@ namespace ouzel
                 return parseSignExpression(iterator, end, declarationScopes);
         }
 
-        Expression* parseMultiplicationExpression(std::vector<Token>::const_iterator& iterator,
-                                                  std::vector<Token>::const_iterator end,
-                                                  std::vector<std::vector<Declaration*>>& declarationScopes)
+        Expression* parseMultiplicationExpression(TokenIterator& iterator, TokenIterator end,
+                                                  DeclarationScopes& declarationScopes)
         {
             auto result = parseNotExpression(iterator, end, declarationScopes);
 
@@ -1721,9 +1693,8 @@ namespace ouzel
             return result;
         }
 
-        Expression* parseAdditionExpression(std::vector<Token>::const_iterator& iterator,
-                                            std::vector<Token>::const_iterator end,
-                                            std::vector<std::vector<Declaration*>>& declarationScopes)
+        Expression* parseAdditionExpression(TokenIterator& iterator, TokenIterator end,
+                                            DeclarationScopes& declarationScopes)
         {
             auto result = parseMultiplicationExpression(iterator, end, declarationScopes);
 
@@ -1748,9 +1719,8 @@ namespace ouzel
             return result;
         }
 
-        Expression* parseLessThanExpression(std::vector<Token>::const_iterator& iterator,
-                                            std::vector<Token>::const_iterator end,
-                                            std::vector<std::vector<Declaration*>>& declarationScopes)
+        Expression* parseLessThanExpression(TokenIterator& iterator, TokenIterator end,
+                                            DeclarationScopes& declarationScopes)
         {
             auto result = parseAdditionExpression(iterator, end, declarationScopes);
 
@@ -1775,9 +1745,8 @@ namespace ouzel
             return result;
         }
 
-        Expression* parseGreaterThanExpression(std::vector<Token>::const_iterator& iterator,
-                                               std::vector<Token>::const_iterator end,
-                                               std::vector<std::vector<Declaration*>>& declarationScopes)
+        Expression* parseGreaterThanExpression(TokenIterator& iterator, TokenIterator end,
+                                               DeclarationScopes& declarationScopes)
         {
             auto result = parseLessThanExpression(iterator, end, declarationScopes);
 
@@ -1802,9 +1771,8 @@ namespace ouzel
             return result;
         }
 
-        Expression* parseEqualityExpression(std::vector<Token>::const_iterator& iterator,
-                                            std::vector<Token>::const_iterator end,
-                                            std::vector<std::vector<Declaration*>>& declarationScopes)
+        Expression* parseEqualityExpression(TokenIterator& iterator, TokenIterator end,
+                                            DeclarationScopes& declarationScopes)
         {
             auto result = parseGreaterThanExpression(iterator, end, declarationScopes);
 
@@ -1829,9 +1797,8 @@ namespace ouzel
             return result;
         }
 
-        Expression* parseLogicalAndExpression(std::vector<Token>::const_iterator& iterator,
-                                              std::vector<Token>::const_iterator end,
-                                              std::vector<std::vector<Declaration*>>& declarationScopes)
+        Expression* parseLogicalAndExpression(TokenIterator& iterator, TokenIterator end,
+                                              DeclarationScopes& declarationScopes)
         {
             auto result = parseEqualityExpression(iterator, end, declarationScopes);
 
@@ -1851,9 +1818,8 @@ namespace ouzel
             return result;
         }
 
-        Expression* parseLogicalOrExpression(std::vector<Token>::const_iterator& iterator,
-                                             std::vector<Token>::const_iterator end,
-                                             std::vector<std::vector<Declaration*>>& declarationScopes)
+        Expression* parseLogicalOrExpression(TokenIterator& iterator, TokenIterator end,
+                                             DeclarationScopes& declarationScopes)
         {
             auto result = parseLogicalAndExpression(iterator, end, declarationScopes);
 
@@ -1873,9 +1839,8 @@ namespace ouzel
             return result;
         }
 
-        Expression* parseTernaryExpression(std::vector<Token>::const_iterator& iterator,
-                                           std::vector<Token>::const_iterator end,
-                                           std::vector<std::vector<Declaration*>>& declarationScopes)
+        Expression* parseTernaryExpression(TokenIterator& iterator, TokenIterator end,
+                                           DeclarationScopes& declarationScopes)
         {
             auto result = parseLogicalOrExpression(iterator, end, declarationScopes);
 
@@ -1899,9 +1864,8 @@ namespace ouzel
             return result;
         }
 
-        Expression* parseAssignmentExpression(std::vector<Token>::const_iterator& iterator,
-                                              std::vector<Token>::const_iterator end,
-                                              std::vector<std::vector<Declaration*>>& declarationScopes)
+        Expression* parseAssignmentExpression(TokenIterator& iterator, TokenIterator end,
+                                              DeclarationScopes& declarationScopes)
         {
             auto result = parseTernaryExpression(iterator, end, declarationScopes);
 
@@ -1927,9 +1891,8 @@ namespace ouzel
             return result;
         }
 
-        Expression* parseAdditionAssignmentExpression(std::vector<Token>::const_iterator& iterator,
-                                                      std::vector<Token>::const_iterator end,
-                                                      std::vector<std::vector<Declaration*>>& declarationScopes)
+        Expression* parseAdditionAssignmentExpression(TokenIterator& iterator, TokenIterator end,
+                                                      DeclarationScopes& declarationScopes)
         {
             auto result = parseAssignmentExpression(iterator, end, declarationScopes);
 
@@ -1960,9 +1923,8 @@ namespace ouzel
             return result;
         }
 
-        Expression* parseMultiplicationAssignmentExpression(std::vector<Token>::const_iterator& iterator,
-                                                            std::vector<Token>::const_iterator end,
-                                                            std::vector<std::vector<Declaration*>>& declarationScopes)
+        Expression* parseMultiplicationAssignmentExpression(TokenIterator& iterator, TokenIterator end,
+                                                            DeclarationScopes& declarationScopes)
         {
             auto result = parseAdditionAssignmentExpression(iterator, end, declarationScopes);
 
@@ -1993,9 +1955,8 @@ namespace ouzel
             return result;
         }
 
-        Expression* parseCommaExpression(std::vector<Token>::const_iterator& iterator,
-                                         std::vector<Token>::const_iterator end,
-                                         std::vector<std::vector<Declaration*>>& declarationScopes)
+        Expression* parseCommaExpression(TokenIterator& iterator, TokenIterator end,
+                                         DeclarationScopes& declarationScopes)
         {
             auto result = parseMultiplicationAssignmentExpression(iterator, end, declarationScopes);
 
@@ -2019,9 +1980,8 @@ namespace ouzel
             return result;
         }
 
-        Expression* parseExpression(std::vector<Token>::const_iterator& iterator,
-                                    std::vector<Token>::const_iterator end,
-                                    std::vector<std::vector<Declaration*>>& declarationScopes)
+        Expression* parseExpression(TokenIterator& iterator, TokenIterator end,
+                                    DeclarationScopes& declarationScopes)
         {
             return parseCommaExpression(iterator, end, declarationScopes);
         }
@@ -2029,7 +1989,7 @@ namespace ouzel
         ScalarType* addScalarType(const std::string& name,
                                   ScalarType::Kind kind,
                                   bool isUnsigned,
-                                  std::vector<std::vector<Declaration*>>& declarationScopes)
+                                  DeclarationScopes& declarationScopes)
         {
             auto scalarType = create<ScalarType>(name, kind, isUnsigned);
 
@@ -2071,7 +2031,7 @@ namespace ouzel
         }
 
         StructType* addStructType(const std::string& name,
-                                  std::vector<std::vector<Declaration*>>& declarationScopes)
+                                  DeclarationScopes& declarationScopes)
         {
             StructType* structType = create<StructType>(name);
 
@@ -2085,7 +2045,7 @@ namespace ouzel
         VectorType* addVectorType(const std::string& name,
                                   const ScalarType* componentType,
                                   uint8_t componentCount,
-                                  std::vector<std::vector<Declaration*>>& declarationScopes)
+                                  DeclarationScopes& declarationScopes)
         {
             VectorType* vectorType = create<VectorType>(name, componentType, componentCount);
 
@@ -2115,7 +2075,7 @@ namespace ouzel
                                   const ScalarType* componentType,
                                   uint8_t rowCount,
                                   uint8_t columnCount,
-                                  std::vector<std::vector<Declaration*>>& declarationScopes)
+                                  DeclarationScopes& declarationScopes)
         {
             MatrixType* matrixType = create<MatrixType>(name, componentType, rowCount, columnCount);
 
@@ -2142,7 +2102,7 @@ namespace ouzel
                                               const std::string& name,
                                               Type* type,
                                               bool isConst,
-                                              std::vector<std::vector<Declaration*>>& declarationScopes)
+                                              DeclarationScopes& declarationScopes)
         {
             Qualifiers qualifiers = (isConst ? Qualifiers::Const : Qualifiers::None);
 
@@ -2157,7 +2117,7 @@ namespace ouzel
         FunctionDeclaration* addBuiltinFunctionDeclaration(const std::string& name,
                                                            const Type* resultType,
                                                            const std::vector<Type*>& parameters,
-                                                           std::vector<std::vector<Declaration*>>& declarationScopes)
+                                                           DeclarationScopes& declarationScopes)
         {
             std::vector<ParameterDeclaration*> parameterDeclarations;
 
