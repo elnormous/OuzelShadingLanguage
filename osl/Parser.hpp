@@ -2093,22 +2093,6 @@ namespace ouzel
             return matrixType;
         }
 
-        FieldDeclaration* addFieldDeclaration(StructType* structType,
-                                              const std::string& name,
-                                              Type* type,
-                                              bool isConst,
-                                              DeclarationScopes& declarationScopes)
-        {
-            Qualifiers qualifiers = (isConst ? Qualifiers::Const : Qualifiers::None);
-
-            auto fieldDeclaration = create<FieldDeclaration>(name, QualifiedType{type, qualifiers}, std::vector<const Attribute*>{});
-            declarationScopes.back().push_back(fieldDeclaration);
-
-            structType->memberDeclarations.push_back(fieldDeclaration);
-
-            return fieldDeclaration;
-        }
-
         FunctionDeclaration* addBuiltinFunctionDeclaration(const std::string& name,
                                                            const Type* resultType,
                                                            const std::vector<Type*>& parameters,
