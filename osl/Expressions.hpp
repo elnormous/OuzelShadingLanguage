@@ -138,10 +138,15 @@ namespace ouzel
     class CallExpression final: public Expression
     {
     public:
-        CallExpression():
+        CallExpression(QualifiedType qualifiedType,
+                       Category category,
+                       const DeclarationReferenceExpression* initDeclarationReference,
+                       std::vector<const Expression*> initArguments):
             Expression(Expression::Kind::Call,
-                       QualifiedType{nullptr}, // TODO
-                       Category::Rvalue) {} // TODO
+                       qualifiedType,
+                       category),
+            declarationReference(initDeclarationReference),
+            arguments(std::move(initArguments)) {}
 
         const DeclarationReferenceExpression* declarationReference = nullptr;
         std::vector<const Expression*> arguments;

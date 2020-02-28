@@ -370,23 +370,22 @@ namespace ouzel
 
             const Type* result;
 
-            if (iterator->type == Token::Type::Void)
-                result = voidType;
-            else if (iterator->type == Token::Type::Bool)
-                result = boolType;
-            else if (iterator->type == Token::Type::Int)
-                result = intType;
-            else if (iterator->type == Token::Type::Float)
-                result = floatType;
-            else if (iterator->type == Token::Type::Double)
-                throw ParseError("Double precision floating point numbers are not supported");
-            else if (iterator->type == Token::Type::Identifier)
+            switch (iterator->type)
             {
-                if (!(result = findType(iterator->value, declarationScopes)))
-                    throw ParseError("Invalid type: " + iterator->value);
+                case Token::Type::Void: result = voidType; break;
+                case Token::Type::Bool: result = boolType; break;
+                case Token::Type::Int: result = intType; break;
+                case Token::Type::Float: result = floatType; break;
+                case Token::Type::Double:
+                    throw ParseError("Double precision floating point numbers are not supported");
+                case Token::Type::Identifier:
+                {
+                    if (!(result = findType(iterator->value, declarationScopes)))
+                        throw ParseError("Invalid type: " + iterator->value);
+                    break;
+                }
+                default: throw ParseError("Expected a type name");
             }
-            else
-                throw ParseError("Expected a type name");
 
             ++iterator;
 
@@ -510,11 +509,12 @@ namespace ouzel
             expectToken(Token::Type::Function, iterator, end);
 
             const auto& name = expectToken(Token::Type::Identifier, iterator, end).value;
-            auto result = create<FunctionDeclaration>(name, QualifiedType{nullptr}); // TODO: fix
 
             expectToken(Token::Type::LeftParenthesis, iterator, end);
 
-            std::vector<QualifiedType> parameters;
+            auto result = create<FunctionDeclaration>(name, QualifiedType{nullptr}, StorageClass::Auto); // TODO: fix
+
+            std::vector<QualifiedType> parameterTypes;
 
             if (!isToken(Token::Type::RightParenthesis, iterator, end))
             {
@@ -522,7 +522,7 @@ namespace ouzel
                 {
                     auto parameterDeclaration = parseParameterDeclaration(iterator, end, declarationScopes);
                     result->parameterDeclarations.push_back(parameterDeclaration);
-                    parameters.push_back(parameterDeclaration->qualifiedType);
+                    parameterTypes.push_back(parameterDeclaration->qualifiedType);
 
                     if (!skipToken(Token::Type::Comma, iterator, end))
                         break;
@@ -532,7 +532,7 @@ namespace ouzel
             expectToken(Token::Type::RightParenthesis, iterator, end);
 
             // TODO: forbid declaring a function with the same name as a declared type (not supported by GLSL)
-            auto previousDeclaration = findFunctionDeclaration(result->name, declarationScopes, parameters);
+            auto previousDeclaration = findFunctionDeclaration(result->name, declarationScopes, parameterTypes);
 
             if (previousDeclaration)
             {
@@ -1349,9 +1349,8 @@ namespace ouzel
                     }
                     else
                     {
-                        auto result = create<CallExpression>();
-
-                        std::vector<QualifiedType> arguments;
+                        std::vector<QualifiedType> argumentTypes;
+                        std::vector<const Expression*> arguments;
 
                         if (!skipToken(Token::Type::RightParenthesis, iterator, end)) // has arguments
                         {
@@ -1359,8 +1358,8 @@ namespace ouzel
                             {
                                 auto argument = parseMultiplicationAssignmentExpression(iterator, end, declarationScopes);
 
-                                result->arguments.push_back(argument);
-                                arguments.push_back(argument->qualifiedType);
+                                arguments.push_back(argument);
+                                argumentTypes.push_back(argument->qualifiedType);
 
                                 if (!skipToken(Token::Type::Comma, iterator, end))
                                     break;
@@ -1369,17 +1368,14 @@ namespace ouzel
                             expectToken(Token::Type::RightParenthesis, iterator, end);
                         }
 
-                        auto functionDeclaration = resolveFunctionDeclaration(name, declarationScopes, arguments);
+                        auto functionDeclaration = resolveFunctionDeclaration(name, declarationScopes, argumentTypes);
                         if (!functionDeclaration)
                             throw ParseError("Invalid function reference: " + name);
 
                         auto declRefExpression = create<DeclarationReferenceExpression>(functionDeclaration,
                                                                                         Expression::Category::Lvalue);
-                        result->declarationReference = declRefExpression;
-                        result->qualifiedType = functionDeclaration->qualifiedType;
-                        result->category = Expression::Category::Rvalue;
 
-                        return result;
+                        return create<CallExpression>(functionDeclaration->qualifiedType, Expression::Category::Rvalue, declRefExpression, std::move(arguments));;
                     }
                 }
                 else
@@ -2158,7 +2154,7 @@ namespace ouzel
                                                            const std::vector<Type*>& parameters,
                                                            std::vector<std::vector<Declaration*>>& declarationScopes)
         {
-            auto functionDeclaration = create<FunctionDeclaration>(name, QualifiedType{resultType}, true);
+            auto functionDeclaration = create<FunctionDeclaration>(name, QualifiedType{resultType}, StorageClass::Auto, true);
 
             for (auto parameter : parameters)
             {
