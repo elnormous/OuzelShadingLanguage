@@ -480,8 +480,8 @@ namespace ouzel
 
                 std::cout << '\n';
 
-                if (ifStatement->condition.is<Declaration*>())
-                    dumpConstruct(ifStatement->condition.get<Declaration*>(), level + 1);
+                if (ifStatement->condition.is<DeclarationStatement*>())
+                    dumpConstruct(ifStatement->condition.get<DeclarationStatement*>(), level + 1);
                 else if (ifStatement->condition.is<Expression*>())
                     dumpConstruct(ifStatement->condition.get<Expression*>(), level + 1);
                 dumpConstruct(ifStatement->body, level + 1);
@@ -495,12 +495,12 @@ namespace ouzel
 
                 std::cout << '\n';
 
-                if (forStatement->initialization.is<Declaration*>())
-                    dumpConstruct(forStatement->initialization.get<Declaration*>(), level + 1);
+                if (forStatement->initialization.is<DeclarationStatement*>())
+                    dumpConstruct(forStatement->initialization.get<DeclarationStatement*>(), level + 1);
                 else if (forStatement->initialization.is<Expression*>())
                     dumpConstruct(forStatement->initialization.get<Expression*>(), level + 1);
-                if (forStatement->condition.is<Declaration*>())
-                    dumpConstruct(forStatement->condition.get<Declaration*>(), level + 1);
+                if (forStatement->condition.is<DeclarationStatement*>())
+                    dumpConstruct(forStatement->condition.get<DeclarationStatement*>(), level + 1);
                 else if (forStatement->condition.is<Expression*>())
                     dumpConstruct(forStatement->condition.get<Expression*>(), level + 1);
                 if (forStatement->increment) dumpConstruct(forStatement->increment, level + 1);
@@ -514,8 +514,8 @@ namespace ouzel
 
                 std::cout << '\n';
 
-                if (switchStatement->condition.is<Declaration*>())
-                    dumpConstruct(switchStatement->condition.get<Declaration*>(), level + 1);
+                if (switchStatement->condition.is<DeclarationStatement*>())
+                    dumpConstruct(switchStatement->condition.get<DeclarationStatement*>(), level + 1);
                 else if (switchStatement->condition.is<Expression*>())
                     dumpConstruct(switchStatement->condition.get<Expression*>(), level + 1);
                 dumpConstruct(switchStatement->body, level + 1);
@@ -549,8 +549,8 @@ namespace ouzel
 
                 std::cout << '\n';
 
-                if (whileStatement->condition.is<Declaration*>())
-                    dumpConstruct(whileStatement->condition.get<Declaration*>(), level + 1);
+                if (whileStatement->condition.is<DeclarationStatement*>())
+                    dumpConstruct(whileStatement->condition.get<DeclarationStatement*>(), level + 1);
                 else if (whileStatement->condition.is<Expression*>())
                     dumpConstruct(whileStatement->condition.get<Expression*>(), level + 1);
                 dumpConstruct(whileStatement->body, level + 1);

@@ -912,7 +912,7 @@ namespace ouzel
                     declaration->getDeclarationKind() != Declaration::Kind::Parameter)
                     throw ParseError("Expected a variable declaration");
 
-                result->condition = declaration;
+                result->condition = create<DeclarationStatement>(declaration);
             }
             else
             {
@@ -952,7 +952,7 @@ namespace ouzel
                     declaration->getDeclarationKind() != Declaration::Kind::Parameter)
                     throw ParseError("Expected a variable declaration");
 
-                result->initialization = declaration;
+                result->initialization = create<DeclarationStatement>(declaration);
 
                 expectToken(Token::Type::Semicolon, iterator, end);
             }
@@ -974,7 +974,7 @@ namespace ouzel
                     declaration->getDeclarationKind() != Declaration::Kind::Parameter)
                     throw ParseError("Expected a variable declaration");
 
-                result->condition = declaration;
+                result->condition = create<DeclarationStatement>(declaration);
 
                 expectToken(Token::Type::Semicolon, iterator, end);
             }
@@ -1030,7 +1030,7 @@ namespace ouzel
                 if (!isIntegerType(variableDeclaration->qualifiedType.type))
                     throw ParseError("Statement requires expression of integer type");
 
-                result->condition = declaration;
+                result->condition = create<DeclarationStatement>(declaration);
             }
             else
             {
@@ -1104,7 +1104,7 @@ namespace ouzel
                     declaration->getDeclarationKind() != Declaration::Kind::Parameter)
                     throw ParseError("Expected a variable declaration");
 
-                result->condition = declaration;
+                result->condition = create<DeclarationStatement>(declaration);
             }
             else
             {

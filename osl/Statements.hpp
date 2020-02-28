@@ -118,7 +118,7 @@ namespace ouzel
         void* pointer = nullptr;
     };
     
-    using DeclarationOrExpression = Variant<Declaration*, Expression*>;
+    using DeclarationOrExpression = Variant<DeclarationStatement*, Expression*>;
 
     class IfStatement final: public Statement
     {

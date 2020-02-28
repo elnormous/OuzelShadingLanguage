@@ -271,8 +271,8 @@ namespace ouzel
                     if (options.whitespaces) code += " ";
                     code += "(";
 
-                    if (ifStatement->condition.is<Declaration*>())
-                        printConstruct(ifStatement->condition.get<Declaration*>(),
+                    if (ifStatement->condition.is<DeclarationStatement*>())
+                        printConstruct(ifStatement->condition.get<DeclarationStatement*>(),
                                        Options(0, options.whitespaces), code);
                     else if (ifStatement->condition.is<Expression*>())
                         printConstruct(ifStatement->condition.get<Expression*>(),
@@ -310,8 +310,8 @@ namespace ouzel
                     if (options.whitespaces) code += " ";
                     code += "(";
 
-                    if (forStatement->initialization.is<Declaration*>())
-                        printConstruct(forStatement->initialization.get<Declaration*>(),
+                    if (forStatement->initialization.is<DeclarationStatement*>())
+                        printConstruct(forStatement->initialization.get<DeclarationStatement*>(),
                                        Options(0, options.whitespaces), code);
                     else if (forStatement->initialization.is<Expression*>())
                         printConstruct(forStatement->initialization.get<Expression*>(),
@@ -320,8 +320,8 @@ namespace ouzel
                     code += ";";
                     if (options.whitespaces) code += " ";
 
-                    if (forStatement->condition.is<Declaration*>())
-                        printConstruct(forStatement->condition.get<Declaration*>(),
+                    if (forStatement->condition.is<DeclarationStatement*>())
+                        printConstruct(forStatement->condition.get<DeclarationStatement*>(),
                                        Options(0, options.whitespaces), code);
                     else if (forStatement->condition.is<Expression*>())
                         printConstruct(forStatement->condition.get<Expression*>(),
@@ -352,8 +352,8 @@ namespace ouzel
                     if (options.whitespaces) code += " ";
                     code += "(";
 
-                    if (switchStatement->condition.is<Declaration*>())
-                        printConstruct(switchStatement->condition.get<Declaration*>(),
+                    if (switchStatement->condition.is<DeclarationStatement*>())
+                        printConstruct(switchStatement->condition.get<DeclarationStatement*>(),
                                        Options(0, options.whitespaces), code);
                     else if (switchStatement->condition.is<Expression*>())
                         printConstruct(switchStatement->condition.get<Expression*>(),
@@ -415,8 +415,8 @@ namespace ouzel
                     if (options.whitespaces) code += " ";
                     code += "(";
 
-                    if (whileStatement->condition.is<Declaration*>())
-                        printConstruct(whileStatement->condition.get<Declaration*>(),
+                    if (whileStatement->condition.is<DeclarationStatement*>())
+                        printConstruct(whileStatement->condition.get<DeclarationStatement*>(),
                                        Options(0, options.whitespaces), code);
                     else if (whileStatement->condition.is<Expression*>())
                         printConstruct(whileStatement->condition.get<Expression*>(),
