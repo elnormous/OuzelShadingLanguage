@@ -90,7 +90,6 @@ namespace ouzel
         inline Kind getTypeKind() const noexcept { return typeKind; }
 
         std::string name;
-        TypeDeclaration* declaration = nullptr;
 
     private:
         Kind typeKind;

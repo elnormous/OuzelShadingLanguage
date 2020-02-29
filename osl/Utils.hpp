@@ -318,9 +318,6 @@ namespace ouzel
                         auto structType = static_cast<const StructType*>(type);
                         std::cout << ", name: " << structType->name;
 
-                        if (structType->declaration)
-                            std::cout << ", declaration: " << structType->declaration;
-
                         std::cout << '\n';
 
                         for (auto memberDeclaration : structType->memberDeclarations)

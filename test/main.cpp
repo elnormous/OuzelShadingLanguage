@@ -197,7 +197,6 @@ namespace
         auto iVariableDeclaration = static_cast<const ouzel::VariableDeclaration*>(iDeclaration);
 
         if (!iVariableDeclaration->qualifiedType.type ||
-            iVariableDeclaration->qualifiedType.type->declaration ||
             iVariableDeclaration->qualifiedType.type->name != "int")
             throw TestError("Expected a declaration of a variable of type int");
 
@@ -579,9 +578,6 @@ namespace
         if (!structDeclarationType || structDeclarationType->name != "Foo")
             throw TestError("Expected a type named Foo");
 
-        if (structDeclarationType->declaration != structTypeDeclaration)
-            throw TestError("Wrong declaration");
-
         if (++i == context.getDeclarations().end())
             throw TestError("Expected a struct definition");
 
@@ -599,9 +595,6 @@ namespace
 
         if (structDeclarationType != structDefinitionType)
             throw TestError("Expected the same type for declaration and definition");
-
-        if (structDefinitionType->declaration->definition != structTypeDefinition)
-            throw TestError("Wrong definition");
     }
 
     void testFunction()

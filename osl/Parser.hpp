@@ -464,11 +464,7 @@ namespace ouzel
             }
             else if (declaration->getDeclarationKind() == Declaration::Kind::Type)
             {
-                auto typeDeclaration = static_cast<const TypeDeclaration*>(declaration);
-
                 // semicolon is not needed after a struct definition
-                if (typeDeclaration->definition != typeDeclaration)
-                    expectToken(Token::Type::Semicolon, iterator, end);
             }
             else
                 expectToken(Token::Type::Semicolon, iterator, end);
@@ -679,39 +675,37 @@ namespace ouzel
             result->firstDeclaration = firstDeclaration ? firstDeclaration : result;
             result->previousDeclaration = previousDeclaration;
             result->definition = definition;
-            if (!previousDeclaration) structType->declaration = result;
 
             declarationScopes.back().push_back(result);
 
-            if (skipToken(Token::Type::LeftBrace, iterator, end))
+            expectToken(Token::Type::LeftBrace, iterator, end);
+
+            // check if only one definition exists
+            if (result->definition)
+                throw ParseError("Redefinition of " + result->name);
+
+            // set the definition pointer of all previous declarations
+            Declaration* declaration = result;
+            while (declaration)
             {
-                // check if only one definition exists
-                if (result->definition)
-                    throw ParseError("Redefinition of " + result->name);
-
-                // set the definition pointer of all previous declarations
-                Declaration* declaration = result;
-                while (declaration)
-                {
-                    declaration->definition = result;
-                    declaration = declaration->previousDeclaration;
-                }
-
-                for (;;)
-                    if (skipToken(Token::Type::RightBrace, iterator, end))
-                        break;
-                    else
-                    {
-                        auto memberDeclaration = parseMemberDeclaration(iterator, end, declarationScopes);
-
-                        expectToken(Token::Type::Semicolon, iterator, end);
-
-                        if (structType->findMemberDeclaration(memberDeclaration->name))
-                            throw ParseError("Redefinition of member " + memberDeclaration->name);
-
-                        structType->memberDeclarations.push_back(memberDeclaration);
-                    }
+                declaration->definition = result;
+                declaration = declaration->previousDeclaration;
             }
+
+            for (;;)
+                if (skipToken(Token::Type::RightBrace, iterator, end))
+                    break;
+                else
+                {
+                    auto memberDeclaration = parseMemberDeclaration(iterator, end, declarationScopes);
+
+                    expectToken(Token::Type::Semicolon, iterator, end);
+
+                    if (structType->findMemberDeclaration(memberDeclaration->name))
+                        throw ParseError("Redefinition of member " + memberDeclaration->name);
+
+                    structType->memberDeclarations.push_back(memberDeclaration);
+                }
 
             return result;
         }
@@ -729,13 +723,6 @@ namespace ouzel
 
             if (type->getTypeKind() == Type::Kind::Void)
                 throw ParseError("Member can not have a void type");
-
-            if (type->getTypeKind() == Type::Kind::Struct)
-            {
-                auto structType = static_cast<const StructType*>(type);
-                if (!structType->declaration->definition)
-                    throw ParseError("Incomplete type " + type->name);
-            }
 
             std::vector<const Attribute*> attributes;
             if (skipToken(Token::Type::Arrow, iterator, end))
