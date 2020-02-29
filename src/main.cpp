@@ -75,7 +75,7 @@ int main(int argc, const char* argv[])
             {
                 if (++i >= argc)
                     throw std::runtime_error("Argument to " + std::string(argv[i]) + " is missing");
-                outputVersion = std::stoi(argv[i]);
+                outputVersion = static_cast<uint32_t>(std::stoi(argv[i]));
             }
             else if (std::string(argv[i]) == "--program")
             {

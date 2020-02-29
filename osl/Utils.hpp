@@ -792,7 +792,7 @@ namespace ouzel
         }
     }
 
-    inline void dumpAttribute(const Attribute* attribute, const uint32_t level = 0)
+    inline void dumpAttribute(const Attribute* attribute)
     {
         std::cout << " " << toString(attribute->getAttributeKind());
 
@@ -911,7 +911,7 @@ namespace ouzel
             case Construct::Kind::Attribute:
             {
                 auto attribute = static_cast<const Attribute*>(construct);
-                dumpAttribute(attribute, level);
+                dumpAttribute(attribute);
                 break;
             }
         }

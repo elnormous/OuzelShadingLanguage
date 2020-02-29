@@ -45,29 +45,29 @@ namespace ouzel
             voidTypePtr->name = "void";
             voidType = voidTypePtr;
 
-            boolType = addScalarType("bool", ScalarType::Kind::Boolean, false, declarationScopes);
-            intType = addScalarType("int", ScalarType::Kind::Integer, false, declarationScopes);
-            uintType = addScalarType("uint", ScalarType::Kind::Integer, true, declarationScopes);
-            floatType = addScalarType("float", ScalarType::Kind::FloatingPoint, false, declarationScopes);
+            boolType = addScalarType("bool", ScalarType::Kind::Boolean, false);
+            intType = addScalarType("int", ScalarType::Kind::Integer, false);
+            uintType = addScalarType("uint", ScalarType::Kind::Integer, true);
+            floatType = addScalarType("float", ScalarType::Kind::FloatingPoint, false);
 
             for (size_t components = 2; components <= 4; ++components)
             {
                 auto vectorType = addVectorType("float" + std::to_string(components),
-                                                floatType, components, declarationScopes);
+                                                floatType, components);
 
                 auto matrixType = addMatrixType("float" + std::to_string(components) + 'x' + std::to_string(components),
-                                                floatType, components, components, declarationScopes);
+                                                floatType, components, components);
 
                 binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Multiplication, vectorType, matrixType, vectorType);
                 binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Multiplication, vectorType, vectorType, matrixType);
             }
 
-            stringType = addStructType("string", declarationScopes);
-            auto texture2DType = addStructType("Texture2D", declarationScopes);
+            stringType = addStructType("string");
+            auto texture2DType = addStructType("Texture2D");
 
             //addBuiltinFunctionDeclaration("sample", float4Type, {texture2DType, float2Type}, declarationScopes);
 
-            auto texture2DMSType = addStructType("Texture2DMS", declarationScopes);
+            auto texture2DMSType = addStructType("Texture2DMS");
 
             //addBuiltinFunctionDeclaration("load", float4Type, {texture2DMSType, float2Type}, declarationScopes);
 
@@ -1983,8 +1983,7 @@ namespace ouzel
 
         ScalarType* addScalarType(const std::string& name,
                                   ScalarType::Kind kind,
-                                  bool isUnsigned,
-                                  DeclarationScopes& declarationScopes)
+                                  bool isUnsigned)
         {
             auto scalarType = create<ScalarType>(name, kind, isUnsigned);
 
@@ -2025,8 +2024,7 @@ namespace ouzel
             return scalarType;
         }
 
-        StructType* addStructType(const std::string& name,
-                                  DeclarationScopes& declarationScopes)
+        StructType* addStructType(const std::string& name)
         {
             StructType* structType = create<StructType>(name);
 
@@ -2039,8 +2037,7 @@ namespace ouzel
 
         VectorType* addVectorType(const std::string& name,
                                   const ScalarType* componentType,
-                                  uint8_t componentCount,
-                                  DeclarationScopes& declarationScopes)
+                                  size_t componentCount)
         {
             VectorType* vectorType = create<VectorType>(name, componentType, componentCount);
 
@@ -2068,9 +2065,8 @@ namespace ouzel
 
         MatrixType* addMatrixType(const std::string& name,
                                   const ScalarType* componentType,
-                                  uint8_t rowCount,
-                                  uint8_t columnCount,
-                                  DeclarationScopes& declarationScopes)
+                                  size_t rowCount,
+                                  size_t columnCount)
         {
             MatrixType* matrixType = create<MatrixType>(name, componentType, rowCount, columnCount);
 

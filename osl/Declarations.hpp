@@ -341,8 +341,8 @@ namespace ouzel
             columnCount(initColumnCount) {}
 
         const ScalarType* componentType = nullptr;
-        uint8_t rowCount = 1;
-        uint8_t columnCount = 1;
+        size_t rowCount = 1;
+        size_t columnCount = 1;
     };
 
     class VariableDeclaration final: public Declaration
