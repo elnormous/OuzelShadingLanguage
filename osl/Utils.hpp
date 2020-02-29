@@ -323,7 +323,7 @@ namespace ouzel
 
                         std::cout << '\n';
 
-                        for (const Declaration* memberDeclaration : structType->memberDeclarations)
+                        for (auto memberDeclaration : structType->memberDeclarations)
                             dumpConstruct(memberDeclaration, level + 1);
 
                         break;
@@ -386,10 +386,10 @@ namespace ouzel
 
                 std::cout << '\n';
 
-                for (ParameterDeclaration* parameter : callableDeclaration->parameterDeclarations)
+                for (auto parameter : callableDeclaration->parameterDeclarations)
                     dumpConstruct(parameter, level + 1);
 
-                for (const auto attribute : callableDeclaration->attributes)
+                for (auto attribute : callableDeclaration->attributes)
                     dumpConstruct(attribute, level + 1);
 
                 if (callableDeclaration->body)

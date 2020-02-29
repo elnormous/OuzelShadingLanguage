@@ -367,7 +367,7 @@ namespace ouzel
     {
     public:
         TypeDeclaration(const std::string& initName, Type* initType) noexcept:
-        Declaration(Declaration::Kind::Type, initName, QualifiedType{initType}, {}),
+            Declaration(Declaration::Kind::Type, initName, QualifiedType{initType}, {}),
             type(initType) {}
 
         Type* type = nullptr;
