@@ -276,17 +276,17 @@ namespace ouzel
         StructType(const std::string& initName):
             Type(Type::Kind::Struct, initName) {}
 
-        ConstructorDeclaration* findConstructorDeclaration(const std::vector<QualifiedType>& parameters) const noexcept
+        const ConstructorDeclaration* findConstructorDeclaration(const std::vector<QualifiedType>& parameters) const noexcept
         {
-            for (Declaration* declaration : memberDeclarations)
+            for (auto declaration : memberDeclarations)
             {
                 if (declaration->getDeclarationKind() == Declaration::Kind::Callable)
                 {
-                    CallableDeclaration* callableDeclaration = static_cast<CallableDeclaration*>(declaration);
+                    auto callableDeclaration = static_cast<const CallableDeclaration*>(declaration);
 
                     if (callableDeclaration->getCallableDeclarationKind() == CallableDeclaration::Kind::Constructor)
                     {
-                        ConstructorDeclaration* constructorDeclaration = static_cast<ConstructorDeclaration*>(callableDeclaration);
+                        auto constructorDeclaration = static_cast<const ConstructorDeclaration*>(callableDeclaration);
 
                         if (constructorDeclaration->parameterDeclarations.size() == parameters.size() &&
                             std::equal(parameters.begin(), parameters.end(),
@@ -303,15 +303,15 @@ namespace ouzel
             return nullptr;
         }
 
-        Declaration* findMemberDeclaration(const std::string& name) const noexcept
+        const Declaration* findMemberDeclaration(const std::string& name) const noexcept
         {
-            for (Declaration* memberDeclaration : memberDeclarations)
+            for (auto memberDeclaration : memberDeclarations)
                 if (memberDeclaration->name == name) return memberDeclaration;
 
             return nullptr;
         }
 
-        std::vector<Declaration*> memberDeclarations;
+        std::vector<const Declaration*> memberDeclarations;
     };
 
     class VectorType final: public Type
