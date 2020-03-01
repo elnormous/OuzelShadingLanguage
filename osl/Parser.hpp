@@ -234,8 +234,8 @@ namespace ouzel
             return nullptr;
         }
 
-        Type* findType(const std::string& name,
-                       const DeclarationScopes& declarationScopes)
+        const Type* findType(const std::string& name,
+                             const DeclarationScopes& declarationScopes)
         {
             auto declaration = findDeclaration(name, declarationScopes);
 
@@ -249,13 +249,13 @@ namespace ouzel
             return nullptr;
         }
 
-        StructType* findStructType(const std::string& name,
-                                   const DeclarationScopes& declarationScopes)
+        const StructType* findStructType(const std::string& name,
+                                         const DeclarationScopes& declarationScopes)
         {
             auto type = findType(name, declarationScopes);
 
             if (type && type->getTypeKind() == Type::Kind::Struct)
-                return static_cast<StructType*>(type);
+                return static_cast<const StructType*>(type);
 
             return nullptr;
         }
@@ -556,6 +556,10 @@ namespace ouzel
                 for (;;)
                 {
                     auto parameterDeclaration = parseParameterDeclaration(iterator, end, declarationScopes);
+
+                    // TODO: check if parameter list does not contain a parameter with the same name
+                    //    throw ParseError(ErrorCode::SymbolRedefinition, "Redefinition of parameter " + parameterDeclaration->name);
+
                     parameterDeclarations.push_back(parameterDeclaration);
                     parameterTypes.push_back(parameterDeclaration->qualifiedType);
 
@@ -697,7 +701,6 @@ namespace ouzel
             // TODO: check if different kind of symbol with the same name does not exist
             auto previousDeclaration = findDeclaration(name, declarationScopes);
 
-            StructType* structType = nullptr;
             Declaration* firstDeclaration = nullptr;
             Declaration* definition = nullptr;
 
@@ -711,34 +714,13 @@ namespace ouzel
                 if (typeDeclaration->type->getTypeKind() != Type::Kind::Struct)
                     throw ParseError(ErrorCode::SymbolRedeclaration, "Redeclaration of " + name);
 
-                structType = static_cast<StructType*>(typeDeclaration->type);
-
                 firstDeclaration = typeDeclaration->firstDeclaration;
                 definition = typeDeclaration->definition;
             }
-            else
-                structType = create<StructType>(name);
-
-            auto result = create<TypeDeclaration>(name, structType);
-            result->firstDeclaration = firstDeclaration ? firstDeclaration : result;
-            result->previousDeclaration = previousDeclaration;
-            result->definition = definition;
-
-            declarationScopes.back().push_back(result);
 
             expectToken(Token::Type::LeftBrace, iterator, end);
 
-            // check if only one definition exists
-            if (result->definition)
-                throw ParseError(ErrorCode::SymbolRedefinition, "Redefinition of " + result->name);
-
-            // set the definition pointer of all previous declarations
-            Declaration* declaration = result;
-            while (declaration)
-            {
-                declaration->definition = result;
-                declaration = declaration->previousDeclaration;
-            }
+            std::vector<const Declaration*> memberDeclarations;
 
             for (;;)
                 if (skipToken(Token::Type::RightBrace, iterator, end))
@@ -749,11 +731,28 @@ namespace ouzel
 
                     expectToken(Token::Type::Semicolon, iterator, end);
 
-                    if (structType->findMemberDeclaration(memberDeclaration->name))
-                        throw ParseError(ErrorCode::SymbolRedefinition, "Redefinition of member " + memberDeclaration->name);
+                    // TODO: check if member list does not contain a member with the same name
+                    //    throw ParseError(ErrorCode::SymbolRedefinition, "Redefinition of member " + memberDeclaration->name);
 
-                    structType->memberDeclarations.push_back(memberDeclaration);
+                    memberDeclarations.push_back(memberDeclaration);
                 }
+
+            auto structType = create<StructType>(name, std::move(memberDeclarations));
+
+            auto result = create<TypeDeclaration>(name, structType);
+            result->firstDeclaration = firstDeclaration ? firstDeclaration : result;
+            result->previousDeclaration = previousDeclaration;
+            result->definition = definition;
+
+            // set the definition pointer of all previous declarations
+            Declaration* declaration = result;
+            while (declaration)
+            {
+                declaration->definition = result;
+                declaration = declaration->previousDeclaration;
+            }
+
+            declarationScopes.back().push_back(result);
 
             return result;
         }
@@ -2054,7 +2053,7 @@ namespace ouzel
 
         StructType* addStructType(const std::string& name)
         {
-            StructType* structType = create<StructType>(name);
+            StructType* structType = create<StructType>(name, std::vector<const Declaration*>{});
 
             binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Equality, boolType, structType, structType);
             binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Inequality, boolType, structType, structType);

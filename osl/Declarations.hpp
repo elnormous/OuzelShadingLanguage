@@ -272,8 +272,10 @@ namespace ouzel
     class StructType final: public Type
     {
     public:
-        StructType(const std::string& initName):
-            Type(Type::Kind::Struct, initName) {}
+        StructType(const std::string& initName,
+                   std::vector<const Declaration*> initMemberDeclarations):
+            Type(Type::Kind::Struct, initName),
+            memberDeclarations(std::move(initMemberDeclarations)) {}
 
         const ConstructorDeclaration* findConstructorDeclaration(const std::vector<QualifiedType>& parameters) const noexcept
         {
@@ -362,11 +364,11 @@ namespace ouzel
     class TypeDeclaration final: public Declaration
     {
     public:
-        TypeDeclaration(const std::string& initName, Type* initType) noexcept:
+        TypeDeclaration(const std::string& initName, const Type* initType) noexcept:
             Declaration(Declaration::Kind::Type, initName, QualifiedType{initType}, {}),
             type(initType) {}
 
-        Type* type = nullptr;
+        const Type* type = nullptr;
     };
 }
 
