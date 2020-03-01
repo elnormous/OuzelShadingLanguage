@@ -543,8 +543,6 @@ namespace
     void testStructDeclaration()
     {
         std::string code = R"OSL(
-        struct Foo;
-
         struct Foo
         {
             var f:float;
@@ -563,24 +561,6 @@ namespace
         if (i == context.getDeclarations().end())
             throw TestError("Expected a struct declaration");
 
-        const auto structDeclaration = *i;
-
-        if (structDeclaration->getDeclarationKind() != ouzel::Declaration::Kind::Type)
-            throw TestError("Expected a type declaration");
-
-        auto structTypeDeclaration = static_cast<const ouzel::TypeDeclaration*>(structDeclaration);
-
-        if (structTypeDeclaration->name != "Foo")
-            throw TestError("Expected a declaration of Foo");
-
-        auto structDeclarationType = structTypeDeclaration->type;
-
-        if (!structDeclarationType || structDeclarationType->name != "Foo")
-            throw TestError("Expected a type named Foo");
-
-        if (++i == context.getDeclarations().end())
-            throw TestError("Expected a struct definition");
-
         const auto structDefinition = *i;
 
         if (structDefinition->getDeclarationKind() != ouzel::Declaration::Kind::Type)
@@ -592,9 +572,6 @@ namespace
             throw TestError("Expected a declaration of Foo");
 
         auto structDefinitionType = structTypeDefinition->type;
-
-        if (structDeclarationType != structDefinitionType)
-            throw TestError("Expected the same type for declaration and definition");
     }
 
     void testFunction()

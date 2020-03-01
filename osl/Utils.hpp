@@ -336,14 +336,14 @@ namespace ouzel
                     case Type::Kind::Vector: // vector types can not be declared in code
                     {
                         auto vectorType = static_cast<const VectorType*>(type);
-                        std::cout << ", name: " << vectorType->name << ", type: " << vectorType->componentType->name << ", components: " << vectorType->componentCount;
+                        std::cout << ", name: " << vectorType->name << ", component type: " << vectorType->componentType->name << ", components: " << vectorType->componentCount;
                         break;
                     }
 
                     case Type::Kind::Matrix: // matrix types can not be declared in code
                     {
                         auto matrixType = static_cast<const MatrixType*>(type);
-                        std::cout << ", name: " << matrixType->name << ", type: " << matrixType->componentType->name << ", columns: " << matrixType->columnCount << ", rows: " << matrixType->rowCount;
+                        std::cout << ", name: " << matrixType->name << ", row type: " << matrixType->rowType->name << ", rows: " << matrixType->rowCount;
                         break;
                     }
                 }

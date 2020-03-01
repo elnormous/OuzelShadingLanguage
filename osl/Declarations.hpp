@@ -331,17 +331,14 @@ namespace ouzel
     {
     public:
         MatrixType(const std::string& initName,
-                   const ScalarType* initComponentType,
-                   size_t initRowCount,
-                   size_t initColumnCount):
+                   const VectorType* initRowType,
+                   size_t initRowCount):
             Type(Type::Kind::Matrix, initName),
-            componentType(initComponentType),
-            rowCount(initRowCount),
-            columnCount(initColumnCount) {}
+            rowType(initRowType),
+            rowCount(initRowCount) {}
 
-        const ScalarType* componentType = nullptr;
+        const VectorType* rowType = nullptr;
         size_t rowCount = 1;
-        size_t columnCount = 1;
     };
 
     class VariableDeclaration final: public Declaration
