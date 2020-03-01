@@ -681,11 +681,11 @@ namespace
     void testInputModifiers()
     {
         std::string code = R"OSL(
-        function fragmentMain(in i:float4, out o:float4):float
+        function fragmentMain(in i:float4, out o:float4):float -> Fragment
         {
             return 0.0f;
         }
-        function vertexMain(inout io:float4):float
+        function vertexMain(inout io:float4):float -> Vertex
         {
             return 0.0f;
         }

@@ -12,8 +12,8 @@ namespace ouzel
     class OutputHLSL final: public Output
     {
     public:
-        OutputHLSL(Program initProgram, const std::string& initMainFunction):
-            Output(initProgram, initMainFunction)
+        OutputHLSL(Program initProgram):
+            Output(initProgram)
         {
         }
 

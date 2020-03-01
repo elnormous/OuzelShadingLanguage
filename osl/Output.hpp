@@ -19,8 +19,8 @@ namespace ouzel
     class Output
     {
     public:
-        Output(Program initProgram, const std::string& initMainFunction):
-            program(initProgram), mainFunction(initMainFunction)
+        Output(Program initProgram):
+            program(initProgram)
         {
         }
 
@@ -30,7 +30,6 @@ namespace ouzel
 
     private:
         Program program;
-        std::string mainFunction;
     };
 }
 

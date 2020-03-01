@@ -14,8 +14,8 @@ namespace ouzel
     class OutputMSL final: public Output
     {
     public:
-        OutputMSL(Program initProgram, const std::string& initMainFunction):
-            Output(initProgram, initMainFunction)
+        OutputMSL(Program initProgram):
+            Output(initProgram)
         {
         }
 

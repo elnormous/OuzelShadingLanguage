@@ -483,6 +483,10 @@ namespace ouzel
                 return create<TesselationFactorAttribute>(parseIndex(iterator, end));
             else if (name == "TextureCoordinates")
                 return create<TextureCoordinatesAttribute>(parseIndex(iterator, end));
+            else if (name == "Fragment")
+                return create<FragmentAttribute>();
+            else if (name == "Vertex")
+                return create<VertexAttribute>();
             else
                 throw ParseError(ErrorCode::InvalidAttribute, "Invalid attribute");
         }

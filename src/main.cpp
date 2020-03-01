@@ -39,7 +39,6 @@ int main(int argc, const char* argv[])
     std::string outputFilename;
     uint32_t outputVersion = 0;
     OutputProgram program = OutputProgram::None;
-    std::string mainFunction;
 
     try
     {
@@ -87,21 +86,12 @@ int main(int argc, const char* argv[])
                 else
                     throw std::runtime_error("Invalid program: " + std::string(argv[i]));
             }
-            else if (std::string(argv[i]) == "--main")
-            {
-                if (++i >= argc)
-                    throw std::runtime_error("Argument to " + std::string(argv[i]) + " is missing");
-                mainFunction = argv[i];
-            }
             else
                 throw std::runtime_error("Invalid argument " + std::string(argv[i]));
         }
 
         if (inputFilename.empty())
             throw std::runtime_error("No input file");
-
-        if (mainFunction.empty())
-            throw std::runtime_error("No main function");
 
         std::ifstream inputFile(inputFilename, std::ios::binary);
 
@@ -137,11 +127,11 @@ int main(int argc, const char* argv[])
                     if (format.empty())
                         throw std::runtime_error("No format");
                     if (format == "hlsl")
-                        output.reset(new ouzel::OutputHLSL(getProgram(program), mainFunction));
+                        output.reset(new ouzel::OutputHLSL(getProgram(program)));
                     else if (format == "glsl")
-                        output.reset(new ouzel::OutputGLSL(getProgram(program), mainFunction, outputVersion));
+                        output.reset(new ouzel::OutputGLSL(getProgram(program), outputVersion));
                     else if (format == "msl")
-                        output.reset(new ouzel::OutputMSL(getProgram(program), mainFunction));
+                        output.reset(new ouzel::OutputMSL(getProgram(program)));
                     else
                         throw std::runtime_error("Invalid format");
 
