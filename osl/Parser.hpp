@@ -539,8 +539,8 @@ namespace ouzel
                 throw ParseError(ErrorCode::DeclarationExpected, "Expected a declaration");
         }
 
-        Declaration* parseFunctionDeclaration(TokenIterator& iterator, TokenIterator end,
-                                              DeclarationScopes& declarationScopes)
+        FunctionDeclaration* parseFunctionDeclaration(TokenIterator& iterator, TokenIterator end,
+                                                      DeclarationScopes& declarationScopes)
         {
             expectToken(Token::Type::Function, iterator, end);
 
@@ -643,8 +643,8 @@ namespace ouzel
             return result;
         }
 
-        Declaration* parseVariableDeclaration(TokenIterator& iterator, TokenIterator end,
-                                              DeclarationScopes& declarationScopes)
+        VariableDeclaration* parseVariableDeclaration(TokenIterator& iterator, TokenIterator end,
+                                                      DeclarationScopes& declarationScopes)
         {
             Qualifiers qualifiers = Qualifiers::None;
             StorageClass storageClass = StorageClass::Auto;
@@ -659,6 +659,8 @@ namespace ouzel
                 throw ParseError(ErrorCode::VariableDeclarationExpected, "Expected a variable declaration");
 
             const auto& name = expectToken(Token::Type::Identifier, iterator, end).value;
+
+            // TODO: check for redeclaration of symbol
 
             const Type* type = nullptr;
             if (skipToken(Token::Type::Colon, iterator, end))
