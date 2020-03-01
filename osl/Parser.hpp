@@ -550,6 +550,7 @@ namespace ouzel
 
             std::vector<QualifiedType> parameterTypes;
             std::vector<ParameterDeclaration*> parameterDeclarations;
+            std::set<std::string> parameterNames;
 
             if (!isToken(Token::Type::RightParenthesis, iterator, end))
             {
@@ -557,8 +558,8 @@ namespace ouzel
                 {
                     auto parameterDeclaration = parseParameterDeclaration(iterator, end, declarationScopes);
 
-                    // TODO: check if parameter list does not contain a parameter with the same name
-                    //    throw ParseError(ErrorCode::SymbolRedefinition, "Redefinition of parameter " + parameterDeclaration->name);
+                    if (!parameterNames.insert(parameterDeclaration->name).second)
+                        throw ParseError(ErrorCode::SymbolRedefinition, "Redefinition of parameter " + parameterDeclaration->name);
 
                     parameterDeclarations.push_back(parameterDeclaration);
                     parameterTypes.push_back(parameterDeclaration->qualifiedType);
@@ -721,6 +722,7 @@ namespace ouzel
             expectToken(Token::Type::LeftBrace, iterator, end);
 
             std::vector<const Declaration*> memberDeclarations;
+            std::set<std::string> memberNames;
 
             for (;;)
                 if (skipToken(Token::Type::RightBrace, iterator, end))
@@ -729,10 +731,10 @@ namespace ouzel
                 {
                     auto memberDeclaration = parseMemberDeclaration(iterator, end, declarationScopes);
 
-                    expectToken(Token::Type::Semicolon, iterator, end);
+                    if (!memberNames.insert(memberDeclaration->name).second)
+                        throw ParseError(ErrorCode::SymbolRedefinition, "Redefinition of member " + memberDeclaration->name);
 
-                    // TODO: check if member list does not contain a member with the same name
-                    //    throw ParseError(ErrorCode::SymbolRedefinition, "Redefinition of member " + memberDeclaration->name);
+                    expectToken(Token::Type::Semicolon, iterator, end);
 
                     memberDeclarations.push_back(memberDeclaration);
                 }
