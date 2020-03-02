@@ -34,6 +34,7 @@ namespace ouzel
         MissingType,
         IllegalVoidType,
         ConditionNotBoolean,
+        MissingInitializer,
         InvalidDeclarationReference,
         DeclarationExpected,
         StatementExpected,
@@ -527,12 +528,12 @@ namespace ouzel
 
         static bool isDeclaration(TokenIterator iterator, TokenIterator end)
         {
-            if (iterator == end)
-                throw ParseError(ErrorCode::UnexpectedEndOfFile, "Unexpected end of file");
-
-            return iterator->type == Token::Type::Const ||
-                iterator->type == Token::Type::Extern ||
-                iterator->type == Token::Type::Var;
+            return isToken({Token::Type::Function,
+                Token::Type::Fragment,
+                Token::Type::Vertex,
+                Token::Type::Const,
+                Token::Type::Extern,
+                Token::Type::Var}, iterator, end);
         }
 
         Declaration* parseTopLevelDeclaration(TokenIterator& iterator, TokenIterator end,
@@ -927,13 +928,8 @@ namespace ouzel
                 throw ParseError(ErrorCode::StatementExpected, "Expected a statement");
             else if (isDeclaration(iterator, end))
             {
-                auto declaration = parseDeclaration(iterator, end, declarationScopes);
-
-                if (declaration->getDeclarationKind() != Declaration::Kind::Variable)
-                    throw ParseError(ErrorCode::VariableDeclarationExpected, "Expected a variable declaration");
-
+                auto declaration = parseVariableDeclaration(iterator, end, declarationScopes);
                 expectToken(Token::Type::Semicolon, iterator, end);
-
                 return create<DeclarationStatement>(declaration);
             }
             else
@@ -976,11 +972,10 @@ namespace ouzel
 
             if (isDeclaration(iterator, end))
             {
-                auto declaration = parseDeclaration(iterator, end, declarationScopes);
+                auto declaration = parseVariableDeclaration(iterator, end, declarationScopes);
 
-                if (declaration->getDeclarationKind() != Declaration::Kind::Variable &&
-                    declaration->getDeclarationKind() != Declaration::Kind::Parameter)
-                    throw ParseError(ErrorCode::VariableDeclarationExpected, "Expected a variable declaration");
+                if (!isBooleanType(declaration->qualifiedType.type))
+                    throw ParseError(ErrorCode::ConditionNotBoolean, "Condition is not of the type \"bool\"");
 
                 condition = declaration;
             }
@@ -1015,12 +1010,7 @@ namespace ouzel
 
             if (isDeclaration(iterator, end))
             {
-                auto declaration = parseDeclaration(iterator, end, declarationScopes);
-
-                if (declaration->getDeclarationKind() != Declaration::Kind::Variable &&
-                    declaration->getDeclarationKind() != Declaration::Kind::Parameter)
-                    throw ParseError(ErrorCode::VariableDeclarationExpected, "Expected a variable declaration");
-
+                auto declaration = parseVariableDeclaration(iterator, end, declarationScopes);
                 initialization = declaration;
 
                 expectToken(Token::Type::Semicolon, iterator, end);
@@ -1038,11 +1028,13 @@ namespace ouzel
 
             if (isDeclaration(iterator, end))
             {
-                auto declaration = parseDeclaration(iterator, end, declarationScopes);
+                auto declaration = parseVariableDeclaration(iterator, end, declarationScopes);
 
-                if (declaration->getDeclarationKind() != Declaration::Kind::Variable &&
-                    declaration->getDeclarationKind() != Declaration::Kind::Parameter)
-                    throw ParseError(ErrorCode::VariableDeclarationExpected, "Expected a variable declaration");
+                if (!declaration->initialization)
+                    throw ParseError(ErrorCode::MissingInitializer, "Condition must have an initializer");
+
+                if (!isBooleanType(declaration->qualifiedType.type))
+                    throw ParseError(ErrorCode::ConditionNotBoolean, "Condition is not of the type \"bool\"");
 
                 condition = declaration;
 
@@ -1088,14 +1080,9 @@ namespace ouzel
 
             if (isDeclaration(iterator, end))
             {
-                auto declaration = parseDeclaration(iterator, end, declarationScopes);
+                auto declaration = parseVariableDeclaration(iterator, end, declarationScopes);
 
-                if (declaration->getDeclarationKind() != Declaration::Kind::Variable)
-                    throw ParseError(ErrorCode::VariableDeclarationExpected, "Expected a variable declaration");
-
-                auto variableDeclaration = static_cast<const VariableDeclaration*>(declaration);
-
-                if (!isIntegerType(variableDeclaration->qualifiedType.type))
+                if (!isIntegerType(declaration->qualifiedType.type))
                     throw ParseError(ErrorCode::IntegerTypeExpected, "Statement requires expression of integer type");
 
                 condition = declaration;
@@ -1159,11 +1146,10 @@ namespace ouzel
 
             if (isDeclaration(iterator, end))
             {
-                auto declaration = parseDeclaration(iterator, end, declarationScopes);
+                auto declaration = parseVariableDeclaration(iterator, end, declarationScopes);
 
-                if (declaration->getDeclarationKind() != Declaration::Kind::Variable &&
-                    declaration->getDeclarationKind() != Declaration::Kind::Parameter)
-                    throw ParseError(ErrorCode::VariableDeclarationExpected, "Expected a variable declaration");
+                if (!isBooleanType(declaration->qualifiedType.type))
+                    throw ParseError(ErrorCode::ConditionNotBoolean, "Condition is not of the type \"bool\"");
 
                 condition = declaration;
             }
