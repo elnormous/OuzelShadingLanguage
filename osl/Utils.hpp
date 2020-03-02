@@ -438,7 +438,7 @@ namespace ouzel
 
                 std::cout << '\n';
 
-                dumpConstruct(expressionStatement->expression, level + 1);
+                dumpConstruct(&expressionStatement->expression, level + 1);
                 break;
             }
 
@@ -448,7 +448,7 @@ namespace ouzel
 
                 std::cout << '\n';
 
-                dumpConstruct(declarationStatement->declaration, level + 1);
+                dumpConstruct(&declarationStatement->declaration, level + 1);
                 break;
             }
 

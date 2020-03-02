@@ -929,13 +929,13 @@ namespace ouzel
                 else if (declaration->getDeclarationKind() != Declaration::Kind::Type)
                     throw ParseError(ErrorCode::UnexpectedDeclaration, "Unexpected declaration");
 
-                return create<DeclarationStatement>(declaration);
+                return create<DeclarationStatement>(*declaration);
             }
             else
             {
                 auto expression = parseExpression(iterator, end, declarationScopes);
                 expectToken(Token::Type::Semicolon, iterator, end);
-                return create<ExpressionStatement>(expression);
+                return create<ExpressionStatement>(*expression);
             }
         }
 
@@ -2221,18 +2221,18 @@ namespace ouzel
         }
 
         template <class T, class ...Args, typename std::enable_if<std::is_base_of<Type, T>::value>::type* = nullptr>
-        T& create(Args... args)
+        T& create(Args&&... args)
         {
             T* result;
-            types.push_back(std::unique_ptr<Type>(result = new T(args...)));
+            types.push_back(std::unique_ptr<Type>(result = new T(std::forward<Args>(args)...)));
             return *result;
         }
 
         template <class T, class ...Args, typename std::enable_if<std::is_base_of<Construct, T>::value>::type* = nullptr>
-        T& create(Args... args)
+        T& create(Args&&... args)
         {
             T* result;
-            constructs.push_back(std::unique_ptr<Construct>(result = new T(args...)));
+            constructs.push_back(std::unique_ptr<Construct>(result = new T(std::forward<Args>(args)...)));
             return *result;
         }
 

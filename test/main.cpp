@@ -63,7 +63,7 @@ namespace
         return static_cast<const ouzel::CompoundStatement*>(body);
     }
 
-    const ouzel::Expression* getMainExpression(const ouzel::ASTContext& context)
+    const ouzel::Expression& getMainExpression(const ouzel::ASTContext& context)
     {
         auto mainCompoundStatement = getMainBody(context);
 
@@ -187,20 +187,19 @@ namespace
             throw TestError("Expected a declaration");
 
         auto iDeclarationStatement = static_cast<const ouzel::DeclarationStatement*>(statement);
-        auto iDeclaration = iDeclarationStatement->declaration;
+        auto& iDeclaration = iDeclarationStatement->declaration;
 
-        if (!iDeclaration ||
-            iDeclaration->name != "i" ||
-            iDeclaration->getDeclarationKind() != ouzel::Declaration::Kind::Variable)
+        if (iDeclaration.name != "i" ||
+            iDeclaration.getDeclarationKind() != ouzel::Declaration::Kind::Variable)
             throw TestError("Expected a variable declaration of i");
 
-        auto iVariableDeclaration = static_cast<const ouzel::VariableDeclaration*>(iDeclaration);
+        auto& iVariableDeclaration = static_cast<const ouzel::VariableDeclaration&>(iDeclaration);
 
-        if (!iVariableDeclaration->qualifiedType.type ||
-            iVariableDeclaration->qualifiedType.type->name != "int")
+        if (!iVariableDeclaration.qualifiedType.type ||
+            iVariableDeclaration.qualifiedType.type->name != "int")
             throw TestError("Expected a declaration of a variable of type int");
 
-        expectLiteral(iVariableDeclaration->initialization, 3);
+        expectLiteral(iVariableDeclaration.initialization, 3);
     }
 
     void testIfStatement()
@@ -499,7 +498,7 @@ namespace
         )OSL";
 
         ouzel::ASTContext context(ouzel::tokenize(code));
-        expectLiteral(getMainExpression(context), true);
+        expectLiteral(&getMainExpression(context), true);
     }
 
     void testIntLiteral()
@@ -512,7 +511,7 @@ namespace
         )OSL";
 
         ouzel::ASTContext context(ouzel::tokenize(code));
-        expectLiteral(getMainExpression(context), 1);
+        expectLiteral(&getMainExpression(context), 1);
     }
 
     void testFloatLiteral()
@@ -525,7 +524,7 @@ namespace
         )OSL";
 
         ouzel::ASTContext context(ouzel::tokenize(code));
-        expectLiteral(getMainExpression(context), 1.0F);
+        expectLiteral(&getMainExpression(context), 1.0F);
     }
 
     void testLiteralExpressions()

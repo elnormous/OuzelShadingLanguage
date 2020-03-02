@@ -45,19 +45,19 @@ namespace ouzel
     class ExpressionStatement final: public Statement
     {
     public:
-        ExpressionStatement(const Expression* initExpression) noexcept:
+        ExpressionStatement(const Expression& initExpression) noexcept:
             Statement(Statement::Kind::Expression), expression(initExpression) {}
 
-        const Expression* expression = nullptr;
+        const Expression& expression;
     };
 
     class DeclarationStatement final: public Statement
     {
     public:
-        DeclarationStatement(const Declaration* initDeclaration) noexcept:
+        DeclarationStatement(const Declaration& initDeclaration) noexcept:
             Statement(Statement::Kind::Declaration), declaration(initDeclaration) {}
 
-        const Declaration* declaration = nullptr;
+        const Declaration& declaration;
     };
 
     class CompoundStatement final: public Statement
