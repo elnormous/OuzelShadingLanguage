@@ -26,7 +26,6 @@ namespace ouzel
     public:
         enum class Kind
         {
-            Empty,
             Type,
             Field,
             Callable,

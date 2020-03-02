@@ -82,12 +82,6 @@ namespace ouzel
         {
             switch (declaration->getDeclarationKind())
             {
-                case Declaration::Kind::Empty:
-                {
-                    if (options.whitespaces) code.append(options.indentation, ' ');
-                    break;
-                }
-
                 case Declaration::Kind::Type:
                 {
                     if (options.whitespaces) code.append(options.indentation, ' ');

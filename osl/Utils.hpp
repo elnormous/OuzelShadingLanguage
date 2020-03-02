@@ -78,7 +78,6 @@ namespace ouzel
     {
         switch (kind)
         {
-            case Declaration::Kind::Empty: return "Empty";
             case Declaration::Kind::Type: return "Type";
             case Declaration::Kind::Field: return "Field";
             case Declaration::Kind::Callable: return "Callable";
@@ -285,12 +284,6 @@ namespace ouzel
 
         switch (declaration->getDeclarationKind())
         {
-            case Declaration::Kind::Empty:
-            {
-                std::cout << '\n';
-                break;
-            }
-
             case Declaration::Kind::Type:
             {
                 auto typeDeclaration = static_cast<const TypeDeclaration*>(declaration);

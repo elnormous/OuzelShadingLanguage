@@ -61,7 +61,8 @@ namespace ouzel
         NoOperator,
         InvalidInitializerType,
         NoConstructorFound,
-        InvalidMember
+        InvalidMember,
+        UnexpectedDeclaration
     };
 
     class ParseError final: public std::logic_error
@@ -562,13 +563,7 @@ namespace ouzel
         Declaration* parseDeclaration(TokenIterator& iterator, TokenIterator end,
                                       DeclarationScopes& declarationScopes)
         {
-            if (isToken(Token::Type::Semicolon, iterator, end))
-            {
-                auto declaration = create<Declaration>(Declaration::Kind::Empty, QualifiedType{nullptr});
-                declarationScopes.back().push_back(declaration);
-                return declaration;
-            }
-            else if (isToken(Token::Type::Struct, iterator, end))
+            if (isToken(Token::Type::Struct, iterator, end))
                 return parseStructTypeDeclaration(iterator, end, declarationScopes);
             else if (isToken({Token::Type::Function, Token::Type::Fragment, Token::Type::Vertex}, iterator, end))
                 return parseFunctionDeclaration(iterator, end, declarationScopes);
@@ -928,8 +923,13 @@ namespace ouzel
                 throw ParseError(ErrorCode::StatementExpected, "Expected a statement");
             else if (isDeclaration(iterator, end))
             {
-                auto declaration = parseVariableDeclaration(iterator, end, declarationScopes);
-                expectToken(Token::Type::Semicolon, iterator, end);
+                auto declaration = parseDeclaration(iterator, end, declarationScopes);
+
+                if (declaration->getDeclarationKind() == Declaration::Kind::Variable)
+                    expectToken(Token::Type::Semicolon, iterator, end);
+                else if (declaration->getDeclarationKind() != Declaration::Kind::Type)
+                    throw ParseError(ErrorCode::UnexpectedDeclaration, "Unexpected declaration");
+
                 return create<DeclarationStatement>(declaration);
             }
             else
