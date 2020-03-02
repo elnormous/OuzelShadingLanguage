@@ -33,6 +33,8 @@ namespace ouzel
             Parameter
         };
 
+        Declaration(const Declaration&) = delete;
+
         Declaration(Kind initDeclarationKind,
                     const QualifiedType& initQualifiedType,
                     std::vector<const Attribute*> initAttributes = {}):
@@ -50,6 +52,8 @@ namespace ouzel
             qualifiedType(initQualifiedType),
             declarationKind(initDeclarationKind),
             attributes(std::move(initAttributes)) {}
+
+        Declaration& operator=(const Declaration&) = delete;
 
         inline Kind getDeclarationKind() const noexcept { return declarationKind; }
 
@@ -231,11 +235,11 @@ namespace ouzel
     class TypeDeclaration final: public Declaration
     {
     public:
-        TypeDeclaration(const std::string& initName, const Type* initType) noexcept:
-            Declaration(Declaration::Kind::Type, initName, QualifiedType{initType}, {}),
+        TypeDeclaration(const std::string& initName, const Type& initType) noexcept:
+            Declaration(Declaration::Kind::Type, initName, QualifiedType{&initType}, {}),
             type(initType) {}
 
-        const Type* type = nullptr;
+        const Type& type;
     };
 }
 

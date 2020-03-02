@@ -558,9 +558,9 @@ namespace
         if (structTypeDefinition->name != "Foo")
             throw TestError("Expected a declaration of Foo");
 
-        auto structDefinitionType = structTypeDefinition->type;
+        auto& structDefinitionType = structTypeDefinition->type;
 
-        if (structTypeDefinition->name != structDefinitionType->name)
+        if (structTypeDefinition->name != structDefinitionType.name)
             throw TestError("Wrong type name");
     }
 

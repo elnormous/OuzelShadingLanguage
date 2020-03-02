@@ -38,6 +38,7 @@ namespace ouzel
             Rvalue
         };
 
+        Expression(const Expression&) = delete;
         Expression(Kind initExpressionKind,
                    const QualifiedType& initQualifiedType,
                    Category initCategory) noexcept:
@@ -45,6 +46,8 @@ namespace ouzel
             qualifiedType(initQualifiedType),
             category(initCategory),
             expressionKind(initExpressionKind) {}
+
+        Expression& operator=(const Expression&) = delete;
 
         inline Kind getExpressionKind() const noexcept { return expressionKind; }
 

@@ -31,12 +31,16 @@ namespace ouzel
             Volatile = 0x10
         };
 
+        Type(const Type&) = delete;
+
         Type(Kind initTypeKind):
             typeKind(initTypeKind) {}
 
         Type(Kind initTypeKind, const std::string& initName):
             name(initName),
             typeKind(initTypeKind) {}
+
+        Type* operator=(const Type&) = delete;
 
         inline Kind getTypeKind() const noexcept { return typeKind; }
 

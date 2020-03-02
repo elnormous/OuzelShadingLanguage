@@ -31,7 +31,10 @@ namespace ouzel
             Return
         };
 
+        Statement(const Statement&) = delete;
         Statement(Kind initStatementKind) noexcept: Construct(Construct::Kind::Statement), statementKind(initStatementKind) {}
+
+        Statement& operator=(const Statement&) = delete;
 
         inline Kind getStatementKind() const noexcept { return statementKind; }
 

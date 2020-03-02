@@ -111,11 +111,11 @@ namespace ouzel
                 binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Multiplication, vectorType, vectorType, matrixType);
             }
 
-            auto texture2DType = addStructType("Texture2D");
+            auto& texture2DType = addStructType("Texture2D");
 
             //addBuiltinFunctionDeclaration("sample", float4Type, {texture2DType, float2Type}, declarationScopes);
 
-            auto texture2DMSType = addStructType("Texture2DMS");
+            auto& texture2DMSType = addStructType("Texture2DMS");
 
             //addBuiltinFunctionDeclaration("load", float4Type, {texture2DMSType, float2Type}, declarationScopes);
 
@@ -248,7 +248,7 @@ namespace ouzel
             auto declaration = findDeclaration(name, declarationScopes);
 
             if (declaration && declaration->getDeclarationKind() == Declaration::Kind::Type)
-                return static_cast<TypeDeclaration*>(declaration)->type;
+                return &static_cast<TypeDeclaration*>(declaration)->type;
 
             for (const auto& type : types)
                 if (type->name == name)
@@ -761,7 +761,7 @@ namespace ouzel
 
                 auto typeDeclaration = static_cast<TypeDeclaration*>(previousDeclaration);
 
-                if (typeDeclaration->type->getTypeKind() != Type::Kind::Struct)
+                if (typeDeclaration->type.getTypeKind() != Type::Kind::Struct)
                     throw ParseError(ErrorCode::SymbolRedeclaration, "Redeclaration of " + name);
 
                 firstDeclaration = typeDeclaration->firstDeclaration;
@@ -788,7 +788,7 @@ namespace ouzel
                     memberDeclarations.push_back(memberDeclaration);
                 }
 
-            auto structType = &create<StructType>(name, std::move(memberDeclarations));
+            auto& structType = create<StructType>(name, std::move(memberDeclarations));
 
             auto result = &create<TypeDeclaration>(name, structType);
             result->firstDeclaration = firstDeclaration ? firstDeclaration : result;

@@ -287,33 +287,33 @@ namespace ouzel
             case Declaration::Kind::Type:
             {
                 auto typeDeclaration = static_cast<const TypeDeclaration*>(declaration);
-                auto type = typeDeclaration->type;
+                auto& type = typeDeclaration->type;
 
-                std::cout << " " << toString(type->getTypeKind());
+                std::cout << " " << toString(type.getTypeKind());
 
-                switch (type->getTypeKind())
+                switch (type.getTypeKind())
                 {
                     case Type::Kind::Void: // void types can not be declared in code
                     {
-                        std::cout << ", name: " << type->name;
+                        std::cout << ", name: " << type.name;
                         break;
                     }
 
                     case Type::Kind::Array: // array types can not be declared in code
                     {
-                        auto arrayType = static_cast<const ArrayType*>(type);
-                        std::cout << ", name: " << arrayType->name << ", element type: " << getPrintableTypeName(arrayType->elementType) << ", size" << arrayType->size;
+                        auto& arrayType = static_cast<const ArrayType&>(type);
+                        std::cout << ", name: " << arrayType.name << ", element type: " << getPrintableTypeName(arrayType.elementType) << ", size" << arrayType.size;
                         break;
                     }
 
                     case Type::Kind::Struct:
                     {
-                        auto structType = static_cast<const StructType*>(type);
-                        std::cout << ", name: " << structType->name;
+                        auto& structType = static_cast<const StructType&>(type);
+                        std::cout << ", name: " << structType.name;
 
                         std::cout << '\n';
 
-                        for (auto memberDeclaration : structType->memberDeclarations)
+                        for (auto memberDeclaration : structType.memberDeclarations)
                             dumpConstruct(memberDeclaration, level + 1);
 
                         break;
@@ -321,22 +321,22 @@ namespace ouzel
 
                     case Type::Kind::Scalar: // scalar types can not be declared in code
                     {
-                        auto scalarType = static_cast<const ScalarType*>(type);
-                        std::cout << ", name: " << scalarType->name << ", scalar type kind: " << toString(scalarType->getScalarTypeKind());
+                        auto& scalarType = static_cast<const ScalarType&>(type);
+                        std::cout << ", name: " << scalarType.name << ", scalar type kind: " << toString(scalarType.getScalarTypeKind());
                         break;
                     }
 
                     case Type::Kind::Vector: // vector types can not be declared in code
                     {
-                        auto vectorType = static_cast<const VectorType*>(type);
-                        std::cout << ", name: " << vectorType->name << ", component type: " << vectorType->componentType->name << ", components: " << vectorType->componentCount;
+                        auto& vectorType = static_cast<const VectorType&>(type);
+                        std::cout << ", name: " << vectorType.name << ", component type: " << vectorType.componentType->name << ", components: " << vectorType.componentCount;
                         break;
                     }
 
                     case Type::Kind::Matrix: // matrix types can not be declared in code
                     {
-                        auto matrixType = static_cast<const MatrixType*>(type);
-                        std::cout << ", name: " << matrixType->name << ", row type: " << matrixType->rowType->name << ", rows: " << matrixType->rowCount;
+                        auto& matrixType = static_cast<const MatrixType&>(type);
+                        std::cout << ", name: " << matrixType.name << ", row type: " << matrixType.rowType->name << ", rows: " << matrixType.rowCount;
                         break;
                     }
                 }
