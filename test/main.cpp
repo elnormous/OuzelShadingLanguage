@@ -493,6 +493,7 @@ namespace
         function main():void
         {
             true;
+            return;
         }
         )OSL";
 

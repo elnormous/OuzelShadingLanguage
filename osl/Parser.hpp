@@ -663,7 +663,7 @@ namespace ouzel
                 if (!returnStatements.empty())
                     for (const auto returnStatement : returnStatements)
                     {
-                        const auto returnType = returnStatement->result->qualifiedType.type;
+                        const auto returnType = returnStatement->result ? returnStatement->result->qualifiedType.type : &voidType;
                         if (!result->qualifiedType.type)
                             result->qualifiedType.type = returnType;
                         else if (result->qualifiedType.type != returnType)
@@ -903,7 +903,10 @@ namespace ouzel
             }
             else if (skipToken(Token::Type::Return, iterator, end))
             {
-                auto& result = create<ReturnStatement>(parseExpression(iterator, end, declarationScopes));
+                auto& result = isToken(Token::Type::Semicolon, iterator, end) ?
+                    create<ReturnStatement>() :
+                    create<ReturnStatement>(parseExpression(iterator, end, declarationScopes));
+
                 returnStatements.push_back(&result);
 
                 expectToken(Token::Type::Semicolon, iterator, end);

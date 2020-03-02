@@ -182,7 +182,7 @@ namespace ouzel
     class ReturnStatement final: public Statement
     {
     public:
-        ReturnStatement(const Expression* initResult) noexcept:
+        ReturnStatement(const Expression* initResult = nullptr) noexcept:
             Statement(Statement::Kind::Return),
             result(initResult) {}
 
