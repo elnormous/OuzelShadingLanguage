@@ -92,8 +92,7 @@ namespace ouzel
 
             addBuiltinFunctionDeclaration("discard", nullptr, {}, declarationScopes);
 
-            auto voidTypePtr = create<Type>(Type::Kind::Void);
-            voidTypePtr->name = "void";
+            auto voidTypePtr = create<Type>(Type::Kind::Void, "void");
             voidType = voidTypePtr;
 
             boolType = addScalarType("bool", ScalarType::Kind::Boolean, false);
