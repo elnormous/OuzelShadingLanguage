@@ -942,6 +942,7 @@ namespace ouzel
             case Token::Type::False: return "False";
             case Token::Type::Float: return "Float";
             case Token::Type::For: return "For";
+            case Token::Type::Fragment: return "Fragment";
             case Token::Type::Friend: return "Friend";
             case Token::Type::Function: return "Function";
             case Token::Type::Goto: return "Goto";
@@ -987,6 +988,7 @@ namespace ouzel
             case Token::Type::Using: return "Using";
             case Token::Type::Var: return "Var";
             case Token::Type::Varying: return "Varying";
+            case Token::Type::Vertex: return "Vertex";
             case Token::Type::Virtual: return "Virtual";
             case Token::Type::Void: return "Void";
             case Token::Type::Volatile: return "Volatile";
