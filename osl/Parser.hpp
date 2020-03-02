@@ -157,6 +157,14 @@ namespace ouzel
             return false;
         }
 
+        static const Token& getToken(TokenIterator& iterator, TokenIterator end)
+        {
+            if (iterator == end)
+                throw ParseError(ErrorCode::UnexpectedEndOfFile, "Unexpected end of file");
+
+            return *iterator++;
+        }
+
         static bool skipToken(Token::Type tokenType,
                               TokenIterator& iterator, TokenIterator end) noexcept
         {
@@ -448,12 +456,11 @@ namespace ouzel
         const Type* parseType(TokenIterator& iterator, TokenIterator end,
                               DeclarationScopes& declarationScopes)
         {
-            if (iterator == end)
-                throw ParseError(ErrorCode::UnexpectedEndOfFile, "Unexpected end of file");
+            auto& token = getToken(iterator, end);
 
             const Type* result;
 
-            switch (iterator->type)
+            switch (token.type)
             {
                 case Token::Type::Void: result = &voidType; break;
                 case Token::Type::Bool: result = &boolType; break;
@@ -463,14 +470,12 @@ namespace ouzel
                     throw ParseError(ErrorCode::UnsupportedFeature, "Double precision floating point numbers are not supported");
                 case Token::Type::Identifier:
                 {
-                    if (!(result = findType(iterator->value, declarationScopes)))
-                        throw ParseError(ErrorCode::InvalidType, "Invalid type \"" + iterator->value + "\"");
+                    if (!(result = findType(token.value, declarationScopes)))
+                        throw ParseError(ErrorCode::InvalidType, "Invalid type \"" + token.value + "\"");
                     break;
                 }
                 default: throw ParseError(ErrorCode::DeclarationExpected, "Expected a type name");
             }
-
-            ++iterator;
 
             while (skipToken(Token::Type::LeftBracket, iterator, end))
             {
@@ -1502,8 +1507,7 @@ namespace ouzel
                 if (result->qualifiedType.type->getTypeKind() != Type::Kind::Scalar)
                     throw ParseError(ErrorCode::NumberTypeExpected, "Parameter of the postfix operator must be a number");
 
-                const auto operatorKind =
-                    (iterator->type == Token::Type::Increment) ?
+                const auto operatorKind = (iterator->type == Token::Type::Increment) ?
                     UnaryOperatorExpression::Kind::PostfixIncrement :
                     UnaryOperatorExpression::Kind::PostfixDecrement;
 
@@ -1660,8 +1664,7 @@ namespace ouzel
         {
             if (isToken({Token::Type::Increment, Token::Type::Decrement}, iterator, end))
             {
-                const auto operatorKind =
-                    (iterator->type == Token::Type::Increment) ?
+                const auto operatorKind = (iterator->type == Token::Type::Increment) ?
                     UnaryOperatorExpression::Kind::PrefixIncrement :
                     UnaryOperatorExpression::Kind::PrefixDecrement;
 
@@ -1689,8 +1692,7 @@ namespace ouzel
         {
             if (isToken({Token::Type::Plus, Token::Type::Minus}, iterator, end))
             {
-                const auto operatorKind =
-                    (iterator->type == Token::Type::Plus) ?
+                const auto operatorKind = (iterator->type == Token::Type::Plus) ?
                     UnaryOperatorExpression::Kind::Positive :
                     UnaryOperatorExpression::Kind::Negative;
 
@@ -1732,8 +1734,7 @@ namespace ouzel
 
             while (isToken({Token::Type::Multiply, Token::Type::Divide}, iterator, end))
             {
-                const auto operatorKind =
-                    (iterator->type == Token::Type::Multiply) ?
+                const auto operatorKind = (iterator->type == Token::Type::Multiply) ?
                     BinaryOperatorExpression::Kind::Multiplication :
                     BinaryOperatorExpression::Kind::Division;
 
@@ -1758,8 +1759,7 @@ namespace ouzel
 
             while (isToken({Token::Type::Plus, Token::Type::Minus}, iterator, end))
             {
-                const auto operatorKind =
-                    (iterator->type == Token::Type::Plus) ?
+                const auto operatorKind = (iterator->type == Token::Type::Plus) ?
                     BinaryOperatorExpression::Kind::Addition :
                     BinaryOperatorExpression::Kind::Subtraction;
 
@@ -1784,8 +1784,7 @@ namespace ouzel
 
             while (isToken({Token::Type::LessThan, Token::Type::LessThanEqual}, iterator, end))
             {
-                const auto operatorKind =
-                    (iterator->type == Token::Type::LessThan) ?
+                const auto operatorKind = (iterator->type == Token::Type::LessThan) ?
                     BinaryOperatorExpression::Kind::LessThan :
                     BinaryOperatorExpression::Kind::LessThanEqual;
 
@@ -1810,8 +1809,7 @@ namespace ouzel
 
             while (isToken({Token::Type::GreaterThan, Token::Type::GreaterThanEqual}, iterator, end))
             {
-                const auto operatorKind =
-                    (iterator->type == Token::Type::GreaterThan) ?
+                const auto operatorKind = (iterator->type == Token::Type::GreaterThan) ?
                     BinaryOperatorExpression::Kind::GreaterThan :
                     BinaryOperatorExpression::Kind::GraterThanEqual;
 
@@ -1836,8 +1834,7 @@ namespace ouzel
 
             while (isToken({Token::Type::Equal, Token::Type::NotEq}, iterator, end))
             {
-                const auto operatorKind =
-                    (iterator->type == Token::Type::Equal) ?
+                const auto operatorKind = (iterator->type == Token::Type::Equal) ?
                     BinaryOperatorExpression::Kind::Equality :
                     BinaryOperatorExpression::Kind::Inequality;
 
@@ -1956,8 +1953,7 @@ namespace ouzel
 
             while (isToken({Token::Type::PlusAssignment, Token::Type::MinusAssignment}, iterator, end))
             {
-                const auto operatorKind =
-                    (iterator->type == Token::Type::PlusAssignment) ?
+                const auto operatorKind = (iterator->type == Token::Type::PlusAssignment) ?
                     BinaryOperatorExpression::Kind::AdditionAssignment :
                     BinaryOperatorExpression::Kind::SubtractAssignment;
 
@@ -1988,8 +1984,7 @@ namespace ouzel
 
             while (isToken({Token::Type::MultiplyAssignment, Token::Type::DivideAssignment}, iterator, end))
             {
-                const auto operatorKind =
-                    (iterator->type == Token::Type::MultiplyAssignment) ?
+                const auto operatorKind = (iterator->type == Token::Type::MultiplyAssignment) ?
                     BinaryOperatorExpression::Kind::MultiplicationAssignment :
                     BinaryOperatorExpression::Kind::DivisionAssignment;
 
