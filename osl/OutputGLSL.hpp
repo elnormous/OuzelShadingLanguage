@@ -53,8 +53,8 @@ namespace ouzel
         {
             std::pair<std::string, std::string> result;
 
-            if ((qualifiedType.qualifiers & Qualifiers::Volatile) == Qualifiers::Volatile) result.first += "volatile ";
-            if ((qualifiedType.qualifiers & Qualifiers::Const) == Qualifiers::Const) result.first += "const ";
+            if ((qualifiedType.qualifiers & Type::Qualifiers::Volatile) == Type::Qualifiers::Volatile) result.first += "volatile ";
+            if ((qualifiedType.qualifiers & Type::Qualifiers::Const) == Type::Qualifiers::Const) result.first += "const ";
 
             if (!qualifiedType.type)
             {

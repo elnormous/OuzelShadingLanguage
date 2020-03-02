@@ -37,6 +37,7 @@ namespace ouzel
         InvalidDeclarationReference,
         DeclarationExpected,
         StatementExpected,
+        FunctionDeclarationExpected,
         VariableDeclarationExpected,
         ExpressionExpected,
         IntegerTypeExpected,
@@ -377,6 +378,43 @@ namespace ouzel
             }
         }
 
+        static const ConstructorDeclaration* findConstructorDeclaration(const StructType* structType,
+                                                                        const std::vector<QualifiedType>& parameters) noexcept
+        {
+            for (auto declaration : structType->memberDeclarations)
+            {
+                if (declaration->getDeclarationKind() == Declaration::Kind::Callable)
+                {
+                    auto callableDeclaration = static_cast<const CallableDeclaration*>(declaration);
+
+                    if (callableDeclaration->getCallableDeclarationKind() == CallableDeclaration::Kind::Constructor)
+                    {
+                        auto constructorDeclaration = static_cast<const ConstructorDeclaration*>(callableDeclaration);
+
+                        if (constructorDeclaration->parameterDeclarations.size() == parameters.size() &&
+                            std::equal(parameters.begin(), parameters.end(),
+                                       constructorDeclaration->parameterDeclarations.begin(),
+                                       [](const QualifiedType& qualifiedType,
+                                          const ParameterDeclaration* parameterDeclaration) {
+                                           return qualifiedType.type == parameterDeclaration->qualifiedType.type; // TODO: overload resolution
+                                       }))
+                            return constructorDeclaration;
+                    }
+                }
+            }
+
+            return nullptr;
+        }
+
+        static const Declaration* findMemberDeclaration(const StructType* structType,
+                                                        const std::string& name) noexcept
+        {
+            for (auto memberDeclaration : structType->memberDeclarations)
+                if (memberDeclaration->name == name) return memberDeclaration;
+
+            return nullptr;
+        }
+
         const ArrayType* getArrayType(const Type* type, size_t count)
         {
             QualifiedType qualifiedType{type};
@@ -483,10 +521,6 @@ namespace ouzel
                 return create<TesselationFactorAttribute>(parseIndex(iterator, end));
             else if (name == "TextureCoordinates")
                 return create<TextureCoordinatesAttribute>(parseIndex(iterator, end));
-            else if (name == "Fragment")
-                return create<FragmentAttribute>();
-            else if (name == "Vertex")
-                return create<VertexAttribute>();
             else
                 throw ParseError(ErrorCode::InvalidAttribute, "Invalid attribute");
         }
@@ -535,7 +569,7 @@ namespace ouzel
             }
             else if (isToken(Token::Type::Struct, iterator, end))
                 return parseStructTypeDeclaration(iterator, end, declarationScopes);
-            else if (isToken(Token::Type::Function, iterator, end))
+            else if (isToken({Token::Type::Function, Token::Type::Fragment, Token::Type::Vertex}, iterator, end))
                 return parseFunctionDeclaration(iterator, end, declarationScopes);
             else if (isToken({Token::Type::Const, Token::Type::Extern, Token::Type::Var}, iterator, end))
                 return parseVariableDeclaration(iterator, end, declarationScopes);
@@ -546,7 +580,16 @@ namespace ouzel
         FunctionDeclaration* parseFunctionDeclaration(TokenIterator& iterator, TokenIterator end,
                                                       DeclarationScopes& declarationScopes)
         {
-            expectToken(Token::Type::Function, iterator, end);
+            FunctionDeclaration::Qualifier qualifier = FunctionDeclaration::Qualifier::None;
+
+            if (skipToken(Token::Type::Function, iterator, end))
+                qualifier = FunctionDeclaration::Qualifier::None;
+            else if (skipToken(Token::Type::Fragment, iterator, end))
+                qualifier = FunctionDeclaration::Qualifier::Fragment;
+            else if (skipToken(Token::Type::Vertex, iterator, end))
+                qualifier = FunctionDeclaration::Qualifier::Vertex;
+            else
+                throw ParseError(ErrorCode::FunctionDeclarationExpected, "Expected a function declaration");
 
             const auto& name = expectToken(Token::Type::Identifier, iterator, end).value;
 
@@ -588,7 +631,9 @@ namespace ouzel
                 while (isToken(Token::Type::Identifier, iterator, end))
                     attributes.push_back(parseAttribute(iterator, end));
 
-            auto result = create<FunctionDeclaration>(name, QualifiedType{type}, StorageClass::Auto, std::move(attributes), std::move(parameterDeclarations));
+            auto result = create<FunctionDeclaration>(name, QualifiedType{type}, StorageClass::Auto,
+                                                      std::move(attributes), std::move(parameterDeclarations),
+                                                      qualifier);
 
             if (previousDeclaration)
             {
@@ -650,15 +695,15 @@ namespace ouzel
         VariableDeclaration* parseVariableDeclaration(TokenIterator& iterator, TokenIterator end,
                                                       DeclarationScopes& declarationScopes)
         {
-            Qualifiers qualifiers = Qualifiers::None;
+            Type::Qualifiers qualifiers = Type::Qualifiers::None;
             StorageClass storageClass = StorageClass::Auto;
 
             if (skipToken(Token::Type::Const, iterator, end))
-                qualifiers = Qualifiers::Const;
+                qualifiers = Type::Qualifiers::Const;
             else if (skipToken(Token::Type::Extern, iterator, end))
                 storageClass = StorageClass::Extern;
             else if (skipToken(Token::Type::Var, iterator, end))
-                qualifiers = Qualifiers::None;
+                qualifiers = Type::Qualifiers::None;
             else
                 throw ParseError(ErrorCode::VariableDeclarationExpected, "Expected a variable declaration");
 
@@ -1083,7 +1128,7 @@ namespace ouzel
             if (!isIntegerType(condition->qualifiedType.type))
                 throw ParseError(ErrorCode::IntegerTypeExpected, "Statement requires expression of integer type");
 
-            if ((condition->qualifiedType.qualifiers & Qualifiers::Const) != Qualifiers::Const)
+            if ((condition->qualifiedType.qualifiers & Type::Qualifiers::Const) != Type::Qualifiers::Const)
                 throw ParseError(ErrorCode::ExpressionNotConst, "Expression must be constant");
 
             expectToken(Token::Type::Colon, iterator, end);
@@ -1279,7 +1324,7 @@ namespace ouzel
                                 for (auto parameter : parameters)
                                     result->parameters.push_back(parameter);
 
-                                if (!(result->constructorDeclaration = structType->findConstructorDeclaration(parameterTypes)))
+                                if (!(result->constructorDeclaration = findConstructorDeclaration(structType, parameterTypes)))
                                     throw ParseError(ErrorCode::NoConstructorFound, "No matching constructor found");
 
                                 return result;
@@ -1468,7 +1513,7 @@ namespace ouzel
                 if (result->category != Expression::Category::Lvalue)
                     throw ParseError(ErrorCode::ExpressionNotAssignable, "Expression is not assignable");
 
-                if ((result->qualifiedType.qualifiers & Qualifiers::Const) == Qualifiers::Const)
+                if ((result->qualifiedType.qualifiers & Type::Qualifiers::Const) == Type::Qualifiers::Const)
                     throw ParseError(ErrorCode::ExpressionNotAssignable, "Cannot assign to const variable");
 
                 if (result->qualifiedType.type->getTypeKind() != Type::Kind::Scalar)
@@ -1572,7 +1617,7 @@ namespace ouzel
 
                     auto& name = expectToken(Token::Type::Identifier, iterator, end).value;
 
-                    auto memberDeclaration = structType->findMemberDeclaration(name);
+                    auto memberDeclaration = findMemberDeclaration(structType, name);
                     if (!memberDeclaration)
                         throw ParseError(ErrorCode::InvalidMember, "Structure \"" + structType->name +  "\" has no member \"" + name + "\"");
 
@@ -1580,8 +1625,8 @@ namespace ouzel
                         throw ParseError(ErrorCode::InvalidMember, "\"" + iterator->value + "\" is not a field");
 
                     auto expression = create<MemberExpression>(result, static_cast<const FieldDeclaration*>(memberDeclaration));
-                    if ((result->qualifiedType.qualifiers & Qualifiers::Const) == Qualifiers::Const)
-                        expression->qualifiedType.qualifiers |= Qualifiers::Const;
+                    if ((result->qualifiedType.qualifiers & Type::Qualifiers::Const) == Type::Qualifiers::Const)
+                        expression->qualifiedType.qualifiers |= Type::Qualifiers::Const;
                     expression->category = result->category;
 
                     result = expression;
@@ -1592,7 +1637,7 @@ namespace ouzel
                     std::set<uint8_t> componentSet;
 
                     Expression::Category category = result->category;
-                    Qualifiers qualifiers = Qualifiers::None;
+                    Type::Qualifiers qualifiers = Type::Qualifiers::None;
 
                     const auto& token = expectToken(Token::Type::Identifier, iterator, end);
 
@@ -1602,7 +1647,7 @@ namespace ouzel
                         if (!componentSet.insert(component).second) // has component repeated
                         {
                             category = Expression::Category::Rvalue;
-                            qualifiers |= Qualifiers::Const;
+                            qualifiers |= Type::Qualifiers::Const;
                         }
 
                         components.push_back(component);
@@ -1644,7 +1689,7 @@ namespace ouzel
                 if (expression->category != Expression::Category::Lvalue)
                     throw ParseError(ErrorCode::ExpressionNotAssignable, "Expression is not assignable");
 
-                if ((expression->qualifiedType.qualifiers & Qualifiers::Const) == Qualifiers::Const)
+                if ((expression->qualifiedType.qualifiers & Type::Qualifiers::Const) == Type::Qualifiers::Const)
                     throw ParseError(ErrorCode::ExpressionNotAssignable, "Cannot assign to const variable");
 
                 const auto& unaryOperator = getUnaryOperator(operatorKind,
@@ -1906,7 +1951,7 @@ namespace ouzel
                 if (result->category != Expression::Category::Lvalue)
                     throw ParseError(ErrorCode::ExpressionNotAssignable, "Expression is not assignable");
 
-                if ((result->qualifiedType.qualifiers & Qualifiers::Const) == Qualifiers::Const)
+                if ((result->qualifiedType.qualifiers & Type::Qualifiers::Const) == Type::Qualifiers::Const)
                     throw ParseError(ErrorCode::ExpressionNotAssignable, "Cannot assign to const variable");
 
                 auto rightExpression = parseTernaryExpression(iterator, end, declarationScopes);
@@ -1938,7 +1983,7 @@ namespace ouzel
                 if (result->category != Expression::Category::Lvalue)
                     throw ParseError(ErrorCode::ExpressionNotAssignable, "Expression is not assignable");
 
-                if ((result->qualifiedType.qualifiers & Qualifiers::Const) == Qualifiers::Const)
+                if ((result->qualifiedType.qualifiers & Type::Qualifiers::Const) == Type::Qualifiers::Const)
                     throw ParseError(ErrorCode::ExpressionNotAssignable, "Cannot assign to const variable");
 
                 auto rightExpression = parseAssignmentExpression(iterator, end, declarationScopes);
@@ -1970,7 +2015,7 @@ namespace ouzel
                 if (result->category != Expression::Category::Lvalue)
                     throw ParseError(ErrorCode::ExpressionNotAssignable, "Expression is not assignable");
 
-                if ((result->qualifiedType.qualifiers & Qualifiers::Const) == Qualifiers::Const)
+                if ((result->qualifiedType.qualifiers & Type::Qualifiers::Const) == Type::Qualifiers::Const)
                     throw ParseError(ErrorCode::ExpressionNotAssignable, "Cannot assign to const variable");
 
                 auto rightExpression = parseAdditionAssignmentExpression(iterator, end, declarationScopes);
@@ -2136,7 +2181,9 @@ namespace ouzel
                 parameterDeclarations.push_back(parameterDeclaration);
             }
 
-            auto functionDeclaration = create<FunctionDeclaration>(name, QualifiedType{resultType}, StorageClass::Auto, std::vector<const Attribute*>{}, std::move(parameterDeclarations), true);
+            auto functionDeclaration = create<FunctionDeclaration>(name, QualifiedType{resultType}, StorageClass::Auto,
+                                                                   std::vector<const Attribute*>{}, std::move(parameterDeclarations),
+                                                                   FunctionDeclaration::Qualifier::None, true);
 
             declarationScopes.back().push_back(functionDeclaration);
 

@@ -6,8 +6,8 @@
 #define DECLARATIONS_HPP
 
 #include "Construct.hpp"
-#include "QualifiedType.hpp"
 #include "Attributes.hpp"
+#include "Types.hpp"
 
 namespace ouzel
 {
@@ -65,75 +65,7 @@ namespace ouzel
         const Kind declarationKind;
     };
 
-    class TypeDeclaration;
-
-    class Type
-    {
-    public:
-        enum class Kind
-        {
-            Void,
-            Array,
-            Scalar,
-            Struct,
-            Vector,
-            Matrix
-        };
-
-        Type(Kind initTypeKind):
-            typeKind(initTypeKind) {}
-
-        Type(Kind initTypeKind, const std::string& initName):
-            name(initName),
-            typeKind(initTypeKind) {}
-
-        inline Kind getTypeKind() const noexcept { return typeKind; }
-
-        std::string name;
-
-    private:
-        Kind typeKind;
-    };
-
-    class ArrayType final: public Type
-    {
-    public:
-        ArrayType(const QualifiedType& initElementType,
-                  size_t initSize):
-            Type(Type::Kind::Array),
-            elementType(initElementType),
-            size(initSize) {}
-
-        QualifiedType elementType;
-        size_t size = 0;
-    };
-
-    class ScalarType final: public Type
-    {
-    public:
-        enum class Kind
-        {
-            Boolean,
-            Integer,
-            FloatingPoint
-        };
-
-        ScalarType(const std::string& initName,
-                   Kind initScalarTypeKind,
-                   bool initIsUnsigned):
-            Type(Type::Kind::Scalar, initName),
-            isUnsigned(initIsUnsigned),
-            scalarTypeKind(initScalarTypeKind)
-        {
-        }
-
-        inline Kind getScalarTypeKind() const noexcept { return scalarTypeKind; }
-
-        bool isUnsigned = false;
-
-    private:
-        const Kind scalarTypeKind;
-    };
+    
 
     class FieldDeclaration final: public Declaration
     {
@@ -221,19 +153,29 @@ namespace ouzel
     class FunctionDeclaration final: public CallableDeclaration
     {
     public:
+        enum class Qualifier
+        {
+            None,
+            Fragment,
+            Vertex
+        };
+
         FunctionDeclaration(const std::string& initName,
                             const QualifiedType& initQualifiedType,
                             StorageClass initStorageClass,
                             std::vector<const Attribute*> initAttributes,
                             std::vector<ParameterDeclaration*> initParameterDeclarations,
+                            Qualifier initQualifier,
                             bool initIsBuiltin = false):
             CallableDeclaration(CallableDeclaration::Kind::Function, initName,
                                 initQualifiedType,
                                 initStorageClass,
                                 std::move(initAttributes),
                                 std::move(initParameterDeclarations)),
+            qualifier(initQualifier),
             isBuiltin(initIsBuiltin) {}
 
+        Qualifier qualifier = Qualifier::None;
         bool isBuiltin = false;
     };
 
@@ -267,80 +209,6 @@ namespace ouzel
             isBuiltin(initIsBuiltin) {}
 
         bool isBuiltin = false;
-    };
-
-    class StructType final: public Type
-    {
-    public:
-        StructType(const std::string& initName,
-                   std::vector<const Declaration*> initMemberDeclarations):
-            Type(Type::Kind::Struct, initName),
-            memberDeclarations(std::move(initMemberDeclarations)) {}
-
-        const ConstructorDeclaration* findConstructorDeclaration(const std::vector<QualifiedType>& parameters) const noexcept
-        {
-            for (auto declaration : memberDeclarations)
-            {
-                if (declaration->getDeclarationKind() == Declaration::Kind::Callable)
-                {
-                    auto callableDeclaration = static_cast<const CallableDeclaration*>(declaration);
-
-                    if (callableDeclaration->getCallableDeclarationKind() == CallableDeclaration::Kind::Constructor)
-                    {
-                        auto constructorDeclaration = static_cast<const ConstructorDeclaration*>(callableDeclaration);
-
-                        if (constructorDeclaration->parameterDeclarations.size() == parameters.size() &&
-                            std::equal(parameters.begin(), parameters.end(),
-                                       constructorDeclaration->parameterDeclarations.begin(),
-                                       [](const QualifiedType& qualifiedType,
-                                          const ParameterDeclaration* parameterDeclaration) {
-                                           return qualifiedType.type == parameterDeclaration->qualifiedType.type; // TODO: overload resolution
-                                       }))
-                            return constructorDeclaration;
-                    }
-                }
-            }
-
-            return nullptr;
-        }
-
-        const Declaration* findMemberDeclaration(const std::string& name) const noexcept
-        {
-            for (auto memberDeclaration : memberDeclarations)
-                if (memberDeclaration->name == name) return memberDeclaration;
-
-            return nullptr;
-        }
-
-        std::vector<const Declaration*> memberDeclarations;
-    };
-
-    class VectorType final: public Type
-    {
-    public:
-        VectorType(const std::string& initName,
-                   const ScalarType* initComponentType,
-                   size_t initComponentCount):
-            Type(Type::Kind::Vector, initName),
-            componentType(initComponentType),
-            componentCount(initComponentCount) {}
-
-        const ScalarType* componentType = nullptr;
-        size_t componentCount = 1;
-    };
-
-    class MatrixType final: public Type
-    {
-    public:
-        MatrixType(const std::string& initName,
-                   const VectorType* initRowType,
-                   size_t initRowCount):
-            Type(Type::Kind::Matrix, initName),
-            rowType(initRowType),
-            rowCount(initRowCount) {}
-
-        const VectorType* rowType = nullptr;
-        size_t rowCount = 1;
     };
 
     class VariableDeclaration final: public Declaration

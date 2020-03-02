@@ -46,6 +46,7 @@ namespace ouzel
             False, // false
             Float, // float
             For, // for
+            Fragment, // fragment
             Friend, // friend
             Function, // function
             Goto, // goto
@@ -91,6 +92,7 @@ namespace ouzel
             Using, // using
             Var, // var
             Varying, // varying
+            Vertex, // vertex
             Virtual, // virtual
             Void, // void
             Volatile, // volatile
@@ -179,6 +181,7 @@ namespace ouzel
             {"false", Token::Type::False},
             {"float", Token::Type::Float},
             {"for", Token::Type::For},
+            {"fragment", Token::Type::Fragment},
             {"friend", Token::Type::Friend},
             {"function", Token::Type::Function},
             {"goto", Token::Type::Goto},
@@ -225,6 +228,7 @@ namespace ouzel
             {"using", Token::Type::Using},
             {"var", Token::Type::Var},
             {"varying", Token::Type::Varying},
+            {"vertex", Token::Type::Vertex},
             {"virtual", Token::Type::Virtual},
             {"void", Token::Type::Void},
             {"volatile", Token::Type::Volatile},

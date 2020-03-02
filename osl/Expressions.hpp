@@ -6,7 +6,7 @@
 #define EXPRESSIONS_HPP
 
 #include "Construct.hpp"
-#include "QualifiedType.hpp"
+#include "Types.hpp"
 
 namespace ouzel
 {
@@ -69,7 +69,7 @@ namespace ouzel
         LiteralExpression(Kind initLiteralKind,
                           const Type* type) noexcept:
             Expression(Expression::Kind::Literal,
-                       QualifiedType{type, Qualifiers::Const},
+                       QualifiedType{type, Type::Qualifiers::Const},
                        Category::Rvalue),
             literalKind(initLiteralKind) {}
 
@@ -301,7 +301,7 @@ namespace ouzel
     public:
         TemporaryObjectExpression(const Type* type):
             Expression(Expression::Kind::TemporaryObject,
-                       QualifiedType{type, Qualifiers::Const},
+                       QualifiedType{type, Type::Qualifiers::Const},
                        Category::Rvalue) {}
 
         const ConstructorDeclaration* constructorDeclaration = nullptr;
@@ -314,7 +314,7 @@ namespace ouzel
         InitializerListExpression(const Type* type,
                                   std::vector<const Expression*> initExpressions):
             Expression(Expression::Kind::InitializerList,
-                       QualifiedType{type, Qualifiers::Const},
+                       QualifiedType{type, Type::Qualifiers::Const},
                        Category::Rvalue),
             expressions(std::move(initExpressions)) {}
 
@@ -335,7 +335,7 @@ namespace ouzel
                        const Type* type,
                        const Expression* initExpression) noexcept:
             Expression(Expression::Kind::Cast,
-                       QualifiedType{type, Qualifiers::Const},
+                       QualifiedType{type, Type::Qualifiers::Const},
                        Category::Rvalue),
             expression(initExpression),
             castKind(initCastKind) {}
@@ -354,7 +354,7 @@ namespace ouzel
         VectorInitializeExpression(const VectorType* vectorType,
                                    std::vector<const Expression*> initParameters) noexcept:
             Expression(Expression::Kind::VectorInitialize,
-                       QualifiedType{vectorType, Qualifiers::Const},
+                       QualifiedType{vectorType, Type::Qualifiers::Const},
                        Category::Rvalue),
             parameters(std::move(initParameters)) {}
 
@@ -365,7 +365,7 @@ namespace ouzel
     {
     public:
         VectorElementExpression(const Type* resultType,
-                                Qualifiers qualifiers,
+                                Type::Qualifiers qualifiers,
                                 Category category,
                                 std::vector<uint8_t> initPositions) noexcept:
             Expression(Expression::Kind::VectorElement,
@@ -382,7 +382,7 @@ namespace ouzel
         MatrixInitializeExpression(const MatrixType* matrixType,
                                    std::vector<const Expression*> initParameters) noexcept:
             Expression(Expression::Kind::MatrixInitialize,
-                       QualifiedType{matrixType, Qualifiers::Const},
+                       QualifiedType{matrixType, Type::Qualifiers::Const},
                        Category::Rvalue),
             parameters(std::move(initParameters)) {}
 

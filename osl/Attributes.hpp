@@ -26,9 +26,7 @@ namespace ouzel
             PointSize,
             Tangent,
             TesselationFactor,
-            TextureCoordinates,
-            Fragment,
-            Vertex
+            TextureCoordinates
         };
 
         Attribute(Kind initAttributeKind): Construct(Construct::Kind::Attribute), attributeKind(initAttributeKind) {}
@@ -148,20 +146,6 @@ namespace ouzel
             Attribute(Attribute::Kind::TextureCoordinates), n(i) {}
 
         size_t n = 0;
-    };
-
-    class FragmentAttribute final: public Attribute
-    {
-    public:
-        FragmentAttribute() noexcept:
-            Attribute(Attribute::Kind::Fragment) {}
-    };
-
-    class VertexAttribute final: public Attribute
-    {
-    public:
-        VertexAttribute() noexcept:
-            Attribute(Attribute::Kind::Vertex) {}
     };
 }
 

@@ -90,7 +90,7 @@ namespace
         if (expression->category != ouzel::Expression::Category::Rvalue)
             throw TestError("Expected must rvalue");
 
-        if ((expression->qualifiedType.qualifiers & ouzel::Qualifiers::Const) != ouzel::Qualifiers::Const)
+        if ((expression->qualifiedType.qualifiers & ouzel::Type::Qualifiers::Const) != ouzel::Type::Qualifiers::Const)
             throw TestError("Expected must be const");
 
         if (expression->getExpressionKind() != ouzel::Expression::Kind::Literal)
@@ -681,11 +681,11 @@ namespace
     void testInputModifiers()
     {
         std::string code = R"OSL(
-        function fragmentMain(in i:float4, out o:float4):float -> Fragment
+        fragment fragmentMain(in i:float4, out o:float4):float
         {
             return 0.0f;
         }
-        function vertexMain(inout io:float4):float -> Vertex
+        vertex vertexMain(inout io:float4):float
         {
             return 0.0f;
         }
