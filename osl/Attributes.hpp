@@ -29,7 +29,10 @@ namespace ouzel
             TextureCoordinates
         };
 
+        Attribute(const Attribute&) = delete;
         Attribute(Kind initAttributeKind): Construct(Construct::Kind::Attribute), attributeKind(initAttributeKind) {}
+
+        Attribute& operator=(const Attribute&) = delete;
 
         inline Kind getAttributeKind() const noexcept { return attributeKind; }
 

@@ -40,7 +40,7 @@ namespace ouzel
             name(initName),
             typeKind(initTypeKind) {}
 
-        Type* operator=(const Type&) = delete;
+        Type& operator=(const Type&) = delete;
 
         inline Kind getTypeKind() const noexcept { return typeKind; }
 
