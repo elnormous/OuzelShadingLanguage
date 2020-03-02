@@ -10,9 +10,6 @@
 
 namespace ouzel
 {
-    class Declaration;
-    class Expression;
-
     class Statement: public Construct
     {
     public:
@@ -42,6 +39,8 @@ namespace ouzel
         const Kind statementKind;
     };
 
+    class Expression;
+
     class ExpressionStatement final: public Statement
     {
     public:
@@ -50,6 +49,8 @@ namespace ouzel
 
         const Expression& expression;
     };
+
+    class Declaration;
 
     class DeclarationStatement final: public Statement
     {
@@ -73,16 +74,16 @@ namespace ouzel
     class IfStatement final: public Statement
     {
     public:
-        IfStatement(const Construct* initCondition,
-                    const Statement* initBody,
+        IfStatement(const Construct& initCondition,
+                    const Statement& initBody,
                     const Statement* initElseBody) noexcept:
             Statement(Statement::Kind::If),
             condition(initCondition),
             body(initBody),
             elseBody(initElseBody) {}
 
-        const Construct* condition = nullptr;
-        const Statement* body = nullptr;
+        const Construct& condition;
+        const Statement& body;
         const Statement* elseBody = nullptr;
     };
 
@@ -92,7 +93,7 @@ namespace ouzel
         ForStatement(const Construct* initInitialization,
                      const Construct* initCondition,
                      const Expression* initIncrement,
-                     const Statement* initBody) noexcept:
+                     const Statement& initBody) noexcept:
             Statement(Statement::Kind::For),
             initialization(initInitialization),
             condition(initCondition),
@@ -102,33 +103,33 @@ namespace ouzel
         const Construct* initialization = nullptr;
         const Construct* condition = nullptr;
         const Expression* increment = nullptr;
-        const Statement* body = nullptr;
+        const Statement& body;
     };
 
     class SwitchStatement final: public Statement
     {
     public:
-        SwitchStatement(const Construct* initCondition,
-                        const Statement* initBody) noexcept:
+        SwitchStatement(const Construct& initCondition,
+                        const Statement& initBody) noexcept:
             Statement(Statement::Kind::Switch),
             condition(initCondition),
             body(initBody) {}
 
-        const Construct* condition = nullptr;
-        const Statement* body = nullptr;
+        const Construct& condition;
+        const Statement& body;
     };
 
     class CaseStatement final: public Statement
     {
     public:
-        CaseStatement(const Expression* initCondition,
-                      const Statement* initBody) noexcept:
+        CaseStatement(const Expression& initCondition,
+                      const Statement& initBody) noexcept:
             Statement(Statement::Kind::Case),
             condition(initCondition),
             body(initBody) {}
 
-        const Expression* condition = nullptr;
-        const Statement* body = nullptr;
+        const Expression& condition;
+        const Statement& body;
     };
 
     class DefaultStatement final: public Statement
@@ -144,27 +145,27 @@ namespace ouzel
     class WhileStatement final: public Statement
     {
     public:
-        WhileStatement(const Construct* initCondition,
-                       const Statement* initBody) noexcept:
+        WhileStatement(const Construct& initCondition,
+                       const Statement& initBody) noexcept:
             Statement(Statement::Kind::While),
             condition(initCondition),
             body(initBody) {}
 
-        const Construct* condition = nullptr;
-        const Statement* body = nullptr;
+        const Construct& condition;
+        const Statement& body;
     };
 
     class DoStatement final: public Statement
     {
     public:
-        DoStatement(const Expression* initCondition,
-                    const Statement* initBody) noexcept:
+        DoStatement(const Expression& initCondition,
+                    const Statement& initBody) noexcept:
             Statement(Statement::Kind::Do),
             condition(initCondition),
             body(initBody) {}
 
-        const Expression* condition = nullptr;
-        const Statement* body = nullptr;
+        const Expression& condition;
+        const Statement& body;
     };
 
     class BreakStatement final: public Statement

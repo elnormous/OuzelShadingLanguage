@@ -234,16 +234,14 @@ namespace
 
         auto ifStatement = static_cast<const ouzel::IfStatement*>(statement);
 
-        if (!ifStatement->condition ||
-            ifStatement->condition->getKind() != ouzel::Construct::Kind::Expression)
+        if (ifStatement->condition.getKind() != ouzel::Construct::Kind::Expression)
             throw TestError("Expected an expression condition");
 
-        auto condition = static_cast<const ouzel::Expression*>(ifStatement->condition);
+        auto& condition = static_cast<const ouzel::Expression&>(ifStatement->condition);
 
-        expectLiteral(condition, true);
+        expectLiteral(&condition, true);
 
-        if (!ifStatement->body ||
-            ifStatement->body->getStatementKind() != ouzel::Statement::Kind::Compound)
+        if (ifStatement->body.getStatementKind() != ouzel::Statement::Kind::Compound)
             throw TestError("Expected a compound statement if part");
 
         if (!ifStatement->elseBody ||
@@ -252,13 +250,12 @@ namespace
 
         auto elseIfStatement = static_cast<const ouzel::IfStatement*>(ifStatement->elseBody);
 
-        if (!elseIfStatement->condition ||
-            elseIfStatement->condition->getKind() != ouzel::Construct::Kind::Expression)
+        if (elseIfStatement->condition.getKind() != ouzel::Construct::Kind::Expression)
             throw TestError("Expected an expression condition");
 
-        auto elseIfCondition = static_cast<const ouzel::Expression*>(elseIfStatement->condition);
+        auto& elseIfCondition = static_cast<const ouzel::Expression&>(elseIfStatement->condition);
 
-        expectLiteral(elseIfCondition, false);
+        expectLiteral(&elseIfCondition, false);
 
         if (!elseIfStatement->elseBody ||
             elseIfStatement->elseBody->getStatementKind() != ouzel::Statement::Kind::Compound)
@@ -291,16 +288,14 @@ namespace
 
         auto whileStatement = static_cast<const ouzel::WhileStatement*>(statement);
 
-        if (!whileStatement->condition ||
-            whileStatement->condition->getKind() != ouzel::Construct::Kind::Expression)
+        if (whileStatement->condition.getKind() != ouzel::Construct::Kind::Expression)
             throw TestError("Expected an expression condition");
 
-        auto condition = static_cast<const ouzel::Expression*>(whileStatement->condition);
+        auto& condition = static_cast<const ouzel::Expression&>(whileStatement->condition);
 
-        expectLiteral(condition, true);
+        expectLiteral(&condition, true);
 
-        if (!whileStatement->body ||
-            whileStatement->body->getStatementKind() != ouzel::Statement::Kind::Compound)
+        if (whileStatement->body.getStatementKind() != ouzel::Statement::Kind::Compound)
             throw TestError("Expected a compound statement");
     }
 
@@ -331,16 +326,14 @@ namespace
 
         auto doStatement = static_cast<const ouzel::DoStatement*>(statement);
 
-        if (!doStatement->condition ||
-            doStatement->condition->getKind() != ouzel::Construct::Kind::Expression)
+        if (doStatement->condition.getKind() != ouzel::Construct::Kind::Expression)
             throw TestError("Expected an expression condition");
 
-        auto condition = static_cast<const ouzel::Expression*>(doStatement->condition);
+        auto& condition = static_cast<const ouzel::Expression&>(doStatement->condition);
 
-        expectLiteral(condition, true);
+        expectLiteral(&condition, true);
 
-        if (!doStatement->body ||
-            doStatement->body->getStatementKind() != ouzel::Statement::Kind::Compound)
+        if (doStatement->body.getStatementKind() != ouzel::Statement::Kind::Compound)
             throw TestError("Expected a compound statement");
     }
 
@@ -378,8 +371,7 @@ namespace
 
         expectLiteral(condition, true);
 
-        if (!forStatement->body ||
-            forStatement->body->getStatementKind() != ouzel::Statement::Kind::Compound)
+        if (forStatement->body.getStatementKind() != ouzel::Statement::Kind::Compound)
             throw TestError("Expected a compound statement");
     }
 
@@ -412,49 +404,45 @@ namespace
 
         auto switchStatement = static_cast<const ouzel::SwitchStatement*>(statement);
 
-        if (!switchStatement->condition ||
-            switchStatement->condition->getKind() != ouzel::Construct::Kind::Expression)
+        if (switchStatement->condition.getKind() != ouzel::Construct::Kind::Expression)
             throw TestError("Expected an expression condition");
 
-        auto condition = static_cast<const ouzel::Expression*>(switchStatement->condition);
+        auto& condition = static_cast<const ouzel::Expression&>(switchStatement->condition);
 
-        expectLiteral(condition, 1);
+        expectLiteral(&condition, 1);
 
-        if (!switchStatement->body ||
-            switchStatement->body->getStatementKind() != ouzel::Statement::Kind::Compound)
+        if (switchStatement->body.getStatementKind() != ouzel::Statement::Kind::Compound)
             throw TestError("Expected a compound statement");
 
-        auto body = static_cast<const ouzel::CompoundStatement*>(switchStatement->body);
+        auto& body = static_cast<const ouzel::CompoundStatement&>(switchStatement->body);
 
-        if (body->statements.size() != 3)
+        if (body.statements.size() != 3)
             throw TestError("Expected 3 statements");
 
-        if (body->statements[0]->getStatementKind() != ouzel::Statement::Kind::Case)
+        if (body.statements[0]->getStatementKind() != ouzel::Statement::Kind::Case)
             throw TestError("Expected a case statement");
 
-        auto firstCaseStatement = static_cast<const ouzel::CaseStatement*>(body->statements[0]);
+        auto firstCaseStatement = static_cast<const ouzel::CaseStatement*>(body.statements[0]);
 
-        expectLiteral(firstCaseStatement->condition, 1);
+        expectLiteral(&firstCaseStatement->condition, 1);
 
-        if (!firstCaseStatement->body ||
-            firstCaseStatement->body->getStatementKind() != ouzel::Statement::Kind::Empty)
+        if (firstCaseStatement->body.getStatementKind() != ouzel::Statement::Kind::Empty)
             throw TestError("Expected an empty statement");
 
-        if (body->statements[1]->getStatementKind() != ouzel::Statement::Kind::Case)
+        if (body.statements[1]->getStatementKind() != ouzel::Statement::Kind::Case)
             throw TestError("Expected a case statement");
 
-        auto secondCaseStatement = static_cast<const ouzel::CaseStatement*>(body->statements[1]);
+        auto secondCaseStatement = static_cast<const ouzel::CaseStatement*>(body.statements[1]);
 
-        expectLiteral(secondCaseStatement->condition, 2);
+        expectLiteral(&secondCaseStatement->condition, 2);
 
-        if (!secondCaseStatement->body ||
-            secondCaseStatement->body->getStatementKind() != ouzel::Statement::Kind::Break)
+        if (secondCaseStatement->body.getStatementKind() != ouzel::Statement::Kind::Break)
             throw TestError("Expected an break statement");
 
-        if (body->statements[2]->getStatementKind() != ouzel::Statement::Kind::Default)
+        if (body.statements[2]->getStatementKind() != ouzel::Statement::Kind::Default)
             throw TestError("Expected a default statement");
 
-        auto defaultStatement = static_cast<const ouzel::DefaultStatement*>(body->statements[2]);
+        auto defaultStatement = static_cast<const ouzel::DefaultStatement*>(body.statements[2]);
 
         if (defaultStatement->body.getStatementKind() != ouzel::Statement::Kind::Empty)
             throw TestError("Expected an empty statement");

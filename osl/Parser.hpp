@@ -998,7 +998,7 @@ namespace ouzel
             const Statement* elseBody = (skipToken(Token::Type::Else, iterator, end)) ?
                 &parseStatement(iterator, end, declarationScopes, returnStatements) : nullptr;
 
-            return create<IfStatement>(condition, &body, elseBody);
+            return create<IfStatement>(*condition, body, elseBody);
         }
 
         ForStatement& parseForStatement(TokenIterator& iterator, TokenIterator end,
@@ -1068,7 +1068,7 @@ namespace ouzel
 
             auto& body = parseStatement(iterator, end, declarationScopes, returnStatements);
 
-            return create<ForStatement>(initialization, condition, increment, &body);
+            return create<ForStatement>(initialization, condition, increment, body);
         }
 
         SwitchStatement& parseSwitchStatement(TokenIterator& iterator, TokenIterator end,
@@ -1103,7 +1103,7 @@ namespace ouzel
 
             auto& body = parseStatement(iterator, end, declarationScopes, returnStatements);
 
-            return create<SwitchStatement>(condition, &body);
+            return create<SwitchStatement>(*condition, body);
         }
 
         CaseStatement& parseCaseStatement(TokenIterator& iterator, TokenIterator end,
@@ -1124,7 +1124,7 @@ namespace ouzel
 
             auto& body = parseStatement(iterator, end, declarationScopes, returnStatements);
 
-            return create<CaseStatement>(condition, &body);
+            return create<CaseStatement>(*condition, body);
         }
 
         DefaultStatement& parseDefaultStatement(TokenIterator& iterator, TokenIterator end,
@@ -1169,7 +1169,7 @@ namespace ouzel
 
             auto& body = parseStatement(iterator, end, declarationScopes, returnStatements);
 
-            return create<WhileStatement>(condition, &body);
+            return create<WhileStatement>(*condition, body);
         }
 
         DoStatement& parseDoStatement(TokenIterator& iterator, TokenIterator end,
@@ -1191,7 +1191,7 @@ namespace ouzel
             expectToken(Token::Type::RightParenthesis, iterator, end);
             expectToken(Token::Type::Semicolon, iterator, end);
 
-            return create<DoStatement>(condition, &body);
+            return create<DoStatement>(*condition, body);
         }
 
         Expression* parsePrimaryExpression(TokenIterator& iterator, TokenIterator end,

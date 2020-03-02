@@ -470,9 +470,8 @@ namespace ouzel
 
                 std::cout << '\n';
 
-                if (ifStatement->condition)
-                    dumpConstruct(ifStatement->condition, level + 1);
-                dumpConstruct(ifStatement->body, level + 1);
+                dumpConstruct(&ifStatement->condition, level + 1);
+                dumpConstruct(&ifStatement->body, level + 1);
                 if (ifStatement->elseBody) dumpConstruct(ifStatement->elseBody, level + 1);
                 break;
             }
@@ -489,7 +488,7 @@ namespace ouzel
                     dumpConstruct(forStatement->condition, level + 1);
                 if (forStatement->increment)
                     dumpConstruct(forStatement->increment, level + 1);
-                dumpConstruct(forStatement->body, level + 1);
+                dumpConstruct(&forStatement->body, level + 1);
                 break;
             }
 
@@ -499,9 +498,8 @@ namespace ouzel
 
                 std::cout << '\n';
 
-                if (switchStatement->condition)
-                    dumpConstruct(switchStatement->condition, level + 1);
-                dumpConstruct(switchStatement->body, level + 1);
+                dumpConstruct(&switchStatement->condition, level + 1);
+                dumpConstruct(&switchStatement->body, level + 1);
                 break;
             }
 
@@ -511,8 +509,8 @@ namespace ouzel
 
                 std::cout << '\n';
 
-                dumpConstruct(caseStatement->condition, level + 1);
-                dumpConstruct(caseStatement->body, level + 1);
+                dumpConstruct(&caseStatement->condition, level + 1);
+                dumpConstruct(&caseStatement->body, level + 1);
                 break;
             }
 
@@ -532,9 +530,8 @@ namespace ouzel
 
                 std::cout << '\n';
 
-                if (whileStatement->condition)
-                    dumpConstruct(whileStatement->condition, level + 1);
-                dumpConstruct(whileStatement->body, level + 1);
+                dumpConstruct(&whileStatement->condition, level + 1);
+                dumpConstruct(&whileStatement->body, level + 1);
                 break;
             }
 
@@ -544,8 +541,8 @@ namespace ouzel
 
                 std::cout << '\n';
 
-                dumpConstruct(doStatement->body, level + 1);
-                dumpConstruct(doStatement->condition, level + 1);
+                dumpConstruct(&doStatement->body, level + 1);
+                dumpConstruct(&doStatement->condition, level + 1);
                 break;
             }
 
