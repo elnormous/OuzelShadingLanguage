@@ -522,7 +522,7 @@ namespace ouzel
 
                 std::cout << '\n';
 
-                dumpConstruct(defaultStatement->body, level + 1);
+                dumpConstruct(&defaultStatement->body, level + 1);
                 break;
             }
 

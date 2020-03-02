@@ -134,11 +134,11 @@ namespace ouzel
     class DefaultStatement final: public Statement
     {
     public:
-        DefaultStatement(const Statement* initBody) noexcept:
+        DefaultStatement(const Statement& initBody) noexcept:
             Statement(Statement::Kind::Default),
             body(initBody) {}
 
-        const Statement* body = nullptr;
+        const Statement& body;
     };
 
     class WhileStatement final: public Statement

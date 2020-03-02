@@ -456,8 +456,7 @@ namespace
 
         auto defaultStatement = static_cast<const ouzel::DefaultStatement*>(body->statements[2]);
 
-        if (!defaultStatement->body ||
-            defaultStatement->body->getStatementKind() != ouzel::Statement::Kind::Empty)
+        if (defaultStatement->body.getStatementKind() != ouzel::Statement::Kind::Empty)
             throw TestError("Expected an empty statement");
     }
 

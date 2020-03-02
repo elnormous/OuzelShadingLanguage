@@ -1131,7 +1131,7 @@ namespace ouzel
             expectToken(Token::Type::Default, iterator, end);
             expectToken(Token::Type::Colon, iterator, end);
 
-            return create<DefaultStatement>(&parseStatement(iterator, end, declarationScopes, returnStatements));
+            return create<DefaultStatement>(parseStatement(iterator, end, declarationScopes, returnStatements));
         }
 
         WhileStatement& parseWhileStatement(TokenIterator& iterator, TokenIterator end,
