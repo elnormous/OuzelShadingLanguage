@@ -68,8 +68,6 @@ namespace ouzel
         const Kind declarationKind;
     };
 
-    
-
     class FieldDeclaration final: public Declaration
     {
     public:

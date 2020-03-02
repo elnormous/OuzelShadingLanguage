@@ -129,7 +129,7 @@ namespace ouzel
         void dump() const
         {
             for (auto declaration : declarations)
-                dumpConstruct(declaration);
+                dumpConstruct(*declaration);
         }
 
         inline const std::vector<Declaration*>& getDeclarations() const noexcept
@@ -1199,7 +1199,7 @@ namespace ouzel
         {
             if (isToken(Token::Type::IntLiteral, iterator, end))
             {
-                auto result = &create<IntegerLiteralExpression>(&intType, strtoll(iterator->value.c_str(), nullptr, 0));
+                auto result = &create<IntegerLiteralExpression>(intType, strtoll(iterator->value.c_str(), nullptr, 0));
 
                 ++iterator;
 
@@ -1207,7 +1207,7 @@ namespace ouzel
             }
             else if (isToken(Token::Type::FloatLiteral, iterator, end))
             {
-                auto result = &create<FloatingPointLiteralExpression>(&floatType, strtod(iterator->value.c_str(), nullptr));
+                auto result = &create<FloatingPointLiteralExpression>(floatType, strtod(iterator->value.c_str(), nullptr));
 
                 ++iterator;
 
@@ -1217,7 +1217,7 @@ namespace ouzel
                 throw ParseError(ErrorCode::UnsupportedFeature, "Double precision floating point numbers are not supported");
             else if (isToken(Token::Type::StringLiteral, iterator, end))
             {
-                auto result = &create<StringLiteralExpression>(&stringType, iterator->value);
+                auto result = &create<StringLiteralExpression>(stringType, iterator->value);
 
                 ++iterator;
 
@@ -1225,7 +1225,7 @@ namespace ouzel
             }
             else if (isToken({Token::Type::True, Token::Type::False}, iterator, end))
             {
-                auto result = &create<BooleanLiteralExpression>(&boolType, iterator->type == Token::Type::True);
+                auto result = &create<BooleanLiteralExpression>(boolType, iterator->type == Token::Type::True);
 
                 ++iterator;
 
@@ -1244,7 +1244,7 @@ namespace ouzel
                 expectToken(Token::Type::LeftParenthesis, iterator, end);
 
                 auto expression = parseMultiplicationAssignmentExpression(iterator, end, declarationScopes);
-                auto result = &create<CastExpression>(CastExpression::Kind::Functional, type, expression);
+                auto result = &create<CastExpression>(CastExpression::Kind::Functional, type, *expression);
                 expectToken(Token::Type::RightParenthesis, iterator, end);
                 return result;
             }
@@ -1424,10 +1424,10 @@ namespace ouzel
                         if (!functionDeclaration)
                             throw ParseError(ErrorCode::InvalidDeclarationReference, "Invalid function reference \"" + name + "\"");
 
-                        auto declRefExpression = &create<DeclarationReferenceExpression>(functionDeclaration,
-                                                                                        Expression::Category::Lvalue);
+                        auto& declRefExpression = create<DeclarationReferenceExpression>(*functionDeclaration,
+                                                                                         Expression::Category::Lvalue);
 
-                        return &create<CallExpression>(functionDeclaration->qualifiedType, Expression::Category::Rvalue, declRefExpression, std::move(arguments));;
+                        return &create<CallExpression>(functionDeclaration->qualifiedType, Expression::Category::Rvalue, declRefExpression, std::move(arguments));
                     }
                 }
                 else
@@ -1439,7 +1439,7 @@ namespace ouzel
                     Expression::Category category = (declaration->getDeclarationKind() == Declaration::Kind::Type) ?
                         Expression::Category::Rvalue : Expression::Category::Lvalue;
 
-                    return &create<DeclarationReferenceExpression>(declaration, category);
+                    return &create<DeclarationReferenceExpression>(*declaration, category);
                 }
             }
             else if (skipToken(Token::Type::LeftParenthesis, iterator, end))
@@ -1451,13 +1451,13 @@ namespace ouzel
                     expectToken(Token::Type::RightParenthesis, iterator, end);
 
                     auto expression = parseExpression(iterator, end, declarationScopes);
-                    return &create<CastExpression>(CastExpression::Kind::CStyle, type, expression);
+                    return &create<CastExpression>(CastExpression::Kind::CStyle, type, *expression);
                 }
                 else
                 {
                     auto expression = parseExpression(iterator, end, declarationScopes);
                     expectToken(Token::Type::RightParenthesis, iterator, end);
-                    return &create<ParenExpression>(expression);
+                    return &create<ParenExpression>(*expression);
                 }
             }
             else if (isToken(Token::Type::StaticCast, iterator, end))
@@ -1480,7 +1480,7 @@ namespace ouzel
                 expectToken(Token::Type::LeftParenthesis, iterator, end);
 
                 auto expression = parseExpression(iterator, end, declarationScopes);
-                auto result = &create<CastExpression>(castKind, type, expression);
+                auto result = &create<CastExpression>(castKind, type, *expression);
                 expectToken(Token::Type::RightParenthesis, iterator, end);
 
                 return result;
@@ -1516,7 +1516,7 @@ namespace ouzel
                 const auto& unaryOperator = getUnaryOperator(operatorKind,
                                                              result->qualifiedType.type);
 
-                result = &create<UnaryOperatorExpression>(operatorKind, &unaryOperator.resultType, Expression::Category::Lvalue, result);
+                result = &create<UnaryOperatorExpression>(operatorKind, &unaryOperator.resultType, Expression::Category::Lvalue, *result);
             }
 
             return result;
@@ -1538,7 +1538,7 @@ namespace ouzel
                     expectToken(Token::Type::RightBracket, iterator, end);
 
                     auto arrayType = static_cast<const ArrayType*>(result->qualifiedType.type);
-                    result = &create<ArraySubscriptExpression>(arrayType->elementType, result, subscript);
+                    result = &create<ArraySubscriptExpression>(arrayType->elementType, *result, *subscript);
                 }
                 else if (result->qualifiedType.type->getTypeKind() == Type::Kind::Vector ||
                          result->qualifiedType.type->getTypeKind() == Type::Kind::Matrix)
@@ -1565,7 +1565,7 @@ namespace ouzel
                         type = matrixType->rowType;
                     }
 
-                    result = &create<BinaryOperatorExpression>(operatorKind, type, result->category, result, rightExpression);
+                    result = &create<BinaryOperatorExpression>(operatorKind, type, result->category, *result, *rightExpression);
                 }
                 else
                     throw ParseError(ErrorCode::ArrayTypeExpected, "Subscript value is not an array");
@@ -1611,12 +1611,12 @@ namespace ouzel
                     if (memberDeclaration->getDeclarationKind() != Declaration::Kind::Field)
                         throw ParseError(ErrorCode::InvalidMember, "\"" + iterator->value + "\" is not a field");
 
-                    auto expression = &create<MemberExpression>(result, static_cast<const FieldDeclaration*>(memberDeclaration));
+                    auto& expression = create<MemberExpression>(*result, *static_cast<const FieldDeclaration*>(memberDeclaration));
                     if ((result->qualifiedType.qualifiers & Type::Qualifiers::Const) == Type::Qualifiers::Const)
-                        expression->qualifiedType.qualifiers |= Type::Qualifiers::Const;
-                    expression->category = result->category;
+                        expression.qualifiedType.qualifiers |= Type::Qualifiers::Const;
+                    expression.category = result->category;
 
-                    result = expression;
+                    result = &expression;
                 }
                 else if (result->qualifiedType.type->getTypeKind() == Type::Kind::Vector)
                 {
@@ -1681,7 +1681,7 @@ namespace ouzel
                 const auto& unaryOperator = getUnaryOperator(operatorKind,
                                                              expression->qualifiedType.type);
 
-                return &create<UnaryOperatorExpression>(operatorKind, &unaryOperator.resultType, Expression::Category::Rvalue, expression);
+                return &create<UnaryOperatorExpression>(operatorKind, &unaryOperator.resultType, Expression::Category::Rvalue, *expression);
             }
             else
                 return parseMemberExpression(iterator, end, declarationScopes);
@@ -1703,7 +1703,7 @@ namespace ouzel
                 const auto& unaryOperator = getUnaryOperator(operatorKind,
                                                              expression->qualifiedType.type);
 
-                return &create<UnaryOperatorExpression>(operatorKind, &unaryOperator.resultType, Expression::Category::Rvalue, expression);
+                return &create<UnaryOperatorExpression>(operatorKind, &unaryOperator.resultType, Expression::Category::Rvalue, *expression);
             }
             else
                 return parsePrefixExpression(iterator, end, declarationScopes);
@@ -1721,7 +1721,7 @@ namespace ouzel
                 const auto& unaryOperator = getUnaryOperator(operatorKind,
                                                              expression->qualifiedType.type);
 
-                return &create<UnaryOperatorExpression>(operatorKind, &unaryOperator.resultType, Expression::Category::Rvalue, expression);
+                return &create<UnaryOperatorExpression>(operatorKind, &unaryOperator.resultType, Expression::Category::Rvalue, *expression);
             }
             else
                 return parseSignExpression(iterator, end, declarationScopes);
@@ -1746,7 +1746,7 @@ namespace ouzel
                                                                result->qualifiedType.type,
                                                                rightExpression->qualifiedType.type);
 
-                result = &create<BinaryOperatorExpression>(operatorKind, &binaryOperator.resultType, Expression::Category::Rvalue, result, rightExpression);
+                result = &create<BinaryOperatorExpression>(operatorKind, &binaryOperator.resultType, Expression::Category::Rvalue, *result, *rightExpression);
             }
 
             return result;
@@ -1771,7 +1771,7 @@ namespace ouzel
                                                                result->qualifiedType.type,
                                                                rightExpression->qualifiedType.type);
 
-                result = &create<BinaryOperatorExpression>(operatorKind, &binaryOperator.resultType, Expression::Category::Rvalue, result, rightExpression);
+                result = &create<BinaryOperatorExpression>(operatorKind, &binaryOperator.resultType, Expression::Category::Rvalue, *result, *rightExpression);
             }
 
             return result;
@@ -1796,7 +1796,7 @@ namespace ouzel
                                                                result->qualifiedType.type,
                                                                rightExpression->qualifiedType.type);
 
-                result = &create<BinaryOperatorExpression>(operatorKind, &binaryOperator.resultType, Expression::Category::Rvalue, result, rightExpression);
+                result = &create<BinaryOperatorExpression>(operatorKind, &binaryOperator.resultType, Expression::Category::Rvalue, *result, *rightExpression);
             }
 
             return result;
@@ -1821,7 +1821,7 @@ namespace ouzel
                                                                result->qualifiedType.type,
                                                                rightExpression->qualifiedType.type);
 
-                result = &create<BinaryOperatorExpression>(operatorKind, &binaryOperator.resultType, Expression::Category::Rvalue, result, rightExpression);
+                result = &create<BinaryOperatorExpression>(operatorKind, &binaryOperator.resultType, Expression::Category::Rvalue, *result, *rightExpression);
             }
 
             return result;
@@ -1846,7 +1846,7 @@ namespace ouzel
                                                                result->qualifiedType.type,
                                                                rightExpression->qualifiedType.type);
 
-                result = &create<BinaryOperatorExpression>(operatorKind, &binaryOperator.resultType, Expression::Category::Rvalue, result, rightExpression);
+                result = &create<BinaryOperatorExpression>(operatorKind, &binaryOperator.resultType, Expression::Category::Rvalue, *result, *rightExpression);
             }
 
             return result;
@@ -1867,7 +1867,7 @@ namespace ouzel
                                                                result->qualifiedType.type,
                                                                rightExpression->qualifiedType.type);
 
-                result = &create<BinaryOperatorExpression>(operatorKind, &binaryOperator.resultType, Expression::Category::Rvalue, result, rightExpression);
+                result = &create<BinaryOperatorExpression>(operatorKind, &binaryOperator.resultType, Expression::Category::Rvalue, *result, *rightExpression);
             }
 
             return result;
@@ -1888,7 +1888,7 @@ namespace ouzel
                                                                result->qualifiedType.type,
                                                                rightExpression->qualifiedType.type);
 
-                result = &create<BinaryOperatorExpression>(operatorKind, &binaryOperator.resultType, Expression::Category::Rvalue, result, rightExpression);
+                result = &create<BinaryOperatorExpression>(operatorKind, &binaryOperator.resultType, Expression::Category::Rvalue, *result, *rightExpression);
             }
 
             return result;
@@ -1913,7 +1913,7 @@ namespace ouzel
                 if (leftExpression->qualifiedType.type != rightExpression->qualifiedType.type)
                     throw ParseError(ErrorCode::IncompatibleOperands, "Incompatible operand types");
 
-                result = &create<TernaryOperatorExpression>(result, leftExpression, rightExpression);
+                result = &create<TernaryOperatorExpression>(*result, *leftExpression, *rightExpression);
             }
 
             return result;
@@ -1940,7 +1940,7 @@ namespace ouzel
                                                                result->qualifiedType.type,
                                                                rightExpression->qualifiedType.type);
 
-                result = &create<BinaryOperatorExpression>(operatorKind, &binaryOperator.resultType, Expression::Category::Rvalue, result, rightExpression);
+                result = &create<BinaryOperatorExpression>(operatorKind, &binaryOperator.resultType, Expression::Category::Rvalue, *result, *rightExpression);
             }
 
             return result;
@@ -1971,7 +1971,7 @@ namespace ouzel
                                                                result->qualifiedType.type,
                                                                rightExpression->qualifiedType.type);
 
-                result = &create<BinaryOperatorExpression>(operatorKind, &binaryOperator.resultType, Expression::Category::Lvalue, result, rightExpression);
+                result = &create<BinaryOperatorExpression>(operatorKind, &binaryOperator.resultType, Expression::Category::Lvalue, *result, *rightExpression);
             }
 
             return result;
@@ -2002,7 +2002,7 @@ namespace ouzel
                                                                result->qualifiedType.type,
                                                                rightExpression->qualifiedType.type);
 
-                result = &create<BinaryOperatorExpression>(operatorKind, &binaryOperator.resultType, Expression::Category::Lvalue, result, rightExpression);
+                result = &create<BinaryOperatorExpression>(operatorKind, &binaryOperator.resultType, Expression::Category::Lvalue, *result, *rightExpression);
             }
 
             return result;
@@ -2027,7 +2027,7 @@ namespace ouzel
                     rightExpression->qualifiedType.type)
                     throw ParseError(ErrorCode::IncompatibleOperands, "Incompatible operand types");
 
-                result = &create<BinaryOperatorExpression>(operatorKind, &binaryOperator.resultType, rightExpression->category, result, rightExpression);
+                result = &create<BinaryOperatorExpression>(operatorKind, &binaryOperator.resultType, rightExpression->category, *result, *rightExpression);
             }
 
             return result;

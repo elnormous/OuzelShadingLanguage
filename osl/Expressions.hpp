@@ -70,9 +70,9 @@ namespace ouzel
         };
 
         LiteralExpression(Kind initLiteralKind,
-                          const Type* type) noexcept:
+                          const Type& type) noexcept:
             Expression(Expression::Kind::Literal,
-                       QualifiedType{type, Type::Qualifiers::Const},
+                       QualifiedType{&type, Type::Qualifiers::Const},
                        Category::Rvalue),
             literalKind(initLiteralKind) {}
 
@@ -85,7 +85,7 @@ namespace ouzel
     class BooleanLiteralExpression final: public LiteralExpression
     {
     public:
-        BooleanLiteralExpression(const Type* type,
+        BooleanLiteralExpression(const Type& type,
                                  bool initValue) noexcept:
             LiteralExpression(LiteralExpression::Kind::Boolean, type),
             value(initValue) {}
@@ -95,7 +95,7 @@ namespace ouzel
     class IntegerLiteralExpression final: public LiteralExpression
     {
     public:
-        IntegerLiteralExpression(const Type* type,
+        IntegerLiteralExpression(const Type& type,
                                  int64_t initValue) noexcept:
             LiteralExpression(LiteralExpression::Kind::Integer, type),
             value(initValue) {}
@@ -106,7 +106,7 @@ namespace ouzel
     class FloatingPointLiteralExpression final: public LiteralExpression
     {
     public:
-        FloatingPointLiteralExpression(const Type* type,
+        FloatingPointLiteralExpression(const Type& type,
                                        double initValue) noexcept:
             LiteralExpression(LiteralExpression::Kind::FloatingPoint, type),
             value(initValue) {}
@@ -117,7 +117,7 @@ namespace ouzel
     class StringLiteralExpression final: public LiteralExpression
     {
     public:
-        StringLiteralExpression(const Type* type,
+        StringLiteralExpression(const Type& type,
                                 const std::string& initValue):
             LiteralExpression(LiteralExpression::Kind::String, type),
             value(initValue) {}
@@ -128,14 +128,14 @@ namespace ouzel
     class DeclarationReferenceExpression final: public Expression
     {
     public:
-        DeclarationReferenceExpression(const Declaration* initDeclaration,
+        DeclarationReferenceExpression(const Declaration& initDeclaration,
                                        Category category):
             Expression(Expression::Kind::DeclarationReference,
-                       initDeclaration->qualifiedType,
+                       initDeclaration.qualifiedType,
                        category),
             declaration(initDeclaration) {}
 
-        const Declaration* declaration = nullptr;
+        const Declaration& declaration;
     };
 
     class CallExpression final: public Expression
@@ -143,7 +143,7 @@ namespace ouzel
     public:
         CallExpression(QualifiedType qualifiedType,
                        Category category,
-                       const DeclarationReferenceExpression* initDeclarationReference,
+                       const DeclarationReferenceExpression& initDeclarationReference,
                        std::vector<const Expression*> initArguments):
             Expression(Expression::Kind::Call,
                        qualifiedType,
@@ -151,51 +151,51 @@ namespace ouzel
             declarationReference(initDeclarationReference),
             arguments(std::move(initArguments)) {}
 
-        const DeclarationReferenceExpression* declarationReference = nullptr;
+        const DeclarationReferenceExpression& declarationReference;
         std::vector<const Expression*> arguments;
     };
 
     class ParenExpression final: public Expression
     {
     public:
-        ParenExpression(const Expression* initExpression) noexcept:
+        ParenExpression(const Expression& initExpression) noexcept:
             Expression(Expression::Kind::Paren,
-                       initExpression->qualifiedType,
-                       initExpression->category),
+                       initExpression.qualifiedType,
+                       initExpression.category),
             expression(initExpression) {}
 
-        const Expression* expression = nullptr;
+        const Expression& expression;
     };
 
     class MemberExpression final: public Expression
     {
     public:
-        MemberExpression(const Expression* initExpression,
-                         const FieldDeclaration* initFieldDeclaration) noexcept:
+        MemberExpression(const Expression& initExpression,
+                         const FieldDeclaration& initFieldDeclaration) noexcept:
             Expression(Expression::Kind::Member,
-                       initFieldDeclaration->qualifiedType,
-                       initExpression->category),
+                       initFieldDeclaration.qualifiedType,
+                       initExpression.category),
             expression(initExpression),
             fieldDeclaration(initFieldDeclaration) {}
 
-        const Expression* expression = nullptr;
-        const FieldDeclaration* fieldDeclaration = nullptr;
+        const Expression& expression;
+        const FieldDeclaration& fieldDeclaration;
     };
 
     class ArraySubscriptExpression final: public Expression
     {
     public:
         ArraySubscriptExpression(const QualifiedType& elementType,
-                                 const Expression* initExpression,
-                                 const Expression* initSubscript) noexcept:
+                                 const Expression& initExpression,
+                                 const Expression& initSubscript) noexcept:
             Expression(Expression::Kind::ArraySubscript,
                        elementType,
-                       initExpression->category),
+                       initExpression.category),
             expression(initExpression),
             subscript(initSubscript) {}
 
-        const Expression* expression = nullptr;
-        const Expression* subscript = nullptr;
+        const Expression& expression;
+        const Expression& subscript;
     };
 
     class UnaryOperatorExpression final: public Expression
@@ -215,7 +215,7 @@ namespace ouzel
         UnaryOperatorExpression(Kind initOperatorKind,
                                 const Type* type,
                                 Category category,
-                                const Expression* initExpression) noexcept:
+                                const Expression& initExpression) noexcept:
             Expression(Expression::Kind::UnaryOperator,
                        QualifiedType{type},
                        category),
@@ -225,7 +225,7 @@ namespace ouzel
 
         inline Kind getOperatorKind() const noexcept { return operatorKind; }
 
-        const Expression* expression = nullptr;
+        const Expression& expression;
 
     private:
         Kind operatorKind;
@@ -260,8 +260,8 @@ namespace ouzel
         BinaryOperatorExpression(Kind initOperatorKind,
                                  const Type* type,
                                  Category category,
-                                 const Expression* initLeftExpression,
-                                 const Expression* initRightExpression) noexcept:
+                                 const Expression& initLeftExpression,
+                                 const Expression& initRightExpression) noexcept:
             Expression(Expression::Kind::BinaryOperator,
                        QualifiedType{type},
                        category),
@@ -272,8 +272,8 @@ namespace ouzel
 
         inline Kind getOperatorKind() const noexcept { return operatorKind; }
 
-        const Expression* leftExpression = nullptr;
-        const Expression* rightExpression = nullptr;
+        const Expression& leftExpression;
+        const Expression& rightExpression;
 
     private:
         Kind operatorKind;
@@ -282,21 +282,21 @@ namespace ouzel
     class TernaryOperatorExpression final: public Expression
     {
     public:
-        TernaryOperatorExpression(const Expression* initCondition,
-                                  const Expression* initLeftExpression,
-                                  const Expression* initRightExpression) noexcept:
+        TernaryOperatorExpression(const Expression& initCondition,
+                                  const Expression& initLeftExpression,
+                                  const Expression& initRightExpression) noexcept:
             Expression(Expression::Kind::TernaryOperator,
-                       initLeftExpression->qualifiedType,
-                       (initLeftExpression->category == Expression::Category::Lvalue &&
-                        initRightExpression->category == Expression::Category::Lvalue) ?
+                       initLeftExpression.qualifiedType,
+                       (initLeftExpression.category == Expression::Category::Lvalue &&
+                        initRightExpression.category == Expression::Category::Lvalue) ?
                        Expression::Category::Lvalue : Expression::Category::Rvalue),
             condition(initCondition),
             leftExpression(initLeftExpression),
             rightExpression(initRightExpression) {}
 
-        const Expression* condition;
-        const Expression* leftExpression = nullptr;
-        const Expression* rightExpression = nullptr;
+        const Expression& condition;
+        const Expression& leftExpression;
+        const Expression& rightExpression;
     };
 
     class TemporaryObjectExpression final: public Expression
@@ -336,7 +336,7 @@ namespace ouzel
 
         CastExpression(Kind initCastKind,
                        const Type* type,
-                       const Expression* initExpression) noexcept:
+                       const Expression& initExpression) noexcept:
             Expression(Expression::Kind::Cast,
                        QualifiedType{type, Type::Qualifiers::Const},
                        Category::Rvalue),
@@ -345,7 +345,7 @@ namespace ouzel
 
         inline Kind getCastKind() const noexcept { return castKind; }
 
-        const Expression* expression;
+        const Expression& expression;
 
     private:
         const Kind castKind;
