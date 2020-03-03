@@ -195,8 +195,7 @@ namespace
 
         auto& iVariableDeclaration = static_cast<const ouzel::VariableDeclaration&>(iDeclaration);
 
-        if (!iVariableDeclaration.qualifiedType.type ||
-            iVariableDeclaration.qualifiedType.type->name != "int")
+        if (iVariableDeclaration.qualifiedType.type.name != "int")
             throw TestError("Expected a declaration of a variable of type int");
 
         expectLiteral(iVariableDeclaration.initialization, 3);
@@ -630,7 +629,7 @@ namespace
     {
         std::string code = R"OSL(
         function main():float4x4;
-        function main()
+        function main():float4x4
         {
             var m1:float4x4;
             var v1:float4 = m1[0];

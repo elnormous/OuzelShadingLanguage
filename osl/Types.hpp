@@ -86,13 +86,13 @@ namespace ouzel
     class QualifiedType final
     {
     public:
-        QualifiedType(const Type* initType, Type::Qualifiers initQualifiers = Type::Qualifiers::None) noexcept:
+        QualifiedType(const Type& initType, Type::Qualifiers initQualifiers = Type::Qualifiers::None) noexcept:
             type(initType), qualifiers(initQualifiers) {}
 
         bool operator<(const QualifiedType& other) const noexcept
         {
-            if (type != other.type)
-                return type < other.type;
+            if (&type != &other.type)
+                return &type < &other.type;
             else if ((qualifiers & Type::Qualifiers::Const) != (other.qualifiers & Type::Qualifiers::Const))
                 return (qualifiers & Type::Qualifiers::Const) < (other.qualifiers & Type::Qualifiers::Const);
             else if ((qualifiers & Type::Qualifiers::Volatile) != (other.qualifiers & Type::Qualifiers::Volatile))
@@ -100,7 +100,7 @@ namespace ouzel
             else return true;
         }
 
-        const Type* type = nullptr;
+        const Type& type;
         Type::Qualifiers qualifiers = Type::Qualifiers::None;
     };
 
@@ -161,13 +161,13 @@ namespace ouzel
     {
     public:
         VectorType(const std::string& initName,
-                   const ScalarType* initComponentType,
+                   const ScalarType& initComponentType,
                    size_t initComponentCount):
             Type(Type::Kind::Vector, initName),
             componentType(initComponentType),
             componentCount(initComponentCount) {}
 
-        const ScalarType* componentType = nullptr;
+        const ScalarType& componentType;
         size_t componentCount = 1;
     };
 
@@ -175,13 +175,13 @@ namespace ouzel
     {
     public:
         MatrixType(const std::string& initName,
-                   const VectorType* initRowType,
+                   const VectorType& initRowType,
                    size_t initRowCount):
             Type(Type::Kind::Matrix, initName),
             rowType(initRowType),
             rowCount(initRowCount) {}
 
-        const VectorType* rowType = nullptr;
+        const VectorType& rowType;
         size_t rowCount = 1;
     };
 }

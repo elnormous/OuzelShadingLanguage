@@ -248,30 +248,23 @@ namespace ouzel
         if ((qualifiedType.qualifiers & Type::Qualifiers::Volatile) == Type::Qualifiers::Volatile) result += "volatile ";
         if ((qualifiedType.qualifiers & Type::Qualifiers::Const) == Type::Qualifiers::Const) result += "const ";
 
-        if (!qualifiedType.type)
+        auto type = &qualifiedType.type;
+
+        if (type->getTypeKind() == Type::Kind::Array)
         {
-            result += "void";
+            std::string arrayDimensions;
+            while (type->getTypeKind() == Type::Kind::Array)
+            {
+                auto arrayType = static_cast<const ArrayType*>(type);
+                arrayDimensions += "[" + std::to_string(arrayType->size) + "]";
+
+                type = &arrayType->elementType.type;
+            }
+
+            result += type->name + arrayDimensions;
         }
         else
-        {
-            auto type = qualifiedType.type;
-
-            if (type->getTypeKind() == Type::Kind::Array)
-            {
-                std::string arrayDimensions;
-                while (type->getTypeKind() == Type::Kind::Array)
-                {
-                    auto arrayType = static_cast<const ArrayType*>(type);
-                    arrayDimensions += "[" + std::to_string(arrayType->size) + "]";
-
-                    type = arrayType->elementType.type;
-                }
-
-                result += (type ? type->name : "void") + arrayDimensions;
-            }
-            else
-                result += type->name;
-        }
+            result += type->name;
 
         return result;
     }
@@ -329,14 +322,14 @@ namespace ouzel
                     case Type::Kind::Vector: // vector types can not be declared in code
                     {
                         auto& vectorType = static_cast<const VectorType&>(type);
-                        std::cout << ", name: " << vectorType.name << ", component type: " << vectorType.componentType->name << ", components: " << vectorType.componentCount;
+                        std::cout << ", name: " << vectorType.name << ", component type: " << vectorType.componentType.name << ", components: " << vectorType.componentCount;
                         break;
                     }
 
                     case Type::Kind::Matrix: // matrix types can not be declared in code
                     {
                         auto& matrixType = static_cast<const MatrixType&>(type);
-                        std::cout << ", name: " << matrixType.name << ", row type: " << matrixType.rowType->name << ", rows: " << matrixType.rowCount;
+                        std::cout << ", name: " << matrixType.name << ", row type: " << matrixType.rowType.name << ", rows: " << matrixType.rowCount;
                         break;
                     }
                 }
@@ -717,7 +710,7 @@ namespace ouzel
             {
                 auto& temporaryObjectExpression = static_cast<const TemporaryObjectExpression&>(expression);
 
-                std::cout << " " << temporaryObjectExpression.qualifiedType.type->name << '\n';
+                std::cout << " " << temporaryObjectExpression.qualifiedType.type.name << '\n';
 
                 for (const auto parameter : temporaryObjectExpression.parameters)
                     dumpConstruct(*parameter, level + 1);
@@ -742,7 +735,7 @@ namespace ouzel
                 auto& castExpression = static_cast<const CastExpression&>(expression);
 
                 std::cout << ", cast kind: " << toString(castExpression.getCastKind()) <<
-                    ", type: " << castExpression.qualifiedType.type->name << '\n';
+                    ", type: " << castExpression.qualifiedType.type.name << '\n';
 
                 dumpConstruct(castExpression.expression, level + 1);
 
