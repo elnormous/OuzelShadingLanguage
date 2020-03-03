@@ -121,8 +121,8 @@ namespace ouzel
 
             for (auto iterator = tokens.begin(); iterator != tokens.end();)
             {
-                auto declaration = parseTopLevelDeclaration(iterator, tokens.end(), declarationScopes);
-                declarations.push_back(declaration);
+                auto& declaration = parseTopLevelDeclaration(iterator, tokens.end(), declarationScopes);
+                declarations.push_back(&declaration);
             }
         }
 
@@ -453,7 +453,7 @@ namespace ouzel
                  findType(iterator->value, declarationScopes));
         }
 
-        const Type* parseType(TokenIterator& iterator, TokenIterator end,
+        const Type& parseType(TokenIterator& iterator, TokenIterator end,
                               DeclarationScopes& declarationScopes)
         {
             auto& token = getToken(iterator, end);
@@ -489,7 +489,7 @@ namespace ouzel
                 expectToken(Token::Type::RightBracket, iterator, end);
             }
 
-            return result;
+            return *result;
         }
 
         Attribute& parseAttribute(TokenIterator& iterator, TokenIterator end)
@@ -539,20 +539,20 @@ namespace ouzel
                 Token::Type::Var}, iterator, end);
         }
 
-        Declaration* parseTopLevelDeclaration(TokenIterator& iterator, TokenIterator end,
+        Declaration& parseTopLevelDeclaration(TokenIterator& iterator, TokenIterator end,
                                               DeclarationScopes& declarationScopes)
         {
-            auto declaration = parseDeclaration(iterator, end, declarationScopes);
+            auto& declaration = parseDeclaration(iterator, end, declarationScopes);
 
-            if (declaration->getDeclarationKind() == Declaration::Kind::Callable)
+            if (declaration.getDeclarationKind() == Declaration::Kind::Callable)
             {
-                auto callableDeclaration = static_cast<const CallableDeclaration*>(declaration);
+                auto& callableDeclaration = static_cast<const CallableDeclaration&>(declaration);
 
                 // semicolon is not needed after a function definition
-                if (!callableDeclaration->body)
+                if (!callableDeclaration.body)
                     expectToken(Token::Type::Semicolon, iterator, end);
             }
-            else if (declaration->getDeclarationKind() == Declaration::Kind::Type)
+            else if (declaration.getDeclarationKind() == Declaration::Kind::Type)
             {
                 // semicolon is not needed after a struct definition
             }
@@ -562,7 +562,7 @@ namespace ouzel
             return declaration;
         }
 
-        Declaration* parseDeclaration(TokenIterator& iterator, TokenIterator end,
+        Declaration& parseDeclaration(TokenIterator& iterator, TokenIterator end,
                                       DeclarationScopes& declarationScopes)
         {
             if (isToken(Token::Type::Struct, iterator, end))
@@ -575,7 +575,7 @@ namespace ouzel
                 throw ParseError(ErrorCode::DeclarationExpected, "Expected a declaration");
         }
 
-        FunctionDeclaration* parseFunctionDeclaration(TokenIterator& iterator, TokenIterator end,
+        FunctionDeclaration& parseFunctionDeclaration(TokenIterator& iterator, TokenIterator end,
                                                       DeclarationScopes& declarationScopes)
         {
             FunctionDeclaration::Qualifier qualifier = FunctionDeclaration::Qualifier::None;
@@ -601,13 +601,13 @@ namespace ouzel
             {
                 for (;;)
                 {
-                    auto parameterDeclaration = parseParameterDeclaration(iterator, end, declarationScopes);
+                    auto& parameterDeclaration = parseParameterDeclaration(iterator, end, declarationScopes);
 
-                    if (!parameterNames.insert(parameterDeclaration->name).second)
-                        throw ParseError(ErrorCode::SymbolRedefinition, "Redefinition of parameter " + parameterDeclaration->name);
+                    if (!parameterNames.insert(parameterDeclaration.name).second)
+                        throw ParseError(ErrorCode::SymbolRedefinition, "Redefinition of parameter " + parameterDeclaration.name);
 
-                    parameterDeclarations.push_back(parameterDeclaration);
-                    parameterTypes.push_back(parameterDeclaration->qualifiedType);
+                    parameterDeclarations.push_back(&parameterDeclaration);
+                    parameterTypes.push_back(parameterDeclaration.qualifiedType);
 
                     if (!skipToken(Token::Type::Comma, iterator, end))
                         break;
@@ -622,64 +622,64 @@ namespace ouzel
             const Type* type = nullptr;
 
             if (skipToken(Token::Type::Colon, iterator, end))
-                type = parseType(iterator, end, declarationScopes);
+                type = &parseType(iterator, end, declarationScopes);
 
             std::vector<const Attribute*> attributes;
             if (skipToken(Token::Type::Arrow, iterator, end))
                 while (isToken(Token::Type::Identifier, iterator, end))
                     attributes.push_back(&parseAttribute(iterator, end));
 
-            auto result = &create<FunctionDeclaration>(name, QualifiedType{type}, StorageClass::Auto,
-                                                      std::move(attributes), std::move(parameterDeclarations),
-                                                      qualifier);
+            auto& result = create<FunctionDeclaration>(name, QualifiedType{type}, StorageClass::Auto,
+                                                       std::move(attributes), std::move(parameterDeclarations),
+                                                       qualifier);
 
             if (previousDeclaration)
             {
-                result->previousDeclaration = previousDeclaration;
-                result->firstDeclaration = previousDeclaration->firstDeclaration;
-                result->definition = previousDeclaration->definition;
+                result.previousDeclaration = previousDeclaration;
+                result.firstDeclaration = previousDeclaration->firstDeclaration;
+                result.definition = previousDeclaration->definition;
             }
             else
-                result->firstDeclaration = result;
+                result.firstDeclaration = &result;
 
-            declarationScopes.back().push_back(result);
+            declarationScopes.back().push_back(&result);
 
             if (isToken(Token::Type::LeftBrace, iterator, end))
             {
                 // check if only one definition exists
-                if (result->definition)
-                    throw ParseError(ErrorCode::SymbolRedefinition, "Redefinition of " + result->name);
+                if (result.definition)
+                    throw ParseError(ErrorCode::SymbolRedefinition, "Redefinition of " + result.name);
 
                 declarationScopes.push_back(DeclarationScope()); // add scope for parameters
 
-                for (auto parameterDeclaration : result->parameterDeclarations)
+                for (auto parameterDeclaration : result.parameterDeclarations)
                     declarationScopes.back().push_back(parameterDeclaration);
 
                 std::vector<ReturnStatement*> returnStatements;
                 // parse body
                 auto& body = parseCompoundStatement(iterator, end, declarationScopes, returnStatements);
-                result->body = &body;
+                result.body = &body;
 
                 if (!returnStatements.empty())
                     for (const auto returnStatement : returnStatements)
                     {
                         const auto returnType = returnStatement->result ? returnStatement->result->qualifiedType.type : &voidType;
-                        if (!result->qualifiedType.type)
-                            result->qualifiedType.type = returnType;
-                        else if (result->qualifiedType.type != returnType)
+                        if (!result.qualifiedType.type)
+                            result.qualifiedType.type = returnType;
+                        else if (result.qualifiedType.type != returnType)
                             throw ParseError(ErrorCode::ReturnTypeDeductionFailure, "Failed to deduce the return type");
                     }
                 else
-                    result->qualifiedType.type = &voidType;
+                    result.qualifiedType.type = &voidType;
 
                 // set the definition pointer and type of all previous declarations
-                Declaration* declaration = result;
+                Declaration* declaration = &result;
                 while (declaration)
                 {
-                    declaration->definition = result;
+                    declaration->definition = &result;
                     if (!declaration->qualifiedType.type)
-                        declaration->qualifiedType.type = result->qualifiedType.type;
-                    else if (declaration->qualifiedType.type != result->qualifiedType.type)
+                        declaration->qualifiedType.type = result.qualifiedType.type;
+                    else if (declaration->qualifiedType.type != result.qualifiedType.type)
                         throw ParseError(ErrorCode::SymbolRedeclaration, "Redeclaring function with a different return type");
                     declaration = declaration->previousDeclaration;
                 }
@@ -690,7 +690,7 @@ namespace ouzel
             return result;
         }
 
-        VariableDeclaration* parseVariableDeclaration(TokenIterator& iterator, TokenIterator end,
+        VariableDeclaration& parseVariableDeclaration(TokenIterator& iterator, TokenIterator end,
                                                       DeclarationScopes& declarationScopes)
         {
             Type::Qualifiers qualifiers = Type::Qualifiers::None;
@@ -712,7 +712,7 @@ namespace ouzel
             const Type* type = nullptr;
             if (skipToken(Token::Type::Colon, iterator, end))
             {
-                type = parseType(iterator, end, declarationScopes);
+                type = &parseType(iterator, end, declarationScopes);
 
                 if (type->getTypeKind() == Type::Kind::Void)
                     throw ParseError(ErrorCode::IllegalVoidType, "Variable can not have the type \"void\"");
@@ -722,7 +722,7 @@ namespace ouzel
 
             if (skipToken(Token::Type::Assignment, iterator, end))
             {
-                initialization = parseMultiplicationAssignmentExpression(iterator, end, declarationScopes);
+                initialization = &parseMultiplicationAssignmentExpression(iterator, end, declarationScopes);
 
                 if (initialization->qualifiedType.type->getTypeKind() == Type::Kind::Void)
                     throw ParseError(ErrorCode::IllegalVoidType, "Initialization with the type \"void\"");
@@ -736,12 +736,12 @@ namespace ouzel
             if (!type)
                 throw ParseError(ErrorCode::MissingType, "Missing type for the variable");
 
-            auto result = &create<VariableDeclaration>(name, QualifiedType{type, qualifiers}, storageClass, initialization);
-            declarationScopes.back().push_back(result);
+            auto& result = create<VariableDeclaration>(name, QualifiedType{type, qualifiers}, storageClass, initialization);
+            declarationScopes.back().push_back(&result);
             return result;
         }
 
-        TypeDeclaration* parseStructTypeDeclaration(TokenIterator& iterator, TokenIterator end,
+        TypeDeclaration& parseStructTypeDeclaration(TokenIterator& iterator, TokenIterator end,
                                                     DeclarationScopes& declarationScopes)
         {
             expectToken(Token::Type::Struct, iterator, end);
@@ -778,37 +778,37 @@ namespace ouzel
                     break;
                 else
                 {
-                    auto memberDeclaration = parseMemberDeclaration(iterator, end, declarationScopes);
+                    auto& memberDeclaration = parseMemberDeclaration(iterator, end, declarationScopes);
 
-                    if (!memberNames.insert(memberDeclaration->name).second)
-                        throw ParseError(ErrorCode::SymbolRedefinition, "Redefinition of member " + memberDeclaration->name);
+                    if (!memberNames.insert(memberDeclaration.name).second)
+                        throw ParseError(ErrorCode::SymbolRedefinition, "Redefinition of member " + memberDeclaration.name);
 
                     expectToken(Token::Type::Semicolon, iterator, end);
 
-                    memberDeclarations.push_back(memberDeclaration);
+                    memberDeclarations.push_back(&memberDeclaration);
                 }
 
             auto& structType = create<StructType>(name, std::move(memberDeclarations));
 
-            auto result = &create<TypeDeclaration>(name, structType);
-            result->firstDeclaration = firstDeclaration ? firstDeclaration : result;
-            result->previousDeclaration = previousDeclaration;
-            result->definition = definition;
+            auto& result = create<TypeDeclaration>(name, structType);
+            result.firstDeclaration = firstDeclaration ? firstDeclaration : &result;
+            result.previousDeclaration = previousDeclaration;
+            result.definition = definition;
 
             // set the definition pointer of all previous declarations
-            Declaration* declaration = result;
+            Declaration* declaration = &result;
             while (declaration)
             {
-                declaration->definition = result;
+                declaration->definition = &result;
                 declaration = declaration->previousDeclaration;
             }
 
-            declarationScopes.back().push_back(result);
+            declarationScopes.back().push_back(&result);
 
             return result;
         }
 
-        Declaration* parseMemberDeclaration(TokenIterator& iterator, TokenIterator end,
+        Declaration& parseMemberDeclaration(TokenIterator& iterator, TokenIterator end,
                                             DeclarationScopes& declarationScopes)
         {
             expectToken(Token::Type::Var, iterator, end);
@@ -817,9 +817,9 @@ namespace ouzel
 
             expectToken(Token::Type::Colon, iterator, end);
 
-            const Type* type = parseType(iterator, end, declarationScopes);
+            const auto& type = parseType(iterator, end, declarationScopes);
 
-            if (type->getTypeKind() == Type::Kind::Void)
+            if (type.getTypeKind() == Type::Kind::Void)
                 throw ParseError(ErrorCode::IllegalVoidType, "Member cannot have the type \"void\"");
 
             std::vector<const Attribute*> attributes;
@@ -827,10 +827,10 @@ namespace ouzel
                 while (isToken(Token::Type::Identifier, iterator, end))
                     attributes.push_back(&parseAttribute(iterator, end));
 
-            return &create<FieldDeclaration>(name, QualifiedType{type}, std::move(attributes));
+            return create<FieldDeclaration>(name, QualifiedType{&type}, std::move(attributes));
         }
 
-        ParameterDeclaration* parseParameterDeclaration(TokenIterator& iterator, TokenIterator end,
+        ParameterDeclaration& parseParameterDeclaration(TokenIterator& iterator, TokenIterator end,
                                                         DeclarationScopes& declarationScopes)
         {
             InputModifier inputModifier = InputModifier::In;
@@ -857,16 +857,16 @@ namespace ouzel
 
             expectToken(Token::Type::Colon, iterator, end);
 
-            const Type* type = parseType(iterator, end, declarationScopes);
+            const auto& type = parseType(iterator, end, declarationScopes);
 
-            if (type->getTypeKind() == Type::Kind::Void)
+            if (type.getTypeKind() == Type::Kind::Void)
                 throw ParseError(ErrorCode::IllegalVoidType, "Parameter cannot have the type \"void\"");
 
-            auto result = &create<ParameterDeclaration>(name, QualifiedType{type}, inputModifier);
+            auto& result = create<ParameterDeclaration>(name, QualifiedType{&type}, inputModifier);
 
             if (skipToken(Token::Type::Arrow, iterator, end))
                 while (isToken(Token::Type::Identifier, iterator, end))
-                    result->attributes.push_back(&parseAttribute(iterator, end));
+                    result.attributes.push_back(&parseAttribute(iterator, end));
 
             return result;
         }
@@ -905,7 +905,7 @@ namespace ouzel
             {
                 auto& result = isToken(Token::Type::Semicolon, iterator, end) ?
                     create<ReturnStatement>() :
-                    create<ReturnStatement>(parseExpression(iterator, end, declarationScopes));
+                    create<ReturnStatement>(&parseExpression(iterator, end, declarationScopes));
 
                 returnStatements.push_back(&result);
 
@@ -925,20 +925,20 @@ namespace ouzel
                 throw ParseError(ErrorCode::StatementExpected, "Expected a statement");
             else if (isDeclaration(iterator, end))
             {
-                auto declaration = parseDeclaration(iterator, end, declarationScopes);
+                auto& declaration = parseDeclaration(iterator, end, declarationScopes);
 
-                if (declaration->getDeclarationKind() == Declaration::Kind::Variable)
+                if (declaration.getDeclarationKind() == Declaration::Kind::Variable)
                     expectToken(Token::Type::Semicolon, iterator, end);
-                else if (declaration->getDeclarationKind() != Declaration::Kind::Type)
+                else if (declaration.getDeclarationKind() != Declaration::Kind::Type)
                     throw ParseError(ErrorCode::UnexpectedDeclaration, "Unexpected declaration");
 
-                return create<DeclarationStatement>(*declaration);
+                return create<DeclarationStatement>(declaration);
             }
             else
             {
-                auto expression = parseExpression(iterator, end, declarationScopes);
+                auto& expression = parseExpression(iterator, end, declarationScopes);
                 expectToken(Token::Type::Semicolon, iterator, end);
-                return create<ExpressionStatement>(*expression);
+                return create<ExpressionStatement>(expression);
             }
         }
 
@@ -974,21 +974,21 @@ namespace ouzel
 
             if (isDeclaration(iterator, end))
             {
-                auto declaration = parseVariableDeclaration(iterator, end, declarationScopes);
+                auto& declaration = parseVariableDeclaration(iterator, end, declarationScopes);
 
-                if (!isBooleanType(declaration->qualifiedType.type))
+                if (!isBooleanType(declaration.qualifiedType.type))
                     throw ParseError(ErrorCode::ConditionNotBoolean, "Condition is not of the type \"bool\"");
 
-                condition = declaration;
+                condition = &declaration;
             }
             else
             {
-                auto expression = parseExpression(iterator, end, declarationScopes);
+                auto& expression = parseExpression(iterator, end, declarationScopes);
 
-                if (!isBooleanType(expression->qualifiedType.type))
+                if (!isBooleanType(expression.qualifiedType.type))
                     throw ParseError(ErrorCode::ConditionNotBoolean, "Condition is not of the type \"bool\"");
 
-                condition = expression;
+                condition = &expression;
             }
 
             expectToken(Token::Type::RightParenthesis, iterator, end);
@@ -1012,8 +1012,8 @@ namespace ouzel
 
             if (isDeclaration(iterator, end))
             {
-                auto declaration = parseVariableDeclaration(iterator, end, declarationScopes);
-                initialization = declaration;
+                auto& declaration = parseVariableDeclaration(iterator, end, declarationScopes);
+                initialization = &declaration;
 
                 expectToken(Token::Type::Semicolon, iterator, end);
             }
@@ -1021,7 +1021,7 @@ namespace ouzel
                 initialization = nullptr;
             else
             {
-                initialization = parseExpression(iterator, end, declarationScopes);
+                initialization = &parseExpression(iterator, end, declarationScopes);
 
                 expectToken(Token::Type::Semicolon, iterator, end);
             }
@@ -1030,15 +1030,15 @@ namespace ouzel
 
             if (isDeclaration(iterator, end))
             {
-                auto declaration = parseVariableDeclaration(iterator, end, declarationScopes);
+                auto& declaration = parseVariableDeclaration(iterator, end, declarationScopes);
 
-                if (!declaration->initialization)
+                if (!declaration.initialization)
                     throw ParseError(ErrorCode::MissingInitializer, "Condition must have an initializer");
 
-                if (!isBooleanType(declaration->qualifiedType.type))
+                if (!isBooleanType(declaration.qualifiedType.type))
                     throw ParseError(ErrorCode::ConditionNotBoolean, "Condition is not of the type \"bool\"");
 
-                condition = declaration;
+                condition = &declaration;
 
                 expectToken(Token::Type::Semicolon, iterator, end);
             }
@@ -1046,12 +1046,12 @@ namespace ouzel
                 condition = nullptr;
             else
             {
-                auto expression = parseExpression(iterator, end, declarationScopes);
+                auto& expression = parseExpression(iterator, end, declarationScopes);
 
-                if (!isBooleanType(expression->qualifiedType.type))
+                if (!isBooleanType(expression.qualifiedType.type))
                     throw ParseError(ErrorCode::ConditionNotBoolean, "Condition is not of the type \"bool\"");
 
-                condition = expression;
+                condition = &expression;
 
                 expectToken(Token::Type::Semicolon, iterator, end);
             }
@@ -1062,7 +1062,7 @@ namespace ouzel
                 increment = nullptr;
             else
             {
-                increment = parseExpression(iterator, end, declarationScopes);
+                increment = &parseExpression(iterator, end, declarationScopes);
                 expectToken(Token::Type::RightParenthesis, iterator, end);
             }
 
@@ -1082,21 +1082,21 @@ namespace ouzel
 
             if (isDeclaration(iterator, end))
             {
-                auto declaration = parseVariableDeclaration(iterator, end, declarationScopes);
+                auto& declaration = parseVariableDeclaration(iterator, end, declarationScopes);
 
-                if (!isIntegerType(declaration->qualifiedType.type))
+                if (!isIntegerType(declaration.qualifiedType.type))
                     throw ParseError(ErrorCode::IntegerTypeExpected, "Statement requires expression of integer type");
 
-                condition = declaration;
+                condition = &declaration;
             }
             else
             {
-                auto expression = parseExpression(iterator, end, declarationScopes);
+                auto& expression = parseExpression(iterator, end, declarationScopes);
 
-                if (!isIntegerType(expression->qualifiedType.type))
+                if (!isIntegerType(expression.qualifiedType.type))
                     throw ParseError(ErrorCode::IntegerTypeExpected, "Statement requires expression of integer type");
 
-                condition = expression;
+                condition = &expression;
             }
 
             expectToken(Token::Type::RightParenthesis, iterator, end);
@@ -1112,19 +1112,19 @@ namespace ouzel
         {
             expectToken(Token::Type::Case, iterator, end);
 
-            auto condition = parseExpression(iterator, end, declarationScopes);
+            auto& condition = parseExpression(iterator, end, declarationScopes);
 
-            if (!isIntegerType(condition->qualifiedType.type))
+            if (!isIntegerType(condition.qualifiedType.type))
                 throw ParseError(ErrorCode::IntegerTypeExpected, "Statement requires expression of integer type");
 
-            if ((condition->qualifiedType.qualifiers & Type::Qualifiers::Const) != Type::Qualifiers::Const)
+            if ((condition.qualifiedType.qualifiers & Type::Qualifiers::Const) != Type::Qualifiers::Const)
                 throw ParseError(ErrorCode::ExpressionNotConst, "Expression must be constant");
 
             expectToken(Token::Type::Colon, iterator, end);
 
             auto& body = parseStatement(iterator, end, declarationScopes, returnStatements);
 
-            return create<CaseStatement>(*condition, body);
+            return create<CaseStatement>(condition, body);
         }
 
         DefaultStatement& parseDefaultStatement(TokenIterator& iterator, TokenIterator end,
@@ -1148,21 +1148,21 @@ namespace ouzel
 
             if (isDeclaration(iterator, end))
             {
-                auto declaration = parseVariableDeclaration(iterator, end, declarationScopes);
+                auto& declaration = parseVariableDeclaration(iterator, end, declarationScopes);
 
-                if (!isBooleanType(declaration->qualifiedType.type))
+                if (!isBooleanType(declaration.qualifiedType.type))
                     throw ParseError(ErrorCode::ConditionNotBoolean, "Condition is not of the type \"bool\"");
 
-                condition = declaration;
+                condition = &declaration;
             }
             else
             {
-                auto expression = parseExpression(iterator, end, declarationScopes);
+                auto& expression = parseExpression(iterator, end, declarationScopes);
 
-                if (!isBooleanType(expression->qualifiedType.type))
+                if (!isBooleanType(expression.qualifiedType.type))
                     throw ParseError(ErrorCode::ConditionNotBoolean, "Condition is not of the type \"bool\"");
 
-                condition = expression;
+                condition = &expression;
             }
 
             expectToken(Token::Type::RightParenthesis, iterator, end);
@@ -1183,23 +1183,23 @@ namespace ouzel
             expectToken(Token::Type::While, iterator, end);
             expectToken(Token::Type::LeftParenthesis, iterator, end);
 
-            auto condition = parseExpression(iterator, end, declarationScopes);
+            auto& condition = parseExpression(iterator, end, declarationScopes);
 
-            if (!isBooleanType(condition->qualifiedType.type))
+            if (!isBooleanType(condition.qualifiedType.type))
                 throw ParseError(ErrorCode::ConditionNotBoolean, "Condition is not of the type \"bool\"");
 
             expectToken(Token::Type::RightParenthesis, iterator, end);
             expectToken(Token::Type::Semicolon, iterator, end);
 
-            return create<DoStatement>(*condition, body);
+            return create<DoStatement>(condition, body);
         }
 
-        Expression* parsePrimaryExpression(TokenIterator& iterator, TokenIterator end,
+        Expression& parsePrimaryExpression(TokenIterator& iterator, TokenIterator end,
                                            DeclarationScopes& declarationScopes)
         {
             if (isToken(Token::Type::IntLiteral, iterator, end))
             {
-                auto result = &create<IntegerLiteralExpression>(intType, strtoll(iterator->value.c_str(), nullptr, 0));
+                auto& result = create<IntegerLiteralExpression>(intType, strtoll(iterator->value.c_str(), nullptr, 0));
 
                 ++iterator;
 
@@ -1207,7 +1207,7 @@ namespace ouzel
             }
             else if (isToken(Token::Type::FloatLiteral, iterator, end))
             {
-                auto result = &create<FloatingPointLiteralExpression>(floatType, strtod(iterator->value.c_str(), nullptr));
+                auto& result = create<FloatingPointLiteralExpression>(floatType, strtod(iterator->value.c_str(), nullptr));
 
                 ++iterator;
 
@@ -1217,7 +1217,7 @@ namespace ouzel
                 throw ParseError(ErrorCode::UnsupportedFeature, "Double precision floating point numbers are not supported");
             else if (isToken(Token::Type::StringLiteral, iterator, end))
             {
-                auto result = &create<StringLiteralExpression>(stringType, iterator->value);
+                auto& result = create<StringLiteralExpression>(stringType, iterator->value);
 
                 ++iterator;
 
@@ -1225,7 +1225,7 @@ namespace ouzel
             }
             else if (isToken({Token::Type::True, Token::Type::False}, iterator, end))
             {
-                auto result = &create<BooleanLiteralExpression>(boolType, iterator->type == Token::Type::True);
+                auto& result = create<BooleanLiteralExpression>(boolType, iterator->type == Token::Type::True);
 
                 ++iterator;
 
@@ -1243,8 +1243,8 @@ namespace ouzel
 
                 expectToken(Token::Type::LeftParenthesis, iterator, end);
 
-                auto expression = parseMultiplicationAssignmentExpression(iterator, end, declarationScopes);
-                auto result = &create<CastExpression>(CastExpression::Kind::Functional, type, *expression);
+                auto& expression = parseMultiplicationAssignmentExpression(iterator, end, declarationScopes);
+                auto& result = create<CastExpression>(CastExpression::Kind::Functional, type, expression);
                 expectToken(Token::Type::RightParenthesis, iterator, end);
                 return result;
             }
@@ -1255,14 +1255,14 @@ namespace ouzel
 
                 for (;;)
                 {
-                    auto expression = parseMultiplicationAssignmentExpression(iterator, end, declarationScopes);
+                    auto& expression = parseMultiplicationAssignmentExpression(iterator, end, declarationScopes);
 
                     if (!type)
-                        type = expression->qualifiedType.type;
-                    else if (type != expression->qualifiedType.type)
+                        type = expression.qualifiedType.type;
+                    else if (type != expression.qualifiedType.type)
                         throw ParseError(ErrorCode::ConflictingTypesInInitializerList, "Conflicting types in initializer list");
 
-                    expressions.push_back(expression);
+                    expressions.push_back(&expression);
 
                     if (!skipToken(Token::Type::Comma, iterator, end))
                         break;
@@ -1271,7 +1271,7 @@ namespace ouzel
                 expectToken(Token::Type::RightBrace, iterator, end);
 
                 auto arrayType = getArrayType(type, expressions.size());
-                return &create<InitializerListExpression>(arrayType, std::move(expressions));
+                return create<InitializerListExpression>(arrayType, std::move(expressions));
             }
             else if (isToken(Token::Type::Identifier, iterator, end))
             {
@@ -1289,10 +1289,10 @@ namespace ouzel
                         {
                             for (;;)
                             {
-                                auto parameter = parseMultiplicationAssignmentExpression(iterator, end, declarationScopes);
+                                auto& parameter = parseMultiplicationAssignmentExpression(iterator, end, declarationScopes);
 
-                                parameters.push_back(parameter);
-                                parameterTypes.push_back(parameter->qualifiedType);
+                                parameters.push_back(&parameter);
+                                parameterTypes.push_back(parameter.qualifiedType);
 
                                 if (!skipToken(Token::Type::Comma, iterator, end))
                                     break;
@@ -1307,12 +1307,12 @@ namespace ouzel
                             {
                                 auto structType = static_cast<const StructType*>(type);
 
-                                auto result = &create<TemporaryObjectExpression>(type);
+                                auto& result = create<TemporaryObjectExpression>(type);
 
                                 for (auto parameter : parameters)
-                                    result->parameters.push_back(parameter);
+                                    result.parameters.push_back(parameter);
 
-                                if (!(result->constructorDeclaration = findConstructorDeclaration(structType, parameterTypes)))
+                                if (!(result.constructorDeclaration = findConstructorDeclaration(structType, parameterTypes)))
                                     throw ParseError(ErrorCode::NoConstructorFound, "No matching constructor found");
 
                                 return result;
@@ -1352,7 +1352,7 @@ namespace ouzel
                                 if (componentCount != vectorType->componentCount)
                                     throw ParseError(ErrorCode::InvalidVectorInitialization, "Invalid vector initialization");
 
-                                return &create<VectorInitializeExpression>(vectorType, std::move(initializerParameters));
+                                return create<VectorInitializeExpression>(vectorType, std::move(initializerParameters));
                             }
                             case Type::Kind::Matrix:
                             {
@@ -1393,7 +1393,7 @@ namespace ouzel
                                 if (rowCount != matrixType->rowCount)
                                     throw ParseError(ErrorCode::InvalidMatrixInitialization, "Invalid matrix initialization");
 
-                                return &create<MatrixInitializeExpression>(matrixType, std::move(initializerParameters));
+                                return create<MatrixInitializeExpression>(matrixType, std::move(initializerParameters));
                             }
                             default:
                                 throw ParseError(ErrorCode::StructTypeExpected, "Expected a struct type");
@@ -1408,10 +1408,10 @@ namespace ouzel
                         {
                             for (;;)
                             {
-                                auto argument = parseMultiplicationAssignmentExpression(iterator, end, declarationScopes);
+                                auto& argument = parseMultiplicationAssignmentExpression(iterator, end, declarationScopes);
 
-                                arguments.push_back(argument);
-                                argumentTypes.push_back(argument->qualifiedType);
+                                arguments.push_back(&argument);
+                                argumentTypes.push_back(argument.qualifiedType);
 
                                 if (!skipToken(Token::Type::Comma, iterator, end))
                                     break;
@@ -1427,7 +1427,7 @@ namespace ouzel
                         auto& declRefExpression = create<DeclarationReferenceExpression>(*functionDeclaration,
                                                                                          Expression::Category::Lvalue);
 
-                        return &create<CallExpression>(functionDeclaration->qualifiedType, Expression::Category::Rvalue, declRefExpression, std::move(arguments));
+                        return create<CallExpression>(functionDeclaration->qualifiedType, Expression::Category::Rvalue, declRefExpression, std::move(arguments));
                     }
                 }
                 else
@@ -1439,25 +1439,25 @@ namespace ouzel
                     Expression::Category category = (declaration->getDeclarationKind() == Declaration::Kind::Type) ?
                         Expression::Category::Rvalue : Expression::Category::Lvalue;
 
-                    return &create<DeclarationReferenceExpression>(*declaration, category);
+                    return create<DeclarationReferenceExpression>(*declaration, category);
                 }
             }
             else if (skipToken(Token::Type::LeftParenthesis, iterator, end))
             {
                 if (isType(iterator, end, declarationScopes))
                 {
-                    auto type = parseType(iterator, end, declarationScopes);
+                    const auto& type = parseType(iterator, end, declarationScopes);
 
                     expectToken(Token::Type::RightParenthesis, iterator, end);
 
-                    auto expression = parseExpression(iterator, end, declarationScopes);
-                    return &create<CastExpression>(CastExpression::Kind::CStyle, type, *expression);
+                    auto& expression = parseExpression(iterator, end, declarationScopes);
+                    return create<CastExpression>(CastExpression::Kind::CStyle, &type, expression);
                 }
                 else
                 {
-                    auto expression = parseExpression(iterator, end, declarationScopes);
+                    auto& expression = parseExpression(iterator, end, declarationScopes);
                     expectToken(Token::Type::RightParenthesis, iterator, end);
-                    return &create<ParenExpression>(*expression);
+                    return create<ParenExpression>(expression);
                 }
             }
             else if (isToken(Token::Type::StaticCast, iterator, end))
@@ -1474,13 +1474,13 @@ namespace ouzel
 
                 expectToken(Token::Type::LessThan, iterator, end);
 
-                auto type = parseType(iterator, end, declarationScopes);
+                const auto& type = parseType(iterator, end, declarationScopes);
 
                 expectToken(Token::Type::GreaterThan, iterator, end);
                 expectToken(Token::Type::LeftParenthesis, iterator, end);
 
-                auto expression = parseExpression(iterator, end, declarationScopes);
-                auto result = &create<CastExpression>(castKind, type, *expression);
+                auto& expression = parseExpression(iterator, end, declarationScopes);
+                auto& result = create<CastExpression>(castKind, &type, expression);
                 expectToken(Token::Type::RightParenthesis, iterator, end);
 
                 return result;
@@ -1491,10 +1491,10 @@ namespace ouzel
                 throw ParseError(ErrorCode::ExpressionExpected, "Expected an expression");
         }
 
-        Expression* parsePostfixExpression(TokenIterator& iterator, TokenIterator end,
+        Expression& parsePostfixExpression(TokenIterator& iterator, TokenIterator end,
                                            DeclarationScopes& declarationScopes)
         {
-            auto result = parsePrimaryExpression(iterator, end, declarationScopes);
+            auto result = &parsePrimaryExpression(iterator, end, declarationScopes);
 
             while (isToken({Token::Type::Increment, Token::Type::Decrement}, iterator, end))
             {
@@ -1519,34 +1519,34 @@ namespace ouzel
                 result = &create<UnaryOperatorExpression>(operatorKind, &unaryOperator.resultType, Expression::Category::Lvalue, *result);
             }
 
-            return result;
+            return *result;
         }
 
-        Expression* parseSubscriptExpression(TokenIterator& iterator, TokenIterator end,
+        Expression& parseSubscriptExpression(TokenIterator& iterator, TokenIterator end,
                                              DeclarationScopes& declarationScopes)
         {
-            auto result = parsePostfixExpression(iterator, end, declarationScopes);
+            auto result = &parsePostfixExpression(iterator, end, declarationScopes);
 
             while (skipToken(Token::Type::LeftBracket, iterator, end))
             {
                 if (result->qualifiedType.type->getTypeKind() == Type::Kind::Array)
                 {
-                    auto subscript = parseExpression(iterator, end, declarationScopes);
-                    if (!isIntegerType(subscript->qualifiedType.type))
+                    auto& subscript = parseExpression(iterator, end, declarationScopes);
+                    if (!isIntegerType(subscript.qualifiedType.type))
                         throw ParseError(ErrorCode::InvalidSubscript, "Subscript is not an integer");
 
                     expectToken(Token::Type::RightBracket, iterator, end);
 
                     auto arrayType = static_cast<const ArrayType*>(result->qualifiedType.type);
-                    result = &create<ArraySubscriptExpression>(arrayType->elementType, *result, *subscript);
+                    result = &create<ArraySubscriptExpression>(arrayType->elementType, *result, subscript);
                 }
                 else if (result->qualifiedType.type->getTypeKind() == Type::Kind::Vector ||
                          result->qualifiedType.type->getTypeKind() == Type::Kind::Matrix)
                 {
                     const auto operatorKind = BinaryOperatorExpression::Kind::Subscript;
 
-                    auto rightExpression = parseExpression(iterator, end, declarationScopes);
-                    if (!isIntegerType(rightExpression->qualifiedType.type))
+                    auto& rightExpression = parseExpression(iterator, end, declarationScopes);
+                    if (!isIntegerType(rightExpression.qualifiedType.type))
                         throw ParseError(ErrorCode::InvalidSubscript, "Subscript is not an integer");
 
                     expectToken(Token::Type::RightBracket, iterator, end);
@@ -1565,13 +1565,13 @@ namespace ouzel
                         type = matrixType->rowType;
                     }
 
-                    result = &create<BinaryOperatorExpression>(operatorKind, type, result->category, *result, *rightExpression);
+                    result = &create<BinaryOperatorExpression>(operatorKind, type, result->category, *result, rightExpression);
                 }
                 else
                     throw ParseError(ErrorCode::ArrayTypeExpected, "Subscript value is not an array");
             }
 
-            return result;
+            return *result;
         }
 
         static constexpr uint8_t charToComponent(char c)
@@ -1583,10 +1583,10 @@ namespace ouzel
                 throw ParseError(ErrorCode::InvalidSwizzle, "Invalid component");
         }
 
-        Expression* parseMemberExpression(TokenIterator& iterator, TokenIterator end,
+        Expression& parseMemberExpression(TokenIterator& iterator, TokenIterator end,
                                           DeclarationScopes& declarationScopes)
         {
-            auto result = parseSubscriptExpression(iterator, end, declarationScopes);
+            auto result = &parseSubscriptExpression(iterator, end, declarationScopes);
 
             while (isToken({Token::Type::Dot, Token::Type::Arrow}, iterator, end))
             {
@@ -1656,10 +1656,10 @@ namespace ouzel
                     throw ParseError(ErrorCode::StructTypeExpected, "\"" + result->qualifiedType.type->name + "\" is not a structure");
             }
 
-            return result;
+            return *result;
         }
 
-        Expression* parsePrefixExpression(TokenIterator& iterator, TokenIterator end,
+        Expression& parsePrefixExpression(TokenIterator& iterator, TokenIterator end,
                                           DeclarationScopes& declarationScopes)
         {
             if (isToken({Token::Type::Increment, Token::Type::Decrement}, iterator, end))
@@ -1670,24 +1670,24 @@ namespace ouzel
 
                 ++iterator;
 
-                auto expression = parseMemberExpression(iterator, end, declarationScopes);
+                auto& expression = parseMemberExpression(iterator, end, declarationScopes);
 
-                if (expression->category != Expression::Category::Lvalue)
+                if (expression.category != Expression::Category::Lvalue)
                     throw ParseError(ErrorCode::ExpressionNotAssignable, "Expression is not assignable");
 
-                if ((expression->qualifiedType.qualifiers & Type::Qualifiers::Const) == Type::Qualifiers::Const)
+                if ((expression.qualifiedType.qualifiers & Type::Qualifiers::Const) == Type::Qualifiers::Const)
                     throw ParseError(ErrorCode::ExpressionNotAssignable, "Cannot assign to const variable");
 
                 const auto& unaryOperator = getUnaryOperator(operatorKind,
-                                                             expression->qualifiedType.type);
+                                                             expression.qualifiedType.type);
 
-                return &create<UnaryOperatorExpression>(operatorKind, &unaryOperator.resultType, Expression::Category::Rvalue, *expression);
+                return create<UnaryOperatorExpression>(operatorKind, &unaryOperator.resultType, Expression::Category::Rvalue, expression);
             }
             else
                 return parseMemberExpression(iterator, end, declarationScopes);
         }
 
-        Expression* parseSignExpression(TokenIterator& iterator, TokenIterator end,
+        Expression& parseSignExpression(TokenIterator& iterator, TokenIterator end,
                                         DeclarationScopes& declarationScopes)
         {
             if (isToken({Token::Type::Plus, Token::Type::Minus}, iterator, end))
@@ -1698,39 +1698,39 @@ namespace ouzel
 
                 ++iterator;
 
-                auto expression = parsePrefixExpression(iterator, end, declarationScopes);
+                auto& expression = parsePrefixExpression(iterator, end, declarationScopes);
 
                 const auto& unaryOperator = getUnaryOperator(operatorKind,
-                                                             expression->qualifiedType.type);
+                                                             expression.qualifiedType.type);
 
-                return &create<UnaryOperatorExpression>(operatorKind, &unaryOperator.resultType, Expression::Category::Rvalue, *expression);
+                return create<UnaryOperatorExpression>(operatorKind, &unaryOperator.resultType, Expression::Category::Rvalue, expression);
             }
             else
                 return parsePrefixExpression(iterator, end, declarationScopes);
         }
 
-        Expression* parseNotExpression(TokenIterator& iterator, TokenIterator end,
+        Expression& parseNotExpression(TokenIterator& iterator, TokenIterator end,
                                        DeclarationScopes& declarationScopes)
         {
             if (skipToken(Token::Type::Not, iterator, end))
             {
                 const auto operatorKind = UnaryOperatorExpression::Kind::Negation;
 
-                auto expression = parseExpression(iterator, end, declarationScopes);
+                auto& expression = parseExpression(iterator, end, declarationScopes);
 
                 const auto& unaryOperator = getUnaryOperator(operatorKind,
-                                                             expression->qualifiedType.type);
+                                                             expression.qualifiedType.type);
 
-                return &create<UnaryOperatorExpression>(operatorKind, &unaryOperator.resultType, Expression::Category::Rvalue, *expression);
+                return create<UnaryOperatorExpression>(operatorKind, &unaryOperator.resultType, Expression::Category::Rvalue, expression);
             }
             else
                 return parseSignExpression(iterator, end, declarationScopes);
         }
 
-        Expression* parseMultiplicationExpression(TokenIterator& iterator, TokenIterator end,
+        Expression& parseMultiplicationExpression(TokenIterator& iterator, TokenIterator end,
                                                   DeclarationScopes& declarationScopes)
         {
-            auto result = parseNotExpression(iterator, end, declarationScopes);
+            auto result = &parseNotExpression(iterator, end, declarationScopes);
 
             while (isToken({Token::Type::Multiply, Token::Type::Divide}, iterator, end))
             {
@@ -1740,22 +1740,22 @@ namespace ouzel
 
                 ++iterator;
 
-                auto rightExpression = parseNotExpression(iterator, end, declarationScopes);
+                auto& rightExpression = parseNotExpression(iterator, end, declarationScopes);
 
                 const auto& binaryOperator = getBinaryOperator(operatorKind,
                                                                result->qualifiedType.type,
-                                                               rightExpression->qualifiedType.type);
+                                                               rightExpression.qualifiedType.type);
 
-                result = &create<BinaryOperatorExpression>(operatorKind, &binaryOperator.resultType, Expression::Category::Rvalue, *result, *rightExpression);
+                result = &create<BinaryOperatorExpression>(operatorKind, &binaryOperator.resultType, Expression::Category::Rvalue, *result, rightExpression);
             }
 
-            return result;
+            return *result;
         }
 
-        Expression* parseAdditionExpression(TokenIterator& iterator, TokenIterator end,
+        Expression& parseAdditionExpression(TokenIterator& iterator, TokenIterator end,
                                             DeclarationScopes& declarationScopes)
         {
-            auto result = parseMultiplicationExpression(iterator, end, declarationScopes);
+            auto result = &parseMultiplicationExpression(iterator, end, declarationScopes);
 
             while (isToken({Token::Type::Plus, Token::Type::Minus}, iterator, end))
             {
@@ -1765,22 +1765,22 @@ namespace ouzel
 
                 ++iterator;
 
-                auto rightExpression = parseMultiplicationExpression(iterator, end, declarationScopes);
+                auto& rightExpression = parseMultiplicationExpression(iterator, end, declarationScopes);
 
                 const auto& binaryOperator = getBinaryOperator(operatorKind,
                                                                result->qualifiedType.type,
-                                                               rightExpression->qualifiedType.type);
+                                                               rightExpression.qualifiedType.type);
 
-                result = &create<BinaryOperatorExpression>(operatorKind, &binaryOperator.resultType, Expression::Category::Rvalue, *result, *rightExpression);
+                result = &create<BinaryOperatorExpression>(operatorKind, &binaryOperator.resultType, Expression::Category::Rvalue, *result, rightExpression);
             }
 
-            return result;
+            return *result;
         }
 
-        Expression* parseLessThanExpression(TokenIterator& iterator, TokenIterator end,
+        Expression& parseLessThanExpression(TokenIterator& iterator, TokenIterator end,
                                             DeclarationScopes& declarationScopes)
         {
-            auto result = parseAdditionExpression(iterator, end, declarationScopes);
+            auto result = &parseAdditionExpression(iterator, end, declarationScopes);
 
             while (isToken({Token::Type::LessThan, Token::Type::LessThanEqual}, iterator, end))
             {
@@ -1790,22 +1790,22 @@ namespace ouzel
 
                 ++iterator;
 
-                auto rightExpression = parseAdditionExpression(iterator, end, declarationScopes);
+                auto& rightExpression = parseAdditionExpression(iterator, end, declarationScopes);
 
                 const auto& binaryOperator = getBinaryOperator(operatorKind,
                                                                result->qualifiedType.type,
-                                                               rightExpression->qualifiedType.type);
+                                                               rightExpression.qualifiedType.type);
 
-                result = &create<BinaryOperatorExpression>(operatorKind, &binaryOperator.resultType, Expression::Category::Rvalue, *result, *rightExpression);
+                result = &create<BinaryOperatorExpression>(operatorKind, &binaryOperator.resultType, Expression::Category::Rvalue, *result, rightExpression);
             }
 
-            return result;
+            return *result;
         }
 
-        Expression* parseGreaterThanExpression(TokenIterator& iterator, TokenIterator end,
+        Expression& parseGreaterThanExpression(TokenIterator& iterator, TokenIterator end,
                                                DeclarationScopes& declarationScopes)
         {
-            auto result = parseLessThanExpression(iterator, end, declarationScopes);
+            auto result = &parseLessThanExpression(iterator, end, declarationScopes);
 
             while (isToken({Token::Type::GreaterThan, Token::Type::GreaterThanEqual}, iterator, end))
             {
@@ -1815,22 +1815,22 @@ namespace ouzel
 
                 ++iterator;
 
-                auto rightExpression = parseLessThanExpression(iterator, end, declarationScopes);
+                auto& rightExpression = parseLessThanExpression(iterator, end, declarationScopes);
 
                 const auto& binaryOperator = getBinaryOperator(operatorKind,
                                                                result->qualifiedType.type,
-                                                               rightExpression->qualifiedType.type);
+                                                               rightExpression.qualifiedType.type);
 
-                result = &create<BinaryOperatorExpression>(operatorKind, &binaryOperator.resultType, Expression::Category::Rvalue, *result, *rightExpression);
+                result = &create<BinaryOperatorExpression>(operatorKind, &binaryOperator.resultType, Expression::Category::Rvalue, *result, rightExpression);
             }
 
-            return result;
+            return *result;
         }
 
-        Expression* parseEqualityExpression(TokenIterator& iterator, TokenIterator end,
+        Expression& parseEqualityExpression(TokenIterator& iterator, TokenIterator end,
                                             DeclarationScopes& declarationScopes)
         {
-            auto result = parseGreaterThanExpression(iterator, end, declarationScopes);
+            auto result = &parseGreaterThanExpression(iterator, end, declarationScopes);
 
             while (isToken({Token::Type::Equal, Token::Type::NotEq}, iterator, end))
             {
@@ -1840,89 +1840,89 @@ namespace ouzel
 
                 ++iterator;
 
-                auto rightExpression = parseGreaterThanExpression(iterator, end, declarationScopes);
+                auto& rightExpression = parseGreaterThanExpression(iterator, end, declarationScopes);
 
                 const auto& binaryOperator = getBinaryOperator(operatorKind,
                                                                result->qualifiedType.type,
-                                                               rightExpression->qualifiedType.type);
+                                                               rightExpression.qualifiedType.type);
 
-                result = &create<BinaryOperatorExpression>(operatorKind, &binaryOperator.resultType, Expression::Category::Rvalue, *result, *rightExpression);
+                result = &create<BinaryOperatorExpression>(operatorKind, &binaryOperator.resultType, Expression::Category::Rvalue, *result, rightExpression);
             }
 
-            return result;
+            return *result;
         }
 
-        Expression* parseLogicalAndExpression(TokenIterator& iterator, TokenIterator end,
+        Expression& parseLogicalAndExpression(TokenIterator& iterator, TokenIterator end,
                                               DeclarationScopes& declarationScopes)
         {
-            auto result = parseEqualityExpression(iterator, end, declarationScopes);
+            auto result = &parseEqualityExpression(iterator, end, declarationScopes);
 
             while (skipToken(Token::Type::And, iterator, end))
             {
                 const auto operatorKind = BinaryOperatorExpression::Kind::And;
 
-                auto rightExpression = parseEqualityExpression(iterator, end, declarationScopes);
+                auto& rightExpression = parseEqualityExpression(iterator, end, declarationScopes);
 
                 const auto& binaryOperator = getBinaryOperator(operatorKind,
                                                                result->qualifiedType.type,
-                                                               rightExpression->qualifiedType.type);
+                                                               rightExpression.qualifiedType.type);
 
-                result = &create<BinaryOperatorExpression>(operatorKind, &binaryOperator.resultType, Expression::Category::Rvalue, *result, *rightExpression);
+                result = &create<BinaryOperatorExpression>(operatorKind, &binaryOperator.resultType, Expression::Category::Rvalue, *result, rightExpression);
             }
 
-            return result;
+            return *result;
         }
 
-        Expression* parseLogicalOrExpression(TokenIterator& iterator, TokenIterator end,
+        Expression& parseLogicalOrExpression(TokenIterator& iterator, TokenIterator end,
                                              DeclarationScopes& declarationScopes)
         {
-            auto result = parseLogicalAndExpression(iterator, end, declarationScopes);
+            auto result = &parseLogicalAndExpression(iterator, end, declarationScopes);
 
             while (skipToken(Token::Type::Or, iterator, end))
             {
                 const auto operatorKind = BinaryOperatorExpression::Kind::Or;
 
-                auto rightExpression = parseLogicalAndExpression(iterator, end, declarationScopes);
+                auto& rightExpression = parseLogicalAndExpression(iterator, end, declarationScopes);
 
                 const auto& binaryOperator = getBinaryOperator(operatorKind,
                                                                result->qualifiedType.type,
-                                                               rightExpression->qualifiedType.type);
+                                                               rightExpression.qualifiedType.type);
 
-                result = &create<BinaryOperatorExpression>(operatorKind, &binaryOperator.resultType, Expression::Category::Rvalue, *result, *rightExpression);
+                result = &create<BinaryOperatorExpression>(operatorKind, &binaryOperator.resultType, Expression::Category::Rvalue, *result, rightExpression);
             }
 
-            return result;
+            return *result;
         }
 
-        Expression* parseTernaryExpression(TokenIterator& iterator, TokenIterator end,
+        Expression& parseTernaryExpression(TokenIterator& iterator, TokenIterator end,
                                            DeclarationScopes& declarationScopes)
         {
-            auto result = parseLogicalOrExpression(iterator, end, declarationScopes);
+            auto result = &parseLogicalOrExpression(iterator, end, declarationScopes);
 
             while (skipToken(Token::Type::Conditional, iterator, end))
             {
                 if (!isBooleanType(result->qualifiedType.type))
                     throw ParseError(ErrorCode::ConditionNotBoolean, "Condition is not of the type \"bool\"");
 
-                auto leftExpression = parseTernaryExpression(iterator, end, declarationScopes);
+                auto& leftExpression = parseTernaryExpression(iterator, end, declarationScopes);
 
                 expectToken(Token::Type::Colon, iterator, end);
 
-                auto rightExpression = parseTernaryExpression(iterator, end, declarationScopes);
+                auto& rightExpression = parseTernaryExpression(iterator, end, declarationScopes);
 
-                if (leftExpression->qualifiedType.type != rightExpression->qualifiedType.type)
+                if (leftExpression.qualifiedType.type != rightExpression.qualifiedType.type)
                     throw ParseError(ErrorCode::IncompatibleOperands, "Incompatible operand types");
 
-                result = &create<TernaryOperatorExpression>(*result, *leftExpression, *rightExpression);
+                result = &create<TernaryOperatorExpression>(*result, leftExpression, rightExpression);
             }
 
-            return result;
+            return *result;
         }
 
-        Expression* parseAssignmentExpression(TokenIterator& iterator, TokenIterator end,
+        Expression& parseAssignmentExpression(TokenIterator& iterator, TokenIterator end,
                                               DeclarationScopes& declarationScopes)
         {
-            auto result = parseTernaryExpression(iterator, end, declarationScopes);
+            auto result = &parseTernaryExpression(iterator, end, declarationScopes);
 
             while (skipToken(Token::Type::Assignment, iterator, end))
             {
@@ -1934,22 +1934,22 @@ namespace ouzel
                 if ((result->qualifiedType.qualifiers & Type::Qualifiers::Const) == Type::Qualifiers::Const)
                     throw ParseError(ErrorCode::ExpressionNotAssignable, "Cannot assign to const variable");
 
-                auto rightExpression = parseTernaryExpression(iterator, end, declarationScopes);
+                auto& rightExpression = parseTernaryExpression(iterator, end, declarationScopes);
 
                 const auto& binaryOperator = getBinaryOperator(operatorKind,
                                                                result->qualifiedType.type,
-                                                               rightExpression->qualifiedType.type);
+                                                               rightExpression.qualifiedType.type);
 
-                result = &create<BinaryOperatorExpression>(operatorKind, &binaryOperator.resultType, Expression::Category::Rvalue, *result, *rightExpression);
+                result = &create<BinaryOperatorExpression>(operatorKind, &binaryOperator.resultType, Expression::Category::Rvalue, *result, rightExpression);
             }
 
-            return result;
+            return *result;
         }
 
-        Expression* parseAdditionAssignmentExpression(TokenIterator& iterator, TokenIterator end,
+        Expression& parseAdditionAssignmentExpression(TokenIterator& iterator, TokenIterator end,
                                                       DeclarationScopes& declarationScopes)
         {
-            auto result = parseAssignmentExpression(iterator, end, declarationScopes);
+            auto result = &parseAssignmentExpression(iterator, end, declarationScopes);
 
             while (isToken({Token::Type::PlusAssignment, Token::Type::MinusAssignment}, iterator, end))
             {
@@ -1965,22 +1965,22 @@ namespace ouzel
                 if ((result->qualifiedType.qualifiers & Type::Qualifiers::Const) == Type::Qualifiers::Const)
                     throw ParseError(ErrorCode::ExpressionNotAssignable, "Cannot assign to const variable");
 
-                auto rightExpression = parseAssignmentExpression(iterator, end, declarationScopes);
+                auto& rightExpression = parseAssignmentExpression(iterator, end, declarationScopes);
 
                 const auto& binaryOperator = getBinaryOperator(operatorKind,
                                                                result->qualifiedType.type,
-                                                               rightExpression->qualifiedType.type);
+                                                               rightExpression.qualifiedType.type);
 
-                result = &create<BinaryOperatorExpression>(operatorKind, &binaryOperator.resultType, Expression::Category::Lvalue, *result, *rightExpression);
+                result = &create<BinaryOperatorExpression>(operatorKind, &binaryOperator.resultType, Expression::Category::Lvalue, *result, rightExpression);
             }
 
-            return result;
+            return *result;
         }
 
-        Expression* parseMultiplicationAssignmentExpression(TokenIterator& iterator, TokenIterator end,
+        Expression& parseMultiplicationAssignmentExpression(TokenIterator& iterator, TokenIterator end,
                                                             DeclarationScopes& declarationScopes)
         {
-            auto result = parseAdditionAssignmentExpression(iterator, end, declarationScopes);
+            auto result = &parseAdditionAssignmentExpression(iterator, end, declarationScopes);
 
             while (isToken({Token::Type::MultiplyAssignment, Token::Type::DivideAssignment}, iterator, end))
             {
@@ -1996,44 +1996,43 @@ namespace ouzel
                 if ((result->qualifiedType.qualifiers & Type::Qualifiers::Const) == Type::Qualifiers::Const)
                     throw ParseError(ErrorCode::ExpressionNotAssignable, "Cannot assign to const variable");
 
-                auto rightExpression = parseAdditionAssignmentExpression(iterator, end, declarationScopes);
+                auto& rightExpression = parseAdditionAssignmentExpression(iterator, end, declarationScopes);
 
                 const auto& binaryOperator = getBinaryOperator(operatorKind,
                                                                result->qualifiedType.type,
-                                                               rightExpression->qualifiedType.type);
+                                                               rightExpression.qualifiedType.type);
 
-                result = &create<BinaryOperatorExpression>(operatorKind, &binaryOperator.resultType, Expression::Category::Lvalue, *result, *rightExpression);
+                result = &create<BinaryOperatorExpression>(operatorKind, &binaryOperator.resultType, Expression::Category::Lvalue, *result, rightExpression);
             }
 
-            return result;
+            return *result;
         }
 
-        Expression* parseCommaExpression(TokenIterator& iterator, TokenIterator end,
+        Expression& parseCommaExpression(TokenIterator& iterator, TokenIterator end,
                                          DeclarationScopes& declarationScopes)
         {
-            auto result = parseMultiplicationAssignmentExpression(iterator, end, declarationScopes);
+            auto result = &parseMultiplicationAssignmentExpression(iterator, end, declarationScopes);
 
             while (skipToken(Token::Type::Comma, iterator, end))
             {
                 const auto operatorKind = BinaryOperatorExpression::Kind::Comma;
 
-                auto rightExpression = parseAdditionAssignmentExpression(iterator, end, declarationScopes);
+                auto& rightExpression = parseAdditionAssignmentExpression(iterator, end, declarationScopes);
 
                 const auto& binaryOperator = getBinaryOperator(operatorKind,
                                                                result->qualifiedType.type,
-                                                               rightExpression->qualifiedType.type);
+                                                               rightExpression.qualifiedType.type);
 
-                if (result->qualifiedType.type !=
-                    rightExpression->qualifiedType.type)
+                if (result->qualifiedType.type != rightExpression.qualifiedType.type)
                     throw ParseError(ErrorCode::IncompatibleOperands, "Incompatible operand types");
 
-                result = &create<BinaryOperatorExpression>(operatorKind, &binaryOperator.resultType, rightExpression->category, *result, *rightExpression);
+                result = &create<BinaryOperatorExpression>(operatorKind, &binaryOperator.resultType, rightExpression.category, *result, rightExpression);
             }
 
-            return result;
+            return *result;
         }
 
-        Expression* parseExpression(TokenIterator& iterator, TokenIterator end,
+        Expression& parseExpression(TokenIterator& iterator, TokenIterator end,
                                     DeclarationScopes& declarationScopes)
         {
             return parseCommaExpression(iterator, end, declarationScopes);
@@ -2146,7 +2145,7 @@ namespace ouzel
             return matrixType;
         }
 
-        FunctionDeclaration* addBuiltinFunctionDeclaration(const std::string& name,
+        FunctionDeclaration& addBuiltinFunctionDeclaration(const std::string& name,
                                                            const Type* resultType,
                                                            const std::vector<Type*>& parameters,
                                                            DeclarationScopes& declarationScopes)
@@ -2159,11 +2158,11 @@ namespace ouzel
                 parameterDeclarations.push_back(parameterDeclaration);
             }
 
-            auto functionDeclaration = &create<FunctionDeclaration>(name, QualifiedType{resultType}, StorageClass::Auto,
+            auto& functionDeclaration = create<FunctionDeclaration>(name, QualifiedType{resultType}, StorageClass::Auto,
                                                                    std::vector<const Attribute*>{}, std::move(parameterDeclarations),
                                                                    FunctionDeclaration::Qualifier::None, true);
 
-            declarationScopes.back().push_back(functionDeclaration);
+            declarationScopes.back().push_back(&functionDeclaration);
 
             return functionDeclaration;
         }
