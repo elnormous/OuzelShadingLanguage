@@ -629,7 +629,7 @@ namespace
     void testMatrix()
     {
         std::string code = R"OSL(
-        function main();
+        function main():float4x4;
         function main()
         {
             var m1:float4x4;

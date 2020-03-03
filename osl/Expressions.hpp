@@ -128,10 +128,11 @@ namespace ouzel
     class DeclarationReferenceExpression final: public Expression
     {
     public:
-        DeclarationReferenceExpression(const Declaration& initDeclaration,
+        DeclarationReferenceExpression(const QualifiedType& qualifiedType,
+                                       const Declaration& initDeclaration,
                                        Category category):
             Expression(Expression::Kind::DeclarationReference,
-                       initDeclaration.qualifiedType,
+                       qualifiedType,
                        category),
             declaration(initDeclaration) {}
 
@@ -141,7 +142,7 @@ namespace ouzel
     class CallExpression final: public Expression
     {
     public:
-        CallExpression(QualifiedType qualifiedType,
+        CallExpression(const QualifiedType& qualifiedType,
                        Category category,
                        const DeclarationReferenceExpression& initDeclarationReference,
                        std::vector<const Expression*> initArguments):

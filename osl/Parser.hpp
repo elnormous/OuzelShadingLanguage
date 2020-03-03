@@ -664,24 +664,22 @@ namespace ouzel
                     for (const auto returnStatement : returnStatements)
                     {
                         const auto returnType = returnStatement->result ? returnStatement->result->qualifiedType.type : &voidType;
-                        if (!result.qualifiedType.type)
-                            result.qualifiedType.type = returnType;
-                        else if (result.qualifiedType.type != returnType)
+                        if (!result.resultType.type)
+                            result.resultType.type = returnType;
+                        else if (result.resultType.type != returnType)
                             throw ParseError(ErrorCode::ReturnTypeDeductionFailure, "Failed to deduce the return type");
                     }
                 else
-                    result.qualifiedType.type = &voidType;
+                    result.resultType.type = &voidType;
 
-                // set the definition pointer and type of all previous declarations
-                Declaration* declaration = &result;
+                // set the definition pointer of all previous declarations and check the result type
+                auto declaration = &result;
                 while (declaration)
                 {
                     declaration->definition = &result;
-                    if (!declaration->qualifiedType.type)
-                        declaration->qualifiedType.type = result.qualifiedType.type;
-                    else if (declaration->qualifiedType.type != result.qualifiedType.type)
+                    if (declaration->resultType.type != result.resultType.type)
                         throw ParseError(ErrorCode::SymbolRedeclaration, "Redeclaring function with a different return type");
-                    declaration = declaration->previousDeclaration;
+                    declaration = static_cast<FunctionDeclaration*>(declaration->previousDeclaration);
                 }
 
                 declarationScopes.pop_back();
@@ -1424,10 +1422,11 @@ namespace ouzel
                         if (!functionDeclaration)
                             throw ParseError(ErrorCode::InvalidDeclarationReference, "Invalid function reference \"" + name + "\"");
 
-                        auto& declRefExpression = create<DeclarationReferenceExpression>(*functionDeclaration,
+                        auto& declRefExpression = create<DeclarationReferenceExpression>(functionDeclaration->resultType,
+                                                                                         *functionDeclaration,
                                                                                          Expression::Category::Lvalue);
 
-                        return create<CallExpression>(functionDeclaration->qualifiedType, Expression::Category::Rvalue, declRefExpression, std::move(arguments));
+                        return create<CallExpression>(functionDeclaration->resultType, Expression::Category::Rvalue, declRefExpression, std::move(arguments));
                     }
                 }
                 else
@@ -1436,10 +1435,12 @@ namespace ouzel
                     if (!declaration)
                         throw ParseError(ErrorCode::InvalidDeclarationReference, "Invalid declaration reference \"" + name + "\"");
 
-                    Expression::Category category = (declaration->getDeclarationKind() == Declaration::Kind::Type) ?
-                        Expression::Category::Rvalue : Expression::Category::Lvalue;
+                    if (declaration->getDeclarationKind() != Declaration::Kind::Variable)
+                        throw ParseError(ErrorCode::VariableDeclarationExpected, "Expected a variable declaration");
 
-                    return create<DeclarationReferenceExpression>(*declaration, category);
+                    auto variableDeclaration = static_cast<VariableDeclaration*>(declaration);
+
+                    return create<DeclarationReferenceExpression>(variableDeclaration->qualifiedType, *declaration, Expression::Category::Lvalue);
                 }
             }
             else if (skipToken(Token::Type::LeftParenthesis, iterator, end))

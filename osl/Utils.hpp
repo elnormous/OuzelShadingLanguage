@@ -359,13 +359,20 @@ namespace ouzel
             {
                 auto& callableDeclaration = static_cast<const CallableDeclaration&>(declaration);
 
-                std::cout << ", callable kind: " << toString(callableDeclaration.getCallableDeclarationKind()) << ", name: " << callableDeclaration.name << ", result type: " << getPrintableTypeName(callableDeclaration.qualifiedType);
+                std::cout << ", callable kind: " << toString(callableDeclaration.getCallableDeclarationKind()) << ", name: " << callableDeclaration.name;
 
                 if (callableDeclaration.getCallableDeclarationKind() == CallableDeclaration::Kind::Function)
                 {
                     auto& functionDeclaration = static_cast<const FunctionDeclaration&>(callableDeclaration);
 
+                    std::cout << ", result type: " << getPrintableTypeName(functionDeclaration.resultType);
                     if (functionDeclaration.isBuiltin) std::cout << " builtin";
+                }
+                else if (callableDeclaration.getCallableDeclarationKind() == CallableDeclaration::Kind::Method)
+                {
+                    auto& methodDeclaration = static_cast<const MethodDeclaration&>(callableDeclaration);
+
+                    std::cout << ", result type: " << getPrintableTypeName(methodDeclaration.resultType);
                 }
 
                 if (callableDeclaration.previousDeclaration)
