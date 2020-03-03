@@ -300,12 +300,16 @@ namespace ouzel
     class TemporaryObjectExpression final: public Expression
     {
     public:
-        TemporaryObjectExpression(const Type& type):
+        TemporaryObjectExpression(const Type& type,
+                                  const ConstructorDeclaration& initConstructorDeclaration,
+                                  std::vector<const Expression*> initParameters):
             Expression(Expression::Kind::TemporaryObject,
                        QualifiedType{type, Type::Qualifiers::Const},
-                       Category::Rvalue) {}
+                       Category::Rvalue),
+            constructorDeclaration(initConstructorDeclaration),
+            parameters(std::move(initParameters)) {}
 
-        const ConstructorDeclaration* constructorDeclaration = nullptr;
+        const ConstructorDeclaration& constructorDeclaration;
         std::vector<const Expression*> parameters;
     };
 

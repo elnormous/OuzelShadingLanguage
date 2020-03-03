@@ -1273,7 +1273,7 @@ namespace ouzel
                 {
                     if (auto type = findType(name, declarationScopes))
                     {
-                        std::vector<Expression*> parameters;
+                        std::vector<const Expression*> parameters;
                         std::vector<QualifiedType> parameterTypes;
 
                         if (!skipToken(Token::Type::RightParenthesis, iterator, end)) // has arguments
@@ -1298,21 +1298,20 @@ namespace ouzel
                             {
                                 auto structType = static_cast<const StructType*>(type);
 
-                                auto& result = create<TemporaryObjectExpression>(*structType);
+                                auto constructorDeclaration = findConstructorDeclaration(*structType, parameterTypes);
 
-                                for (auto parameter : parameters)
-                                    result.parameters.push_back(parameter);
-
-                                if (!(result.constructorDeclaration = findConstructorDeclaration(*structType, parameterTypes)))
+                                if (!constructorDeclaration)
                                     throw ParseError(ErrorCode::NoConstructorFound, "No matching constructor found");
 
-                                return result;
+                                return create<TemporaryObjectExpression>(*structType, *constructorDeclaration, std::move(parameters));
                             }
                             case Type::Kind::Vector:
                             {
+                                if (parameters.empty())
+                                    throw ParseError(ErrorCode::EmptyVectorInitializer, "Vector cannot not have an empty initializer");
+
                                 auto vectorType = static_cast<const VectorType*>(type);
 
-                                std::vector<const Expression*> initializerParameters;
                                 size_t componentCount = 0;
 
                                 for (auto parameter : parameters)
@@ -1333,23 +1332,20 @@ namespace ouzel
 
                                         componentCount += vectorParameterType.componentCount;
                                     }
-
-                                    initializerParameters.push_back(parameter);
                                 }
-
-                                if (initializerParameters.empty())
-                                    throw ParseError(ErrorCode::EmptyVectorInitializer, "Vector cannot not have an empty initializer");
 
                                 if (componentCount != vectorType->componentCount)
                                     throw ParseError(ErrorCode::InvalidVectorInitialization, "Invalid vector initialization");
 
-                                return create<VectorInitializeExpression>(*vectorType, std::move(initializerParameters));
+                                return create<VectorInitializeExpression>(*vectorType, std::move(parameters));
                             }
                             case Type::Kind::Matrix:
                             {
+                                if (parameters.empty())
+                                    throw ParseError(ErrorCode::EmptyMatrixInitializer, "Matrix cannot not have an empty initializer");
+
                                 auto matrixType = static_cast<const MatrixType*>(type);
 
-                                std::vector<const Expression*> initializerParameters;
                                 size_t rowCount = 0;
 
                                 for (auto parameter : parameters)
@@ -1375,16 +1371,12 @@ namespace ouzel
                                         rowCount += matrixParameterType.rowCount;
                                     }
 
-                                    initializerParameters.push_back(parameter);
                                 }
-
-                                if (initializerParameters.empty())
-                                    throw ParseError(ErrorCode::EmptyMatrixInitializer, "Matrix cannot not have an empty initializer");
 
                                 if (rowCount != matrixType->rowCount)
                                     throw ParseError(ErrorCode::InvalidMatrixInitialization, "Invalid matrix initialization");
 
-                                return create<MatrixInitializeExpression>(*matrixType, std::move(initializerParameters));
+                                return create<MatrixInitializeExpression>(*matrixType, std::move(parameters));
                             }
                             default:
                                 throw ParseError(ErrorCode::StructTypeExpected, "Expected a struct type");
