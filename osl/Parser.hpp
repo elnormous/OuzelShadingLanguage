@@ -2154,8 +2154,8 @@ namespace ouzel
 
             for (auto parameter : parameters)
             {
-                auto parameterDeclaration = &create<ParameterDeclaration>(QualifiedType{parameter}, InputModifier::In);
-                parameterDeclarations.push_back(parameterDeclaration);
+                auto& parameterDeclaration = create<ParameterDeclaration>(QualifiedType{parameter}, InputModifier::In);
+                parameterDeclarations.push_back(&parameterDeclaration);
             }
 
             auto& functionDeclaration = create<FunctionDeclaration>(name, QualifiedType{resultType}, StorageClass::Auto,
