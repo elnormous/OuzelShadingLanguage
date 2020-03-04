@@ -698,7 +698,9 @@ namespace ouzel
 
             const auto& name = expectToken(Token::Type::Identifier, iterator, end).value;
 
-            // TODO: check for redeclaration of symbol
+            auto previousDeclaration = findDeclaration(name, declarationScopes.back());
+            if (previousDeclaration)
+                throw ParseError(ErrorCode::SymbolRedeclaration, "Redeclaration of " + name);
 
             const Type* type = nullptr;
             if (skipToken(Token::Type::Colon, iterator, end))
