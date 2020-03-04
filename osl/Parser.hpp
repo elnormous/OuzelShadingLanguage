@@ -589,6 +589,11 @@ namespace ouzel
 
             const auto& name = expectToken(Token::Type::Identifier, iterator, end).value;
 
+            auto previousDeclarationInScope = findDeclaration(name, declarationScopes.back());
+            if (previousDeclarationInScope &&
+                previousDeclarationInScope->getDeclarationKind() != Declaration::Kind::Callable)
+                throw ParseError(ErrorCode::SymbolRedeclaration, "Redeclaration of " + name);
+
             expectToken(Token::Type::LeftParenthesis, iterator, end);
 
             std::vector<QualifiedType> parameterTypes;
@@ -698,8 +703,8 @@ namespace ouzel
 
             const auto& name = expectToken(Token::Type::Identifier, iterator, end).value;
 
-            auto previousDeclaration = findDeclaration(name, declarationScopes.back());
-            if (previousDeclaration)
+            auto previousDeclarationInScope = findDeclaration(name, declarationScopes.back());
+            if (previousDeclarationInScope)
                 throw ParseError(ErrorCode::SymbolRedeclaration, "Redeclaration of " + name);
 
             const Type* type = nullptr;
