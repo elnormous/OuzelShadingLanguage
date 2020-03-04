@@ -31,6 +31,7 @@ namespace ouzel
         InvalidAttribute,
         SymbolRedefinition,
         SymbolRedeclaration,
+        FunctionRedeclarationWithDifferentReturnType,
         MissingType,
         IllegalVoidType,
         ConditionNotBoolean,
@@ -619,12 +620,15 @@ namespace ouzel
 
             expectToken(Token::Type::RightParenthesis, iterator, end);
 
-            // TODO: forbid declaring a function with the same name as a declared type (not supported by GLSL)
             auto previousDeclaration = findFunctionDeclaration(name, declarationScopes, parameterTypes);
 
             const Type& type = skipToken(Token::Type::Colon, iterator, end) ?
                 parseType(iterator, end, declarationScopes) :
                 voidType;
+
+            if (previousDeclaration &&
+                &previousDeclaration->resultType.type != &type)
+                throw ParseError(ErrorCode::FunctionRedeclarationWithDifferentReturnType, "Redeclaring function with different return type");
 
             std::vector<const Attribute*> attributes;
             if (skipToken(Token::Type::Arrow, iterator, end))
