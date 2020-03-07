@@ -1200,37 +1200,33 @@ namespace ouzel
         {
             if (isToken(Token::Type::IntLiteral, iterator, end))
             {
-                auto& result = create<IntegerLiteralExpression>(intType, strtoll(iterator->value.c_str(), nullptr, 0));
-
+                auto value = strtoll(iterator->value.c_str(), nullptr, 0);
                 ++iterator;
 
-                return result;
+                return create<IntegerLiteralExpression>(intType, value);
             }
             else if (isToken(Token::Type::FloatLiteral, iterator, end))
             {
-                auto& result = create<FloatingPointLiteralExpression>(floatType, strtod(iterator->value.c_str(), nullptr));
-
+                auto value = strtod(iterator->value.c_str(), nullptr);
                 ++iterator;
 
-                return result;
+                return create<FloatingPointLiteralExpression>(floatType, value);
             }
             else if (isToken(Token::Type::DoubleLiteral, iterator, end))
                 throw ParseError(ErrorCode::UnsupportedFeature, "Double precision floating point numbers are not supported");
             else if (isToken(Token::Type::StringLiteral, iterator, end))
             {
-                auto& result = create<StringLiteralExpression>(stringType, iterator->value);
-
+                auto& value = iterator->value;
                 ++iterator;
 
-                return result;
+                return create<StringLiteralExpression>(stringType, value);
             }
             else if (isToken({Token::Type::True, Token::Type::False}, iterator, end))
             {
-                auto& result = create<BooleanLiteralExpression>(boolType, iterator->type == Token::Type::True);
-
+                auto value = iterator->type == Token::Type::True;
                 ++iterator;
 
-                return result;
+                return create<BooleanLiteralExpression>(boolType, value);
             }
             else if (isToken({Token::Type::Bool, Token::Type::Int, Token::Type::Float, Token::Type::Double}, iterator, end))
             {
