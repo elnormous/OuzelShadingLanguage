@@ -864,13 +864,12 @@ namespace ouzel
             if (type.getTypeKind() == Type::Kind::Void)
                 throw ParseError(ErrorCode::IllegalVoidType, "Parameter cannot have the type \"void\"");
 
-            auto& result = create<ParameterDeclaration>(name, QualifiedType{type}, inputModifier);
-
+            std::vector<const Attribute*> attributes;
             if (skipToken(Token::Type::Arrow, iterator, end))
                 while (isToken(Token::Type::Identifier, iterator, end))
-                    result.attributes.push_back(&parseAttribute(iterator, end));
+                    attributes.push_back(&parseAttribute(iterator, end));
 
-            return result;
+            return create<ParameterDeclaration>(name, QualifiedType{type}, inputModifier, std::move(attributes));
         }
 
         Statement& parseStatement(TokenIterator& iterator, TokenIterator end,
@@ -2148,7 +2147,7 @@ namespace ouzel
 
             for (auto parameter : parameters)
             {
-                auto& parameterDeclaration = create<ParameterDeclaration>(QualifiedType{*parameter}, InputModifier::In);
+                auto& parameterDeclaration = create<ParameterDeclaration>(QualifiedType{*parameter}, InputModifier::In, std::vector<const Attribute*>{});
                 parameterDeclarations.push_back(&parameterDeclaration);
             }
 

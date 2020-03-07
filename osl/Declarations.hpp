@@ -89,8 +89,9 @@ namespace ouzel
     {
     public:
         ParameterDeclaration(const QualifiedType& initQualifiedType,
-                             InputModifier initInputModifier) noexcept:
-            Declaration(Declaration::Kind::Parameter, std::vector<const Attribute*>{}),
+                             InputModifier initInputModifier,
+                             std::vector<const Attribute*> initAttributes) noexcept:
+            Declaration(Declaration::Kind::Parameter, std::move(initAttributes)),
             inputModifier(initInputModifier),
             qualifiedType(initQualifiedType)
         {
@@ -99,8 +100,9 @@ namespace ouzel
 
         ParameterDeclaration(const std::string& initName,
                              const QualifiedType& initQualifiedType,
-                             InputModifier initInputModifier) noexcept:
-            Declaration(Declaration::Kind::Parameter, initName, {}),
+                             InputModifier initInputModifier,
+                             std::vector<const Attribute*> initAttributes) noexcept:
+            Declaration(Declaration::Kind::Parameter, initName, std::move(initAttributes)),
             inputModifier(initInputModifier),
             qualifiedType(initQualifiedType)
         {
