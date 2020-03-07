@@ -1246,9 +1246,8 @@ namespace ouzel
                 expectToken(Token::Type::LeftParenthesis, iterator, end);
 
                 auto& expression = parseMultiplicationAssignmentExpression(iterator, end, declarationScopes);
-                auto& result = create<CastExpression>(CastExpression::Kind::Functional, *type, expression);
                 expectToken(Token::Type::RightParenthesis, iterator, end);
-                return result;
+                return create<CastExpression>(CastExpression::Kind::Functional, *type, expression);
             }
             else if (skipToken(Token::Type::LeftBrace, iterator, end))
             {
@@ -1477,10 +1476,8 @@ namespace ouzel
                 expectToken(Token::Type::LeftParenthesis, iterator, end);
 
                 auto& expression = parseExpression(iterator, end, declarationScopes);
-                auto& result = create<CastExpression>(castKind, type, expression);
                 expectToken(Token::Type::RightParenthesis, iterator, end);
-
-                return result;
+                return create<CastExpression>(castKind, type, expression);
             }
             else if (isToken(Token::Type::This, iterator, end))
                 throw ParseError(ErrorCode::UnsupportedFeature, "Expression \"this\" is not supported");
