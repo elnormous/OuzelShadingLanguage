@@ -45,22 +45,18 @@ namespace ouzel
                     const std::string& initName,
                     std::vector<const Attribute*> initAttributes = {}):
             Construct(Construct::Kind::Declaration),
-            name(initName),
             declarationKind(initDeclarationKind),
+            name(initName),
             attributes(std::move(initAttributes)) {}
 
         Declaration& operator=(const Declaration&) = delete;
 
-        inline Kind getDeclarationKind() const noexcept { return declarationKind; }
-
+        const Kind declarationKind;
         const std::string name;
         Declaration* firstDeclaration = nullptr;
         Declaration* previousDeclaration = nullptr;
         Declaration* definition = nullptr;
         const std::vector<const Attribute*> attributes;
-
-    private:
-        const Kind declarationKind;
     };
 
     class FieldDeclaration final: public Declaration
@@ -142,14 +138,10 @@ namespace ouzel
             storageClass(initStorageClass),
             parameterDeclarations(std::move(initParameterDeclarations)) {}
 
-        inline Kind getCallableDeclarationKind() const { return callableDeclarationKind; }
-
+        const Kind callableDeclarationKind;
         const StorageClass storageClass = StorageClass::Auto;
         const std::vector<ParameterDeclaration*> parameterDeclarations;
         const Statement* body = nullptr;
-
-    private:
-        const Kind callableDeclarationKind;
     };
 
     class FunctionDeclaration final: public CallableDeclaration

@@ -36,9 +36,6 @@ namespace ouzel
 
         Statement& operator=(const Statement&) = delete;
 
-        inline Kind getStatementKind() const noexcept { return statementKind; }
-
-    private:
         const Kind statementKind;
     };
 

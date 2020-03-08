@@ -250,10 +250,10 @@ namespace ouzel
 
         auto type = &qualifiedType.type;
 
-        if (type->getTypeKind() == Type::Kind::Array)
+        if (type->typeKind == Type::Kind::Array)
         {
             std::string arrayDimensions;
-            while (type->getTypeKind() == Type::Kind::Array)
+            while (type->typeKind == Type::Kind::Array)
             {
                 auto arrayType = static_cast<const ArrayType*>(type);
                 arrayDimensions += "[" + std::to_string(arrayType->size) + "]";
@@ -273,18 +273,18 @@ namespace ouzel
 
     inline void dumpDeclaration(const Declaration& declaration, const uint32_t level = 0)
     {
-        std::cout << " " << toString(declaration.getDeclarationKind());
+        std::cout << " " << toString(declaration.declarationKind);
 
-        switch (declaration.getDeclarationKind())
+        switch (declaration.declarationKind)
         {
             case Declaration::Kind::Type:
             {
                 auto& typeDeclaration = static_cast<const TypeDeclaration&>(declaration);
                 auto& type = typeDeclaration.type;
 
-                std::cout << " " << toString(type.getTypeKind());
+                std::cout << " " << toString(type.typeKind);
 
-                switch (type.getTypeKind())
+                switch (type.typeKind)
                 {
                     case Type::Kind::Void: // void types can not be declared in code
                     {
@@ -315,7 +315,7 @@ namespace ouzel
                     case Type::Kind::Scalar: // scalar types can not be declared in code
                     {
                         auto& scalarType = static_cast<const ScalarType&>(type);
-                        std::cout << ", name: " << scalarType.name << ", scalar type kind: " << toString(scalarType.getScalarTypeKind());
+                        std::cout << ", name: " << scalarType.name << ", scalar type kind: " << toString(scalarType.scalarTypeKind);
                         break;
                     }
 
@@ -352,16 +352,16 @@ namespace ouzel
             {
                 auto& callableDeclaration = static_cast<const CallableDeclaration&>(declaration);
 
-                std::cout << ", callable kind: " << toString(callableDeclaration.getCallableDeclarationKind()) << ", name: " << callableDeclaration.name;
+                std::cout << ", callable kind: " << toString(callableDeclaration.callableDeclarationKind) << ", name: " << callableDeclaration.name;
 
-                if (callableDeclaration.getCallableDeclarationKind() == CallableDeclaration::Kind::Function)
+                if (callableDeclaration.callableDeclarationKind == CallableDeclaration::Kind::Function)
                 {
                     auto& functionDeclaration = static_cast<const FunctionDeclaration&>(callableDeclaration);
 
                     std::cout << ", result type: " << getPrintableTypeName(functionDeclaration.resultType);
                     if (functionDeclaration.isBuiltin) std::cout << " builtin";
                 }
-                else if (callableDeclaration.getCallableDeclarationKind() == CallableDeclaration::Kind::Method)
+                else if (callableDeclaration.callableDeclarationKind == CallableDeclaration::Kind::Method)
                 {
                     auto& methodDeclaration = static_cast<const MethodDeclaration&>(callableDeclaration);
 
@@ -422,9 +422,9 @@ namespace ouzel
 
     inline void dumpStatement(const Statement& statement, const uint32_t level = 0)
     {
-        std::cout << " " << toString(statement.getStatementKind());
+        std::cout << " " << toString(statement.statementKind);
 
-        switch (statement.getStatementKind())
+        switch (statement.statementKind)
         {
             case Statement::Kind::Empty:
             {
@@ -576,9 +576,9 @@ namespace ouzel
 
     inline void dumpExpression(const Expression& expression, const uint32_t level = 0)
     {
-        std::cout << " " << toString(expression.getExpressionKind()) << ", category: " << toString(expression.category);
+        std::cout << " " << toString(expression.expressionKind) << ", category: " << toString(expression.category);
 
-        switch (expression.getExpressionKind())
+        switch (expression.expressionKind)
         {
             case Expression::Kind::Call:
             {
@@ -598,9 +598,9 @@ namespace ouzel
             {
                 auto& literalExpression = static_cast<const LiteralExpression&>(expression);
 
-                std::cout << ", literal kind: " << toString(literalExpression.getLiteralKind()) << ", value: ";
+                std::cout << ", literal kind: " << toString(literalExpression.literalKind) << ", value: ";
 
-                switch (literalExpression.getLiteralKind())
+                switch (literalExpression.literalKind)
                 {
                     case LiteralExpression::Kind::Boolean:
                     {
@@ -677,7 +677,7 @@ namespace ouzel
             {
                 auto& unaryOperatorExpression = static_cast<const UnaryOperatorExpression&>(expression);
 
-                std::cout <<", operator: " << toString(unaryOperatorExpression.getOperatorKind()) << '\n';
+                std::cout <<", operator: " << toString(unaryOperatorExpression.operatorKind) << '\n';
 
                 dumpConstruct(unaryOperatorExpression.expression, level + 1);
                 break;
@@ -687,7 +687,7 @@ namespace ouzel
             {
                 auto& binaryOperatorExpression = static_cast<const BinaryOperatorExpression&>(expression);
 
-                std::cout << ", operator: " << toString(binaryOperatorExpression.getOperatorKind()) << '\n';
+                std::cout << ", operator: " << toString(binaryOperatorExpression.operatorKind) << '\n';
 
                 dumpConstruct(binaryOperatorExpression.leftExpression, level + 1);
                 dumpConstruct(binaryOperatorExpression.rightExpression, level + 1);
@@ -734,7 +734,7 @@ namespace ouzel
             {
                 auto& castExpression = static_cast<const CastExpression&>(expression);
 
-                std::cout << ", cast kind: " << toString(castExpression.getCastKind()) <<
+                std::cout << ", cast kind: " << toString(castExpression.castKind) <<
                     ", type: " << castExpression.qualifiedType.type.name << '\n';
 
                 dumpConstruct(castExpression.expression, level + 1);
@@ -871,9 +871,9 @@ namespace ouzel
 
         std::cout << &construct;
 
-        std::cout << " " << toString(construct.getKind());
+        std::cout << " " << toString(construct.kind);
 
-        switch (construct.getKind())
+        switch (construct.kind)
         {
             case Construct::Kind::Declaration:
             {

@@ -25,9 +25,6 @@ namespace ouzel
         Construct(Construct&&) = delete;
         Construct& operator=(Construct&&) = delete;
 
-        inline Kind getKind() const noexcept { return kind; }
-
-    private:
         const Kind kind;
     };
 }

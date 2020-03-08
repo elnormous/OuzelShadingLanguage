@@ -37,17 +37,13 @@ namespace ouzel
             typeKind(initTypeKind) {}
 
         Type(Kind initTypeKind, const std::string& initName):
-            name(initName),
-            typeKind(initTypeKind) {}
+            typeKind(initTypeKind),
+            name(initName) {}
 
         Type& operator=(const Type&) = delete;
 
-        inline Kind getTypeKind() const noexcept { return typeKind; }
-
-        std::string name;
-
-    private:
-        Kind typeKind;
+        const Kind typeKind;
+        const std::string name;
     };
 
     inline constexpr Type::Qualifiers operator&(const Type::Qualifiers a, const Type::Qualifiers b) noexcept
@@ -101,7 +97,7 @@ namespace ouzel
         }
 
         const Type& type;
-        Type::Qualifiers qualifiers = Type::Qualifiers::None;
+        const Type::Qualifiers qualifiers = Type::Qualifiers::None;
     };
 
     class ArrayType final: public Type
@@ -113,8 +109,8 @@ namespace ouzel
             elementType(initElementType),
             size(initSize) {}
 
-        QualifiedType elementType;
-        size_t size = 0;
+        const QualifiedType elementType;
+        const size_t size = 0;
     };
 
     class ScalarType final: public Type
@@ -131,17 +127,13 @@ namespace ouzel
                    Kind initScalarTypeKind,
                    bool initIsUnsigned):
             Type(Type::Kind::Scalar, initName),
-            isUnsigned(initIsUnsigned),
-            scalarTypeKind(initScalarTypeKind)
+            scalarTypeKind(initScalarTypeKind),
+            isUnsigned(initIsUnsigned)
         {
         }
 
-        inline Kind getScalarTypeKind() const noexcept { return scalarTypeKind; }
-
-        bool isUnsigned = false;
-
-    private:
         const Kind scalarTypeKind;
+        const bool isUnsigned = false;
     };
 
     class Declaration;
@@ -154,7 +146,7 @@ namespace ouzel
             Type(Type::Kind::Struct, initName),
             memberDeclarations(std::move(initMemberDeclarations)) {}
 
-        std::vector<const Declaration*> memberDeclarations;
+        const std::vector<const Declaration*> memberDeclarations;
     };
 
     class VectorType final: public Type
@@ -168,7 +160,7 @@ namespace ouzel
             componentCount(initComponentCount) {}
 
         const ScalarType& componentType;
-        size_t componentCount = 1;
+        const size_t componentCount = 1;
     };
 
     class MatrixType final: public Type
@@ -182,7 +174,7 @@ namespace ouzel
             rowCount(initRowCount) {}
 
         const VectorType& rowType;
-        size_t rowCount = 1;
+        const size_t rowCount = 1;
     };
 }
 

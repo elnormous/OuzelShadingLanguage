@@ -49,7 +49,7 @@ namespace
 
         if (!declaration ||
             declaration->name != "main" ||
-            declaration->getDeclarationKind() != ouzel::Declaration::Kind::Callable)
+            declaration->declarationKind != ouzel::Declaration::Kind::Callable)
             throw TestError("Expected a callable declaration of main");
 
         auto callableDeclaration = static_cast<const ouzel::CallableDeclaration*>(declaration);
@@ -57,7 +57,7 @@ namespace
         auto body = callableDeclaration->body;
 
         if (!body ||
-            body->getStatementKind() != ouzel::Statement::Kind::Compound)
+            body->statementKind != ouzel::Statement::Kind::Compound)
             throw TestError("Expected a compound statement");
 
         return static_cast<const ouzel::CompoundStatement*>(body);
@@ -74,7 +74,7 @@ namespace
         auto statement = *i;
 
         if (!statement ||
-            statement->getStatementKind() != ouzel::Statement::Kind::Expression)
+            statement->statementKind != ouzel::Statement::Kind::Expression)
             throw TestError("Expected an expression statement");
 
         auto expressionStatement = static_cast<const ouzel::ExpressionStatement*>(statement);
@@ -93,7 +93,7 @@ namespace
         if ((expression->qualifiedType.qualifiers & ouzel::Type::Qualifiers::Const) != ouzel::Type::Qualifiers::Const)
             throw TestError("Expected must be const");
 
-        if (expression->getExpressionKind() != ouzel::Expression::Kind::Literal)
+        if (expression->expressionKind != ouzel::Expression::Kind::Literal)
             throw TestError("Expected a literal expression");
 
         return static_cast<const ouzel::LiteralExpression*>(expression);
@@ -104,7 +104,7 @@ namespace
     {
         auto literalExpression = getLiteralExpression(expression);
 
-        if (literalExpression->getLiteralKind() != ouzel::LiteralExpression::Kind::Boolean)
+        if (literalExpression->literalKind != ouzel::LiteralExpression::Kind::Boolean)
             throw TestError("Expected a boolean literal expression");
 
         auto booleanLiteralExpression = static_cast<const ouzel::BooleanLiteralExpression*>(literalExpression);
@@ -118,7 +118,7 @@ namespace
     {
         auto literalExpression = getLiteralExpression(expression);
 
-        if (literalExpression->getLiteralKind() != ouzel::LiteralExpression::Kind::Integer)
+        if (literalExpression->literalKind != ouzel::LiteralExpression::Kind::Integer)
             throw TestError("Expected an integer literal expression");
 
         auto integerLiteralExpression = static_cast<const ouzel::IntegerLiteralExpression*>(literalExpression);
@@ -132,7 +132,7 @@ namespace
     {
         auto literalExpression = getLiteralExpression(expression);
 
-        if (literalExpression->getLiteralKind() != ouzel::LiteralExpression::Kind::FloatingPoint)
+        if (literalExpression->literalKind != ouzel::LiteralExpression::Kind::FloatingPoint)
             throw TestError("Expected a floating point literal expression");
 
         auto floatLiteralExpression = static_cast<const ouzel::FloatingPointLiteralExpression*>(literalExpression);
@@ -160,7 +160,7 @@ namespace
         auto statement = *i;
 
         if (!statement ||
-            statement->getStatementKind() != ouzel::Statement::Kind::Empty)
+            statement->statementKind != ouzel::Statement::Kind::Empty)
             throw TestError("Expected an empty statement");
     }
 
@@ -183,14 +183,14 @@ namespace
         auto statement = *i;
 
         if (!statement ||
-            statement->getStatementKind() != ouzel::Statement::Kind::Declaration)
+            statement->statementKind != ouzel::Statement::Kind::Declaration)
             throw TestError("Expected a declaration");
 
         auto iDeclarationStatement = static_cast<const ouzel::DeclarationStatement*>(statement);
         auto& iDeclaration = iDeclarationStatement->declaration;
 
         if (iDeclaration.name != "i" ||
-            iDeclaration.getDeclarationKind() != ouzel::Declaration::Kind::Variable)
+            iDeclaration.declarationKind != ouzel::Declaration::Kind::Variable)
             throw TestError("Expected a variable declaration of i");
 
         auto& iVariableDeclaration = static_cast<const ouzel::VariableDeclaration&>(iDeclaration);
@@ -228,28 +228,28 @@ namespace
         const auto statement = *i;
 
         if (!statement ||
-            statement->getStatementKind() != ouzel::Statement::Kind::If)
+            statement->statementKind != ouzel::Statement::Kind::If)
             throw TestError("Expected an if statement");
 
         auto ifStatement = static_cast<const ouzel::IfStatement*>(statement);
 
-        if (ifStatement->condition.getKind() != ouzel::Construct::Kind::Expression)
+        if (ifStatement->condition.kind != ouzel::Construct::Kind::Expression)
             throw TestError("Expected an expression condition");
 
         auto& condition = static_cast<const ouzel::Expression&>(ifStatement->condition);
 
         expectLiteral(&condition, true);
 
-        if (ifStatement->body.getStatementKind() != ouzel::Statement::Kind::Compound)
+        if (ifStatement->body.statementKind != ouzel::Statement::Kind::Compound)
             throw TestError("Expected a compound statement if part");
 
         if (!ifStatement->elseBody ||
-            ifStatement->elseBody->getStatementKind() != ouzel::Statement::Kind::If)
+            ifStatement->elseBody->statementKind != ouzel::Statement::Kind::If)
             throw TestError("Expected a compound statement else if part");
 
         auto elseIfStatement = static_cast<const ouzel::IfStatement*>(ifStatement->elseBody);
 
-        if (elseIfStatement->condition.getKind() != ouzel::Construct::Kind::Expression)
+        if (elseIfStatement->condition.kind != ouzel::Construct::Kind::Expression)
             throw TestError("Expected an expression condition");
 
         auto& elseIfCondition = static_cast<const ouzel::Expression&>(elseIfStatement->condition);
@@ -257,7 +257,7 @@ namespace
         expectLiteral(&elseIfCondition, false);
 
         if (!elseIfStatement->elseBody ||
-            elseIfStatement->elseBody->getStatementKind() != ouzel::Statement::Kind::Compound)
+            elseIfStatement->elseBody->statementKind != ouzel::Statement::Kind::Compound)
             throw TestError("Expected a compound statement else part");
     }
 
@@ -282,19 +282,19 @@ namespace
         auto statement = *i;
 
         if (!statement ||
-            statement->getStatementKind() != ouzel::Statement::Kind::While)
+            statement->statementKind != ouzel::Statement::Kind::While)
             throw TestError("Expected a while statement");
 
         auto whileStatement = static_cast<const ouzel::WhileStatement*>(statement);
 
-        if (whileStatement->condition.getKind() != ouzel::Construct::Kind::Expression)
+        if (whileStatement->condition.kind != ouzel::Construct::Kind::Expression)
             throw TestError("Expected an expression condition");
 
         auto& condition = static_cast<const ouzel::Expression&>(whileStatement->condition);
 
         expectLiteral(&condition, true);
 
-        if (whileStatement->body.getStatementKind() != ouzel::Statement::Kind::Compound)
+        if (whileStatement->body.statementKind != ouzel::Statement::Kind::Compound)
             throw TestError("Expected a compound statement");
     }
 
@@ -320,19 +320,19 @@ namespace
         auto statement = *i;
 
         if (!statement ||
-            statement->getStatementKind() != ouzel::Statement::Kind::Do)
+            statement->statementKind != ouzel::Statement::Kind::Do)
             throw TestError("Expected a do statement");
 
         auto doStatement = static_cast<const ouzel::DoStatement*>(statement);
 
-        if (doStatement->condition.getKind() != ouzel::Construct::Kind::Expression)
+        if (doStatement->condition.kind != ouzel::Construct::Kind::Expression)
             throw TestError("Expected an expression condition");
 
         auto& condition = static_cast<const ouzel::Expression&>(doStatement->condition);
 
         expectLiteral(&condition, true);
 
-        if (doStatement->body.getStatementKind() != ouzel::Statement::Kind::Compound)
+        if (doStatement->body.statementKind != ouzel::Statement::Kind::Compound)
             throw TestError("Expected a compound statement");
     }
 
@@ -357,20 +357,20 @@ namespace
         auto statement = *i;
 
         if (!statement ||
-            statement->getStatementKind() != ouzel::Statement::Kind::For)
+            statement->statementKind != ouzel::Statement::Kind::For)
             throw TestError("Expected a for statement");
 
         auto forStatement = static_cast<const ouzel::ForStatement*>(statement);
 
         if (!forStatement->condition ||
-            forStatement->condition->getKind() != ouzel::Construct::Kind::Expression)
+            forStatement->condition->kind != ouzel::Construct::Kind::Expression)
             throw TestError("Expected an expression condition");
 
         auto condition = static_cast<const ouzel::Expression*>(forStatement->condition);
 
         expectLiteral(condition, true);
 
-        if (forStatement->body.getStatementKind() != ouzel::Statement::Kind::Compound)
+        if (forStatement->body.statementKind != ouzel::Statement::Kind::Compound)
             throw TestError("Expected a compound statement");
     }
 
@@ -398,19 +398,19 @@ namespace
         auto statement = *i;
 
         if (!statement ||
-            statement->getStatementKind() != ouzel::Statement::Kind::Switch)
+            statement->statementKind != ouzel::Statement::Kind::Switch)
             throw TestError("Expected a switch statement");
 
         auto switchStatement = static_cast<const ouzel::SwitchStatement*>(statement);
 
-        if (switchStatement->condition.getKind() != ouzel::Construct::Kind::Expression)
+        if (switchStatement->condition.kind != ouzel::Construct::Kind::Expression)
             throw TestError("Expected an expression condition");
 
         auto& condition = static_cast<const ouzel::Expression&>(switchStatement->condition);
 
         expectLiteral(&condition, 1);
 
-        if (switchStatement->body.getStatementKind() != ouzel::Statement::Kind::Compound)
+        if (switchStatement->body.statementKind != ouzel::Statement::Kind::Compound)
             throw TestError("Expected a compound statement");
 
         auto& body = static_cast<const ouzel::CompoundStatement&>(switchStatement->body);
@@ -418,32 +418,32 @@ namespace
         if (body.statements.size() != 3)
             throw TestError("Expected 3 statements");
 
-        if (body.statements[0]->getStatementKind() != ouzel::Statement::Kind::Case)
+        if (body.statements[0]->statementKind != ouzel::Statement::Kind::Case)
             throw TestError("Expected a case statement");
 
         auto firstCaseStatement = static_cast<const ouzel::CaseStatement*>(body.statements[0]);
 
         expectLiteral(&firstCaseStatement->condition, 1);
 
-        if (firstCaseStatement->body.getStatementKind() != ouzel::Statement::Kind::Empty)
+        if (firstCaseStatement->body.statementKind != ouzel::Statement::Kind::Empty)
             throw TestError("Expected an empty statement");
 
-        if (body.statements[1]->getStatementKind() != ouzel::Statement::Kind::Case)
+        if (body.statements[1]->statementKind != ouzel::Statement::Kind::Case)
             throw TestError("Expected a case statement");
 
         auto secondCaseStatement = static_cast<const ouzel::CaseStatement*>(body.statements[1]);
 
         expectLiteral(&secondCaseStatement->condition, 2);
 
-        if (secondCaseStatement->body.getStatementKind() != ouzel::Statement::Kind::Break)
+        if (secondCaseStatement->body.statementKind != ouzel::Statement::Kind::Break)
             throw TestError("Expected an break statement");
 
-        if (body.statements[2]->getStatementKind() != ouzel::Statement::Kind::Default)
+        if (body.statements[2]->statementKind != ouzel::Statement::Kind::Default)
             throw TestError("Expected a default statement");
 
         auto defaultStatement = static_cast<const ouzel::DefaultStatement*>(body.statements[2]);
 
-        if (defaultStatement->body.getStatementKind() != ouzel::Statement::Kind::Empty)
+        if (defaultStatement->body.statementKind != ouzel::Statement::Kind::Empty)
             throw TestError("Expected an empty statement");
     }
 
@@ -466,7 +466,7 @@ namespace
         auto statement = *i;
 
         if (!statement ||
-            statement->getStatementKind() != ouzel::Statement::Kind::Return)
+            statement->statementKind != ouzel::Statement::Kind::Return)
             throw TestError("Expected a return statement");
 
         auto returnStatement = static_cast<const ouzel::ReturnStatement*>(statement);
@@ -549,7 +549,7 @@ namespace
 
         const auto structDefinition = *i;
 
-        if (structDefinition->getDeclarationKind() != ouzel::Declaration::Kind::Type)
+        if (structDefinition->declarationKind != ouzel::Declaration::Kind::Type)
             throw TestError("Expected a type declaration");
 
         auto structTypeDefinition = static_cast<const ouzel::TypeDeclaration*>(structDefinition);
@@ -685,7 +685,7 @@ namespace
 
         const auto fragmentMainDeclaration = *i;
 
-        if (fragmentMainDeclaration->getDeclarationKind() != ouzel::Declaration::Kind::Callable)
+        if (fragmentMainDeclaration->declarationKind != ouzel::Declaration::Kind::Callable)
             throw TestError("Expected a callable declaration");
 
         auto fragmentMainCallableDeclaration = static_cast<const ouzel::CallableDeclaration*>(fragmentMainDeclaration);
@@ -693,7 +693,7 @@ namespace
         if (fragmentMainCallableDeclaration->name != "fragmentMain")
             throw TestError("Expected a declaration of fragmentMain");
 
-        if (fragmentMainCallableDeclaration->getCallableDeclarationKind() != ouzel::CallableDeclaration::Kind::Function)
+        if (fragmentMainCallableDeclaration->callableDeclarationKind != ouzel::CallableDeclaration::Kind::Function)
             throw TestError("Expected a function declaration");
 
         auto fragmentMainFunctionDeclaration = static_cast<const ouzel::FunctionDeclaration*>(fragmentMainCallableDeclaration);
@@ -731,7 +731,7 @@ namespace
 
         const auto vertexMainDeclaration = *i;
 
-        if (vertexMainDeclaration->getDeclarationKind() != ouzel::Declaration::Kind::Callable)
+        if (vertexMainDeclaration->declarationKind != ouzel::Declaration::Kind::Callable)
             throw TestError("Expected a callable declaration");
 
         auto vertexMainCallableDeclaration = static_cast<const ouzel::CallableDeclaration*>(vertexMainDeclaration);
@@ -739,7 +739,7 @@ namespace
         if (vertexMainCallableDeclaration->name != "vertexMain")
             throw TestError("Expected a declaration of vertexMain");
 
-        if (vertexMainCallableDeclaration->getCallableDeclarationKind() != ouzel::CallableDeclaration::Kind::Function)
+        if (vertexMainCallableDeclaration->callableDeclarationKind != ouzel::CallableDeclaration::Kind::Function)
             throw TestError("Expected a function declaration");
 
         auto vertexMainFunctionDeclaration = static_cast<const ouzel::FunctionDeclaration*>(vertexMainCallableDeclaration);
@@ -796,7 +796,7 @@ namespace
 
         const auto colorDeclaration = *i;
 
-        if (colorDeclaration->getDeclarationKind() != ouzel::Declaration::Kind::Variable)
+        if (colorDeclaration->declarationKind != ouzel::Declaration::Kind::Variable)
             throw TestError("Expected a variable declaration");
 
         auto colorVariableDeclaration = static_cast<const ouzel::VariableDeclaration*>(colorDeclaration);

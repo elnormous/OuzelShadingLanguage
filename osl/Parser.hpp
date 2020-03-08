@@ -185,23 +185,23 @@ namespace ouzel
 
         static bool isBooleanType(const Type& type) noexcept
         {
-            if (type.getTypeKind() != Type::Kind::Scalar)
+            if (type.typeKind != Type::Kind::Scalar)
                 return false;
 
             auto& scalarType = static_cast<const ScalarType&>(type);
 
-            return scalarType.getScalarTypeKind() == ScalarType::Kind::Boolean;
+            return scalarType.scalarTypeKind == ScalarType::Kind::Boolean;
         }
 
         static bool isIntegerType(const Type& type) noexcept
         {
-            if (type.getTypeKind() != Type::Kind::Scalar)
+            if (type.typeKind != Type::Kind::Scalar)
                 return false;
 
             auto& scalarType = static_cast<const ScalarType&>(type);
 
-            return scalarType.getScalarTypeKind() == ScalarType::Kind::Boolean ||
-                scalarType.getScalarTypeKind() == ScalarType::Kind::Integer;
+            return scalarType.scalarTypeKind == ScalarType::Kind::Boolean ||
+                scalarType.scalarTypeKind == ScalarType::Kind::Integer;
         }
 
         static size_t parseIndex(TokenIterator& iterator, TokenIterator end)
@@ -246,7 +246,7 @@ namespace ouzel
         {
             auto declaration = findDeclaration(name, declarationScopes);
 
-            if (declaration && declaration->getDeclarationKind() == Declaration::Kind::Type)
+            if (declaration && declaration->declarationKind == Declaration::Kind::Type)
                 return &static_cast<TypeDeclaration*>(declaration)->type;
 
             for (const auto& type : types)
@@ -261,7 +261,7 @@ namespace ouzel
         {
             auto type = findType(name, declarationScopes);
 
-            if (type && type->getTypeKind() == Type::Kind::Struct)
+            if (type && type->typeKind == Type::Kind::Struct)
                 return static_cast<const StructType*>(type);
 
             return nullptr;
@@ -285,11 +285,11 @@ namespace ouzel
                 for (auto declarationIterator = scopeIterator->rbegin(); declarationIterator != scopeIterator->rend(); ++declarationIterator)
                     if ((*declarationIterator)->name == name)
                     {
-                        if ((*declarationIterator)->getDeclarationKind() != Declaration::Kind::Callable) return nullptr;
+                        if ((*declarationIterator)->declarationKind != Declaration::Kind::Callable) return nullptr;
 
                         auto callableDeclaration = static_cast<CallableDeclaration*>(*declarationIterator);
 
-                        if (callableDeclaration->getCallableDeclarationKind() != CallableDeclaration::Kind::Function) return nullptr;
+                        if (callableDeclaration->callableDeclarationKind != CallableDeclaration::Kind::Function) return nullptr;
 
                         auto functionDeclaration = static_cast<FunctionDeclaration*>(callableDeclaration);
 
@@ -316,11 +316,11 @@ namespace ouzel
                 for (auto declarationIterator = scopeIterator->rbegin(); declarationIterator != scopeIterator->rend(); ++declarationIterator)
                     if ((*declarationIterator)->name == name)
                     {
-                        if ((*declarationIterator)->getDeclarationKind() != Declaration::Kind::Callable) return nullptr;
+                        if ((*declarationIterator)->declarationKind != Declaration::Kind::Callable) return nullptr;
 
                         auto callableDeclaration = static_cast<const CallableDeclaration*>(*declarationIterator);
 
-                        if (callableDeclaration->getCallableDeclarationKind() != CallableDeclaration::Kind::Function) return nullptr;
+                        if (callableDeclaration->callableDeclarationKind != CallableDeclaration::Kind::Function) return nullptr;
 
                         auto functionDeclaration = static_cast<const FunctionDeclaration*>(callableDeclaration->firstDeclaration);
 
@@ -337,8 +337,8 @@ namespace ouzel
                     std::equal(arguments.begin(), arguments.end(),
                                functionDeclaration->parameterDeclarations.begin(),
                                [](const QualifiedType& qualifiedType, const ParameterDeclaration* parameterDeclaration) {
-                                   bool scalar = qualifiedType.type.getTypeKind() == Type::Kind::Scalar &&
-                                       qualifiedType.type.getTypeKind() == Type::Kind::Scalar;
+                                   bool scalar = qualifiedType.type.typeKind == Type::Kind::Scalar &&
+                                       qualifiedType.type.typeKind == Type::Kind::Scalar;
 
                                    return (scalar || &qualifiedType.type == &parameterDeclaration->qualifiedType.type);
                                }))
@@ -389,11 +389,11 @@ namespace ouzel
         {
             for (auto declaration : structType.memberDeclarations)
             {
-                if (declaration->getDeclarationKind() == Declaration::Kind::Callable)
+                if (declaration->declarationKind == Declaration::Kind::Callable)
                 {
                     auto callableDeclaration = static_cast<const CallableDeclaration*>(declaration);
 
-                    if (callableDeclaration->getCallableDeclarationKind() == CallableDeclaration::Kind::Constructor)
+                    if (callableDeclaration->callableDeclarationKind == CallableDeclaration::Kind::Constructor)
                     {
                         auto constructorDeclaration = static_cast<const ConstructorDeclaration*>(callableDeclaration);
 
@@ -543,7 +543,7 @@ namespace ouzel
         {
             auto& declaration = parseDeclaration(iterator, end, declarationScopes);
 
-            if (declaration.getDeclarationKind() == Declaration::Kind::Callable)
+            if (declaration.declarationKind == Declaration::Kind::Callable)
             {
                 auto& callableDeclaration = static_cast<const CallableDeclaration&>(declaration);
 
@@ -551,7 +551,7 @@ namespace ouzel
                 if (!callableDeclaration.body)
                     expectToken(Token::Type::Semicolon, iterator, end);
             }
-            else if (declaration.getDeclarationKind() == Declaration::Kind::Type)
+            else if (declaration.declarationKind == Declaration::Kind::Type)
             {
                 // semicolon is not needed after a struct definition
             }
@@ -592,7 +592,7 @@ namespace ouzel
 
             auto previousDeclarationInScope = findDeclaration(name, declarationScopes.back());
             if (previousDeclarationInScope &&
-                previousDeclarationInScope->getDeclarationKind() != Declaration::Kind::Callable)
+                previousDeclarationInScope->declarationKind != Declaration::Kind::Callable)
                 throw ParseError(ErrorCode::SymbolRedeclaration, "Redeclaration of " + name);
 
             expectToken(Token::Type::LeftParenthesis, iterator, end);
@@ -716,7 +716,7 @@ namespace ouzel
             {
                 type = &parseType(iterator, end, declarationScopes);
 
-                if (type->getTypeKind() == Type::Kind::Void)
+                if (type->typeKind == Type::Kind::Void)
                     throw ParseError(ErrorCode::IllegalVoidType, "Variable can not have the type \"void\"");
             }
 
@@ -726,7 +726,7 @@ namespace ouzel
             {
                 initialization = &parseMultiplicationAssignmentExpression(iterator, end, declarationScopes);
 
-                if (initialization->qualifiedType.type.getTypeKind() == Type::Kind::Void)
+                if (initialization->qualifiedType.type.typeKind == Type::Kind::Void)
                     throw ParseError(ErrorCode::IllegalVoidType, "Initialization with the type \"void\"");
 
                 if (!type)
@@ -758,12 +758,12 @@ namespace ouzel
 
             if (previousDeclaration)
             {
-                if (previousDeclaration->getDeclarationKind() != Declaration::Kind::Type)
+                if (previousDeclaration->declarationKind != Declaration::Kind::Type)
                     throw ParseError(ErrorCode::SymbolRedeclaration, "Redeclaration of " + name);
 
                 auto typeDeclaration = static_cast<TypeDeclaration*>(previousDeclaration);
 
-                if (typeDeclaration->type.getTypeKind() != Type::Kind::Struct)
+                if (typeDeclaration->type.typeKind != Type::Kind::Struct)
                     throw ParseError(ErrorCode::SymbolRedeclaration, "Redeclaration of " + name);
 
                 firstDeclaration = typeDeclaration->firstDeclaration;
@@ -821,7 +821,7 @@ namespace ouzel
 
             const auto& type = parseType(iterator, end, declarationScopes);
 
-            if (type.getTypeKind() == Type::Kind::Void)
+            if (type.typeKind == Type::Kind::Void)
                 throw ParseError(ErrorCode::IllegalVoidType, "Member cannot have the type \"void\"");
 
             std::vector<const Attribute*> attributes;
@@ -861,7 +861,7 @@ namespace ouzel
 
             const auto& type = parseType(iterator, end, declarationScopes);
 
-            if (type.getTypeKind() == Type::Kind::Void)
+            if (type.typeKind == Type::Kind::Void)
                 throw ParseError(ErrorCode::IllegalVoidType, "Parameter cannot have the type \"void\"");
 
             std::vector<const Attribute*> attributes;
@@ -928,9 +928,9 @@ namespace ouzel
             {
                 auto& declaration = parseDeclaration(iterator, end, declarationScopes);
 
-                if (declaration.getDeclarationKind() == Declaration::Kind::Variable)
+                if (declaration.declarationKind == Declaration::Kind::Variable)
                     expectToken(Token::Type::Semicolon, iterator, end);
-                else if (declaration.getDeclarationKind() != Declaration::Kind::Type)
+                else if (declaration.declarationKind != Declaration::Kind::Type)
                     throw ParseError(ErrorCode::UnexpectedDeclaration, "Unexpected declaration");
 
                 return create<DeclarationStatement>(declaration);
@@ -1297,7 +1297,7 @@ namespace ouzel
                             expectToken(Token::Type::RightParenthesis, iterator, end);
                         }
 
-                        switch (type->getTypeKind())
+                        switch (type->typeKind)
                         {
                             case Type::Kind::Struct:
                             {
@@ -1322,14 +1322,14 @@ namespace ouzel
                                 for (auto parameter : parameters)
                                 {
                                     auto& parameterType = parameter->qualifiedType.type;
-                                    if (parameterType.getTypeKind() == Type::Kind::Scalar)
+                                    if (parameterType.typeKind == Type::Kind::Scalar)
                                     {
                                         if (&parameterType != &vectorType->componentType)
                                             throw ParseError(ErrorCode::InvalidVectorInitialization, "Invalid vector initialization");
 
                                         ++componentCount;
                                     }
-                                    else if (parameterType.getTypeKind() == Type::Kind::Vector)
+                                    else if (parameterType.typeKind == Type::Kind::Vector)
                                     {
                                         auto& vectorParameterType = static_cast<const VectorType&>(parameterType);
                                         if (&vectorParameterType.componentType != &vectorType->componentType)
@@ -1356,7 +1356,7 @@ namespace ouzel
                                 for (auto parameter : parameters)
                                 {
                                     auto& parameterType = parameter->qualifiedType.type;
-                                    if (parameterType.getTypeKind() == Type::Kind::Vector)
+                                    if (parameterType.typeKind == Type::Kind::Vector)
                                     {
                                         auto& vectorParameterType = static_cast<const VectorType&>(parameterType);
 
@@ -1365,7 +1365,7 @@ namespace ouzel
 
                                         ++rowCount;
                                     }
-                                    else if (parameterType.getTypeKind() == Type::Kind::Matrix)
+                                    else if (parameterType.typeKind == Type::Kind::Matrix)
                                     {
                                         auto& matrixParameterType = static_cast<const MatrixType&>(parameterType);
 
@@ -1425,7 +1425,7 @@ namespace ouzel
                     if (!declaration)
                         throw ParseError(ErrorCode::InvalidDeclarationReference, "Invalid declaration reference \"" + name + "\"");
 
-                    if (declaration->getDeclarationKind() != Declaration::Kind::Variable)
+                    if (declaration->declarationKind != Declaration::Kind::Variable)
                         throw ParseError(ErrorCode::VariableDeclarationExpected, "Expected a variable declaration");
 
                     auto variableDeclaration = static_cast<VariableDeclaration*>(declaration);
@@ -1493,7 +1493,7 @@ namespace ouzel
                 if ((result->qualifiedType.qualifiers & Type::Qualifiers::Const) == Type::Qualifiers::Const)
                     throw ParseError(ErrorCode::ExpressionNotAssignable, "Cannot assign to const variable");
 
-                if (result->qualifiedType.type.getTypeKind() != Type::Kind::Scalar)
+                if (result->qualifiedType.type.typeKind != Type::Kind::Scalar)
                     throw ParseError(ErrorCode::NumberTypeExpected, "Parameter of the postfix operator must be a number");
 
                 const auto operatorKind = (iterator->type == Token::Type::Increment) ?
@@ -1518,7 +1518,7 @@ namespace ouzel
 
             while (skipToken(Token::Type::LeftBracket, iterator, end))
             {
-                if (result->qualifiedType.type.getTypeKind() == Type::Kind::Array)
+                if (result->qualifiedType.type.typeKind == Type::Kind::Array)
                 {
                     auto& subscript = parseExpression(iterator, end, declarationScopes);
                     if (!isIntegerType(subscript.qualifiedType.type))
@@ -1529,8 +1529,8 @@ namespace ouzel
                     auto& arrayType = static_cast<const ArrayType&>(result->qualifiedType.type);
                     result = &create<ArraySubscriptExpression>(arrayType.elementType, *result, subscript);
                 }
-                else if (result->qualifiedType.type.getTypeKind() == Type::Kind::Vector ||
-                         result->qualifiedType.type.getTypeKind() == Type::Kind::Matrix)
+                else if (result->qualifiedType.type.typeKind == Type::Kind::Vector ||
+                         result->qualifiedType.type.typeKind == Type::Kind::Matrix)
                 {
                     const auto operatorKind = BinaryOperatorExpression::Kind::Subscript;
 
@@ -1543,12 +1543,12 @@ namespace ouzel
                     //auto expression = ;
                     const Type* type = nullptr;
 
-                    if (result->qualifiedType.type.getTypeKind() == Type::Kind::Vector)
+                    if (result->qualifiedType.type.typeKind == Type::Kind::Vector)
                     {
                         auto& vectorType = static_cast<const VectorType&>(result->qualifiedType.type);
                         type = &vectorType.componentType;
                     }
-                    else if (result->qualifiedType.type.getTypeKind() == Type::Kind::Matrix)
+                    else if (result->qualifiedType.type.typeKind == Type::Kind::Matrix)
                     {
                         auto& matrixType = static_cast<const MatrixType&>(result->qualifiedType.type);
                         type = &matrixType.rowType;
@@ -1584,10 +1584,10 @@ namespace ouzel
 
                 ++iterator;
 
-                if (result->qualifiedType.type.getTypeKind() == Type::Kind::Void)
+                if (result->qualifiedType.type.typeKind == Type::Kind::Void)
                     throw ParseError(ErrorCode::IllegalVoidType, "Expression has a void type");
 
-                if (result->qualifiedType.type.getTypeKind() == Type::Kind::Struct)
+                if (result->qualifiedType.type.typeKind == Type::Kind::Struct)
                 {
                     auto& structType = static_cast<const StructType&>(result->qualifiedType.type);
 
@@ -1597,12 +1597,12 @@ namespace ouzel
                     if (!memberDeclaration)
                         throw ParseError(ErrorCode::InvalidMember, "Structure \"" + structType.name +  "\" has no member \"" + name + "\"");
 
-                    if (memberDeclaration->getDeclarationKind() != Declaration::Kind::Field)
+                    if (memberDeclaration->declarationKind != Declaration::Kind::Field)
                         throw ParseError(ErrorCode::InvalidMember, "\"" + iterator->value + "\" is not a field");
 
                     result = &create<MemberExpression>(*result, *static_cast<const FieldDeclaration*>(memberDeclaration));
                 }
-                else if (result->qualifiedType.type.getTypeKind() == Type::Kind::Vector)
+                else if (result->qualifiedType.type.typeKind == Type::Kind::Vector)
                 {
                     std::vector<uint8_t> components;
                     std::set<uint8_t> componentSet;

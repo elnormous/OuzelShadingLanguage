@@ -42,17 +42,13 @@ namespace ouzel
                    const QualifiedType& initQualifiedType,
                    Category initCategory) noexcept:
             Construct(Construct::Kind::Expression),
+            expressionKind(initExpressionKind),
             qualifiedType(initQualifiedType),
-            category(initCategory),
-            expressionKind(initExpressionKind) {}
+            category(initCategory) {}
 
-        inline Kind getExpressionKind() const noexcept { return expressionKind; }
-
+        const Kind expressionKind;
         const QualifiedType qualifiedType;
         const Category category = Category::Rvalue;
-
-    private:
-        const Kind expressionKind;
     };
 
     class LiteralExpression: public Expression
@@ -73,9 +69,6 @@ namespace ouzel
                        Category::Rvalue),
             literalKind(initLiteralKind) {}
 
-        inline Kind getLiteralKind() const noexcept { return literalKind; }
-
-    private:
         const Kind literalKind;
     };
 
@@ -86,6 +79,7 @@ namespace ouzel
                                  bool initValue) noexcept:
             LiteralExpression(LiteralExpression::Kind::Boolean, type),
             value(initValue) {}
+
         const bool value;
     };
 
@@ -217,16 +211,12 @@ namespace ouzel
             Expression(Expression::Kind::UnaryOperator,
                        QualifiedType{type},
                        category),
-            expression(initExpression),
-            operatorKind(initOperatorKind)
+            operatorKind(initOperatorKind),
+            expression(initExpression)
         {}
 
-        inline Kind getOperatorKind() const noexcept { return operatorKind; }
-
-        const Expression& expression;
-
-    private:
         const Kind operatorKind;
+        const Expression& expression;
     };
 
     class BinaryOperatorExpression final: public Expression
@@ -263,18 +253,14 @@ namespace ouzel
             Expression(Expression::Kind::BinaryOperator,
                        QualifiedType{type},
                        category),
+            operatorKind(initOperatorKind),
             leftExpression(initLeftExpression),
-            rightExpression(initRightExpression),
-            operatorKind(initOperatorKind)
+            rightExpression(initRightExpression)
         {}
 
-        inline Kind getOperatorKind() const noexcept { return operatorKind; }
-
+        const Kind operatorKind;
         const Expression& leftExpression;
         const Expression& rightExpression;
-
-    private:
-        const Kind operatorKind;
     };
 
     class TernaryOperatorExpression final: public Expression
@@ -345,12 +331,8 @@ namespace ouzel
             expression(initExpression),
             castKind(initCastKind) {}
 
-        inline Kind getCastKind() const noexcept { return castKind; }
-
-        const Expression& expression;
-
-    private:
         const Kind castKind;
+        const Expression& expression;
     };
 
     class VectorInitializeExpression final: public Expression

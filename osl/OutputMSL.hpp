@@ -27,7 +27,7 @@ namespace ouzel
             {
                 printConstruct(*declaration, Options(0, whitespaces), result);
 
-                if (declaration->getDeclarationKind() != Declaration::Kind::Callable ||
+                if (declaration->declarationKind != Declaration::Kind::Callable ||
                     !static_cast<const CallableDeclaration*>(declaration)->body) // function doesn't have a body
                     result += ";";
 
@@ -56,7 +56,7 @@ namespace ouzel
 
             auto type = &qualifiedType.type;
 
-            while (type->getTypeKind() == Type::Kind::Array)
+            while (type->typeKind == Type::Kind::Array)
             {
                 auto arrayType = static_cast<const ArrayType*>(type);
 
@@ -72,7 +72,7 @@ namespace ouzel
 
         void printDeclaration(const Declaration& declaration, Options options, std::string& code)
         {
-            switch (declaration.getDeclarationKind())
+            switch (declaration.declarationKind)
             {
                 case Declaration::Kind::Type:
                 {
@@ -81,7 +81,7 @@ namespace ouzel
                     auto& typeDeclaration = static_cast<const TypeDeclaration&>(declaration);
                     auto& type = typeDeclaration.type;
 
-                    if (type.getTypeKind() != Type::Kind::Struct)
+                    if (type.typeKind != Type::Kind::Struct)
                         throw std::runtime_error("Type declaration must be a struct");
 
                     auto& structType = static_cast<const StructType&>(type);
@@ -127,7 +127,7 @@ namespace ouzel
 
                     auto& callableDeclaration = static_cast<const CallableDeclaration&>(declaration);
 
-                    if (callableDeclaration.getCallableDeclarationKind() == CallableDeclaration::Kind::Function)
+                    if (callableDeclaration.callableDeclarationKind == CallableDeclaration::Kind::Function)
                     {
                         auto& functionDeclaration = static_cast<const FunctionDeclaration&>(callableDeclaration);
 
@@ -198,7 +198,7 @@ namespace ouzel
 
         void printStatement(const Statement& statement, Options options, std::string& code)
         {
-            switch (statement.getStatementKind())
+            switch (statement.statementKind)
             {
                 case Statement::Kind::Empty:
                 {
@@ -262,7 +262,7 @@ namespace ouzel
                     code += ")";
                     if (options.whitespaces) code += "\n";
 
-                    if (ifStatement.body.getStatementKind() == Statement::Kind::Compound)
+                    if (ifStatement.body.statementKind == Statement::Kind::Compound)
                         printConstruct(ifStatement.body, options, code);
                     else
                         printConstruct(ifStatement.body, Options(options.indentation + 4, options.whitespaces), code);
@@ -274,7 +274,7 @@ namespace ouzel
                         code += "else";
                         if (options.whitespaces) code += "\n";
 
-                        if (ifStatement.elseBody->getStatementKind() == Statement::Kind::Compound)
+                        if (ifStatement.elseBody->statementKind == Statement::Kind::Compound)
                             printConstruct(*ifStatement.elseBody, options, code);
                         else
                             printConstruct(*ifStatement.elseBody, Options(options.indentation + 4, options.whitespaces), code);
@@ -309,7 +309,7 @@ namespace ouzel
                     code += ")";
                     if (options.whitespaces) code += "\n";
 
-                    if (forStatement.body.getStatementKind() == Statement::Kind::Compound)
+                    if (forStatement.body.statementKind == Statement::Kind::Compound)
                         printConstruct(forStatement.body, options, code);
                     else
                         printConstruct(forStatement.body, Options(options.indentation + 4, options.whitespaces), code);
@@ -330,7 +330,7 @@ namespace ouzel
                     code += ")";
                     if (options.whitespaces) code += "\n";
 
-                    if (switchStatement.body.getStatementKind() == Statement::Kind::Compound)
+                    if (switchStatement.body.statementKind == Statement::Kind::Compound)
                         printConstruct(switchStatement.body, options, code);
                     else
                         printConstruct(switchStatement.body, Options(options.indentation + 4, options.whitespaces), code);
@@ -350,7 +350,7 @@ namespace ouzel
                     code += ":";
                     if (options.whitespaces) code += "\n";
 
-                    if (caseStatement.body.getStatementKind() == Statement::Kind::Compound)
+                    if (caseStatement.body.statementKind == Statement::Kind::Compound)
                         printConstruct(caseStatement.body, options, code);
                     else
                         printConstruct(caseStatement.body, Options(options.indentation + 4, options.whitespaces), code);
@@ -366,7 +366,7 @@ namespace ouzel
                     code += "default:";
                     if (options.whitespaces) code += "\n";
 
-                    if (defaultStatement.body.getStatementKind() == Statement::Kind::Compound)
+                    if (defaultStatement.body.statementKind == Statement::Kind::Compound)
                         printConstruct(defaultStatement.body, options, code);
                     else
                         printConstruct(defaultStatement.body, Options(options.indentation + 4, options.whitespaces), code);
@@ -388,7 +388,7 @@ namespace ouzel
                     code += ")";
                     if (options.whitespaces) code += "\n";
 
-                    if (whileStatement.body.getStatementKind() == Statement::Kind::Compound)
+                    if (whileStatement.body.statementKind == Statement::Kind::Compound)
                         printConstruct(whileStatement.body, options, code);
                     else
                         printConstruct(whileStatement.body, Options(options.indentation + 4, options.whitespaces), code);
@@ -403,7 +403,7 @@ namespace ouzel
                     code += "do";
                     if (options.whitespaces) code += "\n";
 
-                    if (doStatement.body.getStatementKind() == Statement::Kind::Compound)
+                    if (doStatement.body.statementKind == Statement::Kind::Compound)
                         printConstruct(doStatement.body, options, code);
                     else
                     {
@@ -460,7 +460,7 @@ namespace ouzel
 
         void printExpression(const Expression& expression, Options options, std::string& code)
         {
-            switch (expression.getExpressionKind())
+            switch (expression.expressionKind)
             {
                 case Expression::Kind::Call:
                 {
@@ -496,7 +496,7 @@ namespace ouzel
 
                     auto& literalExpression = static_cast<const LiteralExpression&>(expression);
 
-                    switch (literalExpression.getLiteralKind())
+                    switch (literalExpression.literalKind)
                     {
                         case LiteralExpression::Kind::Boolean:
                         {
@@ -533,13 +533,13 @@ namespace ouzel
                     auto& declarationReferenceExpression = static_cast<const DeclarationReferenceExpression&>(expression);
                     auto& declaration = declarationReferenceExpression.declaration;
 
-                    switch (declaration.getDeclarationKind())
+                    switch (declaration.declarationKind)
                     {
                         case Declaration::Kind::Callable:
                         {
                             auto& callableDeclaration = static_cast<const CallableDeclaration&>(declaration);
 
-                            if (callableDeclaration.getCallableDeclarationKind() == CallableDeclaration::Kind::Function)
+                            if (callableDeclaration.callableDeclarationKind == CallableDeclaration::Kind::Function)
                             {
                                 auto& functionDeclaration = static_cast<const FunctionDeclaration&>(callableDeclaration);
                                 code += functionDeclaration.name;
@@ -616,7 +616,7 @@ namespace ouzel
 
                     auto& unaryOperatorExpression = static_cast<const UnaryOperatorExpression&>(expression);
 
-                    switch (unaryOperatorExpression.getOperatorKind())
+                    switch (unaryOperatorExpression.operatorKind)
                     {
                         case UnaryOperatorExpression::Kind::Negation: code += "!"; break;
                         case UnaryOperatorExpression::Kind::Positive: code += "+"; break;
@@ -637,9 +637,9 @@ namespace ouzel
                     printConstruct(binaryOperatorExpression.leftExpression, Options(0, options.whitespaces), code);
 
                     if (options.whitespaces &&
-                        binaryOperatorExpression.getOperatorKind() != BinaryOperatorExpression::Kind::Comma) code += " ";
+                        binaryOperatorExpression.operatorKind != BinaryOperatorExpression::Kind::Comma) code += " ";
 
-                    switch (binaryOperatorExpression.getOperatorKind())
+                    switch (binaryOperatorExpression.operatorKind)
                     {
                         case BinaryOperatorExpression::Kind::Addition: code += "+"; break;
                         case BinaryOperatorExpression::Kind::Subtraction: code += "-"; break;
@@ -699,7 +699,7 @@ namespace ouzel
 
                     auto& type = temporaryObjectExpression.qualifiedType.type;
 
-                    if (type.getTypeKind() != Type::Kind::Struct)
+                    if (type.typeKind != Type::Kind::Struct)
                         throw std::runtime_error("Temporary object must be a struct");
 
                     auto& structType = static_cast<const StructType&>(type);
@@ -784,7 +784,7 @@ namespace ouzel
 
         void printConstruct(const Construct& construct, Options options, std::string& code)
         {
-            switch (construct.getKind())
+            switch (construct.kind)
             {
                 case Construct::Kind::Declaration:
                 {
