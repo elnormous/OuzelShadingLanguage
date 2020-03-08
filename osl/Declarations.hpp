@@ -53,11 +53,11 @@ namespace ouzel
 
         inline Kind getDeclarationKind() const noexcept { return declarationKind; }
 
-        std::string name;
+        const std::string name;
         Declaration* firstDeclaration = nullptr;
         Declaration* previousDeclaration = nullptr;
         Declaration* definition = nullptr;
-        std::vector<const Attribute*> attributes;
+        const std::vector<const Attribute*> attributes;
 
     private:
         const Kind declarationKind;
@@ -75,7 +75,7 @@ namespace ouzel
             definition = this;
         }
 
-        QualifiedType qualifiedType;
+        const QualifiedType qualifiedType;
     };
 
     enum class InputModifier
@@ -109,8 +109,8 @@ namespace ouzel
             definition = this;
         }
 
-        InputModifier inputModifier = InputModifier::In;
-        QualifiedType qualifiedType;
+        const InputModifier inputModifier = InputModifier::In;
+        const QualifiedType qualifiedType;
     };
 
     class CallableDeclaration: public Declaration
@@ -144,8 +144,8 @@ namespace ouzel
 
         inline Kind getCallableDeclarationKind() const { return callableDeclarationKind; }
 
-        StorageClass storageClass = StorageClass::Auto;
-        std::vector<ParameterDeclaration*> parameterDeclarations;
+        const StorageClass storageClass = StorageClass::Auto;
+        const std::vector<ParameterDeclaration*> parameterDeclarations;
         const Statement* body = nullptr;
 
     private:
@@ -177,9 +177,9 @@ namespace ouzel
             resultType(initQualifiedType),
             isBuiltin(initIsBuiltin) {}
 
-        Qualifier qualifier = Qualifier::None;
-        QualifiedType resultType;
-        bool isBuiltin = false;
+        const Qualifier qualifier = Qualifier::None;
+        const QualifiedType resultType;
+        const bool isBuiltin = false;
     };
 
     class ConstructorDeclaration final: public CallableDeclaration
@@ -210,8 +210,8 @@ namespace ouzel
             resultType(initQualifiedType),
             isBuiltin(initIsBuiltin) {}
 
-        QualifiedType resultType;
-        bool isBuiltin = false;
+        const QualifiedType resultType;
+        const bool isBuiltin = false;
     };
 
     class VariableDeclaration final: public Declaration
@@ -229,8 +229,8 @@ namespace ouzel
             definition = this;
         }
 
-        StorageClass storageClass = StorageClass::Auto;
-        QualifiedType qualifiedType;
+        const StorageClass storageClass = StorageClass::Auto;
+        const QualifiedType qualifiedType;
         const Expression* initialization = nullptr;
     };
 

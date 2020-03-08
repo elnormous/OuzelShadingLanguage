@@ -48,8 +48,8 @@ namespace ouzel
 
         inline Kind getExpressionKind() const noexcept { return expressionKind; }
 
-        QualifiedType qualifiedType;
-        Category category = Category::Rvalue;
+        const QualifiedType qualifiedType;
+        const Category category = Category::Rvalue;
 
     private:
         const Kind expressionKind;
@@ -86,7 +86,7 @@ namespace ouzel
                                  bool initValue) noexcept:
             LiteralExpression(LiteralExpression::Kind::Boolean, type),
             value(initValue) {}
-        bool value;
+        const bool value;
     };
 
     class IntegerLiteralExpression final: public LiteralExpression
@@ -97,7 +97,7 @@ namespace ouzel
             LiteralExpression(LiteralExpression::Kind::Integer, type),
             value(initValue) {}
 
-        int64_t value;
+        const int64_t value;
     };
 
     class FloatingPointLiteralExpression final: public LiteralExpression
@@ -108,7 +108,7 @@ namespace ouzel
             LiteralExpression(LiteralExpression::Kind::FloatingPoint, type),
             value(initValue) {}
 
-        double value;
+        const double value;
     };
 
     class StringLiteralExpression final: public LiteralExpression
@@ -119,7 +119,7 @@ namespace ouzel
             LiteralExpression(LiteralExpression::Kind::String, type),
             value(initValue) {}
 
-        std::string value;
+        const std::string value;
     };
 
     class DeclarationReferenceExpression final: public Expression
@@ -150,7 +150,7 @@ namespace ouzel
             arguments(std::move(initArguments)) {}
 
         const DeclarationReferenceExpression& declarationReference;
-        std::vector<const Expression*> arguments;
+        const std::vector<const Expression*> arguments;
     };
 
     class ParenExpression final: public Expression
@@ -226,7 +226,7 @@ namespace ouzel
         const Expression& expression;
 
     private:
-        Kind operatorKind;
+        const Kind operatorKind;
     };
 
     class BinaryOperatorExpression final: public Expression
@@ -274,7 +274,7 @@ namespace ouzel
         const Expression& rightExpression;
 
     private:
-        Kind operatorKind;
+        const Kind operatorKind;
     };
 
     class TernaryOperatorExpression final: public Expression
@@ -310,7 +310,7 @@ namespace ouzel
             parameters(std::move(initParameters)) {}
 
         const ConstructorDeclaration& constructorDeclaration;
-        std::vector<const Expression*> parameters;
+        const std::vector<const Expression*> parameters;
     };
 
     class InitializerListExpression final: public Expression
@@ -323,7 +323,7 @@ namespace ouzel
                        Category::Rvalue),
             expressions(std::move(initExpressions)) {}
 
-        std::vector<const Expression*> expressions;
+        const std::vector<const Expression*> expressions;
     };
 
     class CastExpression final: public Expression
@@ -363,7 +363,7 @@ namespace ouzel
                        Category::Rvalue),
             parameters(std::move(initParameters)) {}
 
-        std::vector<const Expression*> parameters;
+        const std::vector<const Expression*> parameters;
     };
 
     class VectorElementExpression final: public Expression
@@ -378,7 +378,7 @@ namespace ouzel
                        category),
             positions(std::move(initPositions)) {}
 
-        std::vector<uint8_t> positions;
+        const std::vector<uint8_t> positions;
     };
 
     class MatrixInitializeExpression final: public Expression
@@ -391,7 +391,7 @@ namespace ouzel
                        Category::Rvalue),
             parameters(std::move(initParameters)) {}
 
-        std::vector<const Expression*> parameters;
+        const std::vector<const Expression*> parameters;
     };
 }
 

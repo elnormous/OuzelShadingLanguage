@@ -1600,12 +1600,7 @@ namespace ouzel
                     if (memberDeclaration->getDeclarationKind() != Declaration::Kind::Field)
                         throw ParseError(ErrorCode::InvalidMember, "\"" + iterator->value + "\" is not a field");
 
-                    auto& expression = create<MemberExpression>(*result, *static_cast<const FieldDeclaration*>(memberDeclaration));
-                    if ((result->qualifiedType.qualifiers & Type::Qualifiers::Const) == Type::Qualifiers::Const)
-                        expression.qualifiedType.qualifiers |= Type::Qualifiers::Const;
-                    expression.category = result->category;
-
-                    result = &expression;
+                    result = &create<MemberExpression>(*result, *static_cast<const FieldDeclaration*>(memberDeclaration));
                 }
                 else if (result->qualifiedType.type.getTypeKind() == Type::Kind::Vector)
                 {

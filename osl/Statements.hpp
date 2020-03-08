@@ -71,7 +71,7 @@ namespace ouzel
             Statement(Statement::Kind::Compound),
             statements(std::move(initStatements)) {}
 
-        std::vector<const Statement*> statements;
+        const std::vector<const Statement*> statements;
     };
 
     class IfStatement final: public Statement
