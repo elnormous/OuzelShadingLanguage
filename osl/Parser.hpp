@@ -98,6 +98,11 @@ namespace ouzel
 
             addBuiltinFunctionDeclaration("discard", voidType, {}, declarationScopes);
 
+            addBuiltinFunctionDeclaration("abs", boolType, {&boolType}, declarationScopes);
+            addBuiltinFunctionDeclaration("abs", intType, {&intType}, declarationScopes);
+            addBuiltinFunctionDeclaration("abs", uintType, {&uintType}, declarationScopes);
+            addBuiltinFunctionDeclaration("abs", floatType, {&floatType}, declarationScopes);
+
             for (size_t components = 2; components <= 4; ++components)
             {
                 auto& vectorType = addVectorType("float" + std::to_string(components),
@@ -108,6 +113,9 @@ namespace ouzel
 
                 binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Multiplication, vectorType, matrixType, vectorType);
                 binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Multiplication, vectorType, vectorType, matrixType);
+
+                addBuiltinFunctionDeclaration("abs", vectorType, {&vectorType}, declarationScopes);
+                addBuiltinFunctionDeclaration("abs", matrixType, {&matrixType}, declarationScopes);
             }
 
             auto& texture2DType = addStructType("Texture2D");
@@ -2131,7 +2139,7 @@ namespace ouzel
 
         FunctionDeclaration& addBuiltinFunctionDeclaration(const std::string& name,
                                                            const Type& resultType,
-                                                           const std::vector<Type*>& parameters,
+                                                           const std::vector<const Type*>& parameters,
                                                            DeclarationScopes& declarationScopes)
         {
             std::vector<ParameterDeclaration*> parameterDeclarations;
