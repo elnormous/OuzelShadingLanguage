@@ -32,7 +32,7 @@ namespace ouzel
         };
 
         Statement(const Statement&) = delete;
-        Statement(Kind initStatementKind) noexcept: Construct(Construct::Kind::Statement), statementKind(initStatementKind) {}
+        explicit Statement(Kind initStatementKind) noexcept: Construct(Construct::Kind::Statement), statementKind(initStatementKind) {}
 
         Statement& operator=(const Statement&) = delete;
 
@@ -55,7 +55,7 @@ namespace ouzel
     class DeclarationStatement final: public Statement
     {
     public:
-        DeclarationStatement(const Declaration& initDeclaration) noexcept:
+        explicit DeclarationStatement(const Declaration& initDeclaration) noexcept:
             Statement(Statement::Kind::Declaration), declaration(initDeclaration) {}
 
         const Declaration& declaration;
@@ -64,7 +64,7 @@ namespace ouzel
     class CompoundStatement final: public Statement
     {
     public:
-        CompoundStatement(std::vector<const Statement*> initStatements):
+        explicit CompoundStatement(std::vector<const Statement*> initStatements):
             Statement(Statement::Kind::Compound),
             statements(std::move(initStatements)) {}
 
@@ -135,7 +135,7 @@ namespace ouzel
     class DefaultStatement final: public Statement
     {
     public:
-        DefaultStatement(const Statement& initBody) noexcept:
+        explicit DefaultStatement(const Statement& initBody) noexcept:
             Statement(Statement::Kind::Default),
             body(initBody) {}
 
@@ -183,7 +183,7 @@ namespace ouzel
     class ReturnStatement final: public Statement
     {
     public:
-        ReturnStatement(const Expression* initResult = nullptr) noexcept:
+        explicit ReturnStatement(const Expression* initResult = nullptr) noexcept:
             Statement(Statement::Kind::Return),
             result(initResult) {}
 

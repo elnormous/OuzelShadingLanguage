@@ -33,7 +33,7 @@ namespace ouzel
 
         Type(const Type&) = delete;
 
-        Type(Kind initTypeKind):
+        explicit Type(Kind initTypeKind):
             typeKind(initTypeKind) {}
 
         Type(Kind initTypeKind, const std::string& initName):
