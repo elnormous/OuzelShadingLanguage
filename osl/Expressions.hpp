@@ -32,7 +32,7 @@ namespace ouzel
             MatrixInitialize
         };
 
-        enum class Category: uint8_t
+        enum class Category: std::uint8_t
         {
             Lvalue,
             Rvalue
@@ -87,11 +87,11 @@ namespace ouzel
     {
     public:
         IntegerLiteralExpression(const Type& type,
-                                 int64_t initValue) noexcept:
+                                 std::int64_t initValue) noexcept:
             LiteralExpression(LiteralExpression::Kind::Integer, type),
             value(initValue) {}
 
-        const int64_t value;
+        const std::int64_t value;
     };
 
     class FloatingPointLiteralExpression final: public LiteralExpression
@@ -354,13 +354,13 @@ namespace ouzel
         VectorElementExpression(const Type& resultType,
                                 Type::Qualifiers qualifiers,
                                 Category category,
-                                std::vector<uint8_t> initPositions) noexcept:
+                                std::vector<std::uint8_t> initPositions) noexcept:
             Expression(Expression::Kind::VectorElement,
                        QualifiedType{resultType, qualifiers},
                        category),
             positions(std::move(initPositions)) {}
 
-        const std::vector<uint8_t> positions;
+        const std::vector<std::uint8_t> positions;
     };
 
     class MatrixInitializeExpression final: public Expression

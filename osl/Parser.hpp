@@ -103,7 +103,7 @@ namespace ouzel
             addBuiltinFunctionDeclaration("abs", uintType, {&uintType}, declarationScopes);
             addBuiltinFunctionDeclaration("abs", floatType, {&floatType}, declarationScopes);
 
-            for (size_t components = 2; components <= 4; ++components)
+            for (std::size_t components = 2; components <= 4; ++components)
             {
                 auto& vectorType = addVectorType("float" + std::to_string(components),
                                                  floatType, components);
@@ -152,7 +152,7 @@ namespace ouzel
             return iterator != end && iterator->type == tokenType;
         }
 
-        template <size_t N>
+        template <std::size_t N>
         static bool isToken(const Token::Type (&tokenTypes)[N],
                             TokenIterator iterator, TokenIterator end) noexcept
         {
@@ -212,9 +212,9 @@ namespace ouzel
                 scalarType.scalarTypeKind == ScalarType::Kind::Integer;
         }
 
-        static size_t parseIndex(TokenIterator& iterator, TokenIterator end)
+        static std::size_t parseIndex(TokenIterator& iterator, TokenIterator end)
         {
-            size_t result = 0;
+            std::size_t result = 0;
 
             if (skipToken(Token::Type::LeftParenthesis, iterator, end))
             {
@@ -222,7 +222,7 @@ namespace ouzel
                 if (index < 0)
                     throw ParseError(ErrorCode::InvalidIndex, "Index must be positive");
 
-                result = static_cast<size_t>(index);
+                result = static_cast<std::size_t>(index);
 
                 expectToken(Token::Type::RightParenthesis, iterator, end);
             }
@@ -275,9 +275,9 @@ namespace ouzel
             return nullptr;
         }
 
-        const VectorType* findVectorType(const Type& componentType, size_t components)
+        const VectorType* findVectorType(const Type& componentType, std::size_t components)
         {
-            auto vectorTypeIterator = vectorTypes.find(std::make_pair(&componentType, static_cast<uint8_t>(components)));
+            auto vectorTypeIterator = vectorTypes.find(std::make_pair(&componentType, static_cast<std::uint8_t>(components)));
 
             if (vectorTypeIterator == vectorTypes.end())
                 return nullptr;
@@ -367,7 +367,7 @@ namespace ouzel
                     if (arguments.size() == viableFunctionDeclaration->parameterDeclarations.size())
                     {
                         bool valid = true;
-                        for (size_t i = 0; i < arguments.size(); ++i)
+                        for (std::size_t i = 0; i < arguments.size(); ++i)
                         {
                             const QualifiedType& argument = arguments[i];
                             const QualifiedType& parameter = viableFunctionDeclaration->parameterDeclarations[i]->qualifiedType;
@@ -429,7 +429,7 @@ namespace ouzel
             return nullptr;
         }
 
-        const ArrayType& getArrayType(const Type& type, size_t count)
+        const ArrayType& getArrayType(const Type& type, std::size_t count)
         {
             QualifiedType qualifiedType{type};
 
@@ -491,7 +491,7 @@ namespace ouzel
                 if (size <= 0)
                     throw ParseError(ErrorCode::InvalidIndex, "Array size must be positive");
 
-                result = &getArrayType(*result, static_cast<size_t>(size));
+                result = &getArrayType(*result, static_cast<std::size_t>(size));
 
                 expectToken(Token::Type::RightBracket, iterator, end);
             }
@@ -1325,7 +1325,7 @@ namespace ouzel
 
                                 auto vectorType = static_cast<const VectorType*>(type);
 
-                                size_t componentCount = 0;
+                                std::size_t componentCount = 0;
 
                                 for (auto parameter : parameters)
                                 {
@@ -1359,7 +1359,7 @@ namespace ouzel
 
                                 auto matrixType = static_cast<const MatrixType*>(type);
 
-                                size_t rowCount = 0;
+                                std::size_t rowCount = 0;
 
                                 for (auto parameter : parameters)
                                 {
@@ -1571,7 +1571,7 @@ namespace ouzel
             return *result;
         }
 
-        static constexpr uint8_t charToComponent(char c)
+        static constexpr std::uint8_t charToComponent(char c)
         {
             return (c == 'x' || c == 'r') ? 0 :
                 (c == 'y' || c == 'g') ? 1 :
@@ -1612,8 +1612,8 @@ namespace ouzel
                 }
                 else if (result->qualifiedType.type.typeKind == Type::Kind::Vector)
                 {
-                    std::vector<uint8_t> components;
-                    std::set<uint8_t> componentSet;
+                    std::vector<std::uint8_t> components;
+                    std::set<std::uint8_t> componentSet;
 
                     Expression::Category category = result->category;
                     Type::Qualifiers qualifiers = Type::Qualifiers::None;
@@ -1622,7 +1622,7 @@ namespace ouzel
 
                     for (const auto c : token.value)
                     {
-                        uint8_t component = charToComponent(c);
+                        auto component = charToComponent(c);
                         if (!componentSet.insert(component).second) // has component repeated
                         {
                             category = Expression::Category::Rvalue;
@@ -1638,7 +1638,7 @@ namespace ouzel
                     if (!resultType)
                         throw ParseError(ErrorCode::InvalidSwizzle, "Invalid swizzle");
 
-                    for (uint8_t component : components)
+                    for (auto component : components)
                         if (component >= vectorType.componentCount)
                             throw ParseError(ErrorCode::InvalidSwizzle, "Invalid swizzle");
 
@@ -2086,7 +2086,7 @@ namespace ouzel
 
         VectorType& addVectorType(const std::string& name,
                                   const ScalarType& componentType,
-                                  size_t componentCount)
+                                  std::size_t componentCount)
         {
             auto& vectorType = create<VectorType>(name, componentType, componentCount);
 
@@ -2114,7 +2114,7 @@ namespace ouzel
 
         MatrixType& addMatrixType(const std::string& name,
                                   const VectorType& rowType,
-                                  size_t rowCount)
+                                  std::size_t rowCount)
         {
             auto& matrixType = create<MatrixType>(name, rowType, rowCount);
 
@@ -2237,8 +2237,8 @@ namespace ouzel
         std::vector<UnaryOperator> unaryOperators;
         std::vector<BinaryOperator> binaryOperators;
 
-        std::map<std::pair<const Type*, uint8_t>, const VectorType*> vectorTypes;
-        std::map<std::pair<QualifiedType, size_t>, const ArrayType*> arrayTypes;
+        std::map<std::pair<const Type*, std::uint8_t>, const VectorType*> vectorTypes;
+        std::map<std::pair<QualifiedType, std::size_t>, const ArrayType*> arrayTypes;
 
         const Type& voidType;
         const ScalarType& boolType;

@@ -40,46 +40,46 @@ namespace ouzel
     class BinormalAttribute final: public Attribute
     {
     public:
-        BinormalAttribute(size_t i) noexcept:
+        BinormalAttribute(std::size_t i) noexcept:
             Attribute(Attribute::Kind::Binormal), n(i) {}
 
-        const size_t n = 0;
+        const std::size_t n = 0;
     };
 
     class BlendIndicesAttribute final: public Attribute
     {
     public:
-        BlendIndicesAttribute(size_t i) noexcept:
+        BlendIndicesAttribute(std::size_t i) noexcept:
             Attribute(Attribute::Kind::BlendIndices), n(i) {}
 
-        const size_t n = 0;
+        const std::size_t n = 0;
     };
 
     class BlendWeightAttribute final: public Attribute
     {
     public:
-        BlendWeightAttribute(size_t i) noexcept:
+        BlendWeightAttribute(std::size_t i) noexcept:
             Attribute(Attribute::Kind::BlendWeight), n(i) {}
 
-        const size_t n = 0;
+        const std::size_t n = 0;
     };
 
     class ColorAttribute final: public Attribute
     {
     public:
-        ColorAttribute(size_t i) noexcept:
+        ColorAttribute(std::size_t i) noexcept:
             Attribute(Attribute::Kind::Color), n(i) {}
 
-        const size_t n = 0;
+        const std::size_t n = 0;
     };
 
     class DepthAttribute final: public Attribute
     {
     public:
-        DepthAttribute(size_t i) noexcept:
+        DepthAttribute(std::size_t i) noexcept:
             Attribute(Attribute::Kind::Depth), n(i) {}
 
-        const size_t n = 0;
+        const std::size_t n = 0;
     };
 
     class FogAttribute final: public Attribute
@@ -91,19 +91,19 @@ namespace ouzel
     class NormalAttribute final: public Attribute
     {
     public:
-        NormalAttribute(size_t i) noexcept:
+        NormalAttribute(std::size_t i) noexcept:
             Attribute(Attribute::Kind::Normal), n(i) {}
 
-        const size_t n = 0;
+        const std::size_t n = 0;
     };
 
     class PositionAttribute final: public Attribute
     {
     public:
-        PositionAttribute(size_t i) noexcept:
+        PositionAttribute(std::size_t i) noexcept:
             Attribute(Attribute::Kind::Position), n(i) {}
 
-        const size_t n = 0;
+        const std::size_t n = 0;
     };
 
     class PositionTransformedAttribute final: public Attribute
@@ -115,37 +115,37 @@ namespace ouzel
     class PointSizeAttribute final: public Attribute
     {
     public:
-        PointSizeAttribute(size_t i) noexcept:
+        PointSizeAttribute(std::size_t i) noexcept:
             Attribute(Attribute::Kind::PointSize), n(i) {}
 
-        const size_t n = 0;
+        const std::size_t n = 0;
     };
 
     class TangentAttribute final: public Attribute
     {
     public:
-        TangentAttribute(size_t i) noexcept:
+        TangentAttribute(std::size_t i) noexcept:
             Attribute(Attribute::Kind::Tangent), n(i) {}
 
-        const size_t n = 0;
+        const std::size_t n = 0;
     };
 
     class TesselationFactorAttribute final: public Attribute
     {
     public:
-        TesselationFactorAttribute(size_t i) noexcept:
+        TesselationFactorAttribute(std::size_t i) noexcept:
             Attribute(Attribute::Kind::TesselationFactor), n(i) {}
 
-        const size_t n = 0;
+        const std::size_t n = 0;
     };
 
     class TextureCoordinatesAttribute final: public Attribute
     {
     public:
-        TextureCoordinatesAttribute(size_t i) noexcept:
+        TextureCoordinatesAttribute(std::size_t i) noexcept:
             Attribute(Attribute::Kind::TextureCoordinates), n(i) {}
 
-        const size_t n = 0;
+        const std::size_t n = 0;
     };
 }
 

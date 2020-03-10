@@ -24,7 +24,7 @@ namespace ouzel
             Matrix
         };
 
-        enum class Qualifiers: uint8_t
+        enum class Qualifiers: std::uint8_t
         {
             None = 0x00,
             Const = 0x01,
@@ -104,13 +104,13 @@ namespace ouzel
     {
     public:
         ArrayType(const QualifiedType& initElementType,
-                  size_t initSize):
+                  std::size_t initSize):
             Type(Type::Kind::Array),
             elementType(initElementType),
             size(initSize) {}
 
         const QualifiedType elementType;
-        const size_t size = 0;
+        const std::size_t size = 0;
     };
 
     class ScalarType final: public Type
@@ -154,13 +154,13 @@ namespace ouzel
     public:
         VectorType(const std::string& initName,
                    const ScalarType& initComponentType,
-                   size_t initComponentCount):
+                   std::size_t initComponentCount):
             Type(Type::Kind::Vector, initName),
             componentType(initComponentType),
             componentCount(initComponentCount) {}
 
         const ScalarType& componentType;
-        const size_t componentCount = 1;
+        const std::size_t componentCount = 1;
     };
 
     class MatrixType final: public Type
@@ -168,13 +168,13 @@ namespace ouzel
     public:
         MatrixType(const std::string& initName,
                    const VectorType& initRowType,
-                   size_t initRowCount):
+                   std::size_t initRowCount):
             Type(Type::Kind::Matrix, initName),
             rowType(initRowType),
             rowCount(initRowCount) {}
 
         const VectorType& rowType;
-        const size_t rowCount = 1;
+        const std::size_t rowCount = 1;
     };
 }
 

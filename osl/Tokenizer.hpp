@@ -146,8 +146,8 @@ namespace ouzel
 
         Type type = Type::None;
         std::string value;
-        uint32_t line = 0;
-        uint32_t column = 0;
+        std::uint32_t line = 0;
+        std::uint32_t column = 0;
     };
 
     inline std::vector<Token> tokenize(const std::string& code)
@@ -239,14 +239,14 @@ namespace ouzel
         };
 
         std::vector<Token> tokens;
-        uint32_t line = 1;
+        std::uint32_t line = 1;
         auto lineStart = code.begin();
 
         for (auto i = code.begin(); i != code.end();)
         {
             Token token;
             token.line = line;
-            token.column = static_cast<uint32_t>(i - lineStart) + 1;
+            token.column = static_cast<std::uint32_t>(i - lineStart) + 1;
 
             if (*i == '(' || *i == ')' ||
                 *i == '{' || *i == '}' ||

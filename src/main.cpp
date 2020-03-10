@@ -37,7 +37,7 @@ int main(int argc, const char* argv[])
     bool preprocess = false;
     std::string format;
     std::string outputFilename;
-    uint32_t outputVersion = 0;
+    std::uint32_t outputVersion = 0;
     OutputProgram program = OutputProgram::None;
 
     try
@@ -74,7 +74,7 @@ int main(int argc, const char* argv[])
             {
                 if (++i >= argc)
                     throw std::runtime_error("Argument to " + std::string(argv[i]) + " is missing");
-                outputVersion = static_cast<uint32_t>(std::stoi(argv[i]));
+                outputVersion = static_cast<std::uint32_t>(std::stoi(argv[i]));
             }
             else if (std::string(argv[i]) == "--program")
             {

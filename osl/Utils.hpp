@@ -269,9 +269,9 @@ namespace ouzel
         return result;
     }
 
-    inline void dumpConstruct(const Construct& construct, const uint32_t level = 0);
+    inline void dumpConstruct(const Construct& construct, const std::uint32_t level = 0);
 
-    inline void dumpDeclaration(const Declaration& declaration, const uint32_t level = 0)
+    inline void dumpDeclaration(const Declaration& declaration, const std::uint32_t level = 0)
     {
         std::cout << " " << toString(declaration.declarationKind);
 
@@ -420,7 +420,7 @@ namespace ouzel
         }
     }
 
-    inline void dumpStatement(const Statement& statement, const uint32_t level = 0)
+    inline void dumpStatement(const Statement& statement, const std::uint32_t level = 0)
     {
         std::cout << " " << toString(statement.statementKind);
 
@@ -574,7 +574,7 @@ namespace ouzel
         }
     }
 
-    inline void dumpExpression(const Expression& expression, const uint32_t level = 0)
+    inline void dumpExpression(const Expression& expression, const std::uint32_t level = 0)
     {
         std::cout << " " << toString(expression.expressionKind) << ", category: " << toString(expression.category);
 
@@ -759,7 +759,7 @@ namespace ouzel
                 std::cout << ", components: ";
 
                 auto& vectorElementExpression = static_cast<const VectorElementExpression&>(expression);
-                for (uint8_t position : vectorElementExpression.positions)
+                for (auto position : vectorElementExpression.positions)
                     std::cout << components[position];
 
                 std::cout << '\n';
@@ -864,9 +864,9 @@ namespace ouzel
         std::cout << '\n';
     }
 
-    inline void dumpConstruct(const Construct& construct, const uint32_t level)
+    inline void dumpConstruct(const Construct& construct, const std::uint32_t level)
     {
-        for (uint32_t i = 0; i < level; ++i)
+        for (std::uint32_t i = 0; i < level; ++i)
             std::cout << "  ";
 
         std::cout << &construct;

@@ -38,10 +38,10 @@ namespace ouzel
     private:
         struct Options final
         {
-            Options(uint32_t initIndentation, bool initWhitespaces):
+            Options(std::uint32_t initIndentation, bool initWhitespaces):
                 indentation(initIndentation), whitespaces(initWhitespaces) {}
 
-            uint32_t indentation = 0;
+            std::uint32_t indentation = 0;
             bool whitespaces = false;
         };
 
