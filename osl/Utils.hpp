@@ -781,9 +781,9 @@ namespace ouzel
 
     inline void dumpAttribute(const Attribute& attribute)
     {
-        std::cout << " " << toString(attribute.getAttributeKind());
+        std::cout << " " << toString(attribute.attributeKind);
 
-        switch (attribute.getAttributeKind())
+        switch (attribute.attributeKind)
         {
             case Attribute::Kind::Binormal:
             {

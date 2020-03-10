@@ -34,9 +34,6 @@ namespace ouzel
 
         Attribute& operator=(const Attribute&) = delete;
 
-        inline Kind getAttributeKind() const noexcept { return attributeKind; }
-
-    private:
         const Kind attributeKind;
     };
 
