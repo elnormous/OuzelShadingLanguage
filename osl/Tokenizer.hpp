@@ -301,7 +301,7 @@ namespace ouzel
                     token.value.push_back(*i);
                     ++i;
 
-                    if (i == code.end() || *i != '+' || *i != '-')
+                    if (i == code.end() && *i != '+' && *i != '-')
                         throw std::runtime_error("Invalid exponent");
 
                     token.value.push_back(*i);
