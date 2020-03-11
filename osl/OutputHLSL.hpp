@@ -12,7 +12,7 @@ namespace ouzel
     class OutputHLSL final: public Output
     {
     public:
-        OutputHLSL(Program initProgram):
+        explicit OutputHLSL(Program initProgram):
             Output(initProgram)
         {
         }

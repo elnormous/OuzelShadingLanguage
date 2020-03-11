@@ -36,14 +36,14 @@ namespace ouzel
         Declaration(const Declaration&) = delete;
 
         Declaration(Kind initDeclarationKind,
-                    std::vector<const Attribute*> initAttributes = {}):
+                    std::vector<const Attribute*> initAttributes):
             Construct(Construct::Kind::Declaration),
             declarationKind(initDeclarationKind),
             attributes(std::move(initAttributes)) {}
 
         Declaration(Kind initDeclarationKind,
                     const std::string& initName,
-                    std::vector<const Attribute*> initAttributes = {}):
+                    std::vector<const Attribute*> initAttributes):
             Construct(Construct::Kind::Declaration),
             declarationKind(initDeclarationKind),
             name(initName),

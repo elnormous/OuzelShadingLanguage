@@ -14,7 +14,7 @@ namespace ouzel
     class OutputMSL final: public Output
     {
     public:
-        OutputMSL(Program initProgram):
+        explicit OutputMSL(Program initProgram):
             Output(initProgram)
         {
         }

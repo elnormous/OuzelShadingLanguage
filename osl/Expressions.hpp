@@ -150,7 +150,7 @@ namespace ouzel
     class ParenExpression final: public Expression
     {
     public:
-        ParenExpression(const Expression& initExpression) noexcept:
+        explicit ParenExpression(const Expression& initExpression) noexcept:
             Expression(Expression::Kind::Paren,
                        initExpression.qualifiedType,
                        initExpression.category),
