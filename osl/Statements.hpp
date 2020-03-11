@@ -44,7 +44,7 @@ namespace ouzel
     class ExpressionStatement final: public Statement
     {
     public:
-        ExpressionStatement(const Expression& initExpression) noexcept:
+        explicit ExpressionStatement(const Expression& initExpression) noexcept:
             Statement(Statement::Kind::Expression), expression(initExpression) {}
 
         const Expression& expression;
