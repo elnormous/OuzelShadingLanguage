@@ -308,7 +308,7 @@ namespace ouzel
                     if (i == code.end() || *i < '0' || *i > '9')
                         throw std::runtime_error("Invalid exponent");
 
-                    while (i != code.end() && (*i >= '0' && *i <= '9'))
+                    while (i != code.end() && *i >= '0' && *i <= '9')
                     {
                         token.value.push_back(*i);
                         ++i;
