@@ -599,6 +599,7 @@ namespace
         {
             var f1:float = 1.0f;
             f1 = 1.0e-3F;
+            f1 = 1.0e3f;
             var f2:float = ++f1;
             var f3:float = f2++;
             var f4:float = float(1);

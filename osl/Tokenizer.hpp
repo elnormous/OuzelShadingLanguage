@@ -299,13 +299,11 @@ namespace ouzel
                     integer = false;
 
                     token.value.push_back(*i);
-                    ++i;
-
-                    if (i == code.end() || (*i != '+' && *i != '-'))
+                    if (++i == code.end())
                         throw std::runtime_error("Invalid exponent");
 
-                    token.value.push_back(*i);
-                    ++i;
+                    if (*i == '+' || *i == '-')
+                        token.value.push_back(*i++);
 
                     if (i == code.end() || *i < '0' || *i > '9')
                         throw std::runtime_error("Invalid exponent");
