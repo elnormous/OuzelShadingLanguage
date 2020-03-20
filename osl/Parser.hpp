@@ -105,11 +105,11 @@ namespace ouzel
 
             for (std::size_t components = 2; components <= 4; ++components)
             {
-                auto& vectorType = addVectorType("float" + std::to_string(components),
-                                                 floatType, components);
+                const auto& vectorType = addVectorType("float" + std::to_string(components),
+                                                       floatType, components);
 
-                auto& matrixType = addMatrixType("float" + std::to_string(components) + 'x' + std::to_string(components),
-                                                 vectorType, components);
+                const auto& matrixType = addMatrixType("float" + std::to_string(components) + 'x' + std::to_string(components),
+                                                       vectorType, components);
 
                 binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Multiplication, vectorType, matrixType, vectorType);
                 binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Multiplication, vectorType, vectorType, matrixType);
@@ -118,11 +118,11 @@ namespace ouzel
                 addBuiltinFunctionDeclaration("abs", matrixType, {&matrixType}, declarationScopes);
             }
 
-            auto& texture2DType = addStructType("Texture2D");
+            const auto& texture2DType = addStructType("Texture2D");
 
             //addBuiltinFunctionDeclaration("sample", float4Type, {texture2DType, float2Type}, declarationScopes);
 
-            auto& texture2DMSType = addStructType("Texture2DMS");
+            const auto& texture2DMSType = addStructType("Texture2DMS");
 
             //addBuiltinFunctionDeclaration("load", float4Type, {texture2DMSType, float2Type}, declarationScopes);
 
@@ -175,9 +175,9 @@ namespace ouzel
         static bool skipToken(Token::Type tokenType,
                               TokenIterator& iterator, TokenIterator end) noexcept
         {
-            bool result = iterator != end && iterator->type == tokenType;
-            if (result) ++iterator;
-            return result;
+            if (iterator == end || iterator->type != tokenType) return false;
+            ++iterator;
+            return true;
         }
 
         static const Token& expectToken(Token::Type tokenType,
@@ -396,7 +396,6 @@ namespace ouzel
                                                                         const std::vector<QualifiedType>& parameters) noexcept
         {
             for (auto declaration : structType.memberDeclarations)
-            {
                 if (declaration->declarationKind == Declaration::Kind::Callable)
                 {
                     auto callableDeclaration = static_cast<const CallableDeclaration*>(declaration);
@@ -415,7 +414,6 @@ namespace ouzel
                             return constructorDeclaration;
                     }
                 }
-            }
 
             return nullptr;
         }
