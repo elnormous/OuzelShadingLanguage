@@ -21,7 +21,7 @@ namespace ouzel
         {
         }
 
-        virtual std::string output(const ASTContext& context, bool whitespaces)
+        virtual std::string output(const Context& context, bool whitespaces)
         {
             std::string result = "#version " + std::to_string(glslVersion) + "\n";
 

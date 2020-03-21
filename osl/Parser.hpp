@@ -78,14 +78,14 @@ namespace ouzel
         ErrorCode errorCode;
     };
 
-    class ASTContext final
+    class Context final
     {
     public:
         using TokenIterator = std::vector<Token>::const_iterator;
         using DeclarationScope = std::vector<Declaration*>;
         using DeclarationScopes = std::vector<DeclarationScope>;
 
-        explicit ASTContext(const std::vector<Token>& tokens):
+        explicit Context(const std::vector<Token>& tokens):
             voidType(create<Type>(Type::Kind::Void, "void")),
             boolType(addScalarType("bool", ScalarType::Kind::Boolean, false)),
             intType(addScalarType("int", ScalarType::Kind::Integer, false)),

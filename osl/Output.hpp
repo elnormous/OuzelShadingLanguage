@@ -26,7 +26,7 @@ namespace ouzel
 
         virtual ~Output() = default;
 
-        virtual std::string output(const ASTContext& context, bool whitespaces) = 0;
+        virtual std::string output(const Context& context, bool whitespaces) = 0;
 
     private:
         Program program;
