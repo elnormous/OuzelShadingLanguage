@@ -39,7 +39,7 @@ namespace
         bool result = true;
     };
 
-    const ouzel::CompoundStatement* getMainBody(const ouzel::ASTContext& context)
+    const ouzel::CompoundStatement* getMainBody(const ouzel::Context& context)
     {
         auto i = context.getDeclarations().begin();
         if (i == context.getDeclarations().end())
@@ -63,7 +63,7 @@ namespace
         return static_cast<const ouzel::CompoundStatement*>(body);
     }
 
-    const ouzel::Expression& getMainExpression(const ouzel::ASTContext& context)
+    const ouzel::Expression& getMainExpression(const ouzel::Context& context)
     {
         auto mainCompoundStatement = getMainBody(context);
 
@@ -150,7 +150,7 @@ namespace
         }
         )OSL";
 
-        ouzel::ASTContext context(ouzel::tokenize(code));
+        ouzel::Context context(ouzel::tokenize(code));
         auto mainCompoundStatement = getMainBody(context);
 
         auto i = mainCompoundStatement->statements.begin();
@@ -173,7 +173,7 @@ namespace
         }
         )OSL";
 
-        ouzel::ASTContext context(ouzel::tokenize(code));
+        ouzel::Context context(ouzel::tokenize(code));
         auto mainCompoundStatement = getMainBody(context);
 
         auto i = mainCompoundStatement->statements.begin();
@@ -218,7 +218,7 @@ namespace
         }
         )OSL";
 
-        ouzel::ASTContext context(ouzel::tokenize(code));
+        ouzel::Context context(ouzel::tokenize(code));
         auto mainCompoundStatement = getMainBody(context);
 
         auto i = mainCompoundStatement->statements.begin();
@@ -272,7 +272,7 @@ namespace
         }
         )OSL";
 
-        ouzel::ASTContext context(ouzel::tokenize(code));
+        ouzel::Context context(ouzel::tokenize(code));
         auto mainCompoundStatement = getMainBody(context);
 
         auto i = mainCompoundStatement->statements.begin();
@@ -310,7 +310,7 @@ namespace
         }
         )OSL";
 
-        ouzel::ASTContext context(ouzel::tokenize(code));
+        ouzel::Context context(ouzel::tokenize(code));
         auto mainCompoundStatement = getMainBody(context);
 
         auto i = mainCompoundStatement->statements.begin();
@@ -347,7 +347,7 @@ namespace
         }
         )OSL";
 
-        ouzel::ASTContext context(ouzel::tokenize(code));
+        ouzel::Context context(ouzel::tokenize(code));
         auto mainCompoundStatement = getMainBody(context);
 
         auto i = mainCompoundStatement->statements.begin();
@@ -388,7 +388,7 @@ namespace
         }
         )OSL";
 
-        ouzel::ASTContext context(ouzel::tokenize(code));
+        ouzel::Context context(ouzel::tokenize(code));
         auto mainCompoundStatement = getMainBody(context);
 
         auto i = mainCompoundStatement->statements.begin();
@@ -456,7 +456,7 @@ namespace
         }
         )OSL";
 
-        ouzel::ASTContext context(ouzel::tokenize(code));
+        ouzel::Context context(ouzel::tokenize(code));
         auto mainCompoundStatement = getMainBody(context);
 
         auto i = mainCompoundStatement->statements.begin();
@@ -484,7 +484,7 @@ namespace
         }
         )OSL";
 
-        ouzel::ASTContext context(ouzel::tokenize(code));
+        ouzel::Context context(ouzel::tokenize(code));
         expectLiteral(&getMainExpression(context), true);
     }
 
@@ -497,7 +497,7 @@ namespace
         }
         )OSL";
 
-        ouzel::ASTContext context(ouzel::tokenize(code));
+        ouzel::Context context(ouzel::tokenize(code));
         expectLiteral(&getMainExpression(context), 1);
     }
 
@@ -510,7 +510,7 @@ namespace
         }
         )OSL";
 
-        ouzel::ASTContext context(ouzel::tokenize(code));
+        ouzel::Context context(ouzel::tokenize(code));
         expectLiteral(&getMainExpression(context), 1.0F);
     }
 
@@ -541,7 +541,7 @@ namespace
         }
         )OSL";
 
-        ouzel::ASTContext context(ouzel::tokenize(code));
+        ouzel::Context context(ouzel::tokenize(code));
 
         auto i = context.getDeclarations().begin();
         if (i == context.getDeclarations().end())
@@ -576,7 +576,7 @@ namespace
         }
         )OSL";
 
-        ouzel::ASTContext context(ouzel::tokenize(code));
+        ouzel::Context context(ouzel::tokenize(code));
     }
 
     void testArray()
@@ -589,7 +589,7 @@ namespace
         }
         )OSL";
 
-        ouzel::ASTContext context(ouzel::tokenize(code));
+        ouzel::Context context(ouzel::tokenize(code));
     }
 
     void testFloat()
@@ -606,7 +606,7 @@ namespace
         }
         )OSL";
 
-        ouzel::ASTContext context(ouzel::tokenize(code));
+        ouzel::Context context(ouzel::tokenize(code));
     }
 
     void testVector()
@@ -624,7 +624,7 @@ namespace
         }
         )OSL";
 
-        ouzel::ASTContext context(ouzel::tokenize(code));
+        ouzel::Context context(ouzel::tokenize(code));
     }
 
     void testMatrix()
@@ -644,7 +644,7 @@ namespace
         }
         )OSL";
 
-        ouzel::ASTContext context(ouzel::tokenize(code));
+        ouzel::Context context(ouzel::tokenize(code));
     }
 
     void testSemantics()
@@ -663,7 +663,7 @@ namespace
             }
         )OSL";
 
-        ouzel::ASTContext context(ouzel::tokenize(code));
+        ouzel::Context context(ouzel::tokenize(code));
 }
 
     void testInputModifiers()
@@ -679,7 +679,7 @@ namespace
         }
         )OSL";
 
-        ouzel::ASTContext context(ouzel::tokenize(code));
+        ouzel::Context context(ouzel::tokenize(code));
 
         auto i = context.getDeclarations().begin();
         if (i == context.getDeclarations().end())
@@ -778,7 +778,7 @@ namespace
         }
         )OSL";
 
-        ouzel::ASTContext context(ouzel::tokenize(code));
+        ouzel::Context context(ouzel::tokenize(code));
     }
 
     void testExtern()
@@ -790,7 +790,7 @@ namespace
         }
         )OSL";
 
-        ouzel::ASTContext context(ouzel::tokenize(code));
+        ouzel::Context context(ouzel::tokenize(code));
 
         auto i = context.getDeclarations().begin();
         if (i == context.getDeclarations().end())

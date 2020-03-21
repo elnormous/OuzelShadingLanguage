@@ -116,7 +116,7 @@ int main(int argc, const char* argv[])
                 dump(tokens);
             else
             {
-                ouzel::ASTContext context(tokens);
+                ouzel::Context context(tokens);
 
                 if (printAST)
                     context.dump();
