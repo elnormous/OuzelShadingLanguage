@@ -429,7 +429,7 @@ namespace ouzel
 
         const ArrayType& getArrayType(const Type& type, std::size_t count)
         {
-            QualifiedType qualifiedType{type};
+            const QualifiedType qualifiedType{type};
 
             auto i = arrayTypes.find(std::make_pair(qualifiedType, count));
 
