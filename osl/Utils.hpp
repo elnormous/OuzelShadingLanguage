@@ -342,8 +342,8 @@ namespace ouzel
 
                 std::cout << ", name: " << fieldDeclaration.name << ", type: " << getPrintableTypeName(fieldDeclaration.qualifiedType) << '\n';
 
-                for (const auto attribute : fieldDeclaration.attributes)
-                    dumpConstruct(*attribute, level + 1);
+                for (const auto& attribute : fieldDeclaration.attributes)
+                    dumpConstruct(attribute, level + 1);
 
                 break;
             }
@@ -379,8 +379,8 @@ namespace ouzel
                 for (auto parameter : callableDeclaration.parameterDeclarations)
                     dumpConstruct(*parameter, level + 1);
 
-                for (auto attribute : callableDeclaration.attributes)
-                    dumpConstruct(*attribute, level + 1);
+                for (const auto& attribute : callableDeclaration.attributes)
+                    dumpConstruct(attribute, level + 1);
 
                 if (callableDeclaration.body)
                     dumpConstruct(*callableDeclaration.body, level + 1);
@@ -393,8 +393,8 @@ namespace ouzel
                 auto& variableDeclaration = static_cast<const VariableDeclaration&>(declaration);
                 std::cout << ", name: " << variableDeclaration.name << ", type: " << getPrintableTypeName(variableDeclaration.qualifiedType) << '\n';
 
-                for (const auto attribute : variableDeclaration.attributes)
-                    dumpConstruct(*attribute, level + 1);
+                for (const auto& attribute : variableDeclaration.attributes)
+                    dumpConstruct(attribute, level + 1);
 
                 if (variableDeclaration.initialization)
                     dumpConstruct(*variableDeclaration.initialization, level + 1);
@@ -409,8 +409,8 @@ namespace ouzel
                     ", type: " << getPrintableTypeName(parameterDeclaration.qualifiedType) <<
                     ", input modifier: " << toString(parameterDeclaration.inputModifier) << '\n';
 
-                for (const auto attribute : parameterDeclaration.attributes)
-                    dumpConstruct(*attribute, level + 1);
+                for (const auto& attribute : parameterDeclaration.attributes)
+                    dumpConstruct(attribute, level + 1);
 
                 break;
             }

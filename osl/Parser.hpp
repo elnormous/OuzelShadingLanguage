@@ -636,10 +636,10 @@ namespace ouzel
                 &previousDeclaration->resultType.type != &type)
                 throw ParseError(ErrorCode::FunctionRedeclarationWithDifferentReturnType, "Redeclaring function with different return type");
 
-            std::vector<const Attribute*> attributes;
+            std::vector<std::reference_wrapper<const Attribute>> attributes;
             if (skipToken(Token::Type::Arrow, iterator, end))
                 while (isToken(Token::Type::Identifier, iterator, end))
-                    attributes.push_back(&parseAttribute(iterator, end));
+                    attributes.push_back(parseAttribute(iterator, end));
 
             auto& result = create<FunctionDeclaration>(name, QualifiedType{type}, StorageClass::Auto,
                                                        std::move(attributes), std::move(parameterDeclarations),
@@ -830,10 +830,10 @@ namespace ouzel
             if (type.typeKind == Type::Kind::Void)
                 throw ParseError(ErrorCode::IllegalVoidType, "Member cannot have the type \"void\"");
 
-            std::vector<const Attribute*> attributes;
+            std::vector<std::reference_wrapper<const Attribute>> attributes;
             if (skipToken(Token::Type::Arrow, iterator, end))
                 while (isToken(Token::Type::Identifier, iterator, end))
-                    attributes.push_back(&parseAttribute(iterator, end));
+                    attributes.push_back(parseAttribute(iterator, end));
 
             return create<FieldDeclaration>(name, QualifiedType{type}, std::move(attributes));
         }
@@ -870,10 +870,10 @@ namespace ouzel
             if (type.typeKind == Type::Kind::Void)
                 throw ParseError(ErrorCode::IllegalVoidType, "Parameter cannot have the type \"void\"");
 
-            std::vector<const Attribute*> attributes;
+            std::vector<std::reference_wrapper<const Attribute>> attributes;
             if (skipToken(Token::Type::Arrow, iterator, end))
                 while (isToken(Token::Type::Identifier, iterator, end))
-                    attributes.push_back(&parseAttribute(iterator, end));
+                    attributes.push_back(parseAttribute(iterator, end));
 
             return create<ParameterDeclaration>(name, QualifiedType{type}, inputModifier, std::move(attributes));
         }
@@ -2144,13 +2144,14 @@ namespace ouzel
 
             for (auto parameter : parameters)
             {
-                auto& parameterDeclaration = create<ParameterDeclaration>(QualifiedType{*parameter}, InputModifier::In, std::vector<const Attribute*>{});
+                auto& parameterDeclaration = create<ParameterDeclaration>(QualifiedType{*parameter}, InputModifier::In, std::vector<std::reference_wrapper<const Attribute>>{});
                 parameterDeclarations.push_back(&parameterDeclaration);
             }
 
             auto& functionDeclaration = create<FunctionDeclaration>(name, QualifiedType{resultType}, StorageClass::Auto,
-                                                                   std::vector<const Attribute*>{}, std::move(parameterDeclarations),
-                                                                   FunctionDeclaration::Qualifier::None, true);
+                                                                    std::vector<std::reference_wrapper<const Attribute>>{},
+                                                                    std::move(parameterDeclarations),
+                                                                    FunctionDeclaration::Qualifier::None, true);
 
             declarationScopes.back().push_back(&functionDeclaration);
 
