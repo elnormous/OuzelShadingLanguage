@@ -32,7 +32,9 @@ namespace ouzel
         };
 
         Statement(const Statement&) = delete;
-        explicit Statement(Kind initStatementKind) noexcept: Construct(Construct::Kind::Statement), statementKind(initStatementKind) {}
+        explicit Statement(Kind initStatementKind) noexcept:
+            Construct(Construct::Kind::Statement),
+            statementKind{initStatementKind} {}
 
         Statement& operator=(const Statement&) = delete;
 
@@ -47,7 +49,7 @@ namespace ouzel
     {
     public:
         explicit ExpressionStatement(const Expression& initExpression) noexcept:
-            Statement(Statement::Kind::Expression), expression(initExpression) {}
+            Statement(Statement::Kind::Expression), expression{initExpression} {}
 
         const Expression& expression;
     };
@@ -58,7 +60,7 @@ namespace ouzel
     {
     public:
         explicit DeclarationStatement(const Declaration& initDeclaration) noexcept:
-            Statement(Statement::Kind::Declaration), declaration(initDeclaration) {}
+            Statement(Statement::Kind::Declaration), declaration{initDeclaration} {}
 
         const Declaration& declaration;
     };
@@ -80,9 +82,9 @@ namespace ouzel
                     const Statement& initBody,
                     const Statement* initElseBody) noexcept:
             Statement(Statement::Kind::If),
-            condition(initCondition),
-            body(initBody),
-            elseBody(initElseBody) {}
+            condition{initCondition},
+            body{initBody},
+            elseBody{initElseBody} {}
 
         const Construct& condition;
         const Statement& body;
@@ -97,10 +99,10 @@ namespace ouzel
                      const Expression* initIncrement,
                      const Statement& initBody) noexcept:
             Statement(Statement::Kind::For),
-            initialization(initInitialization),
-            condition(initCondition),
-            increment(initIncrement),
-            body(initBody) {}
+            initialization{initInitialization},
+            condition{initCondition},
+            increment{initIncrement},
+            body{initBody} {}
 
         const Construct* initialization = nullptr;
         const Construct* condition = nullptr;
@@ -114,8 +116,8 @@ namespace ouzel
         SwitchStatement(const Construct& initCondition,
                         const Statement& initBody) noexcept:
             Statement(Statement::Kind::Switch),
-            condition(initCondition),
-            body(initBody) {}
+            condition{initCondition},
+            body{initBody} {}
 
         const Construct& condition;
         const Statement& body;
@@ -127,8 +129,8 @@ namespace ouzel
         CaseStatement(const Expression& initCondition,
                       const Statement& initBody) noexcept:
             Statement(Statement::Kind::Case),
-            condition(initCondition),
-            body(initBody) {}
+            condition{initCondition},
+            body{initBody} {}
 
         const Expression& condition;
         const Statement& body;
@@ -139,7 +141,7 @@ namespace ouzel
     public:
         explicit DefaultStatement(const Statement& initBody) noexcept:
             Statement(Statement::Kind::Default),
-            body(initBody) {}
+            body{initBody} {}
 
         const Statement& body;
     };
@@ -150,8 +152,8 @@ namespace ouzel
         WhileStatement(const Construct& initCondition,
                        const Statement& initBody) noexcept:
             Statement(Statement::Kind::While),
-            condition(initCondition),
-            body(initBody) {}
+            condition{initCondition},
+            body{initBody} {}
 
         const Construct& condition;
         const Statement& body;
@@ -163,8 +165,8 @@ namespace ouzel
         DoStatement(const Expression& initCondition,
                     const Statement& initBody) noexcept:
             Statement(Statement::Kind::Do),
-            condition(initCondition),
-            body(initBody) {}
+            condition{initCondition},
+            body{initBody} {}
 
         const Expression& condition;
         const Statement& body;
@@ -187,7 +189,7 @@ namespace ouzel
     public:
         explicit ReturnStatement(const Expression* initResult = nullptr) noexcept:
             Statement(Statement::Kind::Return),
-            result(initResult) {}
+            result{initResult} {}
 
         const Expression* result = nullptr;
     };

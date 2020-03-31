@@ -38,15 +38,15 @@ namespace ouzel
         Declaration(Kind initDeclarationKind,
                     std::vector<AttributeRef> initAttributes):
             Construct(Construct::Kind::Declaration),
-            declarationKind(initDeclarationKind),
+            declarationKind{initDeclarationKind},
             attributes(std::move(initAttributes)) {}
 
         Declaration(Kind initDeclarationKind,
                     const std::string& initName,
                     std::vector<AttributeRef> initAttributes):
             Construct(Construct::Kind::Declaration),
-            declarationKind(initDeclarationKind),
-            name(initName),
+            declarationKind{initDeclarationKind},
+            name{initName},
             attributes(std::move(initAttributes)) {}
 
         Declaration& operator=(const Declaration&) = delete;
@@ -66,7 +66,7 @@ namespace ouzel
                          const QualifiedType& initQualifiedType,
                          std::vector<AttributeRef> initAttributes) noexcept:
             Declaration(Declaration::Kind::Field, initName, std::move(initAttributes)),
-            qualifiedType(initQualifiedType)
+            qualifiedType{initQualifiedType}
         {
             definition = this;
         }
@@ -88,8 +88,8 @@ namespace ouzel
                              InputModifier initInputModifier,
                              std::vector<AttributeRef> initAttributes) noexcept:
             Declaration(Declaration::Kind::Parameter, std::move(initAttributes)),
-            inputModifier(initInputModifier),
-            qualifiedType(initQualifiedType)
+            inputModifier{initInputModifier},
+            qualifiedType{initQualifiedType}
         {
             definition = this;
         }
@@ -99,8 +99,8 @@ namespace ouzel
                              InputModifier initInputModifier,
                              std::vector<AttributeRef> initAttributes) noexcept:
             Declaration(Declaration::Kind::Parameter, initName, std::move(initAttributes)),
-            inputModifier(initInputModifier),
-            qualifiedType(initQualifiedType)
+            inputModifier{initInputModifier},
+            qualifiedType{initQualifiedType}
         {
             definition = this;
         }
@@ -124,8 +124,8 @@ namespace ouzel
                             std::vector<AttributeRef> initAttributes,
                             std::vector<ParameterDeclaration*> initParameterDeclarations):
             Declaration(Declaration::Kind::Callable, std::move(initAttributes)),
-            callableDeclarationKind(initCallableDeclarationKind),
-            storageClass(initStorageClass),
+            callableDeclarationKind{initCallableDeclarationKind},
+            storageClass{initStorageClass},
             parameterDeclarations(std::move(initParameterDeclarations)) {}
 
         CallableDeclaration(Kind initCallableDeclarationKind,
@@ -134,8 +134,8 @@ namespace ouzel
                             std::vector<AttributeRef> initAttributes,
                             std::vector<ParameterDeclaration*> initParameterDeclarations):
             Declaration(Declaration::Kind::Callable, initName, std::move(initAttributes)),
-            callableDeclarationKind(initCallableDeclarationKind),
-            storageClass(initStorageClass),
+            callableDeclarationKind{initCallableDeclarationKind},
+            storageClass{initStorageClass},
             parameterDeclarations(std::move(initParameterDeclarations)) {}
 
         const Kind callableDeclarationKind;
@@ -165,9 +165,9 @@ namespace ouzel
                                 initStorageClass,
                                 std::move(initAttributes),
                                 std::move(initParameterDeclarations)),
-            qualifier(initQualifier),
-            resultType(initQualifiedType),
-            isBuiltin(initIsBuiltin) {}
+            qualifier{initQualifier},
+            resultType{initQualifiedType},
+            isBuiltin{initIsBuiltin} {}
 
         const Qualifier qualifier = Qualifier::None;
         const QualifiedType resultType;
@@ -199,8 +199,8 @@ namespace ouzel
                                 initStorageClass,
                                 std::move(initAttributes),
                                 std::move(initParameterDeclarations)),
-            resultType(initQualifiedType),
-            isBuiltin(initIsBuiltin) {}
+            resultType{initQualifiedType},
+            isBuiltin{initIsBuiltin} {}
 
         const QualifiedType resultType;
         const bool isBuiltin = false;
@@ -214,9 +214,9 @@ namespace ouzel
                             StorageClass initStorageClass,
                             const Expression* initInitialization = nullptr) noexcept:
             Declaration(Declaration::Kind::Variable, initName, {}),
-            storageClass(initStorageClass),
-            qualifiedType(initQualifiedType),
-            initialization(initInitialization)
+            storageClass{initStorageClass},
+            qualifiedType{initQualifiedType},
+            initialization{initInitialization}
         {
             definition = this;
         }
@@ -231,7 +231,7 @@ namespace ouzel
     public:
         TypeDeclaration(const std::string& initName, const Type& initType) noexcept:
             Declaration(Declaration::Kind::Type, initName, {}),
-            type(initType) {}
+            type{initType} {}
 
         const Type& type;
     };

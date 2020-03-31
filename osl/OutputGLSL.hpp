@@ -17,7 +17,7 @@ namespace ouzel
     public:
         OutputGLSL(Program initProgram,
                    std::uint32_t initGLSLVersion):
-            Output(initProgram), glslVersion(initGLSLVersion)
+            Output(initProgram), glslVersion{initGLSLVersion}
         {
         }
 

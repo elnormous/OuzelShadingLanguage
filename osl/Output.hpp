@@ -20,7 +20,7 @@ namespace ouzel
     {
     public:
         explicit Output(Program initProgram):
-            program(initProgram)
+            program{initProgram}
         {
         }
 

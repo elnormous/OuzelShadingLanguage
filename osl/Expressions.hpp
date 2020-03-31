@@ -42,9 +42,9 @@ namespace ouzel
                    const QualifiedType& initQualifiedType,
                    Category initCategory) noexcept:
             Construct(Construct::Kind::Expression),
-            expressionKind(initExpressionKind),
-            qualifiedType(initQualifiedType),
-            category(initCategory) {}
+            expressionKind{initExpressionKind},
+            qualifiedType{initQualifiedType},
+            category{initCategory} {}
 
         const Kind expressionKind;
         const QualifiedType qualifiedType;
@@ -69,7 +69,7 @@ namespace ouzel
             Expression(Expression::Kind::Literal,
                        QualifiedType{type, Type::Qualifiers::Const},
                        Category::Rvalue),
-            literalKind(initLiteralKind) {}
+            literalKind{initLiteralKind} {}
 
         const Kind literalKind;
     };
@@ -80,7 +80,7 @@ namespace ouzel
         BooleanLiteralExpression(const Type& type,
                                  bool initValue) noexcept:
             LiteralExpression(LiteralExpression::Kind::Boolean, type),
-            value(initValue) {}
+            value{initValue} {}
 
         const bool value;
     };
@@ -91,7 +91,7 @@ namespace ouzel
         IntegerLiteralExpression(const Type& type,
                                  std::int64_t initValue) noexcept:
             LiteralExpression(LiteralExpression::Kind::Integer, type),
-            value(initValue) {}
+            value{initValue} {}
 
         const std::int64_t value;
     };
@@ -102,7 +102,7 @@ namespace ouzel
         FloatingPointLiteralExpression(const Type& type,
                                        double initValue) noexcept:
             LiteralExpression(LiteralExpression::Kind::FloatingPoint, type),
-            value(initValue) {}
+            value{initValue} {}
 
         const double value;
     };
@@ -113,7 +113,7 @@ namespace ouzel
         StringLiteralExpression(const Type& type,
                                 const std::string& initValue):
             LiteralExpression(LiteralExpression::Kind::String, type),
-            value(initValue) {}
+            value{initValue} {}
 
         const std::string value;
     };
@@ -127,7 +127,7 @@ namespace ouzel
             Expression(Expression::Kind::DeclarationReference,
                        qualifiedType,
                        category),
-            declaration(initDeclaration) {}
+            declaration{initDeclaration} {}
 
         const Declaration& declaration;
     };
@@ -142,7 +142,7 @@ namespace ouzel
             Expression(Expression::Kind::Call,
                        qualifiedType,
                        category),
-            declarationReference(initDeclarationReference),
+            declarationReference{initDeclarationReference},
             arguments(std::move(initArguments)) {}
 
         const DeclarationReferenceExpression& declarationReference;
@@ -156,7 +156,7 @@ namespace ouzel
             Expression(Expression::Kind::Paren,
                        initExpression.qualifiedType,
                        initExpression.category),
-            expression(initExpression) {}
+            expression{initExpression} {}
 
         const Expression& expression;
     };
@@ -169,8 +169,8 @@ namespace ouzel
             Expression(Expression::Kind::Member,
                        initFieldDeclaration.qualifiedType,
                        initExpression.category),
-            expression(initExpression),
-            fieldDeclaration(initFieldDeclaration) {}
+            expression{initExpression},
+            fieldDeclaration{initFieldDeclaration} {}
 
         const Expression& expression;
         const FieldDeclaration& fieldDeclaration;
@@ -185,8 +185,8 @@ namespace ouzel
             Expression(Expression::Kind::ArraySubscript,
                        elementType,
                        initExpression.category),
-            expression(initExpression),
-            subscript(initSubscript) {}
+            expression{initExpression},
+            subscript{initSubscript} {}
 
         const Expression& expression;
         const Expression& subscript;
@@ -213,8 +213,8 @@ namespace ouzel
             Expression(Expression::Kind::UnaryOperator,
                        QualifiedType{type},
                        category),
-            operatorKind(initOperatorKind),
-            expression(initExpression)
+            operatorKind{initOperatorKind},
+            expression{initExpression}
         {}
 
         const Kind operatorKind;
@@ -255,9 +255,9 @@ namespace ouzel
             Expression(Expression::Kind::BinaryOperator,
                        QualifiedType{type},
                        category),
-            operatorKind(initOperatorKind),
-            leftExpression(initLeftExpression),
-            rightExpression(initRightExpression)
+            operatorKind{initOperatorKind},
+            leftExpression{initLeftExpression},
+            rightExpression{initRightExpression}
         {}
 
         const Kind operatorKind;
@@ -276,9 +276,9 @@ namespace ouzel
                        (initLeftExpression.category == Expression::Category::Lvalue &&
                         initRightExpression.category == Expression::Category::Lvalue) ?
                        Expression::Category::Lvalue : Expression::Category::Rvalue),
-            condition(initCondition),
-            leftExpression(initLeftExpression),
-            rightExpression(initRightExpression) {}
+            condition{initCondition},
+            leftExpression{initLeftExpression},
+            rightExpression{initRightExpression} {}
 
         const Expression& condition;
         const Expression& leftExpression;
@@ -294,7 +294,7 @@ namespace ouzel
             Expression(Expression::Kind::TemporaryObject,
                        QualifiedType{type, Type::Qualifiers::Const},
                        Category::Rvalue),
-            constructorDeclaration(initConstructorDeclaration),
+            constructorDeclaration{initConstructorDeclaration},
             parameters(std::move(initParameters)) {}
 
         const ConstructorDeclaration& constructorDeclaration;
@@ -330,8 +330,8 @@ namespace ouzel
             Expression(Expression::Kind::Cast,
                        QualifiedType{type, Type::Qualifiers::Const},
                        Category::Rvalue),
-            expression(initExpression),
-            castKind(initCastKind) {}
+            expression{initExpression},
+            castKind{initCastKind} {}
 
         const Kind castKind;
         const Expression& expression;

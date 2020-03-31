@@ -34,11 +34,11 @@ namespace ouzel
         Type(const Type&) = delete;
 
         explicit Type(Kind initTypeKind):
-            typeKind(initTypeKind) {}
+            typeKind{initTypeKind} {}
 
         Type(Kind initTypeKind, const std::string& initName):
-            typeKind(initTypeKind),
-            name(initName) {}
+            typeKind{initTypeKind},
+            name{initName} {}
 
         Type& operator=(const Type&) = delete;
 
@@ -83,7 +83,7 @@ namespace ouzel
     {
     public:
         QualifiedType(const Type& initType, Type::Qualifiers initQualifiers = Type::Qualifiers::None) noexcept:
-            type(initType), qualifiers(initQualifiers) {}
+            type{initType}, qualifiers{initQualifiers} {}
 
         bool operator<(const QualifiedType& other) const noexcept
         {
@@ -106,8 +106,8 @@ namespace ouzel
         ArrayType(const QualifiedType& initElementType,
                   std::size_t initSize):
             Type(Type::Kind::Array),
-            elementType(initElementType),
-            size(initSize) {}
+            elementType{initElementType},
+            size{initSize} {}
 
         const QualifiedType elementType;
         const std::size_t size = 0;
@@ -127,8 +127,8 @@ namespace ouzel
                    Kind initScalarTypeKind,
                    bool initIsUnsigned):
             Type(Type::Kind::Scalar, initName),
-            scalarTypeKind(initScalarTypeKind),
-            isUnsigned(initIsUnsigned)
+            scalarTypeKind{initScalarTypeKind},
+            isUnsigned{initIsUnsigned}
         {
         }
 
@@ -157,8 +157,8 @@ namespace ouzel
                    const ScalarType& initComponentType,
                    std::size_t initComponentCount):
             Type(Type::Kind::Vector, initName),
-            componentType(initComponentType),
-            componentCount(initComponentCount) {}
+            componentType{initComponentType},
+            componentCount{initComponentCount} {}
 
         const ScalarType& componentType;
         const std::size_t componentCount = 1;
@@ -171,8 +171,8 @@ namespace ouzel
                    const VectorType& initRowType,
                    std::size_t initRowCount):
             Type(Type::Kind::Matrix, initName),
-            rowType(initRowType),
-            rowCount(initRowCount) {}
+            rowType{initRowType},
+            rowCount{initRowCount} {}
 
         const VectorType& rowType;
         const std::size_t rowCount = 1;

@@ -69,8 +69,8 @@ namespace ouzel
     class ParseError final: public std::logic_error
     {
     public:
-        explicit ParseError(ErrorCode code, const std::string& str): std::logic_error(str), errorCode(code) {}
-        explicit ParseError(ErrorCode code, const char* str): std::logic_error(str), errorCode(code) {}
+        explicit ParseError(ErrorCode code, const std::string& str): std::logic_error(str), errorCode{code} {}
+        explicit ParseError(ErrorCode code, const char* str): std::logic_error(str), errorCode{code} {}
 
         ErrorCode getErrorCode() const noexcept { return errorCode; }
 
@@ -86,12 +86,12 @@ namespace ouzel
         using DeclarationScopes = std::vector<DeclarationScope>;
 
         explicit Context(const std::vector<Token>& tokens):
-            voidType(create<Type>(Type::Kind::Void, "void")),
-            boolType(addScalarType("bool", ScalarType::Kind::Boolean, false)),
-            intType(addScalarType("int", ScalarType::Kind::Integer, false)),
-            uintType(addScalarType("uint", ScalarType::Kind::Integer, true)),
-            floatType(addScalarType("float", ScalarType::Kind::FloatingPoint, false)),
-            stringType(addStructType("string"))
+            voidType{create<Type>(Type::Kind::Void, "void")},
+            boolType{addScalarType("bool", ScalarType::Kind::Boolean, false)},
+            intType{addScalarType("int", ScalarType::Kind::Integer, false)},
+            uintType{addScalarType("uint", ScalarType::Kind::Integer, true)},
+            floatType{addScalarType("float", ScalarType::Kind::FloatingPoint, false)},
+            stringType{addStructType("string")}
         {
             DeclarationScopes declarationScopes;
             declarationScopes.push_back(DeclarationScope());
