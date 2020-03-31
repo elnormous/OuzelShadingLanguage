@@ -37,6 +37,8 @@ namespace ouzel
         const Kind attributeKind;
     };
 
+    using AttributeRef = std::reference_wrapper<const Attribute>;
+
     class BinormalAttribute final: public Attribute
     {
     public:

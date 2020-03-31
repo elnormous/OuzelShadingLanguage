@@ -51,6 +51,8 @@ namespace ouzel
         const Category category = Category::Rvalue;
     };
 
+    using ExpressionRef = std::reference_wrapper<const Expression>;
+
     class LiteralExpression: public Expression
     {
     public:
@@ -136,7 +138,7 @@ namespace ouzel
         CallExpression(const QualifiedType& qualifiedType,
                        Category category,
                        const DeclarationReferenceExpression& initDeclarationReference,
-                       std::vector<std::reference_wrapper<const Expression>> initArguments):
+                       std::vector<ExpressionRef> initArguments):
             Expression(Expression::Kind::Call,
                        qualifiedType,
                        category),
@@ -144,7 +146,7 @@ namespace ouzel
             arguments(std::move(initArguments)) {}
 
         const DeclarationReferenceExpression& declarationReference;
-        const std::vector<std::reference_wrapper<const Expression>> arguments;
+        const std::vector<ExpressionRef> arguments;
     };
 
     class ParenExpression final: public Expression
@@ -288,7 +290,7 @@ namespace ouzel
     public:
         TemporaryObjectExpression(const Type& type,
                                   const ConstructorDeclaration& initConstructorDeclaration,
-                                  std::vector<std::reference_wrapper<const Expression>> initParameters):
+                                  std::vector<ExpressionRef> initParameters):
             Expression(Expression::Kind::TemporaryObject,
                        QualifiedType{type, Type::Qualifiers::Const},
                        Category::Rvalue),
@@ -296,20 +298,20 @@ namespace ouzel
             parameters(std::move(initParameters)) {}
 
         const ConstructorDeclaration& constructorDeclaration;
-        const std::vector<std::reference_wrapper<const Expression>> parameters;
+        const std::vector<ExpressionRef> parameters;
     };
 
     class InitializerListExpression final: public Expression
     {
     public:
         InitializerListExpression(const Type& type,
-                                  std::vector<std::reference_wrapper<const Expression>> initExpressions):
+                                  std::vector<ExpressionRef> initExpressions):
             Expression(Expression::Kind::InitializerList,
                        QualifiedType{type, Type::Qualifiers::Const},
                        Category::Rvalue),
             expressions(std::move(initExpressions)) {}
 
-        const std::vector<std::reference_wrapper<const Expression>> expressions;
+        const std::vector<ExpressionRef> expressions;
     };
 
     class CastExpression final: public Expression
@@ -339,13 +341,13 @@ namespace ouzel
     {
     public:
         VectorInitializeExpression(const VectorType& vectorType,
-                                   std::vector<std::reference_wrapper<const Expression>> initParameters) noexcept:
+                                   std::vector<ExpressionRef> initParameters) noexcept:
             Expression(Expression::Kind::VectorInitialize,
                        QualifiedType{vectorType, Type::Qualifiers::Const},
                        Category::Rvalue),
             parameters(std::move(initParameters)) {}
 
-        const std::vector<std::reference_wrapper<const Expression>> parameters;
+        const std::vector<ExpressionRef> parameters;
     };
 
     class VectorElementExpression final: public Expression
@@ -367,13 +369,13 @@ namespace ouzel
     {
     public:
         MatrixInitializeExpression(const MatrixType& matrixType,
-                                   std::vector<std::reference_wrapper<const Expression>> initParameters) noexcept:
+                                   std::vector<ExpressionRef> initParameters) noexcept:
             Expression(Expression::Kind::MatrixInitialize,
                        QualifiedType{matrixType, Type::Qualifiers::Const},
                        Category::Rvalue),
             parameters(std::move(initParameters)) {}
 
-        const std::vector<std::reference_wrapper<const Expression>> parameters;
+        const std::vector<ExpressionRef> parameters;
     };
 }
 

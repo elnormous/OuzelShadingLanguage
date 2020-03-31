@@ -39,6 +39,8 @@ namespace ouzel
         const Kind statementKind;
     };
 
+    using StatementRef = std::reference_wrapper<const Statement>;
+
     class Expression;
 
     class ExpressionStatement final: public Statement
@@ -64,11 +66,11 @@ namespace ouzel
     class CompoundStatement final: public Statement
     {
     public:
-        explicit CompoundStatement(std::vector<std::reference_wrapper<const Statement>> initStatements):
+        explicit CompoundStatement(std::vector<StatementRef> initStatements):
             Statement(Statement::Kind::Compound),
             statements(std::move(initStatements)) {}
 
-        const std::vector<std::reference_wrapper<const Statement>> statements;
+        const std::vector<StatementRef> statements;
     };
 
     class IfStatement final: public Statement

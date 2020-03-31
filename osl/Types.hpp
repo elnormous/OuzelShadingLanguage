@@ -137,16 +137,17 @@ namespace ouzel
     };
 
     class Declaration;
+    using DeclarationRef = std::reference_wrapper<const Declaration>;
 
     class StructType final: public Type
     {
     public:
         StructType(const std::string& initName,
-                   std::vector<std::reference_wrapper<const Declaration>> initMemberDeclarations):
+                   std::vector<DeclarationRef> initMemberDeclarations):
             Type(Type::Kind::Struct, initName),
             memberDeclarations(std::move(initMemberDeclarations)) {}
 
-        const std::vector<std::reference_wrapper<const Declaration>> memberDeclarations;
+        const std::vector<DeclarationRef> memberDeclarations;
     };
 
     class VectorType final: public Type

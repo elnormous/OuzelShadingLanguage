@@ -636,7 +636,7 @@ namespace ouzel
                 &previousDeclaration->resultType.type != &type)
                 throw ParseError(ErrorCode::FunctionRedeclarationWithDifferentReturnType, "Redeclaring function with different return type");
 
-            std::vector<std::reference_wrapper<const Attribute>> attributes;
+            std::vector<AttributeRef> attributes;
             if (skipToken(Token::Type::Arrow, iterator, end))
                 while (isToken(Token::Type::Identifier, iterator, end))
                     attributes.push_back(parseAttribute(iterator, end));
@@ -778,7 +778,7 @@ namespace ouzel
 
             expectToken(Token::Type::LeftBrace, iterator, end);
 
-            std::vector<std::reference_wrapper<const Declaration>> memberDeclarations;
+            std::vector<DeclarationRef> memberDeclarations;
             std::set<std::string> memberNames;
 
             for (;;)
@@ -830,7 +830,7 @@ namespace ouzel
             if (type.typeKind == Type::Kind::Void)
                 throw ParseError(ErrorCode::IllegalVoidType, "Member cannot have the type \"void\"");
 
-            std::vector<std::reference_wrapper<const Attribute>> attributes;
+            std::vector<AttributeRef> attributes;
             if (skipToken(Token::Type::Arrow, iterator, end))
                 while (isToken(Token::Type::Identifier, iterator, end))
                     attributes.push_back(parseAttribute(iterator, end));
@@ -870,7 +870,7 @@ namespace ouzel
             if (type.typeKind == Type::Kind::Void)
                 throw ParseError(ErrorCode::IllegalVoidType, "Parameter cannot have the type \"void\"");
 
-            std::vector<std::reference_wrapper<const Attribute>> attributes;
+            std::vector<AttributeRef> attributes;
             if (skipToken(Token::Type::Arrow, iterator, end))
                 while (isToken(Token::Type::Identifier, iterator, end))
                     attributes.push_back(parseAttribute(iterator, end));
@@ -957,7 +957,7 @@ namespace ouzel
 
             declarationScopes.push_back(DeclarationScope());
 
-            std::vector<std::reference_wrapper<const Statement>> statements;
+            std::vector<StatementRef> statements;
 
             for (;;)
                 if (skipToken(Token::Type::RightBrace, iterator, end))
@@ -1252,7 +1252,7 @@ namespace ouzel
             }
             else if (skipToken(Token::Type::LeftBrace, iterator, end))
             {
-                std::vector<std::reference_wrapper<const Expression>> expressions;
+                std::vector<ExpressionRef> expressions;
                 const Type* type = nullptr;
 
                 for (;;)
@@ -1284,7 +1284,7 @@ namespace ouzel
                 {
                     if (auto type = findType(name, declarationScopes))
                     {
-                        std::vector<std::reference_wrapper<const Expression>> parameters;
+                        std::vector<ExpressionRef> parameters;
                         std::vector<QualifiedType> parameterTypes;
 
                         if (!skipToken(Token::Type::RightParenthesis, iterator, end)) // has arguments
@@ -1396,7 +1396,7 @@ namespace ouzel
                     else
                     {
                         std::vector<QualifiedType> argumentTypes;
-                        std::vector<std::reference_wrapper<const Expression>> arguments;
+                        std::vector<ExpressionRef> arguments;
 
                         if (!skipToken(Token::Type::RightParenthesis, iterator, end)) // has arguments
                         {
@@ -2073,7 +2073,7 @@ namespace ouzel
 
         StructType& addStructType(const std::string& name)
         {
-            auto& structType = create<StructType>(name, std::vector<std::reference_wrapper<const Declaration>>{});
+            auto& structType = create<StructType>(name, std::vector<DeclarationRef>{});
 
             binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Equality, boolType, structType, structType);
             binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Inequality, boolType, structType, structType);
@@ -2144,12 +2144,12 @@ namespace ouzel
 
             for (auto parameter : parameters)
             {
-                auto& parameterDeclaration = create<ParameterDeclaration>(QualifiedType{*parameter}, InputModifier::In, std::vector<std::reference_wrapper<const Attribute>>{});
+                auto& parameterDeclaration = create<ParameterDeclaration>(QualifiedType{*parameter}, InputModifier::In, std::vector<AttributeRef>{});
                 parameterDeclarations.push_back(&parameterDeclaration);
             }
 
             auto& functionDeclaration = create<FunctionDeclaration>(name, QualifiedType{resultType}, StorageClass::Auto,
-                                                                    std::vector<std::reference_wrapper<const Attribute>>{},
+                                                                    std::vector<AttributeRef>{},
                                                                     std::move(parameterDeclarations),
                                                                     FunctionDeclaration::Qualifier::None, true);
 
