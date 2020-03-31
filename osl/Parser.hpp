@@ -395,23 +395,23 @@ namespace ouzel
         static const ConstructorDeclaration* findConstructorDeclaration(const StructType& structType,
                                                                         const std::vector<QualifiedType>& parameters) noexcept
         {
-            for (auto declaration : structType.memberDeclarations)
-                if (declaration->declarationKind == Declaration::Kind::Callable)
+            for (const Declaration& declaration : structType.memberDeclarations)
+                if (declaration.declarationKind == Declaration::Kind::Callable)
                 {
-                    auto callableDeclaration = static_cast<const CallableDeclaration*>(declaration);
+                    auto& callableDeclaration = static_cast<const CallableDeclaration&>(declaration);
 
-                    if (callableDeclaration->callableDeclarationKind == CallableDeclaration::Kind::Constructor)
+                    if (callableDeclaration.callableDeclarationKind == CallableDeclaration::Kind::Constructor)
                     {
-                        auto constructorDeclaration = static_cast<const ConstructorDeclaration*>(callableDeclaration);
+                        auto& constructorDeclaration = static_cast<const ConstructorDeclaration&>(callableDeclaration);
 
-                        if (constructorDeclaration->parameterDeclarations.size() == parameters.size() &&
+                        if (constructorDeclaration.parameterDeclarations.size() == parameters.size() &&
                             std::equal(parameters.begin(), parameters.end(),
-                                       constructorDeclaration->parameterDeclarations.begin(),
+                                       constructorDeclaration.parameterDeclarations.begin(),
                                        [](const QualifiedType& qualifiedType,
                                           const ParameterDeclaration* parameterDeclaration) {
                                            return &qualifiedType.type == &parameterDeclaration->qualifiedType.type; // TODO: overload resolution
                                        }))
-                            return constructorDeclaration;
+                            return &constructorDeclaration;
                     }
                 }
 
@@ -421,8 +421,8 @@ namespace ouzel
         static const Declaration* findMemberDeclaration(const StructType& structType,
                                                         const std::string& name) noexcept
         {
-            for (auto memberDeclaration : structType.memberDeclarations)
-                if (memberDeclaration->name == name) return memberDeclaration;
+            for (const Declaration& memberDeclaration : structType.memberDeclarations)
+                if (memberDeclaration.name == name) return &memberDeclaration;
 
             return nullptr;
         }
@@ -778,7 +778,7 @@ namespace ouzel
 
             expectToken(Token::Type::LeftBrace, iterator, end);
 
-            std::vector<const Declaration*> memberDeclarations;
+            std::vector<std::reference_wrapper<const Declaration>> memberDeclarations;
             std::set<std::string> memberNames;
 
             for (;;)
@@ -793,7 +793,7 @@ namespace ouzel
 
                     expectToken(Token::Type::Semicolon, iterator, end);
 
-                    memberDeclarations.push_back(&memberDeclaration);
+                    memberDeclarations.push_back(memberDeclaration);
                 }
 
             auto& structType = create<StructType>(name, std::move(memberDeclarations));
@@ -957,13 +957,13 @@ namespace ouzel
 
             declarationScopes.push_back(DeclarationScope());
 
-            std::vector<const Statement*> statements;
+            std::vector<std::reference_wrapper<const Statement>> statements;
 
             for (;;)
                 if (skipToken(Token::Type::RightBrace, iterator, end))
                     break;
                 else
-                    statements.push_back(&parseStatement(iterator, end, declarationScopes, returnStatements));
+                    statements.push_back(parseStatement(iterator, end, declarationScopes, returnStatements));
 
             declarationScopes.pop_back();
 
@@ -1252,7 +1252,7 @@ namespace ouzel
             }
             else if (skipToken(Token::Type::LeftBrace, iterator, end))
             {
-                std::vector<const Expression*> expressions;
+                std::vector<std::reference_wrapper<const Expression>> expressions;
                 const Type* type = nullptr;
 
                 for (;;)
@@ -1264,7 +1264,7 @@ namespace ouzel
                     else if (type != &expression.qualifiedType.type)
                         throw ParseError(ErrorCode::ConflictingTypesInInitializerList, "Conflicting types in initializer list");
 
-                    expressions.push_back(&expression);
+                    expressions.push_back(expression);
 
                     if (!skipToken(Token::Type::Comma, iterator, end))
                         break;
@@ -1284,7 +1284,7 @@ namespace ouzel
                 {
                     if (auto type = findType(name, declarationScopes))
                     {
-                        std::vector<const Expression*> parameters;
+                        std::vector<std::reference_wrapper<const Expression>> parameters;
                         std::vector<QualifiedType> parameterTypes;
 
                         if (!skipToken(Token::Type::RightParenthesis, iterator, end)) // has arguments
@@ -1293,7 +1293,7 @@ namespace ouzel
                             {
                                 auto& parameter = parseMultiplicationAssignmentExpression(iterator, end, declarationScopes);
 
-                                parameters.push_back(&parameter);
+                                parameters.push_back(parameter);
                                 parameterTypes.push_back(parameter.qualifiedType);
 
                                 if (!skipToken(Token::Type::Comma, iterator, end))
@@ -1325,9 +1325,9 @@ namespace ouzel
 
                                 std::size_t componentCount = 0;
 
-                                for (auto parameter : parameters)
+                                for (const Expression& parameter : parameters)
                                 {
-                                    auto& parameterType = parameter->qualifiedType.type;
+                                    auto& parameterType = parameter.qualifiedType.type;
                                     if (parameterType.typeKind == Type::Kind::Scalar)
                                     {
                                         if (&parameterType != &vectorType->componentType)
@@ -1359,9 +1359,9 @@ namespace ouzel
 
                                 std::size_t rowCount = 0;
 
-                                for (auto parameter : parameters)
+                                for (const Expression& parameter : parameters)
                                 {
-                                    auto& parameterType = parameter->qualifiedType.type;
+                                    auto& parameterType = parameter.qualifiedType.type;
                                     if (parameterType.typeKind == Type::Kind::Vector)
                                     {
                                         auto& vectorParameterType = static_cast<const VectorType&>(parameterType);
@@ -1396,7 +1396,7 @@ namespace ouzel
                     else
                     {
                         std::vector<QualifiedType> argumentTypes;
-                        std::vector<const Expression*> arguments;
+                        std::vector<std::reference_wrapper<const Expression>> arguments;
 
                         if (!skipToken(Token::Type::RightParenthesis, iterator, end)) // has arguments
                         {
@@ -1404,7 +1404,7 @@ namespace ouzel
                             {
                                 auto& argument = parseMultiplicationAssignmentExpression(iterator, end, declarationScopes);
 
-                                arguments.push_back(&argument);
+                                arguments.push_back(argument);
                                 argumentTypes.push_back(argument.qualifiedType);
 
                                 if (!skipToken(Token::Type::Comma, iterator, end))
@@ -2073,7 +2073,7 @@ namespace ouzel
 
         StructType& addStructType(const std::string& name)
         {
-            auto& structType = create<StructType>(name, std::vector<const Declaration*>{});
+            auto& structType = create<StructType>(name, std::vector<std::reference_wrapper<const Declaration>>{});
 
             binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Equality, boolType, structType, structType);
             binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Inequality, boolType, structType, structType);

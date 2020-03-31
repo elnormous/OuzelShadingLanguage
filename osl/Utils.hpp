@@ -306,8 +306,8 @@ namespace ouzel
 
                         std::cout << '\n';
 
-                        for (auto memberDeclaration : structType.memberDeclarations)
-                            dumpConstruct(*memberDeclaration, level + 1);
+                        for (auto& memberDeclaration : structType.memberDeclarations)
+                            dumpConstruct(memberDeclaration, level + 1);
 
                         break;
                     }
@@ -342,7 +342,7 @@ namespace ouzel
 
                 std::cout << ", name: " << fieldDeclaration.name << ", type: " << getPrintableTypeName(fieldDeclaration.qualifiedType) << '\n';
 
-                for (const auto& attribute : fieldDeclaration.attributes)
+                for (auto& attribute : fieldDeclaration.attributes)
                     dumpConstruct(attribute, level + 1);
 
                 break;
@@ -379,7 +379,7 @@ namespace ouzel
                 for (auto parameter : callableDeclaration.parameterDeclarations)
                     dumpConstruct(*parameter, level + 1);
 
-                for (const auto& attribute : callableDeclaration.attributes)
+                for (auto& attribute : callableDeclaration.attributes)
                     dumpConstruct(attribute, level + 1);
 
                 if (callableDeclaration.body)
@@ -393,7 +393,7 @@ namespace ouzel
                 auto& variableDeclaration = static_cast<const VariableDeclaration&>(declaration);
                 std::cout << ", name: " << variableDeclaration.name << ", type: " << getPrintableTypeName(variableDeclaration.qualifiedType) << '\n';
 
-                for (const auto& attribute : variableDeclaration.attributes)
+                for (auto& attribute : variableDeclaration.attributes)
                     dumpConstruct(attribute, level + 1);
 
                 if (variableDeclaration.initialization)
@@ -409,7 +409,7 @@ namespace ouzel
                     ", type: " << getPrintableTypeName(parameterDeclaration.qualifiedType) <<
                     ", input modifier: " << toString(parameterDeclaration.inputModifier) << '\n';
 
-                for (const auto& attribute : parameterDeclaration.attributes)
+                for (auto& attribute : parameterDeclaration.attributes)
                     dumpConstruct(attribute, level + 1);
 
                 break;
@@ -458,8 +458,8 @@ namespace ouzel
 
                 std::cout << '\n';
 
-                for (const auto subSstatement : compoundStatement.statements)
-                    dumpConstruct(*subSstatement, level + 1);
+                for (auto& subSstatement : compoundStatement.statements)
+                    dumpConstruct(subSstatement, level + 1);
 
                 break;
             }
@@ -588,8 +588,8 @@ namespace ouzel
 
                 dumpConstruct(callExpression.declarationReference, level + 1);
 
-                for (const auto argument : callExpression.arguments)
-                    dumpConstruct(*argument, level + 1);
+                for (auto& argument : callExpression.arguments)
+                    dumpConstruct(argument, level + 1);
 
                 break;
             }
@@ -712,8 +712,8 @@ namespace ouzel
 
                 std::cout << " " << temporaryObjectExpression.qualifiedType.type.name << '\n';
 
-                for (const auto parameter : temporaryObjectExpression.parameters)
-                    dumpConstruct(*parameter, level + 1);
+                for (auto& parameter : temporaryObjectExpression.parameters)
+                    dumpConstruct(parameter, level + 1);
 
                 break;
             }
@@ -724,8 +724,8 @@ namespace ouzel
 
                 std::cout << '\n';
 
-                for (const auto subExpression : initializerListExpression.expressions)
-                    dumpConstruct(*subExpression, level + 1);
+                for (auto& subExpression : initializerListExpression.expressions)
+                    dumpConstruct(subExpression, level + 1);
 
                 break;
             }
@@ -747,8 +747,8 @@ namespace ouzel
 
                 std::cout << '\n';
 
-                for (const auto parameter : vectorInitializeExpression.parameters)
-                    dumpConstruct(*parameter, level + 1);
+                for (auto& parameter : vectorInitializeExpression.parameters)
+                    dumpConstruct(parameter, level + 1);
 
                 break;
             }
@@ -771,8 +771,8 @@ namespace ouzel
 
                 std::cout << '\n';
 
-                for (const auto parameter : matrixInitializeExpression.parameters)
-                    dumpConstruct(*parameter, level + 1);
+                for (auto& parameter : matrixInitializeExpression.parameters)
+                    dumpConstruct(parameter, level + 1);
 
                 break;
             }

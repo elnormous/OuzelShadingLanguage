@@ -64,11 +64,11 @@ namespace ouzel
     class CompoundStatement final: public Statement
     {
     public:
-        explicit CompoundStatement(std::vector<const Statement*> initStatements):
+        explicit CompoundStatement(std::vector<std::reference_wrapper<const Statement>> initStatements):
             Statement(Statement::Kind::Compound),
             statements(std::move(initStatements)) {}
 
-        const std::vector<const Statement*> statements;
+        const std::vector<std::reference_wrapper<const Statement>> statements;
     };
 
     class IfStatement final: public Statement

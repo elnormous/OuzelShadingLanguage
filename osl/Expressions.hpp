@@ -136,7 +136,7 @@ namespace ouzel
         CallExpression(const QualifiedType& qualifiedType,
                        Category category,
                        const DeclarationReferenceExpression& initDeclarationReference,
-                       std::vector<const Expression*> initArguments):
+                       std::vector<std::reference_wrapper<const Expression>> initArguments):
             Expression(Expression::Kind::Call,
                        qualifiedType,
                        category),
@@ -144,7 +144,7 @@ namespace ouzel
             arguments(std::move(initArguments)) {}
 
         const DeclarationReferenceExpression& declarationReference;
-        const std::vector<const Expression*> arguments;
+        const std::vector<std::reference_wrapper<const Expression>> arguments;
     };
 
     class ParenExpression final: public Expression
@@ -288,7 +288,7 @@ namespace ouzel
     public:
         TemporaryObjectExpression(const Type& type,
                                   const ConstructorDeclaration& initConstructorDeclaration,
-                                  std::vector<const Expression*> initParameters):
+                                  std::vector<std::reference_wrapper<const Expression>> initParameters):
             Expression(Expression::Kind::TemporaryObject,
                        QualifiedType{type, Type::Qualifiers::Const},
                        Category::Rvalue),
@@ -296,20 +296,20 @@ namespace ouzel
             parameters(std::move(initParameters)) {}
 
         const ConstructorDeclaration& constructorDeclaration;
-        const std::vector<const Expression*> parameters;
+        const std::vector<std::reference_wrapper<const Expression>> parameters;
     };
 
     class InitializerListExpression final: public Expression
     {
     public:
         InitializerListExpression(const Type& type,
-                                  std::vector<const Expression*> initExpressions):
+                                  std::vector<std::reference_wrapper<const Expression>> initExpressions):
             Expression(Expression::Kind::InitializerList,
                        QualifiedType{type, Type::Qualifiers::Const},
                        Category::Rvalue),
             expressions(std::move(initExpressions)) {}
 
-        const std::vector<const Expression*> expressions;
+        const std::vector<std::reference_wrapper<const Expression>> expressions;
     };
 
     class CastExpression final: public Expression
@@ -339,13 +339,13 @@ namespace ouzel
     {
     public:
         VectorInitializeExpression(const VectorType& vectorType,
-                                   std::vector<const Expression*> initParameters) noexcept:
+                                   std::vector<std::reference_wrapper<const Expression>> initParameters) noexcept:
             Expression(Expression::Kind::VectorInitialize,
                        QualifiedType{vectorType, Type::Qualifiers::Const},
                        Category::Rvalue),
             parameters(std::move(initParameters)) {}
 
-        const std::vector<const Expression*> parameters;
+        const std::vector<std::reference_wrapper<const Expression>> parameters;
     };
 
     class VectorElementExpression final: public Expression
@@ -367,13 +367,13 @@ namespace ouzel
     {
     public:
         MatrixInitializeExpression(const MatrixType& matrixType,
-                                   std::vector<const Expression*> initParameters) noexcept:
+                                   std::vector<std::reference_wrapper<const Expression>> initParameters) noexcept:
             Expression(Expression::Kind::MatrixInitialize,
                        QualifiedType{matrixType, Type::Qualifiers::Const},
                        Category::Rvalue),
             parameters(std::move(initParameters)) {}
 
-        const std::vector<const Expression*> parameters;
+        const std::vector<std::reference_wrapper<const Expression>> parameters;
     };
 }
 

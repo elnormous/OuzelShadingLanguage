@@ -93,9 +93,9 @@ namespace ouzel
                     code += "{";
                     if (options.whitespaces) code += "\n";
 
-                    for (auto memberDeclaration : structType.memberDeclarations)
+                    for (auto& memberDeclaration : structType.memberDeclarations)
                     {
-                        printConstruct(*memberDeclaration, Options(options.indentation + 4, options.whitespaces), code);
+                        printConstruct(memberDeclaration, Options(options.indentation + 4, options.whitespaces), code);
 
                         code += ";";
                         if (options.whitespaces) code += "\n";
@@ -234,9 +234,9 @@ namespace ouzel
                     code += "{";
                     if (options.whitespaces) code += "\n";
 
-                    for (auto subStatement : compoundStatement.statements)
+                    for (auto& subStatement : compoundStatement.statements)
                     {
-                        printConstruct(*subStatement, Options(options.indentation + 4, options.whitespaces), code);
+                        printConstruct(subStatement, Options(options.indentation + 4, options.whitespaces), code);
 
                         if (options.whitespaces) code += "\n";
                     }
@@ -472,7 +472,7 @@ namespace ouzel
 
                     bool firstParameter = true;
 
-                    for (auto argument : callExpression.arguments)
+                    for (auto& argument : callExpression.arguments)
                     {
                         if (!firstParameter)
                         {
@@ -481,7 +481,7 @@ namespace ouzel
                             firstParameter = false;
                         }
 
-                        printConstruct(*argument, Options(0, options.whitespaces), code);
+                        printConstruct(argument, Options(0, options.whitespaces), code);
                     }
 
                     code += ")";
@@ -706,7 +706,7 @@ namespace ouzel
 
                     bool firstParameter = true;
 
-                    for (auto parameter : temporaryObjectExpression.parameters)
+                    for (auto& parameter : temporaryObjectExpression.parameters)
                     {
                         if (!firstParameter)
                         {
@@ -715,7 +715,7 @@ namespace ouzel
                             firstParameter = false;
                         }
 
-                        printConstruct(*parameter, Options(0, options.whitespaces), code);
+                        printConstruct(parameter, Options(0, options.whitespaces), code);
                     }
 
                     code += ")";
@@ -733,7 +733,7 @@ namespace ouzel
 
                     bool firstExpression = true;
 
-                    for (auto subExpression : initializerListExpression.expressions)
+                    for (auto& subExpression : initializerListExpression.expressions)
                     {
                         if (!firstExpression)
                         {
@@ -742,7 +742,7 @@ namespace ouzel
                             firstExpression = false;
                         }
 
-                        printConstruct(*subExpression, Options(0, options.whitespaces), code);
+                        printConstruct(subExpression, Options(0, options.whitespaces), code);
                     }
 
                     code += "}";

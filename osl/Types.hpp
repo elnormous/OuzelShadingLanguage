@@ -142,11 +142,11 @@ namespace ouzel
     {
     public:
         StructType(const std::string& initName,
-                   std::vector<const Declaration*> initMemberDeclarations):
+                   std::vector<std::reference_wrapper<const Declaration>> initMemberDeclarations):
             Type(Type::Kind::Struct, initName),
             memberDeclarations(std::move(initMemberDeclarations)) {}
 
-        const std::vector<const Declaration*> memberDeclarations;
+        const std::vector<std::reference_wrapper<const Declaration>> memberDeclarations;
     };
 
     class VectorType final: public Type
