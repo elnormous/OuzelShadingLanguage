@@ -139,7 +139,7 @@ namespace ouzel
                 dumpConstruct(*declaration);
         }
 
-        inline const std::vector<Declaration*>& getDeclarations() const noexcept
+        const std::vector<Declaration*>& getDeclarations() const noexcept
         {
             return declarations;
         }
