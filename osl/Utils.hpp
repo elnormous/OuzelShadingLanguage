@@ -269,7 +269,7 @@ namespace ouzel
         return result;
     }
 
-    inline void dumpConstruct(const Construct& construct, const std::uint32_t level = 0);
+    void dumpConstruct(const Construct& construct, const std::uint32_t level = 0);
 
     inline void dumpDeclaration(const Declaration& declaration, const std::uint32_t level = 0)
     {
