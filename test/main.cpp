@@ -20,15 +20,16 @@ namespace
     {
     public:
         template <class T, class ...Args>
-        void run(T test, Args ...args)
+        void run(const std::string& name, T test, Args ...args) noexcept
         {
             try
             {
                 test(args...);
+                std::cerr << name << " succeeded\n";
             }
-            catch (std::exception& e)
+            catch (const TestError& e)
             {
-                std::cerr << e.what() << '\n';
+                std::cerr << name << " failed: " << e.what() << '\n';
                 result = false;
             }
         }
@@ -821,25 +822,25 @@ namespace
 int main()
 {
     TestRunner testRunner;
-    testRunner.run(testEmptyStatement);
-    testRunner.run(testDeclaration);
-    testRunner.run(testIfStatement);
-    testRunner.run(testWhileStatement);
-    testRunner.run(testDoStatement);
-    testRunner.run(testForStatement);
-    testRunner.run(testSwitchStatement);
-    testRunner.run(testReturnStatement);
-    testRunner.run(testExpressions);
-    testRunner.run(testStructDeclaration);
-    testRunner.run(testFunction);
-    testRunner.run(testArray);
-    testRunner.run(testFloat);
-    testRunner.run(testVector);
-    testRunner.run(testMatrix);
-    testRunner.run(testSemantics);
-    testRunner.run(testInputModifiers);
-    testRunner.run(testOperators);
-    testRunner.run(testExtern);
+    testRunner.run("testEmptyStatement", testEmptyStatement);
+    testRunner.run("testDeclaration", testDeclaration);
+    testRunner.run("testIfStatement", testIfStatement);
+    testRunner.run("testWhileStatement", testWhileStatement);
+    testRunner.run("testDoStatement", testDoStatement);
+    testRunner.run("testForStatement", testForStatement);
+    testRunner.run("testSwitchStatement", testSwitchStatement);
+    testRunner.run("testReturnStatement", testReturnStatement);
+    testRunner.run("testExpressions", testExpressions);
+    testRunner.run("testStructDeclaration", testStructDeclaration);
+    testRunner.run("testFunction", testFunction);
+    testRunner.run("testArray", testArray);
+    testRunner.run("testFloat", testFloat);
+    testRunner.run("testVector", testVector);
+    testRunner.run("testMatrix", testMatrix);
+    testRunner.run("testSemantics", testSemantics);
+    testRunner.run("testInputModifiers", testInputModifiers);
+    testRunner.run("testOperators", testOperators);
+    testRunner.run("testExtern", testExtern);
 
     if (testRunner.getResult())
         std::cout << "Success\n";
