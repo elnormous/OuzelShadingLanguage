@@ -3,6 +3,7 @@
 //
 
 #include <iostream>
+#include <chrono>
 #include <stdexcept>
 #include <type_traits>
 #include "Parser.hpp"
@@ -24,8 +25,11 @@ namespace
         {
             try
             {
+                std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
                 test(args...);
-                std::cerr << name << " succeeded\n";
+                std::chrono::steady_clock::time_point finish = std::chrono::steady_clock::now();
+
+                std::cerr << name << " succeeded, duration: " << std::chrono::duration_cast<std::chrono::milliseconds>(finish - start).count() << '\n';
             }
             catch (const TestError& e)
             {
