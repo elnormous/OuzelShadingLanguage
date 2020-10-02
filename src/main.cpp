@@ -137,7 +137,7 @@ int main(int argc, const char* argv[])
 
                     try
                     {
-                        std::string outCode = output->output(context, whitespaces);
+                        const std::string outCode = output->output(context, whitespaces);
 
                         if (outputFilename.empty())
                             std::cout << outCode << '\n';
