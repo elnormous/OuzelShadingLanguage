@@ -14,5 +14,5 @@ steps:
     make
   displayName: 'make'
 - script: |
-    ./bin/test
+    ./test/bin/test
   displayName: 'test'
