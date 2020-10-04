@@ -1,4 +1,3 @@
-CFLAGS=-c -Wpedantic -O2 -I../osl
 CXXFLAGS=-c -std=c++11 -Wpedantic -O2 -I../osl
 OUTDIR=bin
 EXECUTABLE=$(OUTDIR)/test
@@ -6,7 +5,6 @@ EXECUTABLE=$(OUTDIR)/test
 .PHONY: all
 ifeq ($(debug),1)
 all: CXXFLAGS+=-DDEBUG -g
-all: CFLAGS+=-DDEBUG -g
 endif
 all: $(EXECUTABLE)
 
