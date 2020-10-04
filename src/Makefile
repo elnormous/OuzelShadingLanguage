@@ -1,4 +1,4 @@
-CXXFLAGS=-c -std=c++11 -Wpedantic -O2 -I../osl
+CXXFLAGS=-c -std=c++17 -Wpedantic -O2 -I../osl
 OUTDIR=bin
 EXECUTABLE=$(OUTDIR)/osl
 
