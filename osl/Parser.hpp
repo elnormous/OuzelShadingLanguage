@@ -596,7 +596,7 @@ namespace ouzel
 
             const auto& name = expectToken(Token::Type::Identifier, iterator, end).value;
 
-            auto previousDeclarationInScope = findDeclaration(name, declarationScopes.back());
+            const auto previousDeclarationInScope = findDeclaration(name, declarationScopes.back());
             if (previousDeclarationInScope &&
                 previousDeclarationInScope->declarationKind != Declaration::Kind::Callable)
                 throw ParseError(ErrorCode::SymbolRedeclaration, "Redeclaration of " + name);
