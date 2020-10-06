@@ -213,7 +213,7 @@ namespace ouzel
                             const QualifiedType& initQualifiedType,
                             StorageClass initStorageClass,
                             const Expression* initInitialization = nullptr) noexcept:
-            Declaration(Declaration::Kind::Variable, initName, {}),
+            Declaration(Declaration::Kind::Variable, initName, std::vector<ouzel::AttributeRef>{}),
             storageClass{initStorageClass},
             qualifiedType{initQualifiedType},
             initialization{initInitialization}
@@ -230,7 +230,7 @@ namespace ouzel
     {
     public:
         TypeDeclaration(const std::string& initName, const Type& initType) noexcept:
-            Declaration(Declaration::Kind::Type, initName, {}),
+            Declaration(Declaration::Kind::Type, initName, std::vector<ouzel::AttributeRef>{}),
             type{initType} {}
 
         const Type& type;
