@@ -2236,7 +2236,7 @@ namespace ouzel
         std::vector<UnaryOperator> unaryOperators;
         std::vector<BinaryOperator> binaryOperators;
 
-        std::map<std::pair<const Type*, std::uint8_t>, const VectorType*> vectorTypes;
+        std::map<std::pair<const Type*, std::size_t>, const VectorType*> vectorTypes;
         std::map<std::pair<QualifiedType, std::size_t>, const ArrayType*> arrayTypes;
 
         const Type& voidType;
