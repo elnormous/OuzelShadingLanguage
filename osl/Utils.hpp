@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <stdexcept>
+#include <string>
 #include "Declarations.hpp"
 #include "Expressions.hpp"
 #include "Statements.hpp"
