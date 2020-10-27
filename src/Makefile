@@ -1,4 +1,8 @@
-CXXFLAGS=-c -std=c++17 -Wpedantic -O2 -I../osl
+CXXFLAGS=-std=c++17 -Wpedantic -O2 -I../osl
+SOURCES=main.cpp
+BASE_NAMES=$(basename $(SOURCES))
+OBJECTS=$(BASE_NAMES:=.o)
+DEPENDENCIES=$(OBJECTS:.o=.d)
 OUTDIR=bin
 EXECUTABLE=$(OUTDIR)/osl
 
@@ -8,12 +12,14 @@ all: CXXFLAGS+=-DDEBUG -g
 endif
 all: $(EXECUTABLE)
 
-$(EXECUTABLE): main.o
+$(EXECUTABLE): $(OBJECTS)
 	mkdir -p $(OUTDIR)
 	$(CXX) $^ $(LDFLAGS) -o $@
 
+-include $(DEPENDENCIES)
+
 %.o: %.cpp
-	$(CXX) $(CXXFLAGS) -MMD -MP $< -o $@
+	$(CXX) -c $(CXXFLAGS) -MMD -MP $< -o $@
 
 .PHONY: clean
 clean:

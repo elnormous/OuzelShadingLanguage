@@ -1,4 +1,8 @@
-CXXFLAGS=-c -std=c++17 -Wpedantic -O2 -I../osl
+CXXFLAGS=-std=c++17 -Wpedantic -O2 -I../external/Catch2/single_include -I../osl
+SOURCES=main.cpp tests.cpp
+BASE_NAMES=$(basename $(SOURCES))
+OBJECTS=$(BASE_NAMES:=.o)
+DEPENDENCIES=$(OBJECTS:.o=.d)
 OUTDIR=bin
 EXECUTABLE=$(OUTDIR)/test
 
@@ -8,12 +12,14 @@ all: CXXFLAGS+=-DDEBUG -g
 endif
 all: $(EXECUTABLE)
 
-$(EXECUTABLE): main.o tests.o
+$(EXECUTABLE): $(OBJECTS)
 	mkdir -p $(OUTDIR)
 	$(CXX) $^ $(LDFLAGS) -o $@
 
+-include $(DEPENDENCIES)
+
 %.o: %.cpp
-	$(CXX) $(CXXFLAGS) -MMD -MP $< -o $@
+	$(CXX) -c $(CXXFLAGS) -MMD -MP $< -o $@
 
 .PHONY: clean
 clean:
