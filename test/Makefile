@@ -1,4 +1,4 @@
-CXXFLAGS=-std=c++17 -Wpedantic -O2 -I../external/Catch2/single_include -I../osl
+CXXFLAGS=-std=c++17 -Wall -Wextra -Wshadow -I../external/Catch2/single_include -I../osl
 SOURCES=main.cpp tests.cpp
 BASE_NAMES=$(basename $(SOURCES))
 OBJECTS=$(BASE_NAMES:=.o)
@@ -7,8 +7,11 @@ OUTDIR=bin
 EXECUTABLE=$(OUTDIR)/test
 
 .PHONY: all
-ifeq ($(debug),1)
+ifeq ($(DEBUG),1)
 all: CXXFLAGS+=-DDEBUG -g
+else
+all: CXXFLAGS+=-O3
+all: LDFLAGS+=-O3
 endif
 all: $(EXECUTABLE)
 
