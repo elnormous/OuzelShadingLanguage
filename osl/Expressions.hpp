@@ -330,8 +330,8 @@ namespace ouzel
             Expression(Expression::Kind::Cast,
                        QualifiedType{type, Type::Qualifiers::Const},
                        Category::Rvalue),
-            expression{initExpression},
-            castKind{initCastKind} {}
+            castKind{initCastKind},
+            expression{initExpression} {}
 
         const Kind castKind;
         const Expression& expression;
