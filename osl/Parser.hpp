@@ -118,13 +118,16 @@ namespace ouzel
                 addBuiltinFunctionDeclaration("abs", matrixType, {&matrixType}, declarationScopes);
             }
 
-            const auto& texture2DType = addStructType("Texture2D");
+            auto float2Type = findType("float2", declarationScopes);
+            assert(float2Type);
+            auto float4Type = findType("float4", declarationScopes);
+            assert(float4Type);
 
-            //addBuiltinFunctionDeclaration("sample", float4Type, {texture2DType, float2Type}, declarationScopes);
+            const auto& texture2DType = addStructType("Texture2D");
+            addBuiltinFunctionDeclaration("sample", *float4Type, {&texture2DType, float2Type}, declarationScopes);
 
             const auto& texture2DMSType = addStructType("Texture2DMS");
-
-            //addBuiltinFunctionDeclaration("load", float4Type, {texture2DMSType, float2Type}, declarationScopes);
+            addBuiltinFunctionDeclaration("load", *float4Type, {&texture2DMSType, float2Type}, declarationScopes);
 
             for (auto iterator = tokens.begin(); iterator != tokens.end();)
             {
