@@ -2166,9 +2166,9 @@ namespace ouzel
             UnaryOperator(UnaryOperatorExpression::Kind initUnaryOperatorKind,
                           const Type& initResultType,
                           const Type& initParameterType) noexcept:
-                unaryOperatorKind(initUnaryOperatorKind),
-                resultType(initResultType),
-                parameterType(initParameterType) {}
+                unaryOperatorKind{initUnaryOperatorKind},
+                resultType{initResultType},
+                parameterType{initParameterType} {}
 
             UnaryOperatorExpression::Kind unaryOperatorKind;
             const Type& resultType;
@@ -2192,10 +2192,10 @@ namespace ouzel
                            const Type& initResultType,
                            const Type& initFirstParameterType,
                            const Type& initSecondParameterType) noexcept:
-                binaryOperatorKind(initBinaryOperatorKind),
-                resultType(initResultType),
-                firstParameterType(initFirstParameterType),
-                secondParameterType(initSecondParameterType) {}
+                binaryOperatorKind{initBinaryOperatorKind},
+                resultType{initResultType},
+                firstParameterType{initFirstParameterType},
+                secondParameterType{initSecondParameterType} {}
 
             BinaryOperatorExpression::Kind binaryOperatorKind;
             const Type& resultType;

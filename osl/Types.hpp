@@ -105,7 +105,7 @@ namespace ouzel
     public:
         ArrayType(const QualifiedType& initElementType,
                   std::size_t initSize):
-            Type(Type::Kind::Array),
+            Type{Type::Kind::Array},
             elementType{initElementType},
             size{initSize} {}
 
@@ -126,7 +126,7 @@ namespace ouzel
         ScalarType(const std::string& initName,
                    Kind initScalarTypeKind,
                    bool initIsUnsigned):
-            Type(Type::Kind::Scalar, initName),
+            Type{Type::Kind::Scalar, initName},
             scalarTypeKind{initScalarTypeKind},
             isUnsigned{initIsUnsigned}
         {
@@ -144,8 +144,8 @@ namespace ouzel
     public:
         StructType(const std::string& initName,
                    std::vector<DeclarationRef> initMemberDeclarations):
-            Type(Type::Kind::Struct, initName),
-            memberDeclarations(std::move(initMemberDeclarations)) {}
+            Type{Type::Kind::Struct, initName},
+            memberDeclarations{std::move(initMemberDeclarations)} {}
 
         const std::vector<DeclarationRef> memberDeclarations;
     };
@@ -156,7 +156,7 @@ namespace ouzel
         VectorType(const std::string& initName,
                    const ScalarType& initComponentType,
                    std::size_t initComponentCount):
-            Type(Type::Kind::Vector, initName),
+            Type{Type::Kind::Vector, initName},
             componentType{initComponentType},
             componentCount{initComponentCount} {}
 
@@ -170,7 +170,7 @@ namespace ouzel
         MatrixType(const std::string& initName,
                    const VectorType& initRowType,
                    std::size_t initRowCount):
-            Type(Type::Kind::Matrix, initName),
+            Type{Type::Kind::Matrix, initName},
             rowType{initRowType},
             rowCount{initRowCount} {}
 

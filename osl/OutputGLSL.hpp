@@ -17,7 +17,7 @@ namespace ouzel
     public:
         OutputGLSL(Program initProgram,
                    std::uint32_t initGLSLVersion):
-            Output(initProgram), glslVersion{initGLSLVersion}
+            Output{initProgram}, glslVersion{initGLSLVersion}
         {
         }
 
@@ -43,7 +43,7 @@ namespace ouzel
         struct Options final
         {
             Options(std::uint32_t initIndentation, bool initWhitespaces):
-                indentation(initIndentation), whitespaces(initWhitespaces) {}
+                indentation{initIndentation}, whitespaces{initWhitespaces} {}
 
             std::uint32_t indentation = 0;
             bool whitespaces = false;

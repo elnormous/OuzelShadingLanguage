@@ -41,7 +41,7 @@ namespace ouzel
         Expression(Kind initExpressionKind,
                    const QualifiedType& initQualifiedType,
                    Category initCategory) noexcept:
-            Construct(Construct::Kind::Expression),
+            Construct{Construct::Kind::Expression},
             expressionKind{initExpressionKind},
             qualifiedType{initQualifiedType},
             category{initCategory} {}
@@ -66,9 +66,11 @@ namespace ouzel
 
         LiteralExpression(Kind initLiteralKind,
                           const Type& type) noexcept:
-            Expression(Expression::Kind::Literal,
-                       QualifiedType{type, Type::Qualifiers::Const},
-                       Category::Rvalue),
+            Expression{
+                Expression::Kind::Literal,
+                QualifiedType{type, Type::Qualifiers::Const},
+                Category::Rvalue
+            },
             literalKind{initLiteralKind} {}
 
         const Kind literalKind;
@@ -79,7 +81,7 @@ namespace ouzel
     public:
         BooleanLiteralExpression(const Type& type,
                                  bool initValue) noexcept:
-            LiteralExpression(LiteralExpression::Kind::Boolean, type),
+            LiteralExpression{LiteralExpression::Kind::Boolean, type},
             value{initValue} {}
 
         const bool value;
@@ -90,7 +92,7 @@ namespace ouzel
     public:
         IntegerLiteralExpression(const Type& type,
                                  std::int64_t initValue) noexcept:
-            LiteralExpression(LiteralExpression::Kind::Integer, type),
+            LiteralExpression{LiteralExpression::Kind::Integer, type},
             value{initValue} {}
 
         const std::int64_t value;
@@ -101,7 +103,7 @@ namespace ouzel
     public:
         FloatingPointLiteralExpression(const Type& type,
                                        double initValue) noexcept:
-            LiteralExpression(LiteralExpression::Kind::FloatingPoint, type),
+            LiteralExpression{LiteralExpression::Kind::FloatingPoint, type},
             value{initValue} {}
 
         const double value;
@@ -112,7 +114,7 @@ namespace ouzel
     public:
         StringLiteralExpression(const Type& type,
                                 const std::string& initValue):
-            LiteralExpression(LiteralExpression::Kind::String, type),
+            LiteralExpression{LiteralExpression::Kind::String, type},
             value{initValue} {}
 
         const std::string value;
@@ -124,9 +126,11 @@ namespace ouzel
         DeclarationReferenceExpression(const QualifiedType& qualifiedType,
                                        const Declaration& initDeclaration,
                                        Category category):
-            Expression(Expression::Kind::DeclarationReference,
-                       qualifiedType,
-                       category),
+            Expression{
+                Expression::Kind::DeclarationReference,
+                qualifiedType,
+                category
+            },
             declaration{initDeclaration} {}
 
         const Declaration& declaration;
@@ -139,11 +143,13 @@ namespace ouzel
                        Category category,
                        const DeclarationReferenceExpression& initDeclarationReference,
                        std::vector<ExpressionRef> initArguments):
-            Expression(Expression::Kind::Call,
-                       qualifiedType,
-                       category),
+            Expression{
+                Expression::Kind::Call,
+                qualifiedType,
+                category
+            },
             declarationReference{initDeclarationReference},
-            arguments(std::move(initArguments)) {}
+            arguments{std::move(initArguments)} {}
 
         const DeclarationReferenceExpression& declarationReference;
         const std::vector<ExpressionRef> arguments;
@@ -153,9 +159,11 @@ namespace ouzel
     {
     public:
         explicit ParenExpression(const Expression& initExpression) noexcept:
-            Expression(Expression::Kind::Paren,
-                       initExpression.qualifiedType,
-                       initExpression.category),
+            Expression{
+                Expression::Kind::Paren,
+                initExpression.qualifiedType,
+                initExpression.category
+            },
             expression{initExpression} {}
 
         const Expression& expression;
@@ -166,9 +174,11 @@ namespace ouzel
     public:
         MemberExpression(const Expression& initExpression,
                          const FieldDeclaration& initFieldDeclaration) noexcept:
-            Expression(Expression::Kind::Member,
-                       initFieldDeclaration.qualifiedType,
-                       initExpression.category),
+            Expression{
+                Expression::Kind::Member,
+                initFieldDeclaration.qualifiedType,
+                initExpression.category
+            },
             expression{initExpression},
             fieldDeclaration{initFieldDeclaration} {}
 
@@ -182,9 +192,11 @@ namespace ouzel
         ArraySubscriptExpression(const QualifiedType& elementType,
                                  const Expression& initExpression,
                                  const Expression& initSubscript) noexcept:
-            Expression(Expression::Kind::ArraySubscript,
-                       elementType,
-                       initExpression.category),
+            Expression{
+                Expression::Kind::ArraySubscript,
+                elementType,
+                initExpression.category
+            },
             expression{initExpression},
             subscript{initSubscript} {}
 
@@ -210,9 +222,11 @@ namespace ouzel
                                 const Type& type,
                                 Category category,
                                 const Expression& initExpression) noexcept:
-            Expression(Expression::Kind::UnaryOperator,
-                       QualifiedType{type},
-                       category),
+            Expression{
+                Expression::Kind::UnaryOperator,
+                QualifiedType{type},
+                category
+            },
             operatorKind{initOperatorKind},
             expression{initExpression}
         {}
@@ -252,9 +266,11 @@ namespace ouzel
                                  Category category,
                                  const Expression& initLeftExpression,
                                  const Expression& initRightExpression) noexcept:
-            Expression(Expression::Kind::BinaryOperator,
-                       QualifiedType{type},
-                       category),
+            Expression{
+                Expression::Kind::BinaryOperator,
+                QualifiedType{type},
+                category
+            },
             operatorKind{initOperatorKind},
             leftExpression{initLeftExpression},
             rightExpression{initRightExpression}
@@ -271,11 +287,13 @@ namespace ouzel
         TernaryOperatorExpression(const Expression& initCondition,
                                   const Expression& initLeftExpression,
                                   const Expression& initRightExpression) noexcept:
-            Expression(Expression::Kind::TernaryOperator,
-                       initLeftExpression.qualifiedType,
-                       (initLeftExpression.category == Expression::Category::Lvalue &&
-                        initRightExpression.category == Expression::Category::Lvalue) ?
-                       Expression::Category::Lvalue : Expression::Category::Rvalue),
+            Expression{
+                Expression::Kind::TernaryOperator,
+                initLeftExpression.qualifiedType,
+                (initLeftExpression.category == Expression::Category::Lvalue &&
+                 initRightExpression.category == Expression::Category::Lvalue) ?
+                Expression::Category::Lvalue : Expression::Category::Rvalue
+            },
             condition{initCondition},
             leftExpression{initLeftExpression},
             rightExpression{initRightExpression} {}
@@ -291,11 +309,13 @@ namespace ouzel
         TemporaryObjectExpression(const Type& type,
                                   const ConstructorDeclaration& initConstructorDeclaration,
                                   std::vector<ExpressionRef> initParameters):
-            Expression(Expression::Kind::TemporaryObject,
-                       QualifiedType{type, Type::Qualifiers::Const},
-                       Category::Rvalue),
+            Expression{
+                Expression::Kind::TemporaryObject,
+                QualifiedType{type, Type::Qualifiers::Const},
+                Category::Rvalue
+            },
             constructorDeclaration{initConstructorDeclaration},
-            parameters(std::move(initParameters)) {}
+            parameters{std::move(initParameters)} {}
 
         const ConstructorDeclaration& constructorDeclaration;
         const std::vector<ExpressionRef> parameters;
@@ -306,10 +326,12 @@ namespace ouzel
     public:
         InitializerListExpression(const Type& type,
                                   std::vector<ExpressionRef> initExpressions):
-            Expression(Expression::Kind::InitializerList,
-                       QualifiedType{type, Type::Qualifiers::Const},
-                       Category::Rvalue),
-            expressions(std::move(initExpressions)) {}
+            Expression{
+                Expression::Kind::InitializerList,
+                QualifiedType{type, Type::Qualifiers::Const},
+                Category::Rvalue
+            },
+            expressions{std::move(initExpressions)} {}
 
         const std::vector<ExpressionRef> expressions;
     };
@@ -327,9 +349,11 @@ namespace ouzel
         CastExpression(Kind initCastKind,
                        const Type& type,
                        const Expression& initExpression) noexcept:
-            Expression(Expression::Kind::Cast,
-                       QualifiedType{type, Type::Qualifiers::Const},
-                       Category::Rvalue),
+            Expression{
+                Expression::Kind::Cast,
+                QualifiedType{type, Type::Qualifiers::Const},
+                Category::Rvalue
+            },
             castKind{initCastKind},
             expression{initExpression} {}
 
@@ -342,10 +366,12 @@ namespace ouzel
     public:
         VectorInitializeExpression(const VectorType& vectorType,
                                    std::vector<ExpressionRef> initParameters) noexcept:
-            Expression(Expression::Kind::VectorInitialize,
-                       QualifiedType{vectorType, Type::Qualifiers::Const},
-                       Category::Rvalue),
-            parameters(std::move(initParameters)) {}
+            Expression{
+                Expression::Kind::VectorInitialize,
+                QualifiedType{vectorType, Type::Qualifiers::Const},
+                Category::Rvalue
+            },
+            parameters{std::move(initParameters)} {}
 
         const std::vector<ExpressionRef> parameters;
     };
@@ -357,10 +383,12 @@ namespace ouzel
                                 Type::Qualifiers qualifiers,
                                 Category category,
                                 std::vector<std::uint8_t> initPositions) noexcept:
-            Expression(Expression::Kind::VectorElement,
-                       QualifiedType{resultType, qualifiers},
-                       category),
-            positions(std::move(initPositions)) {}
+            Expression{
+                Expression::Kind::VectorElement,
+                QualifiedType{resultType, qualifiers},
+                category
+            },
+            positions{std::move(initPositions)} {}
 
         const std::vector<std::uint8_t> positions;
     };
@@ -370,10 +398,12 @@ namespace ouzel
     public:
         MatrixInitializeExpression(const MatrixType& matrixType,
                                    std::vector<ExpressionRef> initParameters) noexcept:
-            Expression(Expression::Kind::MatrixInitialize,
-                       QualifiedType{matrixType, Type::Qualifiers::Const},
-                       Category::Rvalue),
-            parameters(std::move(initParameters)) {}
+            Expression{
+                Expression::Kind::MatrixInitialize,
+                QualifiedType{matrixType, Type::Qualifiers::Const},
+                Category::Rvalue
+            },
+            parameters{std::move(initParameters)} {}
 
         const std::vector<ExpressionRef> parameters;
     };

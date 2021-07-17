@@ -18,7 +18,7 @@ namespace ouzel
             Attribute
         };
 
-        explicit Construct(Kind initKind) noexcept: kind(initKind) {}
+        explicit Construct(Kind initKind) noexcept: kind{initKind} {}
         virtual ~Construct() = default;
         Construct(const Construct&) = delete;
         Construct& operator=(const Construct&) = delete;

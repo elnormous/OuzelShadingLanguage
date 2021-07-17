@@ -29,11 +29,11 @@ namespace ouzel
             TextureCoordinates
         };
 
-        Attribute(const Attribute&) = delete;
         explicit Attribute(Kind initAttributeKind):
-            Construct(Construct::Kind::Attribute),
+            Construct{Construct::Kind::Attribute},
             attributeKind{initAttributeKind} {}
 
+        Attribute(const Attribute&) = delete;
         Attribute& operator=(const Attribute&) = delete;
 
         const Kind attributeKind;
@@ -45,7 +45,7 @@ namespace ouzel
     {
     public:
         explicit BinormalAttribute(std::size_t i) noexcept:
-        Attribute(Attribute::Kind::Binormal), n{i} {}
+        Attribute{Attribute::Kind::Binormal}, n{i} {}
 
         const std::size_t n = 0;
     };
@@ -54,7 +54,7 @@ namespace ouzel
     {
     public:
         explicit BlendIndicesAttribute(std::size_t i) noexcept:
-            Attribute(Attribute::Kind::BlendIndices), n{i} {}
+            Attribute{Attribute::Kind::BlendIndices}, n{i} {}
 
         const std::size_t n = 0;
     };
@@ -63,7 +63,7 @@ namespace ouzel
     {
     public:
         explicit BlendWeightAttribute(std::size_t i) noexcept:
-            Attribute(Attribute::Kind::BlendWeight), n{i} {}
+            Attribute{Attribute::Kind::BlendWeight}, n{i} {}
 
         const std::size_t n = 0;
     };
@@ -72,7 +72,7 @@ namespace ouzel
     {
     public:
         explicit ColorAttribute(std::size_t i) noexcept:
-            Attribute(Attribute::Kind::Color), n{i} {}
+            Attribute{Attribute::Kind::Color}, n{i} {}
 
         const std::size_t n = 0;
     };
@@ -81,7 +81,7 @@ namespace ouzel
     {
     public:
         explicit DepthAttribute(std::size_t i) noexcept:
-            Attribute(Attribute::Kind::Depth), n{i} {}
+            Attribute{Attribute::Kind::Depth}, n{i} {}
 
         const std::size_t n = 0;
     };
@@ -89,14 +89,14 @@ namespace ouzel
     class FogAttribute final: public Attribute
     {
     public:
-        FogAttribute() noexcept: Attribute(Attribute::Kind::Fog) {}
+        FogAttribute() noexcept: Attribute{Attribute::Kind::Fog} {}
     };
 
     class NormalAttribute final: public Attribute
     {
     public:
         explicit NormalAttribute(std::size_t i) noexcept:
-            Attribute(Attribute::Kind::Normal), n{i} {}
+            Attribute{Attribute::Kind::Normal}, n{i} {}
 
         const std::size_t n = 0;
     };
@@ -105,7 +105,7 @@ namespace ouzel
     {
     public:
         explicit PositionAttribute(std::size_t i) noexcept:
-            Attribute(Attribute::Kind::Position), n{i} {}
+            Attribute{Attribute::Kind::Position}, n{i} {}
 
         const std::size_t n = 0;
     };
@@ -113,14 +113,14 @@ namespace ouzel
     class PositionTransformedAttribute final: public Attribute
     {
     public:
-        PositionTransformedAttribute() noexcept: Attribute(Attribute::Kind::PositionTransformed) {}
+        PositionTransformedAttribute() noexcept: Attribute{Attribute::Kind::PositionTransformed} {}
     };
 
     class PointSizeAttribute final: public Attribute
     {
     public:
         explicit PointSizeAttribute(std::size_t i) noexcept:
-            Attribute(Attribute::Kind::PointSize), n{i} {}
+            Attribute{Attribute::Kind::PointSize}, n{i} {}
 
         const std::size_t n = 0;
     };
@@ -129,7 +129,7 @@ namespace ouzel
     {
     public:
         explicit TangentAttribute(std::size_t i) noexcept:
-            Attribute(Attribute::Kind::Tangent), n{i} {}
+            Attribute{Attribute::Kind::Tangent}, n{i} {}
 
         const std::size_t n = 0;
     };
@@ -138,7 +138,7 @@ namespace ouzel
     {
     public:
         explicit TesselationFactorAttribute(std::size_t i) noexcept:
-            Attribute(Attribute::Kind::TesselationFactor), n{i} {}
+            Attribute{Attribute::Kind::TesselationFactor}, n{i} {}
 
         const std::size_t n = 0;
     };
@@ -147,7 +147,7 @@ namespace ouzel
     {
     public:
         explicit TextureCoordinatesAttribute(std::size_t i) noexcept:
-            Attribute(Attribute::Kind::TextureCoordinates), n{i} {}
+            Attribute{Attribute::Kind::TextureCoordinates}, n{i} {}
 
         const std::size_t n = 0;
     };

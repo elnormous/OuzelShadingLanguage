@@ -15,7 +15,7 @@ namespace ouzel
     {
     public:
         explicit OutputMSL(Program initProgram):
-            Output(initProgram)
+            Output{initProgram}
         {
         }
 
@@ -41,7 +41,7 @@ namespace ouzel
         struct Options final
         {
             Options(std::uint32_t initIndentation, bool initWhitespaces):
-                indentation(initIndentation), whitespaces(initWhitespaces) {}
+                indentation{initIndentation}, whitespaces{initWhitespaces} {}
 
             std::uint32_t indentation = 0;
             bool whitespaces = false;
