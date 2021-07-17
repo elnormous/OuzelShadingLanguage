@@ -177,6 +177,49 @@ namespace ouzel
         const VectorType& rowType;
         const std::size_t rowCount = 1;
     };
+
+    inline std::string toString(Type::Kind kind)
+    {
+        switch (kind)
+        {
+            case Type::Kind::Void: return "Void";
+            case Type::Kind::Array: return "Array";
+            case Type::Kind::Scalar: return "Scalar";
+            case Type::Kind::Struct: return "Struct";
+            case Type::Kind::Vector: return "Vector";
+            case Type::Kind::Matrix: return "Matrix";
+        }
+
+        throw std::runtime_error("Unknown type kind");
+    }
+
+    inline std::string getPrintableName(const QualifiedType& qualifiedType)
+    {
+        std::string result;
+
+        if ((qualifiedType.qualifiers & Type::Qualifiers::Volatile) == Type::Qualifiers::Volatile) result += "volatile ";
+        if ((qualifiedType.qualifiers & Type::Qualifiers::Const) == Type::Qualifiers::Const) result += "const ";
+
+        auto type = &qualifiedType.type;
+
+        if (type->typeKind == Type::Kind::Array)
+        {
+            std::string arrayDimensions;
+            while (type->typeKind == Type::Kind::Array)
+            {
+                auto arrayType = static_cast<const ArrayType*>(type);
+                arrayDimensions += "[" + std::to_string(arrayType->size) + "]";
+
+                type = &arrayType->elementType.type;
+            }
+
+            result += type->name + arrayDimensions;
+        }
+        else
+            result += type->name;
+
+        return result;
+    }
 }
 
 #endif // DECLARATIONS_HPP

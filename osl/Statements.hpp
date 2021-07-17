@@ -193,6 +193,41 @@ namespace ouzel
 
         const Expression* result = nullptr;
     };
+
+    inline std::string toString(Statement::Kind kind)
+    {
+        switch (kind)
+        {
+            case Statement::Kind::Empty: return "Empty";
+            case Statement::Kind::Expression: return "Expression";
+            case Statement::Kind::Declaration: return "Declaration";
+            case Statement::Kind::Compound: return "Compound";
+            case Statement::Kind::If: return "If";
+            case Statement::Kind::For: return "For";
+            case Statement::Kind::Switch: return "Switch";
+            case Statement::Kind::Case: return "Case";
+            case Statement::Kind::Default: return "Default";
+            case Statement::Kind::While: return "While";
+            case Statement::Kind::Do: return "Do";
+            case Statement::Kind::Break: return "Break";
+            case Statement::Kind::Continue: return "Continue";
+            case Statement::Kind::Return: return "Return";
+        }
+
+        throw std::runtime_error("Unknown statement kind");
+    }
+
+    inline std::string toString(ScalarType::Kind kind)
+    {
+        switch (kind)
+        {
+            case ScalarType::Kind::Boolean: return "Boolean";
+            case ScalarType::Kind::Integer: return "Integer";
+            case ScalarType::Kind::FloatingPoint: return "FloatingPoint";
+        }
+
+        throw std::runtime_error("Unknown scalar type kind");
+    }
 }
 
 #endif // STATEMENTS_HPP

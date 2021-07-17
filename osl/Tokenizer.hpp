@@ -755,6 +755,142 @@ namespace ouzel
 
         return tokens;
     }
+
+    inline std::string toString(Token::Type type)
+    {
+        switch (type)
+        {
+            case Token::Type::None: return "None";
+            case Token::Type::IntLiteral: return "IntLiteral";
+            case Token::Type::FloatLiteral: return "FloatLiteral";
+            case Token::Type::DoubleLiteral: return "DoubleLiteral";
+            case Token::Type::CharLiteral: return "CharLiteral";
+            case Token::Type::StringLiteral: return "StringLiteral";
+            case Token::Type::And: return "And";
+            case Token::Type::Asm: return "Asm";
+            case Token::Type::Auto: return "Auto";
+            case Token::Type::Bool: return "Bool";
+            case Token::Type::Break: return "Break";
+            case Token::Type::Case: return "Case";
+            case Token::Type::Catch: return "Catch";
+            case Token::Type::Char: return "Char";
+            case Token::Type::Class: return "Class";
+            case Token::Type::Const: return "Const";
+            case Token::Type::ConstCast: return "ConstCast";
+            case Token::Type::Continue: return "Continue";
+            case Token::Type::Default: return "Default";
+            case Token::Type::Delete: return "Delete";
+            case Token::Type::Do: return "Do";
+            case Token::Type::Double: return "Double";
+            case Token::Type::DynamicCast: return "DynamicCast";
+            case Token::Type::Else: return "Else";
+            case Token::Type::Enum: return "Enum";
+            case Token::Type::Explicit: return "Explicit";
+            case Token::Type::Export: return "Export";
+            case Token::Type::Extern: return "Extern";
+            case Token::Type::False: return "False";
+            case Token::Type::Float: return "Float";
+            case Token::Type::For: return "For";
+            case Token::Type::Fragment: return "Fragment";
+            case Token::Type::Friend: return "Friend";
+            case Token::Type::Function: return "Function";
+            case Token::Type::Goto: return "Goto";
+            case Token::Type::If: return "If";
+            case Token::Type::In: return "In";
+            case Token::Type::Inline: return "Inline";
+            case Token::Type::Inout: return "Inout";
+            case Token::Type::Int: return "Int";
+            case Token::Type::Long: return "Long";
+            case Token::Type::Mutable: return "Mutable";
+            case Token::Type::Namespace: return "Namespace";
+            case Token::Type::New: return "New";
+            case Token::Type::Noexcept: return "Noexcept";
+            case Token::Type::Not: return "Not";
+            case Token::Type::NotEq: return "NotEq";
+            case Token::Type::Nullptr: return "Nullptr";
+            case Token::Type::Operator: return "Operator";
+            case Token::Type::Or: return "Or";
+            case Token::Type::Out: return "Out";
+            case Token::Type::Private: return "Private";
+            case Token::Type::Protected: return "Protected";
+            case Token::Type::Public: return "Public";
+            case Token::Type::Register: return "Register";
+            case Token::Type::ReinterpretCast: return "ReinterpretCast";
+            case Token::Type::Return: return "Return";
+            case Token::Type::Short: return "Short";
+            case Token::Type::Signed: return "Signed";
+            case Token::Type::Sizeof: return "Sizeof";
+            case Token::Type::Static: return "Static";
+            case Token::Type::StaticCast: return "StaticCast";
+            case Token::Type::Struct: return "Struct";
+            case Token::Type::Switch: return "Switch";
+            case Token::Type::Template: return "Template";
+            case Token::Type::This: return "This";
+            case Token::Type::Throw: return "Throw";
+            case Token::Type::True: return "True";
+            case Token::Type::Try: return "Try";
+            case Token::Type::Typedef: return "Typedef";
+            case Token::Type::Typeid: return "Typeid";
+            case Token::Type::Typename: return "Typename";
+            case Token::Type::Union: return "Union";
+            case Token::Type::Unsigned: return "Unsigned";
+            case Token::Type::Using: return "Using";
+            case Token::Type::Var: return "Var";
+            case Token::Type::Varying: return "Varying";
+            case Token::Type::Vertex: return "Vertex";
+            case Token::Type::Virtual: return "Virtual";
+            case Token::Type::Void: return "Void";
+            case Token::Type::Volatile: return "Volatile";
+            case Token::Type::WcharT: return "WcharT";
+            case Token::Type::While: return "While";
+            case Token::Type::LeftParenthesis: return "LeftParenthesis";
+            case Token::Type::RightParenthesis: return "RightParenthesis";
+            case Token::Type::LeftBrace: return "LeftBrace";
+            case Token::Type::RightBrace: return "RightBrace";
+            case Token::Type::LeftBracket: return "LeftBracket";
+            case Token::Type::RightBracket: return "RightBracket";
+            case Token::Type::Comma: return "Comma";
+            case Token::Type::Semicolon: return "Semicolon";
+            case Token::Type::Colon: return "Colon";
+            case Token::Type::Plus: return "Plus";
+            case Token::Type::Minus: return "Minus";
+            case Token::Type::Multiply: return "Multiply";
+            case Token::Type::Divide: return "Divide";
+            case Token::Type::Modulo: return "Modulo";
+            case Token::Type::Increment: return "Increment";
+            case Token::Type::Decrement: return "Decrement";
+            case Token::Type::Assignment: return "Assignment";
+            case Token::Type::PlusAssignment: return "PlusAssignment";
+            case Token::Type::MinusAssignment: return "MinusAssignment";
+            case Token::Type::MultiplyAssignment: return "MultiplyAssignment";
+            case Token::Type::DivideAssignment: return "DivideAssignment";
+            case Token::Type::ModuloAssignment: return "ModuloAssignment";
+            case Token::Type::BitwiseAndAssignment: return "BitwiseAndAssignment";
+            case Token::Type::BitwiseOrAssignment: return "BitwiseOrAssignment";
+            case Token::Type::BitwiseNotAssignment: return "BitwiseNotAssignment";
+            case Token::Type::BitwiseXorAssignment: return "BitwiseXorAssignment";
+            case Token::Type::ShiftRightAssignment: return "ShiftRightAssignment";
+            case Token::Type::ShiftLeftAssignment: return "ShiftLeftAssignment";
+            case Token::Type::BitwiseAnd: return "BitwiseAnd";
+            case Token::Type::BitwiseOr: return "BitwiseOr";
+            case Token::Type::BitwiseNot: return "BitwiseNot";
+            case Token::Type::BitwiseXor: return "BitwiseXor";
+            case Token::Type::ShiftRight: return "ShiftRight";
+            case Token::Type::ShiftLeft: return "ShiftLeft";
+            case Token::Type::Equal: return "Equal";
+            case Token::Type::LessThan: return "LessThan";
+            case Token::Type::GreaterThan: return "GreaterThan";
+            case Token::Type::LessThanEqual: return "LessThanEqual";
+            case Token::Type::GreaterThanEqual: return "GreaterThanEqual";
+            case Token::Type::Conditional: return "Conditional";
+            case Token::Type::Dot: return "Dot";
+            case Token::Type::Arrow: return "Arrow";
+            case Token::Type::Ellipsis: return "Ellipsis";
+            case Token::Type::Identifier: return "Identifier";
+        }
+
+        throw std::runtime_error("Unknown token type");
+    }
 }
 
 #endif // TOKENIZER_HPP

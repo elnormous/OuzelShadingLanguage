@@ -240,6 +240,44 @@ namespace ouzel
 
         const Type& type;
     };
+
+    inline std::string toString(Declaration::Kind kind)
+    {
+        switch (kind)
+        {
+            case Declaration::Kind::Type: return "Type";
+            case Declaration::Kind::Field: return "Field";
+            case Declaration::Kind::Callable: return "Callable";
+            case Declaration::Kind::Variable: return "Variable";
+            case Declaration::Kind::Parameter: return "Parameter";
+        }
+
+        throw std::runtime_error("Unknown declaration kind");
+    }
+
+    inline std::string toString(CallableDeclaration::Kind kind)
+    {
+        switch (kind)
+        {
+            case CallableDeclaration::Kind::Function: return "Function";
+            case CallableDeclaration::Kind::Constructor: return "Constructor";
+            case CallableDeclaration::Kind::Method: return "Method";
+        }
+
+        throw std::runtime_error("Unknown callable declaration kind");
+    }
+
+    inline std::string toString(InputModifier inputModifier)
+    {
+        switch (inputModifier)
+        {
+            case InputModifier::In: return "In";
+            case InputModifier::Inout: return "Inout";
+            case InputModifier::Out: return "Out";
+        }
+
+        throw std::runtime_error("Unknown input modifier");
+    }
 }
 
 #endif // DECLARATIONS_HPP

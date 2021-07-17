@@ -151,6 +151,28 @@ namespace ouzel
 
         const std::size_t n = 0;
     };
+
+    inline std::string toString(Attribute::Kind attributeKind)
+    {
+        switch (attributeKind)
+        {
+            case Attribute::Kind::Binormal: return "Binormal";
+            case Attribute::Kind::BlendIndices: return "BlendIndices";
+            case Attribute::Kind::BlendWeight: return "BlendWeight";
+            case Attribute::Kind::Color: return "Color";
+            case Attribute::Kind::Depth: return "Depth";
+            case Attribute::Kind::Fog: return "Fog";
+            case Attribute::Kind::Normal: return "Normal";
+            case Attribute::Kind::Position: return "Position";
+            case Attribute::Kind::PositionTransformed: return "PositionTransformed";
+            case Attribute::Kind::PointSize: return "PointSize";
+            case Attribute::Kind::Tangent: return "Tangent";
+            case Attribute::Kind::TesselationFactor: return "TesselationFactor";
+            case Attribute::Kind::TextureCoordinates: return "TextureCoordinates";
+        }
+
+        throw std::runtime_error("Unknown attribute kind");
+    }
 }
 
 #endif // ATTRIBUTES_HPP

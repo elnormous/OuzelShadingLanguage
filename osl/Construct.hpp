@@ -27,6 +27,19 @@ namespace ouzel
 
         const Kind kind;
     };
+
+    inline std::string toString(Construct::Kind kind)
+    {
+        switch (kind)
+        {
+            case Construct::Kind::Declaration: return "Declaration";
+            case Construct::Kind::Statement: return "Statement";
+            case Construct::Kind::Expression: return "Expression";
+            case Construct::Kind::Attribute: return "Attribute";
+        }
+
+        throw std::runtime_error("Unknown construct kind");
+    }
 }
 
 #endif // CONSTRUCT_HPP

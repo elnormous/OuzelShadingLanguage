@@ -407,6 +407,110 @@ namespace ouzel
 
         const std::vector<ExpressionRef> parameters;
     };
+
+    inline std::string toString(Expression::Kind kind)
+    {
+        switch (kind)
+        {
+            case Expression::Kind::Call: return "Call";
+            case Expression::Kind::Literal: return "Literal";
+            case Expression::Kind::DeclarationReference: return "DeclarationReference";
+            case Expression::Kind::Paren: return "Paren";
+            case Expression::Kind::Member: return "Member";
+            case Expression::Kind::ArraySubscript: return "ArraySubscript";
+            case Expression::Kind::UnaryOperator: return "UnaryOperator";
+            case Expression::Kind::BinaryOperator: return "BinaryOperator";
+            case Expression::Kind::TernaryOperator: return "TernaryOperator";
+            case Expression::Kind::TemporaryObject: return "TemporaryObject";
+            case Expression::Kind::InitializerList: return "InitializerList";
+            case Expression::Kind::Cast: return "Cast";
+            case Expression::Kind::VectorInitialize: return "VectorInitialize";
+            case Expression::Kind::VectorElement: return "VectorElement";
+            case Expression::Kind::MatrixInitialize: return "MatrixInitialize";
+        }
+
+        throw std::runtime_error("Unknown expression kind");
+    }
+
+    inline std::string toString(LiteralExpression::Kind kind)
+    {
+        switch (kind)
+        {
+            case LiteralExpression::Kind::Boolean: return "Boolean";
+            case LiteralExpression::Kind::Integer: return "Integer";
+            case LiteralExpression::Kind::FloatingPoint: return "FloatingPoint";
+            case LiteralExpression::Kind::String: return "String";
+        }
+
+        throw std::runtime_error("Unknown literal expression kind");
+    }
+
+    inline std::string toString(CastExpression::Kind kind)
+    {
+        switch (kind)
+        {
+            case CastExpression::Kind::CStyle: return "CStyle";
+            case CastExpression::Kind::Functional: return "Functional";
+            case CastExpression::Kind::Static: return "Static";
+        }
+
+        throw std::runtime_error("Unknown cast expression kind");
+    }
+
+    inline std::string toString(UnaryOperatorExpression::Kind operatorKind)
+    {
+        switch (operatorKind)
+        {
+            case UnaryOperatorExpression::Kind::Negation: return "Negation";
+            case UnaryOperatorExpression::Kind::Positive: return "Positive";
+            case UnaryOperatorExpression::Kind::Negative: return "Negative";
+            case UnaryOperatorExpression::Kind::PrefixIncrement: return "PrefixIncrement";
+            case UnaryOperatorExpression::Kind::PrefixDecrement: return "PrefixDecrement";
+            case UnaryOperatorExpression::Kind::PostfixIncrement: return "PostfixIncrement";
+            case UnaryOperatorExpression::Kind::PostfixDecrement: return "PostfixDecrement";
+        }
+
+        throw std::runtime_error("Unknown unary operator expression kind");
+    }
+
+    inline std::string toString(BinaryOperatorExpression::Kind operatorKind)
+    {
+        switch (operatorKind)
+        {
+            case BinaryOperatorExpression::Kind::Addition: return "Addition";
+            case BinaryOperatorExpression::Kind::Subtraction: return "Subtraction";
+            case BinaryOperatorExpression::Kind::Multiplication: return "Multiplication";
+            case BinaryOperatorExpression::Kind::Division: return "Division";
+            case BinaryOperatorExpression::Kind::AdditionAssignment: return "AdditionAssignment";
+            case BinaryOperatorExpression::Kind::SubtractAssignment: return "SubtractAssignment";
+            case BinaryOperatorExpression::Kind::MultiplicationAssignment: return "MultiplicationAssignment";
+            case BinaryOperatorExpression::Kind::DivisionAssignment: return "DivisionAssignment";
+            case BinaryOperatorExpression::Kind::LessThan: return "LessThan";
+            case BinaryOperatorExpression::Kind::LessThanEqual: return "LessThanEqual";
+            case BinaryOperatorExpression::Kind::GreaterThan: return "GreaterThan";
+            case BinaryOperatorExpression::Kind::GraterThanEqual: return "GraterThanEqual";
+            case BinaryOperatorExpression::Kind::Equality: return "Equality";
+            case BinaryOperatorExpression::Kind::Inequality: return "Inequality";
+            case BinaryOperatorExpression::Kind::Assignment: return "Assignment";
+            case BinaryOperatorExpression::Kind::Or: return "Or";
+            case BinaryOperatorExpression::Kind::And: return "And";
+            case BinaryOperatorExpression::Kind::Comma: return "Comma";
+            case BinaryOperatorExpression::Kind::Subscript: return "Subscript";
+        }
+
+        throw std::runtime_error("Unknown binary operator expression kind");
+    }
+
+    inline std::string toString(Expression::Category category)
+    {
+        switch (category)
+        {
+            case Expression::Category::Lvalue: return "Lvalue";
+            case Expression::Category::Rvalue: return "Rvalue";
+        }
+
+        throw std::runtime_error("Unknown category");
+    }
 }
 
 #endif // EXPRESSIONS_HPP
