@@ -118,16 +118,14 @@ namespace ouzel
                 addBuiltinFunctionDeclaration("abs", matrixType, {&matrixType}, declarationScopes);
             }
 
-            const auto float2Type = vectorTypes[std::pair<const Type*, std::size_t>{&floatType, 2U}];
-            assert(float2Type);
-            const auto float4Type = vectorTypes[std::pair<const Type*, std::size_t>{&floatType, 4U}];
-            assert(float4Type);
+            const auto& float2Type = getVectorType(floatType, 2U);
+            const auto& float4Type = getVectorType(floatType, 4U);
 
             const auto& texture2DType = addStructType("Texture2D");
-            addBuiltinFunctionDeclaration("sample", *float4Type, {&texture2DType, float2Type}, declarationScopes);
+            addBuiltinFunctionDeclaration("sample", float4Type, {&texture2DType, &float2Type}, declarationScopes);
 
             const auto& texture2DMSType = addStructType("Texture2DMS");
-            addBuiltinFunctionDeclaration("load", *float4Type, {&texture2DMSType, float2Type}, declarationScopes);
+            addBuiltinFunctionDeclaration("load", float4Type, {&texture2DMSType, &float2Type}, declarationScopes);
 
             for (auto iterator = tokens.begin(); iterator != tokens.end();)
             {
@@ -2111,6 +2109,22 @@ namespace ouzel
             binaryOperators.emplace_back(BinaryOperatorExpression::Kind::Division, vectorType, vectorType, componentType);
 
             return vectorType;
+        }
+
+        const VectorType& getVectorType(const ScalarType& componentType,
+                                        std::size_t componentCount)
+        {
+            const auto iterator = vectorTypes.find(std::make_pair(&componentType, componentCount));
+
+            if (iterator == vectorTypes.end())
+                throw std::runtime_error("Type not found");
+
+            const auto pointer = iterator->second;
+
+            if (iterator == vectorTypes.end())
+                throw std::runtime_error("Type not found");
+
+            return *pointer;
         }
 
         MatrixType& addMatrixType(const std::string& name,
