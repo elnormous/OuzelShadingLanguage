@@ -118,9 +118,9 @@ namespace ouzel
                 addBuiltinFunctionDeclaration("abs", matrixType, {&matrixType}, declarationScopes);
             }
 
-            auto float2Type = vectorTypes[std::pair<const Type*, std::size_t>{&floatType, 2U}];
+            const auto float2Type = vectorTypes[std::pair<const Type*, std::size_t>{&floatType, 2U}];
             assert(float2Type);
-            auto float4Type = vectorTypes[std::pair<const Type*, std::size_t>{&floatType, 4U}];
+            const auto float4Type = vectorTypes[std::pair<const Type*, std::size_t>{&floatType, 4U}];
             assert(float4Type);
 
             const auto& texture2DType = addStructType("Texture2D");
