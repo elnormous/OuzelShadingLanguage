@@ -147,15 +147,15 @@ namespace ouzel
 
     private:
         static bool isToken(Token::Type tokenType,
-                            TokenIterator iterator,
-                            TokenIterator end) noexcept
+                            const TokenIterator iterator,
+                            const TokenIterator end) noexcept
         {
             return iterator != end && iterator->type == tokenType;
         }
 
         template <std::size_t N>
         static bool isToken(const Token::Type (&tokenTypes)[N],
-                            TokenIterator iterator, const TokenIterator end) noexcept
+                            const TokenIterator iterator, const TokenIterator end) noexcept
         {
             if (iterator == end) return false;
 
@@ -444,7 +444,7 @@ namespace ouzel
                 return *i->second;
         }
 
-        bool isType(TokenIterator iterator, const TokenIterator end,
+        bool isType(const TokenIterator iterator, const TokenIterator end,
                     const DeclarationScopes& declarationScopes)
         {
             if (iterator == end)
@@ -535,7 +535,7 @@ namespace ouzel
                 throw ParseError(ErrorCode::InvalidAttribute, "Invalid attribute");
         }
 
-        static bool isDeclaration(TokenIterator iterator, const TokenIterator end)
+        static bool isDeclaration(const TokenIterator iterator, const TokenIterator end)
         {
             return isToken({Token::Type::Function,
                 Token::Type::Fragment,
