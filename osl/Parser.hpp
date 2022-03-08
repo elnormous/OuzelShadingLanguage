@@ -155,7 +155,7 @@ namespace ouzel
 
         template <std::size_t N>
         static bool isToken(const Token::Type (&tokenTypes)[N],
-                            TokenIterator iterator, TokenIterator end) noexcept
+                            TokenIterator iterator, const TokenIterator end) noexcept
         {
             if (iterator == end) return false;
 
@@ -165,7 +165,7 @@ namespace ouzel
             return false;
         }
 
-        static const Token& getToken(TokenIterator& iterator, TokenIterator end)
+        static const Token& getToken(TokenIterator& iterator, const TokenIterator end)
         {
             if (iterator == end)
                 throw ParseError(ErrorCode::UnexpectedEndOfFile, "Unexpected end of file");
@@ -174,7 +174,7 @@ namespace ouzel
         }
 
         static bool skipToken(Token::Type tokenType,
-                              TokenIterator& iterator, TokenIterator end) noexcept
+                              TokenIterator& iterator, const TokenIterator end) noexcept
         {
             if (iterator == end || iterator->type != tokenType) return false;
             ++iterator;
@@ -182,7 +182,7 @@ namespace ouzel
         }
 
         static const Token& expectToken(Token::Type tokenType,
-                                        TokenIterator& iterator, TokenIterator end)
+                                        TokenIterator& iterator, const TokenIterator end)
         {
             if (iterator == end)
                 throw ParseError(ErrorCode::UnexpectedEndOfFile, "Unexpected end of file");
@@ -213,7 +213,7 @@ namespace ouzel
                 scalarType.scalarTypeKind == ScalarType::Kind::Integer;
         }
 
-        static std::size_t parseIndex(TokenIterator& iterator, TokenIterator end)
+        static std::size_t parseIndex(TokenIterator& iterator, const TokenIterator end)
         {
             std::size_t result = 0;
 
@@ -444,7 +444,7 @@ namespace ouzel
                 return *i->second;
         }
 
-        bool isType(TokenIterator iterator, TokenIterator end,
+        bool isType(TokenIterator iterator, const TokenIterator end,
                     const DeclarationScopes& declarationScopes)
         {
             if (iterator == end)
@@ -459,7 +459,7 @@ namespace ouzel
                  findType(iterator->value, declarationScopes));
         }
 
-        const Type& parseType(TokenIterator& iterator, TokenIterator end,
+        const Type& parseType(TokenIterator& iterator, const TokenIterator end,
                               const DeclarationScopes& declarationScopes)
         {
             const auto& token = getToken(iterator, end);
@@ -498,7 +498,7 @@ namespace ouzel
             return *result;
         }
 
-        Attribute& parseAttribute(TokenIterator& iterator, TokenIterator end)
+        Attribute& parseAttribute(TokenIterator& iterator, const TokenIterator end)
         {
             if (iterator == end)
                 throw ParseError(ErrorCode::UnexpectedEndOfFile, "Unexpected end of file");
@@ -535,7 +535,7 @@ namespace ouzel
                 throw ParseError(ErrorCode::InvalidAttribute, "Invalid attribute");
         }
 
-        static bool isDeclaration(TokenIterator iterator, TokenIterator end)
+        static bool isDeclaration(TokenIterator iterator, const TokenIterator end)
         {
             return isToken({Token::Type::Function,
                 Token::Type::Fragment,
@@ -545,7 +545,7 @@ namespace ouzel
                 Token::Type::Var}, iterator, end);
         }
 
-        Declaration& parseTopLevelDeclaration(TokenIterator& iterator, TokenIterator end,
+        Declaration& parseTopLevelDeclaration(TokenIterator& iterator, const TokenIterator end,
                                               DeclarationScopes& declarationScopes)
         {
             auto& declaration = parseDeclaration(iterator, end, declarationScopes);
@@ -568,7 +568,7 @@ namespace ouzel
             return declaration;
         }
 
-        Declaration& parseDeclaration(TokenIterator& iterator, TokenIterator end,
+        Declaration& parseDeclaration(TokenIterator& iterator, const TokenIterator end,
                                       DeclarationScopes& declarationScopes)
         {
             if (isToken(Token::Type::Struct, iterator, end))
@@ -581,7 +581,7 @@ namespace ouzel
                 throw ParseError(ErrorCode::DeclarationExpected, "Expected a declaration");
         }
 
-        FunctionDeclaration& parseFunctionDeclaration(TokenIterator& iterator, TokenIterator end,
+        FunctionDeclaration& parseFunctionDeclaration(TokenIterator& iterator, const TokenIterator end,
                                                       DeclarationScopes& declarationScopes)
         {
             FunctionDeclaration::Qualifier qualifier = FunctionDeclaration::Qualifier::None;
@@ -697,7 +697,7 @@ namespace ouzel
             return result;
         }
 
-        VariableDeclaration& parseVariableDeclaration(TokenIterator& iterator, TokenIterator end,
+        VariableDeclaration& parseVariableDeclaration(TokenIterator& iterator, const TokenIterator end,
                                                       DeclarationScopes& declarationScopes)
         {
             Type::Qualifiers qualifiers = Type::Qualifiers::None;
@@ -750,7 +750,7 @@ namespace ouzel
             return result;
         }
 
-        TypeDeclaration& parseStructTypeDeclaration(TokenIterator& iterator, TokenIterator end,
+        TypeDeclaration& parseStructTypeDeclaration(TokenIterator& iterator, const TokenIterator end,
                                                     DeclarationScopes& declarationScopes)
         {
             expectToken(Token::Type::Struct, iterator, end);
@@ -817,7 +817,7 @@ namespace ouzel
             return result;
         }
 
-        Declaration& parseMemberDeclaration(TokenIterator& iterator, TokenIterator end,
+        Declaration& parseMemberDeclaration(TokenIterator& iterator, const TokenIterator end,
                                             DeclarationScopes& declarationScopes)
         {
             expectToken(Token::Type::Var, iterator, end);
@@ -839,7 +839,7 @@ namespace ouzel
             return create<FieldDeclaration>(name, QualifiedType{type}, std::move(attributes));
         }
 
-        ParameterDeclaration& parseParameterDeclaration(TokenIterator& iterator, TokenIterator end,
+        ParameterDeclaration& parseParameterDeclaration(TokenIterator& iterator, const TokenIterator end,
                                                         DeclarationScopes& declarationScopes)
         {
             InputModifier inputModifier = InputModifier::In;
@@ -879,7 +879,7 @@ namespace ouzel
             return create<ParameterDeclaration>(name, QualifiedType{type}, inputModifier, std::move(attributes));
         }
 
-        Statement& parseStatement(TokenIterator& iterator, TokenIterator end,
+        Statement& parseStatement(TokenIterator& iterator, const TokenIterator end,
                                   DeclarationScopes& declarationScopes,
                                   std::vector<ReturnStatement*>& returnStatements)
         {
@@ -950,7 +950,7 @@ namespace ouzel
             }
         }
 
-        CompoundStatement& parseCompoundStatement(TokenIterator& iterator, TokenIterator end,
+        CompoundStatement& parseCompoundStatement(TokenIterator& iterator, const TokenIterator end,
                                                   DeclarationScopes& declarationScopes,
                                                   std::vector<ReturnStatement*>& returnStatements)
         {
@@ -971,7 +971,7 @@ namespace ouzel
             return create<CompoundStatement>(std::move(statements));
         }
 
-        IfStatement& parseIfStatement(TokenIterator& iterator, TokenIterator end,
+        IfStatement& parseIfStatement(TokenIterator& iterator, const TokenIterator end,
                                       DeclarationScopes& declarationScopes,
                                       std::vector<ReturnStatement*>& returnStatements)
         {
@@ -1009,7 +1009,7 @@ namespace ouzel
             return create<IfStatement>(*condition, body, elseBody);
         }
 
-        ForStatement& parseForStatement(TokenIterator& iterator, TokenIterator end,
+        ForStatement& parseForStatement(TokenIterator& iterator, const TokenIterator end,
                                         DeclarationScopes& declarationScopes,
                                         std::vector<ReturnStatement*>& returnStatements)
         {
@@ -1079,7 +1079,7 @@ namespace ouzel
             return create<ForStatement>(initialization, condition, increment, body);
         }
 
-        SwitchStatement& parseSwitchStatement(TokenIterator& iterator, TokenIterator end,
+        SwitchStatement& parseSwitchStatement(TokenIterator& iterator, const TokenIterator end,
                                               DeclarationScopes& declarationScopes,
                                               std::vector<ReturnStatement*>& returnStatements)
         {
@@ -1114,7 +1114,7 @@ namespace ouzel
             return create<SwitchStatement>(*condition, body);
         }
 
-        CaseStatement& parseCaseStatement(TokenIterator& iterator, TokenIterator end,
+        CaseStatement& parseCaseStatement(TokenIterator& iterator, const TokenIterator end,
                                           DeclarationScopes& declarationScopes,
                                           std::vector<ReturnStatement*>& returnStatements)
         {
@@ -1135,7 +1135,7 @@ namespace ouzel
             return create<CaseStatement>(condition, body);
         }
 
-        DefaultStatement& parseDefaultStatement(TokenIterator& iterator, TokenIterator end,
+        DefaultStatement& parseDefaultStatement(TokenIterator& iterator, const TokenIterator end,
                                                 DeclarationScopes& declarationScopes,
                                                 std::vector<ReturnStatement*>& returnStatements)
         {
@@ -1145,7 +1145,7 @@ namespace ouzel
             return create<DefaultStatement>(parseStatement(iterator, end, declarationScopes, returnStatements));
         }
 
-        WhileStatement& parseWhileStatement(TokenIterator& iterator, TokenIterator end,
+        WhileStatement& parseWhileStatement(TokenIterator& iterator, const TokenIterator end,
                                             DeclarationScopes& declarationScopes,
                                             std::vector<ReturnStatement*>& returnStatements)
         {
@@ -1180,7 +1180,7 @@ namespace ouzel
             return create<WhileStatement>(*condition, body);
         }
 
-        DoStatement& parseDoStatement(TokenIterator& iterator, TokenIterator end,
+        DoStatement& parseDoStatement(TokenIterator& iterator, const TokenIterator end,
                                       DeclarationScopes& declarationScopes,
                                       std::vector<ReturnStatement*>& returnStatements)
         {
@@ -1202,7 +1202,7 @@ namespace ouzel
             return create<DoStatement>(condition, body);
         }
 
-        Expression& parsePrimaryExpression(TokenIterator& iterator, TokenIterator end,
+        Expression& parsePrimaryExpression(TokenIterator& iterator, const TokenIterator end,
                                            DeclarationScopes& declarationScopes)
         {
             if (isToken(Token::Type::IntLiteral, iterator, end))
@@ -1487,7 +1487,7 @@ namespace ouzel
                 throw ParseError(ErrorCode::ExpressionExpected, "Expected an expression");
         }
 
-        Expression& parsePostfixExpression(TokenIterator& iterator, TokenIterator end,
+        Expression& parsePostfixExpression(TokenIterator& iterator, const TokenIterator end,
                                            DeclarationScopes& declarationScopes)
         {
             auto result = &parsePrimaryExpression(iterator, end, declarationScopes);
@@ -1518,7 +1518,7 @@ namespace ouzel
             return *result;
         }
 
-        Expression& parseSubscriptExpression(TokenIterator& iterator, TokenIterator end,
+        Expression& parseSubscriptExpression(TokenIterator& iterator, const TokenIterator end,
                                              DeclarationScopes& declarationScopes)
         {
             auto result = &parsePostfixExpression(iterator, end, declarationScopes);
@@ -1579,7 +1579,7 @@ namespace ouzel
                 throw ParseError(ErrorCode::InvalidSwizzle, "Invalid component");
         }
 
-        Expression& parseMemberExpression(TokenIterator& iterator, TokenIterator end,
+        Expression& parseMemberExpression(TokenIterator& iterator, const TokenIterator end,
                                           DeclarationScopes& declarationScopes)
         {
             auto result = &parseSubscriptExpression(iterator, end, declarationScopes);
@@ -1650,7 +1650,7 @@ namespace ouzel
             return *result;
         }
 
-        Expression& parsePrefixExpression(TokenIterator& iterator, TokenIterator end,
+        Expression& parsePrefixExpression(TokenIterator& iterator, const TokenIterator end,
                                           DeclarationScopes& declarationScopes)
         {
             if (isToken({Token::Type::Increment, Token::Type::Decrement}, iterator, end))
@@ -1678,7 +1678,7 @@ namespace ouzel
                 return parseMemberExpression(iterator, end, declarationScopes);
         }
 
-        Expression& parseSignExpression(TokenIterator& iterator, TokenIterator end,
+        Expression& parseSignExpression(TokenIterator& iterator, const TokenIterator end,
                                         DeclarationScopes& declarationScopes)
         {
             if (isToken({Token::Type::Plus, Token::Type::Minus}, iterator, end))
@@ -1700,7 +1700,7 @@ namespace ouzel
                 return parsePrefixExpression(iterator, end, declarationScopes);
         }
 
-        Expression& parseNotExpression(TokenIterator& iterator, TokenIterator end,
+        Expression& parseNotExpression(TokenIterator& iterator, const TokenIterator end,
                                        DeclarationScopes& declarationScopes)
         {
             if (skipToken(Token::Type::Not, iterator, end))
@@ -1718,7 +1718,7 @@ namespace ouzel
                 return parseSignExpression(iterator, end, declarationScopes);
         }
 
-        Expression& parseMultiplicationExpression(TokenIterator& iterator, TokenIterator end,
+        Expression& parseMultiplicationExpression(TokenIterator& iterator, const TokenIterator end,
                                                   DeclarationScopes& declarationScopes)
         {
             auto result = &parseNotExpression(iterator, end, declarationScopes);
@@ -1743,7 +1743,7 @@ namespace ouzel
             return *result;
         }
 
-        Expression& parseAdditionExpression(TokenIterator& iterator, TokenIterator end,
+        Expression& parseAdditionExpression(TokenIterator& iterator, const TokenIterator end,
                                             DeclarationScopes& declarationScopes)
         {
             auto result = &parseMultiplicationExpression(iterator, end, declarationScopes);
@@ -1768,7 +1768,7 @@ namespace ouzel
             return *result;
         }
 
-        Expression& parseLessThanExpression(TokenIterator& iterator, TokenIterator end,
+        Expression& parseLessThanExpression(TokenIterator& iterator, const TokenIterator end,
                                             DeclarationScopes& declarationScopes)
         {
             auto result = &parseAdditionExpression(iterator, end, declarationScopes);
@@ -1793,7 +1793,7 @@ namespace ouzel
             return *result;
         }
 
-        Expression& parseGreaterThanExpression(TokenIterator& iterator, TokenIterator end,
+        Expression& parseGreaterThanExpression(TokenIterator& iterator, const TokenIterator end,
                                                DeclarationScopes& declarationScopes)
         {
             auto result = &parseLessThanExpression(iterator, end, declarationScopes);
@@ -1818,7 +1818,7 @@ namespace ouzel
             return *result;
         }
 
-        Expression& parseEqualityExpression(TokenIterator& iterator, TokenIterator end,
+        Expression& parseEqualityExpression(TokenIterator& iterator, const TokenIterator end,
                                             DeclarationScopes& declarationScopes)
         {
             auto result = &parseGreaterThanExpression(iterator, end, declarationScopes);
@@ -1843,7 +1843,7 @@ namespace ouzel
             return *result;
         }
 
-        Expression& parseLogicalAndExpression(TokenIterator& iterator, TokenIterator end,
+        Expression& parseLogicalAndExpression(TokenIterator& iterator, const TokenIterator end,
                                               DeclarationScopes& declarationScopes)
         {
             auto result = &parseEqualityExpression(iterator, end, declarationScopes);
@@ -1864,7 +1864,7 @@ namespace ouzel
             return *result;
         }
 
-        Expression& parseLogicalOrExpression(TokenIterator& iterator, TokenIterator end,
+        Expression& parseLogicalOrExpression(TokenIterator& iterator, const TokenIterator end,
                                              DeclarationScopes& declarationScopes)
         {
             auto result = &parseLogicalAndExpression(iterator, end, declarationScopes);
@@ -1885,7 +1885,7 @@ namespace ouzel
             return *result;
         }
 
-        Expression& parseTernaryExpression(TokenIterator& iterator, TokenIterator end,
+        Expression& parseTernaryExpression(TokenIterator& iterator, const TokenIterator end,
                                            DeclarationScopes& declarationScopes)
         {
             auto result = &parseLogicalOrExpression(iterator, end, declarationScopes);
@@ -1910,7 +1910,7 @@ namespace ouzel
             return *result;
         }
 
-        Expression& parseAssignmentExpression(TokenIterator& iterator, TokenIterator end,
+        Expression& parseAssignmentExpression(TokenIterator& iterator, const TokenIterator end,
                                               DeclarationScopes& declarationScopes)
         {
             auto result = &parseTernaryExpression(iterator, end, declarationScopes);
@@ -1937,7 +1937,7 @@ namespace ouzel
             return *result;
         }
 
-        Expression& parseAdditionAssignmentExpression(TokenIterator& iterator, TokenIterator end,
+        Expression& parseAdditionAssignmentExpression(TokenIterator& iterator, const TokenIterator end,
                                                       DeclarationScopes& declarationScopes)
         {
             auto result = &parseAssignmentExpression(iterator, end, declarationScopes);
@@ -1968,7 +1968,7 @@ namespace ouzel
             return *result;
         }
 
-        Expression& parseMultiplicationAssignmentExpression(TokenIterator& iterator, TokenIterator end,
+        Expression& parseMultiplicationAssignmentExpression(TokenIterator& iterator, const TokenIterator end,
                                                             DeclarationScopes& declarationScopes)
         {
             auto result = &parseAdditionAssignmentExpression(iterator, end, declarationScopes);
@@ -1999,7 +1999,7 @@ namespace ouzel
             return *result;
         }
 
-        Expression& parseCommaExpression(TokenIterator& iterator, TokenIterator end,
+        Expression& parseCommaExpression(TokenIterator& iterator, const TokenIterator end,
                                          DeclarationScopes& declarationScopes)
         {
             auto result = &parseMultiplicationAssignmentExpression(iterator, end, declarationScopes);
@@ -2023,7 +2023,7 @@ namespace ouzel
             return *result;
         }
 
-        Expression& parseExpression(TokenIterator& iterator, TokenIterator end,
+        Expression& parseExpression(TokenIterator& iterator, const TokenIterator end,
                                     DeclarationScopes& declarationScopes)
         {
             return parseCommaExpression(iterator, end, declarationScopes);
