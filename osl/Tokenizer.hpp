@@ -263,9 +263,7 @@ namespace ouzel
                 if (*i == ',') token.type = Token::Type::Comma;
                 if (*i == ';') token.type = Token::Type::Semicolon;
                 if (*i == ':') token.type = Token::Type::Colon;
-                token.value.push_back(*i);
-
-                ++i;
+                token.value.push_back(*i++);
             }
             else if ((*i >= '0' && *i <= '9') ||  // number
                      (*i == '.' && (i + 1) != code.end() && *(i + 1) >= '0' && *(i + 1) <= '9')) // starts with a dot
@@ -273,23 +271,16 @@ namespace ouzel
                 bool integer = true;
 
                 while (i != code.end() && (*i >= '0' && *i <= '9'))
-                {
-                    token.value.push_back(*i);
-                    ++i;
-                }
+                    token.value.push_back(*i++);
 
                 if (i != code.end() && *i == '.')
                 {
                     integer = false;
 
-                    token.value.push_back(*i);
-                    ++i;
+                    token.value.push_back(*i++);
 
                     while (i != code.end() && (*i >= '0' && *i <= '9'))
-                    {
-                        token.value.push_back(*i);
-                        ++i;
-                    }
+                        token.value.push_back(*i++);
                 }
 
                 // parse exponent
@@ -309,19 +300,13 @@ namespace ouzel
                         throw std::runtime_error("Invalid exponent");
 
                     while (i != code.end() && *i >= '0' && *i <= '9')
-                    {
-                        token.value.push_back(*i);
-                        ++i;
-                    }
+                        token.value.push_back(*i++);
                 }
 
                 std::string suffix;
 
                 while (i != code.end() && ((*i >= 'a' && *i <= 'z') || (*i >= 'A' && *i <= 'Z')))
-                {
-                    suffix.push_back(*i);
-                    ++i;
-                }
+                    suffix.push_back(*i++);
 
                 if (suffix.empty())
                 {
@@ -406,10 +391,8 @@ namespace ouzel
                 if (++i == code.end()) // reached end of file
                     throw std::runtime_error("Unterminated char literal");
 
-                if (*i != '\'')
+                if (*i++ != '\'')
                     throw std::runtime_error("Invalid char literal");
-
-                ++i;
             }
             else if ((*i >= 'a' && *i <= 'z') ||
                      (*i >= 'A' && *i <= 'Z') ||
@@ -420,10 +403,7 @@ namespace ouzel
                         (*i >= 'A' && *i <= 'Z') ||
                         *i == '_' ||
                         (*i >= '0' && *i <= '9')))
-                {
-                    token.value.push_back(*i);
-                    ++i;
-                }
+                    token.value.push_back(*i++);
 
                 std::map<std::string, Token::Type>::const_iterator keywordIterator = keywordMap.find(token.value);
 
@@ -444,220 +424,191 @@ namespace ouzel
                 if (*i == '+')
                 {
                     token.type = Token::Type::Plus;
-                    token.value.push_back(*i);
-                    ++i;
+                    token.value.push_back(*i++);
 
                     if (i != code.end())
                     {
                         if (*i == '=') // +=
                         {
                             token.type = Token::Type::PlusAssignment;
-                            token.value.push_back(*i);
-                            ++i;
+                            token.value.push_back(*i++);
                         }
                         else if (*i == '+') // ++
                         {
                             token.type = Token::Type::Increment;
-                            token.value.push_back(*i);
-                            ++i;
+                            token.value.push_back(*i++);
                         }
                     }
                 }
                 else if (*i == '-')
                 {
                     token.type = Token::Type::Minus;
-                    token.value.push_back(*i);
-                    ++i;
+                    token.value.push_back(*i++);
 
                     if (i != code.end())
                     {
                         if (*i == '=') // -=
                         {
                             token.type = Token::Type::MinusAssignment;
-                            token.value.push_back(*i);
-                            ++i;
+                            token.value.push_back(*i++);
                         }
                         else if (*i == '-') // --
                         {
                             token.type = Token::Type::Decrement;
-                            token.value.push_back(*i);
-                            ++i;
+                            token.value.push_back(*i++);
                         }
                         else if (*i == '>') // ->
                         {
                             token.type = Token::Type::Arrow;
-                            token.value.push_back(*i);
-                            ++i;
+                            token.value.push_back(*i++);
                         }
                     }
                 }
                 else if (*i == '*')
                 {
                     token.type = Token::Type::Multiply;
-                    token.value.push_back(*i);
-                    ++i;
+                    token.value.push_back(*i++);
 
                     if (i != code.end())
                     {
                         if (*i == '=') // *=
                         {
                             token.type = Token::Type::Multiply;
-                            token.value.push_back(*i);
-                            ++i;
+                            token.value.push_back(*i++);
                         }
                     }
                 }
                 else if (*i == '/')
                 {
                     token.type = Token::Type::Divide;
-                    token.value.push_back(*i);
-                    ++i;
+                    token.value.push_back(*i++);
 
                     if (i != code.end())
                     {
                         if (*i == '=') // /=
                         {
                             token.type = Token::Type::Multiply;
-                            token.value.push_back(*i);
-                            ++i;
+                            token.value.push_back(*i++);
                         }
                     }
                 }
                 else if (*i == '%')
                 {
                     token.type = Token::Type::Modulo;
-                    token.value.push_back(*i);
-                    ++i;
+                    token.value.push_back(*i++);
 
                     if (i != code.end())
                     {
                         if (*i == '=') // %=
                         {
                             token.type = Token::Type::ModuloAssignment;
-                            token.value.push_back(*i);
-                            ++i;
+                            token.value.push_back(*i++);
                         }
                     }
                 }
                 else if (*i == '=')
                 {
                     token.type = Token::Type::Assignment;
-                    token.value.push_back(*i);
-                    ++i;
+                    token.value.push_back(*i++);
 
                     if (i != code.end())
                     {
                         if (*i == '=') // ==
                         {
                             token.type = Token::Type::Equal;
-                            token.value.push_back(*i);
-                            ++i;
+                            token.value.push_back(*i++);
                         }
                     }
                 }
                 else if (*i == '&')
                 {
                     token.type = Token::Type::BitwiseAnd;
-                    token.value.push_back(*i);
-                    ++i;
+                    token.value.push_back(*i++);
 
                     if (i != code.end())
                     {
                         if (*i == '=') // &=
                         {
                             token.type = Token::Type::BitwiseAndAssignment;
-                            token.value.push_back(*i);
-                            ++i;
+                            token.value.push_back(*i++);
                         }
                         else if (*i == '&') // &&
                         {
                             token.type = Token::Type::And;
-                            token.value.push_back(*i);
-                            ++i;
+                            token.value.push_back(*i++);
                         }
                     }
                 }
                 else if (*i == '~')
                 {
                     token.type = Token::Type::BitwiseNot;
-                    token.value.push_back(*i);
-                    ++i;
+                    token.value.push_back(*i++);
 
                     if (i != code.end())
                     {
                         if (*i == '=') // ~=
                         {
                             token.type = Token::Type::BitwiseNotAssignment;
-                            token.value.push_back(*i);
-                            ++i;
+                            token.value.push_back(*i++);
                         }
                     }
                 }
                 else if (*i == '^')
                 {
                     token.type = Token::Type::BitwiseXor;
-                    token.value.push_back(*i);
-                    ++i;
+                    token.value.push_back(*i++);
 
                     if (i != code.end())
                     {
                         if (*i == '=') // ^=
                         {
                             token.type = Token::Type::BitwiseXorAssignment;
-                            token.value.push_back(*i);
-                            ++i;
+                            token.value.push_back(*i++);
                         }
                     }
                 }
                 else if (*i == '|')
                 {
                     token.type = Token::Type::BitwiseOr;
-                    token.value.push_back(*i);
-                    ++i;
+                    token.value.push_back(*i++);
 
                     if (i != code.end())
                     {
                         if (*i == '=') // |=
                         {
                             token.type = Token::Type::BitwiseOrAssignment;
-                            token.value.push_back(*i);
-                            ++i;
+                            token.value.push_back(*i++);
                         }
                         else if (*i == '|') // ||
                         {
                             token.type = Token::Type::Or;
-                            token.value.push_back(*i);
-                            ++i;
+                            token.value.push_back(*i++);
                         }
                     }
                 }
                 else if (*i == '<')
                 {
                     token.type = Token::Type::LessThan;
-                    token.value.push_back(*i);
-                    ++i;
+                    token.value.push_back(*i++);
 
                     if (i != code.end())
                     {
                         if (*i == '=') // <=
                         {
                             token.type = Token::Type::LessThanEqual;
-                            token.value.push_back(*i);
-                            ++i;
+                            token.value.push_back(*i++);
                         }
                         else if (*i == '<') // <<
                         {
                             token.type = Token::Type::ShiftLeft;
-                            token.value.push_back(*i);
-                            ++i;
+                            token.value.push_back(*i++);
 
                             if (i != code.end())
                             {
                                 if (*i == '=') // <<=
                                 {
                                     token.type = Token::Type::ShiftLeftAssignment;
-                                    token.value.push_back(*i);
-                                    ++i;
+                                    token.value.push_back(*i++);
                                 }
                             }
                         }
@@ -666,30 +617,26 @@ namespace ouzel
                 else if (*i == '>')
                 {
                     token.type = Token::Type::GreaterThan;
-                    token.value.push_back(*i);
-                    ++i;
+                    token.value.push_back(*i++);
 
                     if (i != code.end())
                     {
                         if (*i == '=') // >=
                         {
                             token.type = Token::Type::GreaterThanEqual;
-                            token.value.push_back(*i);
-                            ++i;
+                            token.value.push_back(*i++);
                         }
                         else if (*i == '>') // >>
                         {
                             token.type = Token::Type::ShiftRight;
-                            token.value.push_back(*i);
-                            ++i;
+                            token.value.push_back(*i++);
 
                             if (i != code.end())
                             {
                                 if (*i == '=') // >>=
                                 {
                                     token.type = Token::Type::ShiftRightAssignment;
-                                    token.value.push_back(*i);
-                                    ++i;
+                                    token.value.push_back(*i++);
                                 }
                             }
                         }
@@ -698,38 +645,32 @@ namespace ouzel
                 else if (*i == '!')
                 {
                     token.type = Token::Type::Not;
-                    token.value.push_back(*i);
-                    ++i;
+                    token.value.push_back(*i++);
 
                     if (i != code.end())
                     {
                         if (*i == '=') // !=
                         {
                             token.type = Token::Type::NotEq;
-                            token.value.push_back(*i);
-                            ++i;
+                            token.value.push_back(*i++);
                         }
                     }
                 }
                 else if (*i == '?')
                 {
                     token.type = Token::Type::Conditional;
-                    token.value.push_back(*i);
-                    ++i;
+                    token.value.push_back(*i++);
                 }
                 else if (*i == '.')
                 {
-                    token.value.push_back(*i);
-                    ++i;
+                    token.value.push_back(*i++);
 
                     if (i != code.end() && *i == '.' &&
                         (i + 1) != code.end() && *(i + 1) == '.')
                     {
                         token.type = Token::Type::Ellipsis;
-                        token.value.push_back(*i);
-                        ++i;
-                        token.value.push_back(*i);
-                        ++i;
+                        token.value.push_back(*i++);
+                        token.value.push_back(*i++);
                     }
                     else
                         token.type = Token::Type::Dot;
