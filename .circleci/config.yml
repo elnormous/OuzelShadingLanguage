@@ -18,7 +18,7 @@ jobs:
           command: |
             export PATH=$HOME/.sonar/build-wrapper-linux-x86:$PATH
             build-wrapper-linux-x86-64 --out-dir bw-output make -C test/
-            tests/tests
+            test/test
       - run:
           name: Generate coverage
           command: |
