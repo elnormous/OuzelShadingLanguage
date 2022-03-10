@@ -360,10 +360,8 @@ namespace ouzel
                     std::equal(arguments.begin(), arguments.end(),
                                functionDeclaration->parameterDeclarations.begin(),
                                [](const QualifiedType& qualifiedType, const ParameterDeclaration* parameterDeclaration) {
-                                   bool scalar = qualifiedType.type.typeKind == Type::Kind::Scalar &&
-                                       qualifiedType.type.typeKind == Type::Kind::Scalar;
-
-                                   return (scalar || &qualifiedType.type == &parameterDeclaration->qualifiedType.type);
+                                    return (qualifiedType.type.typeKind == Type::Kind::Scalar ||
+                                            &qualifiedType.type == &parameterDeclaration->qualifiedType.type);
                                }))
                     viableFunctionDeclarations.push_back(functionDeclaration);
 
