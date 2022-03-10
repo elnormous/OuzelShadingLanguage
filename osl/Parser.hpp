@@ -140,12 +140,14 @@ namespace ouzel
                 dumpConstruct(*declaration);
         }
 
+        [[nodiscard]]
         const std::vector<Declaration*>& getDeclarations() const noexcept
         {
             return declarations;
         }
 
     private:
+        [[nodiscard]]
         static bool isToken(Token::Type tokenType,
                             const TokenIterator iterator,
                             const TokenIterator end) noexcept
@@ -154,6 +156,7 @@ namespace ouzel
         }
 
         template <std::size_t N>
+        [[nodiscard]]
         static bool isToken(const Token::Type (&tokenTypes)[N],
                             const TokenIterator iterator, const TokenIterator end) noexcept
         {
@@ -165,6 +168,7 @@ namespace ouzel
             return false;
         }
 
+        [[nodiscard]]
         static const Token& getToken(TokenIterator& iterator, const TokenIterator end)
         {
             if (iterator == end)
@@ -192,6 +196,7 @@ namespace ouzel
             return *iterator++;
         }
 
+        [[nodiscard]]
         static bool isBooleanType(const Type& type) noexcept
         {
             if (type.typeKind != Type::Kind::Scalar)
@@ -202,6 +207,7 @@ namespace ouzel
             return scalarType.scalarTypeKind == ScalarType::Kind::Boolean;
         }
 
+        [[nodiscard]]
         static bool isIntegerType(const Type& type) noexcept
         {
             if (type.typeKind != Type::Kind::Scalar)
@@ -213,6 +219,7 @@ namespace ouzel
                 scalarType.scalarTypeKind == ScalarType::Kind::Integer;
         }
 
+        [[nodiscard]]
         static std::size_t parseIndex(TokenIterator& iterator, const TokenIterator end)
         {
             std::size_t result = 0;
@@ -231,6 +238,7 @@ namespace ouzel
             return result;
         }
 
+        [[nodiscard]]
         static Declaration* findDeclaration(const std::string& name,
                                             const DeclarationScope& declarationScope)
         {
@@ -240,6 +248,7 @@ namespace ouzel
             return nullptr;
         }
 
+        [[nodiscard]]
         static Declaration* findDeclaration(const std::string& name,
                                             const DeclarationScopes& declarationScopes)
         {
@@ -250,6 +259,7 @@ namespace ouzel
             return nullptr;
         }
 
+        [[nodiscard]]
         const Type* findType(const std::string& name,
                              const DeclarationScopes& declarationScopes)
         {
@@ -265,6 +275,7 @@ namespace ouzel
             return nullptr;
         }
 
+        [[nodiscard]]
         const StructType* findStructType(const std::string& name,
                                          const DeclarationScopes& declarationScopes)
         {
@@ -276,6 +287,7 @@ namespace ouzel
             return nullptr;
         }
 
+        [[nodiscard]]
         const VectorType* findVectorType(const Type& componentType, std::size_t components)
         {
             const auto vectorTypeIterator = vectorTypes.find(std::make_pair(&componentType, static_cast<std::uint8_t>(components)));
@@ -286,6 +298,7 @@ namespace ouzel
             return vectorTypeIterator->second;
         }
 
+        [[nodiscard]]
         static FunctionDeclaration* findFunctionDeclaration(const std::string& name,
                                                             const DeclarationScopes& declarationScopes,
                                                             const std::vector<QualifiedType>& parameters)
@@ -315,6 +328,7 @@ namespace ouzel
             return nullptr;
         }
 
+        [[nodiscard]]
         static const FunctionDeclaration* resolveFunctionDeclaration(const std::string& name,
                                                                      const DeclarationScopes& declarationScopes,
                                                                      const std::vector<QualifiedType>& arguments)
@@ -393,6 +407,7 @@ namespace ouzel
             }
         }
 
+        [[nodiscard]]
         static const ConstructorDeclaration* findConstructorDeclaration(const StructType& structType,
                                                                         const std::vector<QualifiedType>& parameters) noexcept
         {
@@ -419,6 +434,7 @@ namespace ouzel
             return nullptr;
         }
 
+        [[nodiscard]]
         static const Declaration* findMemberDeclaration(const StructType& structType,
                                                         const std::string& name) noexcept
         {
@@ -428,6 +444,7 @@ namespace ouzel
             return nullptr;
         }
 
+        [[nodiscard]]
         const ArrayType& getArrayType(const Type& type, std::size_t count)
         {
             const QualifiedType qualifiedType{type};
@@ -444,6 +461,7 @@ namespace ouzel
                 return *i->second;
         }
 
+        [[nodiscard]]
         bool isType(const TokenIterator iterator, const TokenIterator end,
                     const DeclarationScopes& declarationScopes)
         {
@@ -459,6 +477,7 @@ namespace ouzel
                  findType(iterator->value, declarationScopes));
         }
 
+        [[nodiscard]]
         const Type& parseType(TokenIterator& iterator, const TokenIterator end,
                               const DeclarationScopes& declarationScopes)
         {
@@ -498,6 +517,7 @@ namespace ouzel
             return *result;
         }
 
+        [[nodiscard]]
         Attribute& parseAttribute(TokenIterator& iterator, const TokenIterator end)
         {
             if (iterator == end)
@@ -535,6 +555,7 @@ namespace ouzel
                 throw ParseError(ErrorCode::InvalidAttribute, "Invalid attribute");
         }
 
+        [[nodiscard]]
         static bool isDeclaration(const TokenIterator iterator, const TokenIterator end)
         {
             return isToken({Token::Type::Function,
@@ -545,6 +566,7 @@ namespace ouzel
                 Token::Type::Var}, iterator, end);
         }
 
+        [[nodiscard]]
         Declaration& parseTopLevelDeclaration(TokenIterator& iterator, const TokenIterator end,
                                               DeclarationScopes& declarationScopes)
         {
@@ -568,6 +590,7 @@ namespace ouzel
             return declaration;
         }
 
+        [[nodiscard]]
         Declaration& parseDeclaration(TokenIterator& iterator, const TokenIterator end,
                                       DeclarationScopes& declarationScopes)
         {
@@ -581,6 +604,7 @@ namespace ouzel
                 throw ParseError(ErrorCode::DeclarationExpected, "Expected a declaration");
         }
 
+        [[nodiscard]]
         FunctionDeclaration& parseFunctionDeclaration(TokenIterator& iterator, const TokenIterator end,
                                                       DeclarationScopes& declarationScopes)
         {
@@ -697,6 +721,7 @@ namespace ouzel
             return result;
         }
 
+        [[nodiscard]]
         VariableDeclaration& parseVariableDeclaration(TokenIterator& iterator, const TokenIterator end,
                                                       DeclarationScopes& declarationScopes)
         {
@@ -750,6 +775,7 @@ namespace ouzel
             return result;
         }
 
+        [[nodiscard]]
         TypeDeclaration& parseStructTypeDeclaration(TokenIterator& iterator, const TokenIterator end,
                                                     DeclarationScopes& declarationScopes)
         {
@@ -817,6 +843,7 @@ namespace ouzel
             return result;
         }
 
+        [[nodiscard]]
         Declaration& parseMemberDeclaration(TokenIterator& iterator, const TokenIterator end,
                                             DeclarationScopes& declarationScopes)
         {
@@ -839,6 +866,7 @@ namespace ouzel
             return create<FieldDeclaration>(name, QualifiedType{type}, std::move(attributes));
         }
 
+        [[nodiscard]]
         ParameterDeclaration& parseParameterDeclaration(TokenIterator& iterator, const TokenIterator end,
                                                         DeclarationScopes& declarationScopes)
         {
@@ -879,6 +907,7 @@ namespace ouzel
             return create<ParameterDeclaration>(name, QualifiedType{type}, inputModifier, std::move(attributes));
         }
 
+        [[nodiscard]]
         Statement& parseStatement(TokenIterator& iterator, const TokenIterator end,
                                   DeclarationScopes& declarationScopes,
                                   std::vector<ReturnStatement*>& returnStatements)
@@ -950,6 +979,7 @@ namespace ouzel
             }
         }
 
+        [[nodiscard]]
         CompoundStatement& parseCompoundStatement(TokenIterator& iterator, const TokenIterator end,
                                                   DeclarationScopes& declarationScopes,
                                                   std::vector<ReturnStatement*>& returnStatements)

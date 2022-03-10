@@ -150,6 +150,7 @@ namespace ouzel
         std::uint32_t column = 0;
     };
 
+    [[nodiscard]]
     inline std::vector<Token> tokenize(const std::string& code)
     {
         const std::map<std::string, Token::Type> keywordMap = {
@@ -697,6 +698,7 @@ namespace ouzel
         return tokens;
     }
 
+    [[nodiscard]]
     inline std::string toString(Token::Type type)
     {
         switch (type)
@@ -830,7 +832,7 @@ namespace ouzel
             case Token::Type::Identifier: return "Identifier";
         }
 
-        throw std::runtime_error("Unknown token type");
+        throw std::runtime_error{"Unknown token type"};
     }
 }
 
