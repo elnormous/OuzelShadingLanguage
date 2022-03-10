@@ -3,8 +3,7 @@ SOURCES=main.cpp tests.cpp
 BASE_NAMES=$(basename $(SOURCES))
 OBJECTS=$(BASE_NAMES:=.o)
 DEPENDENCIES=$(OBJECTS:.o=.d)
-OUTDIR=bin
-EXECUTABLE=$(OUTDIR)/test
+EXECUTABLE=test
 
 .PHONY: all
 ifeq ($(DEBUG),1)
@@ -16,7 +15,6 @@ endif
 all: $(EXECUTABLE)
 
 $(EXECUTABLE): $(OBJECTS)
-	mkdir -p $(OUTDIR)
 	$(CXX) $^ $(LDFLAGS) -o $@
 
 -include $(DEPENDENCIES)
@@ -26,4 +24,4 @@ $(EXECUTABLE): $(OBJECTS)
 
 .PHONY: clean
 clean:
-	$(RM) -r $(OUTDIR) *.o *.d
+	$(RM) -r test *.o *.d

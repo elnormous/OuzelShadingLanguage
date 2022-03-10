@@ -8,7 +8,7 @@ Debug/
 Release/
 *.d
 *.o
-bin
+test/test
 *.db
 *.opendb
 .vs/OSL/v15/ipch
