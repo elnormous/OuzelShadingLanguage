@@ -1,4 +1,5 @@
-CXXFLAGS=-std=c++17 -Wall -Wextra -Wshadow -I../external/Catch2/single_include -I../osl
+DEBUG=0
+CXXFLAGS=-std=c++17 -Wall -Wextra -Wshadow -Wno-c++98-compat -I../external/Catch2/single_include -I../osl
 SOURCES=main.cpp tests.cpp
 BASE_NAMES=$(basename $(SOURCES))
 OBJECTS=$(BASE_NAMES:=.o)
@@ -15,12 +16,12 @@ endif
 all: $(EXECUTABLE)
 
 $(EXECUTABLE): $(OBJECTS)
-	$(CXX) $^ $(LDFLAGS) -o $@
+	$(CXX) $^ $(LDFLAGS) -o $@ -fprofile-arcs -ftest-coverage
 
 -include $(DEPENDENCIES)
 
 %.o: %.cpp
-	$(CXX) -c $(CXXFLAGS) -MMD -MP $< -o $@
+	$(CXX) -c $(CXXFLAGS) -MMD -MP $< -o $@ -fprofile-arcs -ftest-coverage
 
 .PHONY: clean
 clean:
