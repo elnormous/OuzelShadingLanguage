@@ -190,7 +190,7 @@ namespace ouzel
             case Type::Kind::Matrix: return "Matrix";
         }
 
-        throw std::runtime_error("Unknown type kind");
+        throw std::runtime_error{"Unknown type kind"};
     }
 
     inline std::string getPrintableName(const QualifiedType& qualifiedType)

@@ -38,7 +38,7 @@ namespace ouzel
             case Construct::Kind::Attribute: return "Attribute";
         }
 
-        throw std::runtime_error("Unknown construct kind");
+        throw std::runtime_error{"Unknown construct kind"};
     }
 }
 

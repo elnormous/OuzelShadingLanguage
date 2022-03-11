@@ -252,7 +252,7 @@ namespace ouzel
             case Declaration::Kind::Parameter: return "Parameter";
         }
 
-        throw std::runtime_error("Unknown declaration kind");
+        throw std::runtime_error{"Unknown declaration kind"};
     }
 
     inline std::string toString(CallableDeclaration::Kind kind)
@@ -264,7 +264,7 @@ namespace ouzel
             case CallableDeclaration::Kind::Method: return "Method";
         }
 
-        throw std::runtime_error("Unknown callable declaration kind");
+        throw std::runtime_error{"Unknown callable declaration kind"};
     }
 
     inline std::string toString(InputModifier inputModifier)
@@ -276,7 +276,7 @@ namespace ouzel
             case InputModifier::Out: return "Out";
         }
 
-        throw std::runtime_error("Unknown input modifier");
+        throw std::runtime_error{"Unknown input modifier"};
     }
 }
 

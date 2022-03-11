@@ -292,13 +292,13 @@ namespace ouzel
 
                     token.value.push_back(*i);
                     if (++i == code.end())
-                        throw std::runtime_error("Invalid exponent");
+                        throw std::runtime_error{"Invalid exponent"};
 
                     if (*i == '+' || *i == '-')
                         token.value.push_back(*i++);
 
                     if (i == code.end() || *i < '0' || *i > '9')
-                        throw std::runtime_error("Invalid exponent");
+                        throw std::runtime_error{"Invalid exponent"};
 
                     while (i != code.end() && *i >= '0' && *i <= '9')
                         token.value.push_back(*i++);
@@ -316,10 +316,10 @@ namespace ouzel
                 }
                 else if (suffix == "f" || suffix == "F")
                 {
-                    if (integer) throw std::runtime_error("Invalid integer constant");
+                    if (integer) throw std::runtime_error{"Invalid integer constant"};
                     else token.type = Token::Type::FloatLiteral;
                 }
-                else throw std::runtime_error("Invalid suffix " + suffix);
+                else throw std::runtime_error{"Invalid suffix " + suffix};
             }
             else if (*i == '"') // string literal
             {
@@ -328,7 +328,7 @@ namespace ouzel
                 for (;;)
                 {
                     if (++i == code.end())
-                        throw std::runtime_error("Unterminated string literal");
+                        throw std::runtime_error{"Unterminated string literal"};
 
                     if (*i == '"')
                     {
@@ -338,7 +338,7 @@ namespace ouzel
                     else if (*i == '\\')
                     {
                         if (++i == code.end())
-                            throw std::runtime_error("Unterminated string literal");
+                            throw std::runtime_error{"Unterminated string literal"};
 
                         if (*i == 'a') token.value.push_back('\a');
                         else if (*i == 'b') token.value.push_back('\b');
@@ -351,11 +351,11 @@ namespace ouzel
                         else if (*i == '\?') token.value.push_back('\?');
                         else if (*i == '\\') token.value.push_back('\\');
                         else
-                            throw std::runtime_error("Unrecognized escape character");
+                            throw std::runtime_error{"Unrecognized escape character"};
                         // TODO: handle numeric character references
                     }
                     else if (*i == '\n')
-                        throw std::runtime_error("Unterminated string literal");
+                        throw std::runtime_error{"Unterminated string literal"};
                     else
                         token.value.push_back(*i);
                 }
@@ -365,12 +365,12 @@ namespace ouzel
                 token.type = Token::Type::CharLiteral;
 
                 if (++i == code.end()) // reached end of file
-                    throw std::runtime_error("Unterminated char literal");
+                    throw std::runtime_error{"Unterminated char literal"};
 
                 if (*i == '\\')
                 {
                     if (++i == code.end())
-                        throw std::runtime_error("Unterminated char literal");
+                        throw std::runtime_error{"Unterminated char literal"};
 
                     if (*i == 'a') token.value.push_back('\a');
                     else if (*i == 'b') token.value.push_back('\b');
@@ -383,17 +383,17 @@ namespace ouzel
                     else if (*i == '\?') token.value.push_back('\?');
                     else if (*i == '\\') token.value.push_back('\\');
                     else
-                        throw std::runtime_error("Unrecognized escape character");
+                        throw std::runtime_error{"Unrecognized escape character"};
                     // TODO: handle numeric character references
                 }
                 else
                     token.value.push_back(*i);
 
                 if (++i == code.end()) // reached end of file
-                    throw std::runtime_error("Unterminated char literal");
+                    throw std::runtime_error{"Unterminated char literal"};
 
                 if (*i++ != '\'')
-                    throw std::runtime_error("Invalid char literal");
+                    throw std::runtime_error{"Invalid char literal"};
             }
             else if ((*i >= 'a' && *i <= 'z') ||
                      (*i >= 'A' && *i <= 'Z') ||
@@ -690,7 +690,7 @@ namespace ouzel
                 continue;
             }
             else
-                throw std::runtime_error("Unknown character");
+                throw std::runtime_error{"Unknown character"};
 
             tokens.push_back(token);
         }

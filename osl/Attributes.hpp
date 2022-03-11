@@ -171,7 +171,7 @@ namespace ouzel
             case Attribute::Kind::TextureCoordinates: return "TextureCoordinates";
         }
 
-        throw std::runtime_error("Unknown attribute kind");
+        throw std::runtime_error{"Unknown attribute kind"};
     }
 }
 

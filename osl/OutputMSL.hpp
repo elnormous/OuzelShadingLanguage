@@ -82,7 +82,7 @@ namespace ouzel
                     auto& type = typeDeclaration.type;
 
                     if (type.typeKind != Type::Kind::Struct)
-                        throw std::runtime_error("Type declaration must be a struct");
+                        throw std::runtime_error{"Type declaration must be a struct"};
 
                     auto& structType = static_cast<const StructType&>(type);
                     code += "struct " + structType.name;
@@ -559,7 +559,7 @@ namespace ouzel
                             break;
                         }
                         default:
-                            throw std::runtime_error("Unknown declaration type");
+                            throw std::runtime_error{"Unknown declaration type"};
                     }
 
                     break;
@@ -622,7 +622,7 @@ namespace ouzel
                         case UnaryOperatorExpression::Kind::Positive: code += "+"; break;
                         case UnaryOperatorExpression::Kind::Negative: code += "-"; break;
                         default:
-                            throw std::runtime_error("Unknown operator");
+                            throw std::runtime_error{"Unknown operator"};
                     }
 
                     printConstruct(unaryOperatorExpression.expression, Options(0, options.whitespaces), code);
@@ -660,7 +660,7 @@ namespace ouzel
                         case BinaryOperatorExpression::Kind::And: code += "&&"; break;
                         case BinaryOperatorExpression::Kind::Comma: code += ","; break;
                         default:
-                            throw std::runtime_error("Unknown operator");
+                            throw std::runtime_error{"Unknown operator"};
                     }
 
                     if (options.whitespaces) code += " ";
@@ -700,7 +700,7 @@ namespace ouzel
                     auto& type = temporaryObjectExpression.qualifiedType.type;
 
                     if (type.typeKind != Type::Kind::Struct)
-                        throw std::runtime_error("Temporary object must be a struct");
+                        throw std::runtime_error{"Temporary object must be a struct"};
 
                     auto& structType = static_cast<const StructType&>(type);
 

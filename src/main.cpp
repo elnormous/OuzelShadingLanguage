@@ -24,7 +24,7 @@ namespace
     {
         return (outputProgram == OutputProgram::Fragment) ? ouzel::Program::Fragment :
             (outputProgram == OutputProgram::Vertex) ? ouzel::Program::Vertex :
-            throw std::runtime_error("Invalid program");
+            throw std::runtime_error{"Invalid program"};
     }
 }
 
@@ -47,7 +47,7 @@ int main(int argc, const char* argv[])
             if (std::string(argv[i]) == "--input")
             {
                 if (++i >= argc)
-                    throw std::runtime_error("Argument to " + std::string(argv[i]) + " is missing");
+                    throw std::runtime_error{"Argument to " + std::string(argv[i]) + " is missing"};
                 inputFilename = argv[i];
             }
             else if (std::string(argv[i]) == "--print-tokens")
@@ -61,42 +61,42 @@ int main(int argc, const char* argv[])
             else if (std::string(argv[i]) == "--format")
             {
                 if (++i >= argc)
-                    throw std::runtime_error("Argument to " + std::string(argv[i]) + " is missing");
+                    throw std::runtime_error{"Argument to " + std::string(argv[i]) + " is missing"};
                 format = argv[i];
             }
             else if (std::string(argv[i]) == "--output")
             {
                 if (++i >= argc)
-                    throw std::runtime_error("Argument to " + std::string(argv[i]) + " is missing");
+                    throw std::runtime_error{"Argument to " + std::string(argv[i]) + " is missing"};
                 outputFilename = argv[i];
             }
             else if (std::string(argv[i]) == "--output-version")
             {
                 if (++i >= argc)
-                    throw std::runtime_error("Argument to " + std::string(argv[i]) + " is missing");
+                    throw std::runtime_error{"Argument to " + std::string(argv[i]) + " is missing"};
                 outputVersion = static_cast<std::uint32_t>(std::stoi(argv[i]));
             }
             else if (std::string(argv[i]) == "--program")
             {
                 if (++i >= argc)
-                    throw std::runtime_error("Argument to " + std::string(argv[i]) + " is missing");
+                    throw std::runtime_error{"Argument to " + std::string(argv[i]) + " is missing"};
                 
                 if (std::string(argv[i]) == "fragment") program = OutputProgram::Fragment;
                 else if (std::string(argv[i]) == "vertex") program = OutputProgram::Vertex;
                 else
-                    throw std::runtime_error("Invalid program: " + std::string(argv[i]));
+                    throw std::runtime_error{"Invalid program: " + std::string(argv[i])};
             }
             else
-                throw std::runtime_error("Invalid argument " + std::string(argv[i]));
+                throw std::runtime_error{"Invalid argument " + std::string(argv[i])};
         }
 
         if (inputFilename.empty())
-            throw std::runtime_error("No input file");
+            throw std::runtime_error{"No input file"};
 
         std::ifstream inputFile(inputFilename, std::ios::binary);
 
         if (!inputFile)
-            throw std::runtime_error("Failed to open file " + inputFilename);
+            throw std::runtime_error{"Failed to open file " + inputFilename};
 
         std::string inCode;
         inCode.assign(std::istreambuf_iterator<char>(inputFile), std::istreambuf_iterator<char>());
@@ -125,7 +125,7 @@ int main(int argc, const char* argv[])
                     std::unique_ptr<ouzel::Output> output;
 
                     if (format.empty())
-                        throw std::runtime_error("No format");
+                        throw std::runtime_error{"No format"};
                     if (format == "hlsl")
                         output.reset(new ouzel::OutputHLSL(getProgram(program)));
                     else if (format == "glsl")
@@ -133,7 +133,7 @@ int main(int argc, const char* argv[])
                     else if (format == "msl")
                         output.reset(new ouzel::OutputMSL(getProgram(program)));
                     else
-                        throw std::runtime_error("Invalid format");
+                        throw std::runtime_error{"Invalid format"};
 
                     try
                     {
@@ -146,14 +146,14 @@ int main(int argc, const char* argv[])
                             std::ofstream outputFile(outputFilename, std::ios::binary);
 
                             if (!outputFile)
-                                throw std::runtime_error("Failed to open file " + outputFilename);
+                                throw std::runtime_error{"Failed to open file " + outputFilename};
 
                             outputFile << outCode;
                         }
                     }
                     catch (const std::exception& e)
                     {
-                        throw std::runtime_error(std::string("Failed to output code: ") + e.what());
+                        throw std::runtime_error{std::string("Failed to output code: ") + e.what()};
                     }
                 }
             }

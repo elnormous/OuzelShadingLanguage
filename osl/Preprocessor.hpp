@@ -51,7 +51,7 @@ namespace ouzel
                         }
 
                     if (!terminated)
-                        throw std::runtime_error("Unterminated block comment");
+                        throw std::runtime_error{"Unterminated block comment"};
                 }
                 else
                 {

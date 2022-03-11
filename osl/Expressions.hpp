@@ -429,7 +429,7 @@ namespace ouzel
             case Expression::Kind::MatrixInitialize: return "MatrixInitialize";
         }
 
-        throw std::runtime_error("Unknown expression kind");
+        throw std::runtime_error{"Unknown expression kind"};
     }
 
     inline std::string toString(LiteralExpression::Kind kind)
@@ -442,7 +442,7 @@ namespace ouzel
             case LiteralExpression::Kind::String: return "String";
         }
 
-        throw std::runtime_error("Unknown literal expression kind");
+        throw std::runtime_error{"Unknown literal expression kind"};
     }
 
     inline std::string toString(CastExpression::Kind kind)
@@ -454,7 +454,7 @@ namespace ouzel
             case CastExpression::Kind::Static: return "Static";
         }
 
-        throw std::runtime_error("Unknown cast expression kind");
+        throw std::runtime_error{"Unknown cast expression kind"};
     }
 
     inline std::string toString(UnaryOperatorExpression::Kind operatorKind)
@@ -470,7 +470,7 @@ namespace ouzel
             case UnaryOperatorExpression::Kind::PostfixDecrement: return "PostfixDecrement";
         }
 
-        throw std::runtime_error("Unknown unary operator expression kind");
+        throw std::runtime_error{"Unknown unary operator expression kind"};
     }
 
     inline std::string toString(BinaryOperatorExpression::Kind operatorKind)
@@ -498,7 +498,7 @@ namespace ouzel
             case BinaryOperatorExpression::Kind::Subscript: return "Subscript";
         }
 
-        throw std::runtime_error("Unknown binary operator expression kind");
+        throw std::runtime_error{"Unknown binary operator expression kind"};
     }
 
     inline std::string toString(Expression::Category category)
@@ -509,7 +509,7 @@ namespace ouzel
             case Expression::Category::Rvalue: return "Rvalue";
         }
 
-        throw std::runtime_error("Unknown category");
+        throw std::runtime_error{"Unknown category"};
     }
 }
 

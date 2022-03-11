@@ -214,7 +214,7 @@ namespace ouzel
             case Statement::Kind::Return: return "Return";
         }
 
-        throw std::runtime_error("Unknown statement kind");
+        throw std::runtime_error{"Unknown statement kind"};
     }
 
     inline std::string toString(ScalarType::Kind kind)
@@ -226,7 +226,7 @@ namespace ouzel
             case ScalarType::Kind::FloatingPoint: return "FloatingPoint";
         }
 
-        throw std::runtime_error("Unknown scalar type kind");
+        throw std::runtime_error{"Unknown scalar type kind"};
     }
 }
 
